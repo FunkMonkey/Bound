@@ -194,37 +194,99 @@ CXChildVisitResult printVisitor(CXCursor cursor, CXCursor parent, CXClientData c
 
 	switch(cursor.kind)
 	{
-	case CXCursor_ParmDecl: 
+		
+		case CXCursor_ClassDecl:
 		{
-			CXType type = clang_getCursorType(cursor);
-			printf("%s: %s - %s: %d\n", clang_getCString(kindString), clang_getCString(displayType), clang_getCString(cursorSpelling), type);
-			
-			// is parameter const???
-			if(type.kind == CXType_Pointer || type.kind == CXType_LValueReference)
+			printf("%s: %s - %s\n", clang_getCString(kindString), clang_getCString(displayType), clang_getCString(cursorSpelling));
+			break;
+		}
+
+		case CXCursor_StructDecl:
 			{
-				if(clang_isConstQualifiedType(clang_getPointeeType(type)))
-					printf("is const");
+				printf("%s: %s - %s\n", clang_getCString(kindString), clang_getCString(displayType), clang_getCString(cursorSpelling));
+				break;
 			}
 
-			if(clang_isConstQualifiedType(clang_getCursorType(cursor)))
-				printf("is const");
+		case CXCursor_FieldDecl:
+			{
+				CXType type = clang_getCursorType(cursor);
+				printf("%s: %s - %s: %d\n", clang_getCString(kindString), clang_getCString(displayType), clang_getCString(cursorSpelling), type);
+				break;
+			}
 
-			
-			break;
+		// parameters
+		case CXCursor_ParmDecl: 
+			{
+				CXType type = clang_getCursorType(cursor);
+				printf("%s: %s - %s: %d\n", clang_getCString(kindString), clang_getCString(displayType), clang_getCString(cursorSpelling), type);
+				
+				// is parameter const???
+				if(type.kind == CXType_Pointer || type.kind == CXType_LValueReference)
+				{
+					if(clang_isConstQualifiedType(clang_getPointeeType(type)))
+						printf("is const");
+				}
+
+				if(clang_isConstQualifiedType(clang_getCursorType(cursor)))
+					printf("is const");
+
+				
+				break;
 			}
 
 		//case CXCursor_ClassDecl: PrintCursor(cursor); break;
-		case CXCursor_FunctionDecl: PrintCursor(cursor);
+		// functions
+		case CXCursor_FunctionDecl:
 			{
-
 				printf("%s: %s - %s\n", clang_getCString(kindString), clang_getCString(displayType), clang_getCString(cursorSpelling));
 				if (clang_CXXMethod_isStatic(cursor))
 					printf(" (static)");
 				if (clang_CXXMethod_isVirtual(cursor))
 					printf(" (virtual)");
+
+				// return-type
+				CXType returnType = clang_getCursorResultType(cursor);
+				CXCursor returnCursor = clang_getTypeDeclaration(returnType);	// check CXType, you idiot
+				printf("returnType: %s!", clang_getCursorSpelling(returnCursor));
+
+				//USR
+				//printf("%s\n", clang_getCString(clang_getCursorUSR(cursor))); 
 				break;
 			}
+		case CXCursor_OverloadedDeclRef:
+			{
+				unsigned N = clang_getNumOverloadedDecls(cursor);
+				printf("overloads: %d", N);
+				break;
+			}
+		case CXCursor_CXXAccessSpecifier:
+			{
+				// changing access
+				enum CX_CXXAccessSpecifier access = clang_getCXXAccessSpecifier(cursor);
+				unsigned isVirtual = clang_isVirtualBase(cursor);
+				const char *accessStr = 0;
+
+				switch (access) {
+				case CX_CXXInvalidAccessSpecifier:
+					accessStr = "invalid"; break;
+				case CX_CXXPublic:
+					accessStr = "public"; break;
+				case CX_CXXProtected:
+					accessStr = "protected"; break;
+				case CX_CXXPrivate:
+					accessStr = "private"; break;
+						}      
+
+						printf(" [access=%s isVirtual=%s]\n", accessStr,
+							isVirtual ? "true" : "false");
+
+				break;
+			}
+
+			// TODO templates
 	}
+
+	
 
 	
 	//
