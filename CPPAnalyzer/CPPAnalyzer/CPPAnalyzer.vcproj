@@ -156,6 +156,10 @@
 	<References>
 	</References>
 	<Files>
+		<File
+			RelativePath=".\main.cpp"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
