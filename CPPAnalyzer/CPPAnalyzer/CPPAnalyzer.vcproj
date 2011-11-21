@@ -40,6 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)Dependencies\clang\include&quot;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -156,6 +157,22 @@
 	<References>
 	</References>
 	<Files>
+		<Filter
+			Name="Dependencies"
+			>
+			<Filter
+				Name="clang"
+				>
+				<Filter
+					Name="lib"
+					>
+					<File
+						RelativePath="..\Dependencies\clang\lib\libclang.lib"
+						>
+					</File>
+				</Filter>
+			</Filter>
+		</Filter>
 		<File
 			RelativePath=".\main.cpp"
 			>

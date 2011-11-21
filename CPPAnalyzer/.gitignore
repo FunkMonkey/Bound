@@ -1,6 +1,6 @@
 
-/CPPAnalyzer/Debug/BuildLog.htm
-/Debug/CPPAnalyzer.exe
+/CPPAnalyzer/Debug/*
+/Debug/*
 *.suo
 *.ncb
 *.user
