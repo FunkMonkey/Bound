@@ -1,0 +1,105 @@
+\documentclass[%
+	a4paper,%             A4 Papier
+	oneside,%             Einseitig
+	11pt%                 Grössere Schrift, besser lesbar am bildschrim
+]{memoir}
+
+% ===== LaTex =====
+\usepackage[utf8]{inputenc}
+\usepackage[ngerman]{babel}
+
+% ===== XeLaTex =====
+%\usepackage{xltxtra}
+%\usepackage{polyglossia}
+%\setdefaultlanguage[spelling=new,latesthyphen=true]{german}
+
+% ===========================
+% ===== Common settings =====
+% ===========================
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
+\OnehalfSpacing % Zeilenabstand
+
+\usepackage{color}
+\usepackage{todonotes}
+
+% ===== Captions =====
+\usepackage[small]{caption}
+
+% ===== Page Layout =====
+\usepackage{geometry}
+\geometry{a4paper, bottom=3cm} 
+
+% ===== Formatting =====
+%\usepackage{ulem} % Underlining
+
+% ===== Lists / Index / Nomenclature =====
+%\usepackage{makeidx}
+%\makeindex
+
+%\usepackage[german]{nomencl}
+%\makenomenclature
+%\renewcommand{\nomlabel}[1]{\textbf{#1}}
+%\renewcommand{\nomname}{Glossar}
+
+% ===== Wrapping / Positioning =====
+%\usepackage{wrapfig}
+
+% ===== Tables =====
+%\usepackage{multirow} % spanning for tables
+
+% ===== Citations / Bib =====
+%\usepackage[round, numbers]{natbib}
+%\bibpunct{}{}{,}{n}{}{;}
+
+% ===== Source-Code =====
+\usepackage{listings} %bindet das Paket Listings ein
+\definecolor{mygray}{gray}{0.9}
+
+\lstset{	
+%	numbers=none, 					% keine Zeilennummern
+	tabsize=2, 						% Tabulatorgrösse: 2 Zeichen
+	breaklines=true, 				% zu lange Zeilen werden umbrochen
+	aboveskip=1em, 					% Abstand nach oben
+	belowskip=0.3em, 				% Abstand nach unten
+	basicstyle=\tiny, 				% Schriftgrösse small, Typewriter-Font
+	framerule=1pt, 					% keinen Rand
+	backgroundcolor=\color{mygray}, % helles grau als Hintergrund
+	framexrightmargin=0.3em, 		% Hintergrund ragt leicht in den Seitenrand
+	framexleftmargin=0.3em, 		% Hintergrund ragt leicht in den Seitenrand
+	captionpos=b 					% Beschriftung ist unterhalb
+	columns=fullflexible 			% damit Quellcode einfach rauskopiert werden kann
+}
+
+\renewcommand{\lstlistlistingname}{Quellcodeverzeichnis}
+\renewcommand{\lstlistingname}{Quellcode}
+
+\lstset{
+  literate={ö}{{\"o}}1
+           {ä}{{\"a}}1
+           {ü}{{\"u}}1
+           {ß}{{\ss}}1
+}
+
+% ===== Links =====
+\usepackage[%
+	colorlinks, 		% verwende farbige Links
+	linkcolor=black, 	% Linkfarbe ist blau
+	bookmarks, 			% erstelle Bookmarks der Links
+	bookmarksopen, 		% Bookmarks werden beim Öffnen des Dokumentes ebenfalls geöffnet
+	urlcolor=black, 	% Hyperlinks sind blau 
+	bookmarksnumbered, 	% Bookmarks sind nummeriert
+	final 				% Endversion 
+]{hyperref}
+
+\hypersetup{
+    colorlinks,%
+    citecolor=black,%
+    filecolor=black,%
+    linkcolor=black,%
+    urlcolor=black
+}
+
+% ===== Custom Commands =====
+\input{Config/Commands}

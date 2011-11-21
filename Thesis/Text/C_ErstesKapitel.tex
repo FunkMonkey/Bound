@@ -1,0 +1,38 @@
+\chapter{Erstes Kapitel}
+\label{erstes_kapitel} % label um in der PDF auf dieses Kapitel verlinken zu können
+
+Hier ein Beispiel für ein Link zu einem anderen Teil des Dokuments. Bla bla nähere Informationen in \myRefChapter{erstes_kapitel}. Nicht wundern: Das Latex-Dokument muss mehrmals kompiliert werden, damit manche Sachen, wie diese Links oder das Inhaltsverzeichnis korrekt angezeigt werden. Das ganze geht auch mit Abschnitten: \myRefSection{ersterabschnitt}
+
+Hier ist eine todo\todo{Was ist zu tun?}-Notiz. Latex hat übrigens Probleme mit Unterstrichen. Muss man halt mit Backslash escapen. Für Anführungszeichen nimmt man ''zwei Apostrophe''. Standard-Anführungszeichen sorgen irgendwie automatisch für Umlaute.
+
+\section{Erster Abschnitt}
+\label{ersterabschnitt}
+
+\begin{lstlisting}[language=C, caption=Code Beispiel]
+#include <stdio.h>
+
+// Hier ein Code-Beispiel
+int init(const int& x)
+{
+	return x + 3;
+}
+\end{lstlisting}
+
+\subsection{Subabschnitt}
+
+\begin{figure}[h] % h = here
+	\centering
+		\includegraphics[scale=0.6]{Images/alpha_bug.png}
+	\caption{Bezeichnung des Bildes}
+\end{figure}
+
+\newpage
+\subsubsection{Subsubabschnitt}
+
+Wenn ein Bild mal breiter sein soll als der Text. Passiert nicht oft, aber kann ja mal vorkommen.
+
+\begin{figure}[h] % h = here, makebox for wider images
+	\makebox[\textwidth]{%
+		\includegraphics[width=1.2\linewidth]{Images/alpha_bug.png}}
+	\caption{Sehr breites Bild}
+\end{figure}

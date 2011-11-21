@@ -1,0 +1,24 @@
+\newcommand{\textprog}[1]{\textit{#1}}
+
+\newcommand{\myLink}[1]{\textbf{#1}}
+
+\newcommand{\myRefChapter}[1]{\textbf{\hyperref[#1]{Kapitel ~\ref*{#1}: ~\nameref{#1}}}}
+\newcommand{\myRefSection}[1]{\textbf{\hyperref[#1]{Abschnitt ~\ref*{#1}: ~\nameref{#1}}}}
+
+\newcommand{\myNameref}[1]{\textbf{\nameref{#1}}}
+
+\newcommand{\myNomRef}[2]{\textbf{\textsl{\hyperref[#2]{#1}}}}
+
+\newcommand{\myBookCiteTook}[1]{\textsuperscript{[entnommen aus \citeauthor{#1} \citeyear{#1}]}}
+
+\newcommand{\myBookCite}[2]{\footnote{[\cite{#1}] \citeauthor*{#1} \citeyear{#1}, #2}}
+\newcommand{\myBookCiteSense}[2]{\footnote{sinngemäß nach [\cite{#1}] \citeauthor*{#1} \citeyear{#1}, #2}}
+
+\newcommand{\myBookCiteNoP}[1]{\footnote{[\cite{#1}] \citeauthor*{#1} \citeyear{#1}}}
+\newcommand{\myBookCiteSenseNoP}[1]{\footnote{sinngemäß nach [\cite{#1}] \citeauthor*{#1} \citeyear{#1}}}
+
+%\newcommand{\myWebCiteNoP}[1]{\footnote{[\cite{#1}] \citetalias{#1}}}
+%\newcommand{\myWebCiteSenseNoP}[1]{\footnote{sinngemäß nach [\cite{#1}] \citetalias{#1}}}
+
+%\newcommand{\myWebCiteSense}[2]{\footnote{sinngemäß nach [\cite{#1}] \citetalias{#1}, #2}}
+%\newcommand{\myWebCite}[2]{\footnote{[\cite{#1}] \citetalias{#1}, #2}}

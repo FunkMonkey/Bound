@@ -1,0 +1,9 @@
+% todo: bug Inhaltsverzeichnis zwei mal angezeigt
+\newpage
+\renewcommand\thepage{}
+\tableofcontents
+\newpage
+\renewcommand\thepage{\arabic{page}}
+
+% decrease pagecount
+\addtocounter{page}{-1}
