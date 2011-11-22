@@ -1,8 +1,26 @@
 \chapter{Language Binding}
 
+The term ''language binding'' refers to the process\todo{Word} of exposing functionality written in one programming language, so it can be used from within a different programming language\todo{and verse visa} - for example exposing C++ functions for use in Python.
+
+The need to combine different programming languages and exchange information between those may arise due to several reasons. A specific language may support a different set of programming paradigms and thus be better suited for solving a special group of tasks. A project may also rely on a 3rd party library written in another language.
+
+Often, language binding is needed to connect a higher-level programming language (f. ex. a scripting language like Python) with a lower-level programming language (f. ex. a system programming language like C).
+
+\section{System programming languages and scripting languages}
+
+\todo{References to Ousterhout}The terms ''low(er)-level'' and ''high(er)-level'' refer to the degree of abstraction a programming language provides in comparison to another language. Higher-level languages encapsulate more machine instructions per statement and thus usually need less code to be written to perform a given task, by handling machine-oriented details like register allocation automatically and omitting complexity\todo{rewrite}. This leads to better code-maintainability and faster development at the cost of performance. 
+
+John Ousterhout, the creator of the scripting language TCL, describes a \textbf{system programming language} as a strongly (statically) typed language designed to create applications from scratch, but offering a higher level of abstraction in doing so compared to assembly programming languages, which are considered very low-level.
+
+\textbf{Scripting languages}, on the other hand, represent a very different style of programming than system programming languages. They ''assume that there already exists a collection of useful components written in other languages [...] and are intended primarily for plugging together components'' \todo{Quote}. They offer a higher level of abstraction compared to system programming languages, f. ex. by using dynamic typing, thus sacrificing execution speed to improve development speed.\todo{code-reuse?}\\ Being mostly interpreted languages, they support faster development and rapid prototyping by eliminating compile- and link-time. Interpretation also offers better portability as well as a great deal of flexibility by allowing run-time code-manipulation. Due to their simpler syntax, scripting languages are usually easier to learn.
+
+Scripting and system programming are symbiotic. System programming languages are used to create high-performance components providing platform-access\todo{rewrite}, which can then be assembled using scripting languages.\todo{Quote??} Binding a system programming language and a scripting language together provides the advantages of both worlds\todo{types?}.
+
+.\\
+.\\
 \todo{TODO-List}
-  - Was sind Skriptsprachen und warum erweitert man z. B. C++ durch diese?
   - Wie funktioniert Language-Binding (Wrapping, Glue-Code)
+  - strong typed vs non-typed, typed, typeless
   - Welche Systeme / Methoden / Tools gibt es schon um Language-Binding zu vereinfachen / automatisieren (COM, Corba, Mozilla XPCOM + IDL, SWIG)
   - Warum wird ein eigenes Tool entwickelt? (Notwendigkeit, Vorteile, Goals- und Non-Goals, etc.)
   - Wie soll die Automatisierung grob erfolgen? -> Übergang zu Static Analysis
