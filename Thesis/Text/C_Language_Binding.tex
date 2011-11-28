@@ -16,11 +16,50 @@ John Ousterhout, the creator of the scripting language TCL, describes a \textbf{
 
 Scripting and system programming are symbiotic. System programming languages are used to create high-performance components providing platform-access\todo{rewrite}, which can then be assembled using scripting languages.\todo{Quote??} Binding a system programming language and a scripting language together provides the advantages of both worlds\todo{types?}.
 
+\section{The process of binding}
+
+For binding one language to another, special binding-code, often referred to as glue-code, is needed. The process of creating such code is called ''wrapping''. When binding a scripting language to a system programming language, the scripting language usually comes in form of a library exposing an interface that can be used from the system programming language to interact with the other (f. ex. to expose functionality to the scripting language or use data and functions declared in it).\\
+Both Python and Mozilla's JavaScript implementation Spidermonkey are accessible in form of a library exposing a C-API. Thus glue-code for binding C or C++ functionality to one of these languages has to be written in C / C++ using the given API.
+
+\begin{lstlisting}[language=C++, caption=Exposing a C function to Spidermonkey (taken from MDN)]
+// A simple JS wrapper for the rand() function from the C standard library
+JSBool myjs_rand(JSContext *cx, uintN argc, jsval *vp)
+{
+    // setting the result of rand() as the return value
+    JS_SET_RVAL(cx, vp, DOUBLE_TO_JSVAL(rand()));
+    return JS_TRUE;
+}
+
+// ... somewhere in the code: defining the function on the global object
+// so it can be used from the script
+JSFunctionSpec myjs_global_functions[] = {
+    JS_FS("rand",   myjs_rand,   0, 0),
+    JS_FS_END
+};
+
+JS_DefineFunctions(cx, global, myjs_global_functions);
+\end{lstlisting}
+\todo{Reference to MDN}
+
+\begin{lstlisting}[language=JavaScript, caption=Using a C function from SpiderMonkey]
+var r = rand();	// r is a random number
+\end{lstlisting}
+
+Looking at the given example, it is obvious that even the wrapping of a simple C function that does nothing but return a double value without taking any argument, requires a \todo{nicht zu unterschätzen} amount of glue-code, which is most-likely error-prone and hard to maintain.
+
+Thus, the purpose of this thesis is to develop an application that automatically creates glue-code for different scripting languages.
+
+\subsection{ctypes}
+
+Some scripting languages allow calling functions and accessing data-types in shared libraries without the need to write glue-code in the system programming language. Python introduced this concept with the development of its foreign function library ''ctypes'', which can be used to wrap public functions from shared libraries in Python itself.\todo{reference} Mozilla developed an equivalent for SpiderMonkey called ''js-ctypes''.\todo{reference}
+
+\section{Existing language binding systems and tools}
+
+The classes need knowledge about interfaces
+
 .\\
 .\\
 \todo{TODO-List}
-  - Wie funktioniert Language-Binding (Wrapping, Glue-Code)
-  - strong typed vs non-typed, typed, typeless
   - Welche Systeme / Methoden / Tools gibt es schon um Language-Binding zu vereinfachen / automatisieren (COM, Corba, Mozilla XPCOM + IDL, SWIG)
   - Warum wird ein eigenes Tool entwickelt? (Notwendigkeit, Vorteile, Goals- und Non-Goals, etc.)
   - Wie soll die Automatisierung grob erfolgen? -> Übergang zu Static Analysis

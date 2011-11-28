@@ -1,0 +1,12 @@
+
+/Debug/*
+*.suo
+*.ncb
+*.user
+*.manifest
+*.obj
+*.idb
+*.pdb
+*.dep
+*.ilk
+*.pdb

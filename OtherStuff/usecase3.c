@@ -19,7 +19,7 @@ class TestClass
 	
 	GameObject* getGameObjectAt(int i)
 	{
-		if(i > gameObjects.size())
+		if(i >= gameObjects.size())
 			return null;
 		
 		return gameObjects[i];
