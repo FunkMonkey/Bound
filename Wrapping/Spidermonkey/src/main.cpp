@@ -1,10 +1,11 @@
 /*
  * This define is for Windows only, it is a work-around for bug 661663.
  */
-#ifdef _MSC_VER
-# define XP_WIN
-#endif
+//#ifdef _MSC_VER
+//# define XP_WIN
+//#endif
 
+#include <iostream>
 #include "jsapi.h"
 #include "../wrap/SimpleClass_wrap.hpp"
 
@@ -58,14 +59,25 @@ int main(int argc, const char *argv[])
     /* -----------------------------------------------------------
 		Your application code here. This may include JSAPI calls
        to create your own custom JS objects and run scripts. */
+	jswrap::SimpleClass::initClass(cx, global);
 
+	jsval rval;
+	JSBool ok;
+	char *source = "var test = new SimpleClass(); test.voidFunc0();";
 
+	ok = JS_EvaluateScript(cx, global, source, strlen(source),
+                       "foo", 4, &rval);
 
+	int i;
+	std::cin >> i;
 
 	// -----------------------------------------------------------
     /* Cleanup. */
     JS_DestroyContext(cx);
     JS_DestroyRuntime(rt);
     JS_ShutDown();
+
+	
+
     return 0;
 }

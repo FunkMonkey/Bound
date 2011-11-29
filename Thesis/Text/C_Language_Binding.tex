@@ -16,6 +16,8 @@ John Ousterhout, the creator of the scripting language TCL, describes a \textbf{
 
 Scripting and system programming are symbiotic. System programming languages are used to create high-performance components providing platform-access\todo{rewrite}, which can then be assembled using scripting languages.\todo{Quote??} Binding a system programming language and a scripting language together provides the advantages of both worlds\todo{types?}.
 
+\todo{Software-Reuse, OS-API and access}
+
 \section{The process of binding}
 
 For binding one language to another, special binding-code, often referred to as glue-code, is needed. The process of creating such code is called ''wrapping''. When binding a scripting language to a system programming language, the scripting language usually comes in form of a library exposing an interface that can be used from the system programming language to interact with the other (f. ex. to expose functionality to the scripting language or use data and functions declared in it).\\
@@ -49,7 +51,9 @@ Looking at the given example, it is obvious that even the wrapping of a simple C
 
 Thus, the purpose of this thesis is to develop an application that automatically creates glue-code for different scripting languages.
 
-\subsection{ctypes}
+\subsection{Foreign function interfaces}
+
+\todo{FFI}
 
 Some scripting languages allow calling functions and accessing data-types in shared libraries without the need to write glue-code in the system programming language. Python introduced this concept with the development of its foreign function library ''ctypes'', which can be used to wrap public functions from shared libraries in Python itself.\todo{reference} Mozilla developed an equivalent for SpiderMonkey called ''js-ctypes''.\todo{reference}
 

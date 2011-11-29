@@ -41,6 +41,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)include&quot;;&quot;$(SolutionDir)../../../xulrunner/include&quot;"
+				PreprocessorDefinitions="XP_WIN"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -113,6 +114,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)include&quot;;&quot;$(SolutionDir)../../../xulrunner/include&quot;"
+				PreprocessorDefinitions="XP_WIN"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				WarningLevel="3"
@@ -177,12 +179,20 @@
 				RelativePath=".\wrap\SimpleClass_wrap.hpp"
 				>
 			</File>
+			<File
+				RelativePath=".\wrap\wrap_helpers.hpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="src"
 			>
 			<File
 				RelativePath=".\src\main.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\SimpleClass.cpp"
 				>
 			</File>
 		</Filter>
