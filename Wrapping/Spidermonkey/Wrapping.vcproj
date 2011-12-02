@@ -176,6 +176,10 @@
 			Name="wrap"
 			>
 			<File
+				RelativePath=".\wrap\SimpleClass_wrap.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\wrap\SimpleClass_wrap.hpp"
 				>
 			</File>
@@ -193,6 +197,10 @@
 			</File>
 			<File
 				RelativePath=".\src\SimpleClass.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\test.cpp"
 				>
 			</File>
 		</Filter>
