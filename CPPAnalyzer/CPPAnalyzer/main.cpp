@@ -3,10 +3,20 @@
 
 #include <string>
 
+#include "ASTObject_Namespace.hpp"
+
+using namespace CPPAnalyzer;
+
+//ASTObject_Namespace* root = new CPPAnalyzer::ASTObject_Namespace(std::string("sdfsdf"));
+
+ASTObject_Namespace* root = new ASTObject_Namespace("sdfsdf");
+
 static void PrintExtent(FILE *out, unsigned begin_line, unsigned begin_column,
 						unsigned end_line, unsigned end_column) {
 							fprintf(out, "[%d:%d - %d:%d]", begin_line, begin_column,
 								end_line, end_column);
+
+							
 }
 
 static void PrintRange(CXSourceRange R, const char *str) {
@@ -194,6 +204,23 @@ CXChildVisitResult printVisitor(CXCursor cursor, CXCursor parent, CXClientData c
 
 	switch(cursor.kind)
 	{
+		case CXCursor_Namespace:
+		{
+			printf("%s: %s - %s\n", clang_getCString(kindString), clang_getCString(displayType), clang_getCString(cursorSpelling));
+			break;
+		}
+
+		case CXCursor_NamespaceAlias:
+			{
+				printf("%s: %s - %s\n", clang_getCString(kindString), clang_getCString(displayType), clang_getCString(cursorSpelling));
+				break;
+			}
+
+		case CXCursor_NamespaceRef:
+			{
+				printf("%s: %s - %s\n", clang_getCString(kindString), clang_getCString(displayType), clang_getCString(cursorSpelling));
+				break;
+			}
 		
 		case CXCursor_ClassDecl:
 		{
@@ -282,6 +309,7 @@ CXChildVisitResult printVisitor(CXCursor cursor, CXCursor parent, CXClientData c
 
 				break;
 			}
+		default: break; // shouldn't happen
 
 			// TODO templates
 	}
@@ -318,10 +346,11 @@ int main(int argc, char *argv[]) {
 
 	if(!TU)
 	{
-
+		std::cout << "no TU!!";
 	}
 	else
 	{
+		std::cout << "starting !!";
 		// diagnostics 
 		for (unsigned I = 0, N = clang_getNumDiagnostics(TU); I != N; ++I) {
 			CXDiagnostic Diag = clang_getDiagnostic(TU, I);
@@ -342,7 +371,7 @@ int main(int argc, char *argv[]) {
 	clang_disposeIndex(Index);
 
 	int foo;
-	std::cin >> foo;
+	//std::cin >> foo;
 
 	return 0;
 }

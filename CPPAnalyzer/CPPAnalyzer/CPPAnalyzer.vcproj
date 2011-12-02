@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)Dependencies\clang\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)Dependencies\clang\include&quot;;&quot;$(ProjectDir)include&quot;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -110,7 +110,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)Dependencies\clang\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)Dependencies\clang\include&quot;;&quot;$(ProjectDir)include&quot;"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				WarningLevel="3"
@@ -173,6 +173,22 @@
 					</File>
 				</Filter>
 			</Filter>
+		</Filter>
+		<Filter
+			Name="include"
+			>
+			<File
+				RelativePath=".\include\ASTObject.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\include\ASTObject_Namespace.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\include\ASTObjectTypes.hpp"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\main.cpp"
