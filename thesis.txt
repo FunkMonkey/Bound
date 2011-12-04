@@ -1,3 +1,3 @@
-the term language binding refers to the process of exposing
+the term language binding refers to the process of exposing 
 
 glue-code (wrapping), c-types
