@@ -1,5 +1,7 @@
+/.metadata/*
 
 /CPPAnalyzer/Debug/*
+/CPPAnalyzer/.settings/*
 /Debug/*
 *.suo
 *.ncb
