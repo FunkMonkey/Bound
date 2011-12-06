@@ -1,0 +1,18 @@
+
+#ifndef __ASTOBJECTKINDS_HPP__
+#define __ASTOBJECTKINDS_HPP__
+
+namespace CPPAnalyzer
+{
+	enum ASTObjectKind
+	{
+		KIND_INVALID,
+		KIND_NAMESPACE,
+		KIND_STRUCT,
+		KIND_CLASS,
+		KIND_FIELD,
+		KIND_FUNCTION
+	};
+}
+
+#endif // __ASTOBJECTKINDS_HPP__

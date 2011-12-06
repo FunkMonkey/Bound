@@ -8,6 +8,8 @@ Often, language binding is needed to connect a higher-level programming language
 
 \section{System programming languages and scripting languages}
 
+Speaking of language binding, there is a set of terms that need explanation.\todo{rewrite}
+
 \todo{References to Ousterhout}The terms ''low(er)-level'' and ''high(er)-level'' refer to the degree of abstraction a programming language provides in comparison to another language. Higher-level languages encapsulate more machine instructions per statement and thus usually need less code to be written to perform a given task, by handling machine-oriented details like register allocation automatically and omitting complexity\todo{rewrite}. This leads to better code-maintainability and faster development at the cost of performance. 
 
 John Ousterhout, the creator of the scripting language TCL, describes a \textbf{system programming language} as a strongly (statically) typed language designed to create applications from scratch, but offering a higher level of abstraction in doing so compared to assembly programming languages, which are considered very low-level.
@@ -16,9 +18,11 @@ John Ousterhout, the creator of the scripting language TCL, describes a \textbf{
 
 Scripting and system programming are symbiotic. System programming languages are used to create high-performance components providing platform-access\todo{rewrite}, which can then be assembled using scripting languages.\todo{Quote??} Binding a system programming language and a scripting language together provides the advantages of both worlds\todo{types?}.
 
-\todo{Software-Reuse, OS-API and access}
+\todo{Software-Reuse, OS-API and access, native, host, guest, extending, embedding, pipe-example}
 
 \section{The process of binding}
+
+''Binding one language to another is a non-trivial task. The binding language needs to understand the calling conventions, type system, data structures, memory allocation mechanisms and linking strategy of the target language, just to get things working. The task is to carefully align the semantics of both languages, so that both languages can understand the data that passes between them''\todo{use in some way}
 
 For binding one language to another, special binding-code, often referred to as glue-code, is needed. The process of creating such code is called ''wrapping''. When binding a scripting language to a system programming language, the scripting language usually comes in form of a library exposing an interface that can be used from the system programming language to interact with the other (f. ex. to expose functionality to the scripting language or use data and functions declared in it).\\
 Both Python and Mozilla's JavaScript implementation Spidermonkey are accessible in form of a library exposing a C-API. Thus glue-code for binding C or C++ functionality to one of these languages has to be written in C / C++ using the given API.
@@ -55,9 +59,30 @@ Thus, the purpose of this thesis is to develop an application that automatically
 
 \todo{FFI}
 
+''Access is dynamic at runtime without code generation.''\todo{JNA}
+
 Some scripting languages allow calling functions and accessing data-types in shared libraries without the need to write glue-code in the system programming language. Python introduced this concept with the development of its foreign function library ''ctypes'', which can be used to wrap public functions from shared libraries in Python itself.\todo{reference} Mozilla developed an equivalent for SpiderMonkey called ''js-ctypes''.\todo{reference}
 
 \section{Existing language binding systems and tools}
+
+As the need for connecting multiple different programming languages arises in many projects (especially in the computer games industry the embedding of scripting languages is very popular), there are already systems and tools existing for automating the binding-process, creating glue-code or providing semi-dynamic access to native code. Some will be explained in further detail.
+
+\subsection{}
+
+\subsection{COM}
+
+COM (Component Object Model) is a software interface technology created by Microsoft.
+
+\subsection{CORBA}
+
+CORBA is an acronym for Common Object Request Broker Architecture - an ORB specification created by the Object Management Group (OMG).
+
+\begin{quotation}
+An ORB [...] is a mechanism for invoking operations on an object (or calling a procedure) in a different (''remote'') process that may be running on the same, or a different, computer. At a programming level, these ''remote'' calls look similar to ''local'' calls.\\
+Many people refer to CORBA as middleware or integration software. This is because CORBA is often used to get existing, stand-alone applications communicating with each other.
+\end{quotation}
+
+Due to its nature as middleware, CORBA allows the communication between applications even if these are implemented in different programming languages. Despite being mostly used for communicating between different computers or processes, CORBA can also be used within a single application f. ex. to use\todo{other word} objects implemented in another programming language.
 
 The classes need knowledge about interfaces
 

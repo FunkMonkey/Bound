@@ -1,0 +1,44 @@
+A software component is a unit of composition with contractually specified interfaces
+and explicit context dependencies only. A software component can be deployed
+independently and is subject to composition by third parties.
+
+services. A component must advertise its services somehow,
+and must let its clients know what it expects of them. This information is communicated
+using interfaces that may be realized by an arbitrary number of implementations that agree to
+abide by their rules, and should be seen as binding contracts. Classes, which are contained in
+components, are the implementation entities that realize interfaces by implementing them. An
+interface is a freestanding, independent entity that is neither part of the classes implementing
+it, nor part of the code that accesses functionality through it.
+
+Dynamic dispatch enables classes to have
+multiple personalities by implementing multiple interfaces—this is known as polymorphism in
+object-oriented programming.
+
+to an electrical outlet is immaterial, as long
+as it can draw current in a standardized way.7 Two components that implement the same
+interfaces and exhibit the same runtime behavior are substitutable for one another (known as
+the principle of substitutability) (Eriksson et al. 2004).
+
+concepts:
+• Programming language agnosticism. Component models dictate standards that
+make it possible to access components from a variety of programming languages, and
+also write components using different languages. Interacting with a component written
+in a different programming language should ideally feel as natural as interacting with
+code written in the native language.
+
+Some component models, notably COM, take the approach of supplying a standard,
+domain-agnostic interface that is used for dynamically checked invocations (in COM, this
+interface is named IDispatch). Classes that wish to support being invoked by environments
+that need to check invocations at runtime must also implement this interface (often in addition
+to interfaces to which calls are checked statically). Script interpreters that support such a
+component model have compile-time knowledge of this interface, and facilitate access to it from
+scripts. The implementation of this interface can use self-contained code specific to a certain
+
+Enabling a scripting language to be used for writing
+COM classes, for example, is possible, but requires script hosts to use internal data structures
+compatible with COM’s binary standard, or alternatively synthesize such structures at runtime.
+CORBA’s requirement that an ORB must be used to invoke operations successfully decouples
+the implementation structures used for objects from the ability to invoke operations on such
+objects. COM’s approach is effective from a performance point of view, though, and wellsuited
+to environments where classes are expected to be written in a compiled object-oriented
+language such as C++, and accessed from a scripting language,

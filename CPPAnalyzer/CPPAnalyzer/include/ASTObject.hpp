@@ -3,33 +3,34 @@
 
 #include <string>
 #include <vector>
-#include "ASTObjectTypes.hpp"
+#include "ASTObjectKinds.hpp"
 
 namespace CPPAnalyzer
 {
 	class ASTObject
 	{
 	public:
-		ASTObject(ASTObjectType type, const std::string& nodeName)
-			: m_type(type), m_nodeName(nodeName), m_usr(""), m_parent(NULL)
+		ASTObject(const std::string& nodeName)
+			: m_nodeName(nodeName), m_usr(""), m_parent(NULL)
 		{
 
 		}
 
-		ASTObject(ASTObjectType type, const std::string& nodeName, const std::string& usr)
-			: m_type(type), m_nodeName(nodeName), m_usr(usr), m_parent(NULL)
+		ASTObject(const std::string& nodeName, const std::string& usr)
+			: m_nodeName(nodeName), m_usr(usr), m_parent(NULL)
 		{
 			
 		}
 
 		virtual ~ASTObject(){}
 
+		virtual ASTObjectKind getKind() const { return KIND_INVALID; }
 		
 		const std::string& getUSR() const { return m_nodeName; }
 		const std::string& getNodeName() const { return m_nodeName; }
 		const std::string& getLongName() const { return m_longName; }
+		const std::string& getKindName() const { return m_longName; }
 
-		ASTObjectType getType() const { return m_type; }
 		ASTObject* getParent() const { return m_parent; }
 		void setParent(ASTObject* parent) { m_parent = parent; }
 
@@ -58,14 +59,12 @@ namespace CPPAnalyzer
 
 
 	protected:
-		ASTObjectType m_type;
 		std::string m_nodeName;
 		std::string m_usr;
 		std::string m_longName;
 
 		ASTObject* m_parent;
 		std::vector<ASTObject*> m_children;
-
 	};
 
 

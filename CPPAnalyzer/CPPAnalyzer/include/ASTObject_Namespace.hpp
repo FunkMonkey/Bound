@@ -11,20 +11,22 @@ namespace CPPAnalyzer
 	{
 	public:
 		explicit ASTObject_Namespace(const std::string& nodeName)
-			: ASTObject(TYPE_NAMESPACE, nodeName)
+			: ASTObject(nodeName)
 		{
 
 		}
 
 		explicit ASTObject_Namespace(const char* nodeName)
-					: ASTObject(TYPE_NAMESPACE, nodeName)
+					: ASTObject(nodeName)
 				{
 
 				}
 
-		bool isAnonymous(){ return this->m_nodeName == ""; }
-
 		virtual ~ASTObject_Namespace(){}
+
+		virtual ASTObjectKind getKind() const { return KIND_NAMESPACE; }
+
+		bool isAnonymous(){ return this->m_nodeName == ""; }
 	};
 
 

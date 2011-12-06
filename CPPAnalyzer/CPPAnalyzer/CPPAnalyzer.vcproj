@@ -178,6 +178,10 @@
 			Name="include"
 			>
 			<File
+				RelativePath=".\include\ASTCreator.hpp"
+				>
+			</File>
+			<File
 				RelativePath=".\include\ASTObject.hpp"
 				>
 			</File>
@@ -186,14 +190,30 @@
 				>
 			</File>
 			<File
-				RelativePath=".\include\ASTObjectTypes.hpp"
+				RelativePath=".\include\ASTObject_Struct.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\include\ASTObjectKinds.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\include\clang_helpers.hpp"
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath=".\main.cpp"
+		<Filter
+			Name="src"
 			>
-		</File>
+			<File
+				RelativePath=".\src\ASTCreator.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\main.cpp"
+				>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>

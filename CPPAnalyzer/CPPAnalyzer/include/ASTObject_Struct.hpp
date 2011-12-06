@@ -10,13 +10,21 @@ namespace CPPAnalyzer
 	class ASTObject_Struct: public ASTObject
 	{
 	public:
+		enum Access{
+			ACCESS_PRIVATE,
+			ACCESS_PROTECTED,
+			ACCESS_PUBLIC
+		};
+
 		ASTObject_Struct(const std::string& nodeName)
-			: ASTObject(TYPE_STRUCT, nodeName), m_destructor(NULL)
+			: ASTObject(nodeName), m_destructor(NULL)
 		{
 
 		}
 
 		virtual ~ASTObject_Struct(){}
+
+		virtual ASTObjectKind getKind() const { return KIND_STRUCT; }
 
 		void addDestructor(ASTObject* destructor)
 		{
@@ -39,6 +47,7 @@ namespace CPPAnalyzer
 		ASTObject* m_destructor;
 		std::vector<ASTObject*> m_constructors; // should be ASTObject_Function
 		std::vector<ASTObject*> m_functions;
+		Access m_currAccess;
 	};
 
 

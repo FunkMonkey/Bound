@@ -6,13 +6,19 @@ namespace MyNamespace
 
 	}
 
+	struct List;
+
 	struct List {
 		int Data;
 		struct List *Next;
 		
 		protected:
 		int blbb;
+
+		void funcDecl(int i);
 	};
+
+	void List::funcDecl(int i){}
 
 	List returnList()
 	{
