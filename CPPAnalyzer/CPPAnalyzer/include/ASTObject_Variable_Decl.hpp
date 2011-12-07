@@ -17,6 +17,8 @@ namespace CPPAnalyzer
 
 		}
 
+		virtual ASTObjectKind getKind() const { return KIND_VARIABLE_DECL; }
+
 		const std::string& getType() const { return m_type; }
 		void setAccess(const std::string& theType){ m_type = theType; }
 

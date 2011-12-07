@@ -198,6 +198,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\ASTObject_Variable_Decl.hpp"
+				>
+			</File>
+			<File
 				RelativePath=".\include\ASTObjectKinds.hpp"
 				>
 			</File>
