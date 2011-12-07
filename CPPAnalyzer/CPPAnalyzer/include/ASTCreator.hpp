@@ -9,11 +9,12 @@ namespace CPPAnalyzer
 	class ASTObject_Namespace;
 	class ASTObject_Struct;
 
+	class ASTObject_Field;
+
 	class ASTCreator
 	{
 	public:
-		static ASTObject_Namespace* createNamespace(CXCursor cursor, ASTObject* parent);
-		static ASTObject_Struct* createStruct(CXCursor cursor, ASTObject* parent);
+		
 	};
 }
 

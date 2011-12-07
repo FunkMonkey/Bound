@@ -6,6 +6,8 @@ namespace MyNamespace
 
 	}
 
+	int SOMETHING = 3;
+
 	struct List;
 
 	struct List {

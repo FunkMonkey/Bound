@@ -13,6 +13,26 @@ namespace CPPAnalyzer
 		KIND_FIELD,
 		KIND_FUNCTION
 	};
+
+	enum ASTObjectAccess{
+			ACCESS_PRIVATE,
+			ACCESS_PROTECTED,
+			ACCESS_PUBLIC
+		};
+
+	static std::string getASTObjectKind(ASTObjectKind kind)
+	{
+		switch(kind)
+		{
+			case KIND_NAMESPACE: return "Namespace";
+			case KIND_STRUCT: return "Struct";
+			case KIND_CLASS: return "Class";
+			case KIND_FIELD: return "Field";
+			case KIND_FUNCTION: return "Function";
+		}
+
+		return "Invalid";
+	}
 }
 
 #endif // __ASTOBJECTKINDS_HPP__

@@ -186,6 +186,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\ASTObject_Field.hpp"
+				>
+			</File>
+			<File
 				RelativePath=".\include\ASTObject_Namespace.hpp"
 				>
 			</File>
@@ -195,6 +199,10 @@
 			</File>
 			<File
 				RelativePath=".\include\ASTObjectKinds.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\include\Clang_AST.hpp"
 				>
 			</File>
 			<File
@@ -210,18 +218,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\Clang_AST.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\main.cpp"
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath=".\src\Clang_AST.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\include\Clang_AST.hpp"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

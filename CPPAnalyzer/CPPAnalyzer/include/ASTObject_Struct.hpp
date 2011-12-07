@@ -10,14 +10,10 @@ namespace CPPAnalyzer
 	class ASTObject_Struct: public ASTObject
 	{
 	public:
-		enum Access{
-			ACCESS_PRIVATE,
-			ACCESS_PROTECTED,
-			ACCESS_PUBLIC
-		};
+		
 
 		ASTObject_Struct(const std::string& nodeName)
-			: ASTObject(nodeName), m_destructor(NULL)
+			: ASTObject(nodeName), m_destructor(NULL), m_currAccess(ACCESS_PUBLIC)
 		{
 
 		}
@@ -42,12 +38,15 @@ namespace CPPAnalyzer
 			this->m_constructors.push_back(constructor);
 		}
 
+		ASTObjectAccess getCurrentAccess() const { return m_currAccess; }
+		void setCurrentAccess(ASTObjectAccess acc){ m_currAccess = acc; }
+
 	protected:
 
 		ASTObject* m_destructor;
 		std::vector<ASTObject*> m_constructors; // should be ASTObject_Function
 		std::vector<ASTObject*> m_functions;
-		Access m_currAccess;
+		ASTObjectAccess m_currAccess;
 	};
 
 
