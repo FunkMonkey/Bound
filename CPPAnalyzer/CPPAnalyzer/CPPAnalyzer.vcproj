@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)Dependencies\clang\include&quot;;&quot;$(ProjectDir)include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\..\Dependencies\clang\include&quot;;&quot;$(ProjectDir)include&quot;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -58,6 +58,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="libclang.lib"
+				AdditionalLibraryDirectories="$(SolutionDir)..\..\Dependencies\clang\lib"
 				GenerateDebugInformation="true"
 				TargetMachine="1"
 			/>
@@ -110,7 +112,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)Dependencies\clang\include&quot;;&quot;$(ProjectDir)include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\..\Dependencies\clang\include&quot;;&quot;$(ProjectDir)include&quot;"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				WarningLevel="3"
@@ -127,6 +129,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="libclang.lib"
+				AdditionalLibraryDirectories="$(SolutionDir)..\..\Dependencies\clang\lib"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -167,10 +171,6 @@
 				<Filter
 					Name="lib"
 					>
-					<File
-						RelativePath="..\Dependencies\clang\lib\libclang.lib"
-						>
-					</File>
 				</Filter>
 			</Filter>
 		</Filter>
@@ -226,6 +226,14 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\include\ASTObject_Class.hpp"
+			>
+		</File>
+		<File
+			RelativePath=".\include\ASTObject_Function.hpp"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

@@ -5,6 +5,7 @@
 //#include "ASTCreator.hpp"
 #include "ASTObject_Namespace.hpp"
 #include "ASTObject_Struct.hpp"
+#include "ASTObject_Class.hpp"
 #include "ASTObject_Field.hpp"
 
 #include <iostream>
@@ -42,6 +43,18 @@ namespace CPPAnalyzer
 		return astObject;
 	}
 
+
+	ASTObject_Class* Clang_AST::addClass(CXCursor cursor, ASTObject* astParent)
+	{
+		CXString displayName = clang_getCursorDisplayName(cursor);
+
+		ASTObject_Class* astObject = new ASTObject_Class(clang_getCString(displayName));
+		astParent->addChild(astObject);
+
+		return astObject;
+	}
+
+
 	ASTObject_Field* Clang_AST::addField(CXCursor cursor, ASTObject* astParent)
 	{
 		CXString displayName = clang_getCursorDisplayName(cursor);
@@ -49,10 +62,37 @@ namespace CPPAnalyzer
 		ASTObject_Field* astObject = new ASTObject_Field(clang_getCString(displayName));
 		astObject->setAccess(static_cast<ASTObject_Struct*>(astParent)->getCurrentAccess());
 		astParent->addChild(astObject);
+
+		//CXCursor returnCursor = clang_getTypeDeclaration(returnType);
+		CXType type = clang_getCursorType(cursor);
+		CXCursor typeDecl = clang_getTypeDeclaration(type);
+		std::cout << "FIELD type: " << clang_getCString(clang_getTypeKindSpelling(type.kind)) << " " << clang_getCString(clang_getCursorDisplayName(typeDecl)) << std::endl;
+
+		// is parameter const???
+		/*if(type.kind == CXType_Pointer || type.kind == CXType_LValueReference)
+		{
+			if(clang_isConstQualifiedType(clang_getPointeeType(type)))
+				printf("is const");
+		}
+
+		if(clang_isConstQualifiedType(clang_getCursorType(cursor)))
+			printf("is const");*/
 		
 		return astObject;
 	}
 
+	std::string Clang_AST::getCursorType(CXCursor cursor)
+	{
+		return "";
+	}
+
+	/** 
+	 *
+	 * \param 	cursor 
+	 * \param 	parent 
+	 * \param 	client_data 
+	 * \return	
+	 */
 	CXChildVisitResult Clang_AST::visitCursor(CXCursor cursor, CXCursor parent, CXClientData client_data)
 	{
 		CXString kindString, displayType, cursorSpelling;
@@ -98,7 +138,7 @@ namespace CPPAnalyzer
 
 			case CXCursor_ClassDecl:
 			{
-				printf("%s: %s - %s\n", clang_getCString(kindString), clang_getCString(displayType), clang_getCString(cursorSpelling));
+				astObject = addClass(cursor, astParent);
 				break;
 			}
 
@@ -242,6 +282,9 @@ namespace CPPAnalyzer
 	{
 		printTreeNode(m_rootASTObject, 0);
 	}
+
+
+
 }
 
 

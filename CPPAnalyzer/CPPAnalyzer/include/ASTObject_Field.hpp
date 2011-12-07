@@ -1,19 +1,17 @@
 #ifndef __ASTOBJECT_FIELD_HPP__
 #define __ASTOBJECT_FIELD_HPP__
 
-#include <string>
-#include <vector>
-#include "ASTObject.hpp"
+#include "ASTObject_Variable_Decl.hpp"
 
 namespace CPPAnalyzer
 {
-	class ASTObject_Field: public ASTObject
+	class ASTObject_Field: public ASTObject_Variable_Decl
 	{
 	public:
 		
 
 		ASTObject_Field(const std::string& nodeName)
-			: ASTObject(nodeName)
+			: ASTObject_Variable_Decl(nodeName)
 		{
 
 		}

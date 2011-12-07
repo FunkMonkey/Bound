@@ -11,13 +11,27 @@ namespace MyNamespace
 	struct List;
 
 	struct List {
+		const bool fool;
+		unsigned int unInt;
 		int Data;
 		struct List *Next;
+		List* otherNext;
 		
 		protected:
 		int blbb;
 
 		void funcDecl(int i);
+	};
+
+	class TestClass
+	{
+
+	};
+
+	struct Testi
+	{
+		List testList;
+		TestClass testClass;
 	};
 
 	void List::funcDecl(int i){}
