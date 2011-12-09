@@ -1,15 +1,29 @@
 
 #include "Clang_AST.hpp"
 
-
 //#include "ASTCreator.hpp"
 #include "ASTObject_Namespace.hpp"
 #include "ASTObject_Struct.hpp"
 #include "ASTObject_Class.hpp"
 #include "ASTObject_Field.hpp"
+#include "ASTObject_Function.hpp"
+#include "ASTObject_Member_Function.hpp"
 
 #include <iostream>
 
+using std::string;
+using std::vector;
+
+// TODO: move
+#include <sstream>
+
+template <class T>
+inline std::string to_string (const T& t)
+{
+	std::stringstream ss;
+	ss << t;
+	return ss.str();
+}
 
 
 namespace CPPAnalyzer
@@ -25,7 +39,7 @@ namespace CPPAnalyzer
 
 	ASTObject_Namespace* Clang_AST::addNamespace(CXCursor cursor, ASTObject* astParent)
 	{
-		CXString displayName = clang_getCursorDisplayName(cursor);
+		CXString displayName = clang_getCursorSpelling(cursor);
 
 		ASTObject_Namespace* astObject = new ASTObject_Namespace(clang_getCString(displayName));
 		astParent->addChild(astObject);
@@ -35,7 +49,7 @@ namespace CPPAnalyzer
 
 	ASTObject_Struct* Clang_AST::addStruct(CXCursor cursor, ASTObject* astParent)
 	{
-		CXString displayName = clang_getCursorDisplayName(cursor);
+		CXString displayName = clang_getCursorSpelling(cursor);
 
 		ASTObject_Struct* astObject = new ASTObject_Struct(clang_getCString(displayName));
 		astParent->addChild(astObject);
@@ -46,7 +60,7 @@ namespace CPPAnalyzer
 
 	ASTObject_Class* Clang_AST::addClass(CXCursor cursor, ASTObject* astParent)
 	{
-		CXString displayName = clang_getCursorDisplayName(cursor);
+		CXString displayName = clang_getCursorSpelling(cursor);
 
 		ASTObject_Class* astObject = new ASTObject_Class(clang_getCString(displayName));
 		astParent->addChild(astObject);
@@ -57,33 +71,111 @@ namespace CPPAnalyzer
 
 	ASTObject_Field* Clang_AST::addField(CXCursor cursor, ASTObject* astParent)
 	{
-		CXString displayName = clang_getCursorDisplayName(cursor);
+		CXString displayName = clang_getCursorSpelling(cursor);
 
 		ASTObject_Field* astObject = new ASTObject_Field(clang_getCString(displayName));
 		astObject->setAccess(static_cast<ASTObject_Struct*>(astParent)->getCurrentAccess());
+
+		astObject->setType(createASTTypeFromCursor(cursor, false));
+		astObject->setTypeCanonical(createASTTypeFromCursor(cursor, true));
+
+		// TODO: use add field
 		astParent->addChild(astObject);
-
-		//CXCursor returnCursor = clang_getTypeDeclaration(returnType);
-		CXType type = clang_getCursorType(cursor);
-		CXCursor typeDecl = clang_getTypeDeclaration(type);
-		std::cout << "FIELD type: " << clang_getCString(clang_getTypeKindSpelling(type.kind)) << " " << clang_getCString(clang_getCursorDisplayName(typeDecl)) << std::endl;
-
-		// is parameter const???
-		/*if(type.kind == CXType_Pointer || type.kind == CXType_LValueReference)
-		{
-			if(clang_isConstQualifiedType(clang_getPointeeType(type)))
-				printf("is const");
-		}
-
-		if(clang_isConstQualifiedType(clang_getCursorType(cursor)))
-			printf("is const");*/
 		
 		return astObject;
 	}
 
-	std::string Clang_AST::getCursorType(CXCursor cursor)
+	ASTObject_Function* Clang_AST::addFunction(CXCursor cursor, ASTObject* astParent)
 	{
-		return "";
+		CXString displayName = clang_getCursorSpelling(cursor);
+
+		ASTObject_Function* astObject = new ASTObject_Function(clang_getCString(displayName));
+
+		CXType returnType = clang_getCursorResultType(cursor);
+
+		astObject->setReturnType(createASTType(returnType, false));
+		astObject->setReturnTypeCanonical(createASTType(returnType, true));
+
+		astParent->addChild(astObject);
+		
+		return astObject;
+	}
+
+	ASTObject_Member_Function* Clang_AST::addMemberFunction(CXCursor cursor, ASTObject* astParent)
+	{
+		CXString displayName = clang_getCursorSpelling(cursor);
+
+		ASTObject_Member_Function* astObject = new ASTObject_Member_Function(clang_getCString(displayName));
+
+		CXType returnType = clang_getCursorResultType(cursor);
+
+		astObject->setAccess(static_cast<ASTObject_Struct*>(astParent)->getCurrentAccess());
+		astObject->setReturnType(createASTType(returnType, false));
+		astObject->setReturnTypeCanonical(createASTType(returnType, true));
+		astObject->setVirtual(clang_CXXMethod_isVirtual(cursor));
+
+		// TODO: is static
+
+		// TODO: use addFunction
+		astParent->addChild(astObject);
+		
+		return astObject;
+	}
+
+	ASTObject_Variable_Decl* Clang_AST::addParameter(CXCursor cursor, ASTObject* astParent)
+	{
+		CXString displayName = clang_getCursorSpelling(cursor);
+
+		ASTObject_Variable_Decl* astObject = new ASTObject_Variable_Decl(clang_getCString(displayName));
+		
+		astObject->setType(createASTTypeFromCursor(cursor, false));
+		astObject->setTypeCanonical(createASTTypeFromCursor(cursor, true));
+
+		ASTObjectKind kind = astParent->getKind();
+		if(kind == KIND_FUNCTION || kind == KIND_MEMBER_FUNCTION)
+		{
+			static_cast<ASTObject_Function*>(astParent)->addParameter(astObject);
+		}
+		// TODO: else throw exception
+		
+		return astObject;
+	}
+
+	ASTType* Clang_AST::createASTTypeFromCursor(CXCursor cursor, bool canonical)
+	{
+		CXType type = clang_getCursorType(cursor);
+		return createASTType(type, canonical);
+	}
+
+	ASTType* Clang_AST::createASTType(CXType inputType, bool canonical)
+	{
+		// do we use the canonical type or not?
+		CXType type = (canonical) ? clang_getCanonicalType(inputType): inputType;
+
+		ASTType* asttype = new ASTType();
+		asttype->setKind(clang_getCString(clang_getTypeKindSpelling(type.kind)));
+		switch(type.kind)
+		{
+			case CXType_Pointer:
+			case CXType_LValueReference:
+				{
+					ASTType* pointsTo = createASTType(clang_getPointeeType(type)); 
+					asttype->setPointsTo(pointsTo);
+					break;
+				}
+			case CXType_Record:
+				{
+					CXCursor typeDecl = clang_getTypeDeclaration(type);
+					CXCursorASTObjectMap::iterator it = m_astObjects.find(typeDecl);
+					if(it != m_astObjects.end())
+						asttype->setDeclaration(it->second);
+					break;
+				}
+		}
+
+		asttype->setConst(clang_isConstQualifiedType(type));
+
+		return asttype;
 	}
 
 	/** 
@@ -104,6 +196,7 @@ namespace CPPAnalyzer
 		std::string usr_string = std::string(clang_getCString(clang_getCursorUSR(cursor)));
 
 		// check for multiple declarations
+		// TODO: use clang_getCanonicalCursor
 		std::map<std::string, ASTObject*>::iterator itUSR = m_usrASTObjects.find(usr_string);
 		if(itUSR != m_usrASTObjects.end())
 		{
@@ -159,6 +252,7 @@ namespace CPPAnalyzer
 
 			case CXCursor_CXXMethod:
 			{
+				astObject = addMemberFunction(cursor, astParent);
 				break;
 			}
 
@@ -183,21 +277,7 @@ namespace CPPAnalyzer
 			// parameters
 			case CXCursor_ParmDecl: 
 				{
-					break;
-					CXType type = clang_getCursorType(cursor);
-					printf("%s: %s - %s: %d\n", clang_getCString(kindString), clang_getCString(displayType), clang_getCString(cursorSpelling), type);
-					
-					// is parameter const???
-					if(type.kind == CXType_Pointer || type.kind == CXType_LValueReference)
-					{
-						if(clang_isConstQualifiedType(clang_getPointeeType(type)))
-							printf("is const");
-					}
-
-					if(clang_isConstQualifiedType(clang_getCursorType(cursor)))
-						printf("is const");
-
-					
+					astObject = addParameter(cursor, astParent);
 					break;
 				}
 
@@ -205,23 +285,7 @@ namespace CPPAnalyzer
 			// functions
 			case CXCursor_FunctionDecl:
 				{
-					std::cout << "Function: " << clang_getCString(displayType) << ", " << clang_getCString(clang_getCursorUSR(cursor)) << "\n";
-					break;
-					//printf("%s: %s - %s\n", clang_getCString(kindString), clang_getCString(displayType), clang_getCString(cursorSpelling));
-					if (clang_CXXMethod_isStatic(cursor))
-						printf(" (static)");
-					if (clang_CXXMethod_isVirtual(cursor))
-						printf(" (virtual)");
-
-					// return-type
-					CXType returnType = clang_getCursorResultType(cursor);
-					CXCursor returnCursor = clang_getTypeDeclaration(returnType);	// check CXType, you idiot
-					printf("returnType: %s!", clang_getCursorSpelling(returnCursor));
-
-					
-
-					//USR
-					//printf("%s\n", clang_getCString(clang_getCursorUSR(cursor))); 
+					astObject = addFunction(cursor, astParent);
 					break;
 				}
 			case CXCursor_OverloadedDeclRef:
@@ -266,15 +330,23 @@ namespace CPPAnalyzer
 	// just dirty for testing
 	void Clang_AST::printTreeNode(ASTObject* node, int depth) const
 	{
-		std::string prefix;
+		std::string line;
 		for(int i = 1; i <= depth; ++i)
-			prefix += "  ";
+			line += "  ";
 
-		std::cout << prefix << getASTObjectKind(node->getKind()).c_str() << ": " << ((node->getNodeName() != "" ) ? node->getNodeName().c_str() : "anonymous") << std::endl;
-		std::vector<ASTObject*>& children = node->getChildren();
-		for(int i = 0; i < children.size(); ++i)
+		line += getASTObjectKind(node->getKind());
+		line += ": ";
+		line += to_string(node->getID());
+		line += " ";
+		line += ((node->getNodeName() != "" ) ? node->getNodeName() : "anonymous");
+
+		std::cout << line << std::endl;
+		vector<ASTObject*>& children = node->getChildren();
+
+		vector<ASTObject*>::iterator end = children.end();
+		for(vector<ASTObject*>::iterator it = children.begin(); it != end; ++it)
 		{
-			printTreeNode(children[i], depth + 1);
+			printTreeNode(*it, depth + 1);
 		}
 	}
 

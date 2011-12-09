@@ -29,8 +29,11 @@ namespace CPPAnalyzer
 			case KIND_NAMESPACE: return "Namespace";
 			case KIND_STRUCT: return "Struct";
 			case KIND_CLASS: return "Class";
+			case KIND_VARIABLE_DECL: return "VariableDeclaration";
 			case KIND_FIELD: return "Field";
 			case KIND_FUNCTION: return "Function";
+			case KIND_MEMBER_FUNCTION: return "MemberFunction";
+				
 		}
 
 		return "Invalid";

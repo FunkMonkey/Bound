@@ -7,24 +7,54 @@
 
 namespace CPPAnalyzer
 {
+	class ASTObject_Variable_Decl;
+
 	class ASTObject_Function: public ASTObject
 	{
 	public:
-		
-
 		ASTObject_Function(const std::string& nodeName)
-			: ASTObject(nodeName)
+			: ASTObject(nodeName), m_returnType(NULL), m_returnTypeCanon(NULL)
 		{
 
 		}
 
-		virtual ~ASTObject_Function(){}
+		virtual ~ASTObject_Function()
+		{
+			// cleaning up
+			if(m_returnType)
+			{
+				delete m_returnType;
+				m_returnType = NULL;
+			}
+
+			if(m_returnTypeCanon)
+			{
+				delete m_returnTypeCanon;
+				m_returnTypeCanon = NULL;
+			}
+		}
 
 		virtual ASTObjectKind getKind() const { return KIND_FUNCTION; }
 
+		ASTType* getReturnType() const { return m_returnType; }
+		void setReturnType(ASTType* theType){ m_returnType = theType; }
+
+		ASTType* getReturnTypeCanonical() const { return m_returnTypeCanon; }
+		void setReturnTypeCanonical(ASTType* theType){ m_returnTypeCanon = theType; }
+
+		void addParameter(ASTObject_Variable_Decl* param)
+		{
+			this->addChild(param);
+			m_parameters.push_back(param);
+		}
+
+		// TODO: get parameters, removeParam
+
 	protected:
-		ASTObjectAccess m_access;
-		std::string m_type;
+		ASTType* m_returnType;
+		ASTType* m_returnTypeCanon;
+
+		std::vector<ASTObject_Variable_Decl*> m_parameters;
 	};
 
 

@@ -8,7 +8,6 @@ namespace CPPAnalyzer
 	class ASTObject_Field: public ASTObject_Variable_Decl
 	{
 	public:
-		
 
 		ASTObject_Field(const std::string& nodeName)
 			: ASTObject_Variable_Decl(nodeName)

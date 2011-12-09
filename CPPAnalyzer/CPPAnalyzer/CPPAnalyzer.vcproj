@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\..\Dependencies\clang\include&quot;;&quot;$(ProjectDir)include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\..\Dependencies\clang\include&quot;;&quot;$(ProjectDir)include&quot;;&quot;$(SolutionDir)..\..\Dependencies\stdint\include&quot;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -112,7 +112,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\..\Dependencies\clang\include&quot;;&quot;$(ProjectDir)include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\..\Dependencies\clang\include&quot;;&quot;$(ProjectDir)include&quot;;&quot;$(SolutionDir)..\..\Dependencies\stdint\include&quot;"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				WarningLevel="3"
@@ -186,7 +186,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\ASTObject_Class.hpp"
+				>
+			</File>
+			<File
 				RelativePath=".\include\ASTObject_Field.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\include\ASTObject_Function.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\include\ASTObject_Member_Function.hpp"
 				>
 			</File>
 			<File
@@ -206,6 +218,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\ASTType.hpp"
+				>
+			</File>
+			<File
 				RelativePath=".\include\Clang_AST.hpp"
 				>
 			</File>
@@ -218,7 +234,7 @@
 			Name="src"
 			>
 			<File
-				RelativePath=".\src\ASTCreator.cpp"
+				RelativePath=".\src\ASTObject.cpp"
 				>
 			</File>
 			<File
@@ -230,14 +246,6 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath=".\include\ASTObject_Class.hpp"
-			>
-		</File>
-		<File
-			RelativePath=".\include\ASTObject_Function.hpp"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

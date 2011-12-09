@@ -3,6 +3,7 @@
 
 #include <string>
 #include "ASTObject.hpp"
+#include "ASTType.hpp"
 
 namespace CPPAnalyzer
 {
@@ -12,18 +13,38 @@ namespace CPPAnalyzer
 		
 
 		ASTObject_Variable_Decl(const std::string& nodeName)
-			: ASTObject(nodeName)
+			: ASTObject(nodeName), m_type(NULL), m_typeCanon(NULL)
 		{
 
 		}
 
+		virtual ~ASTObject_Variable_Decl()
+		{
+			// cleaning up
+			if(m_type)
+			{
+				delete m_type;
+				m_type = NULL;
+			}
+
+			if(m_typeCanon)
+			{
+				delete m_typeCanon;
+				m_typeCanon = NULL;
+			}
+		}
+
 		virtual ASTObjectKind getKind() const { return KIND_VARIABLE_DECL; }
 
-		const std::string& getType() const { return m_type; }
-		void setAccess(const std::string& theType){ m_type = theType; }
+		ASTType* getType() const { return m_type; }
+		void setType(ASTType* theType){ m_type = theType; }
+
+		ASTType* getTypeCanonical() const { return m_typeCanon; }
+		void setTypeCanonical(ASTType* theType){ m_typeCanon = theType; }
 
 	protected:
-		std::string m_type;
+		ASTType* m_type;
+		ASTType* m_typeCanon;
 	};
 
 

@@ -11,11 +11,12 @@ namespace MyNamespace
 	struct List;
 
 	struct List {
+		char* testString;
 		const bool fool;
 		unsigned int unInt;
 		int Data;
-		struct List *Next;
-		List* otherNext;
+		List *Next;
+		const List* otherNext;
 		
 		protected:
 		int blbb;
@@ -23,15 +24,17 @@ namespace MyNamespace
 		void funcDecl(int i);
 	};
 
-	class TestClass
-	{
+	class TestClass{};
 
-	};
+	class TestClass2 : public TestClass {};
+
+	typedef const List MooType;
 
 	struct Testi
 	{
 		List testList;
 		TestClass testClass;
+		MooType typedefeed;
 	};
 
 	void List::funcDecl(int i){}

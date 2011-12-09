@@ -51,6 +51,7 @@
 								<option id="llvm.c_cpp.compiler.option.include.paths.740995561" name="Include paths (-I)" superClass="llvm.c_cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;D:\Data\Projekte\Bound\src\CPPAnalyzer\Dependencies\clang\include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${WorkspaceDirPath}/../../../Dependencies/clang/include&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.llvm.cpp.compiler.input.527972142" superClass="cdt.managedbuild.tool.llvm.cpp.compiler.input"/>
 							</tool>

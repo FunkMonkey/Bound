@@ -11,9 +11,9 @@ namespace CPPAnalyzer
 	{
 	public:
 		ASTObject(const std::string& nodeName)
-			: m_nodeName(nodeName), m_usr(""), m_parent(NULL)
+			: m_id(ASTObject::count+1),m_nodeName(nodeName), m_usr(""), m_parent(NULL)
 		{
-
+			++ASTObject::count;
 		}
 
 		ASTObject(const std::string& nodeName, const std::string& usr)
@@ -25,6 +25,8 @@ namespace CPPAnalyzer
 		virtual ~ASTObject(){}
 
 		virtual ASTObjectKind getKind() const { return KIND_INVALID; }
+
+		unsigned getID() const { return m_id; }
 		
 		const std::string& getUSR() const { return m_nodeName; }
 		const std::string& getNodeName() const { return m_nodeName; }
@@ -59,15 +61,19 @@ namespace CPPAnalyzer
 
 
 	protected:
+		static unsigned count;
+		unsigned m_id;
 		std::string m_nodeName;
 		std::string m_usr;
 		std::string m_longName;
+
+		
 
 		ASTObject* m_parent;
 		std::vector<ASTObject*> m_children;
 	};
 
-
+	
 }
 
 #endif // __ASTOBJECT_HPP__

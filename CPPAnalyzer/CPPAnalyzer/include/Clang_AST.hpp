@@ -7,11 +7,14 @@
 
 namespace CPPAnalyzer
 {
-	
+	class ASTType;
 	class ASTObject;
 	class ASTObject_Namespace;
 	class ASTObject_Struct;
 	class ASTObject_Class;
+	class ASTObject_Function;
+	class ASTObject_Member_Function;
+	class ASTObject_Variable_Decl;
 
 	class ASTObject_Field;
 
@@ -38,8 +41,12 @@ namespace CPPAnalyzer
 			ASTObject_Struct* addStruct(CXCursor cursor, ASTObject* astParent);
 			ASTObject_Class* addClass(CXCursor cursor, ASTObject* astParent);
 			ASTObject_Field* addField(CXCursor cursor, ASTObject* astParent);
+			ASTObject_Function* addFunction(CXCursor cursor, ASTObject* astParent);
+			ASTObject_Member_Function* addMemberFunction(CXCursor cursor, ASTObject* astParent);
+			ASTObject_Variable_Decl* addParameter(CXCursor cursor, ASTObject* astParent);
 
-			std::string getCursorType(CXCursor cursor);
+			ASTType* createASTTypeFromCursor(CXCursor cursor, bool canonical = false);
+			ASTType* createASTType(CXType type, bool canonical = false);
 
 			void printTreeNode(ASTObject* node, int depth) const;
 			void printTree() const;
