@@ -11,6 +11,9 @@ namespace MyNamespace
 	struct List;
 
 	struct List {
+		List(int foo);
+		~List();
+
 		char* testString;
 		const bool fool;
 		unsigned int unInt;
@@ -22,6 +25,7 @@ namespace MyNamespace
 		int blbb;
 
 		void funcDecl(int i);
+		List* returningPointer();
 	};
 
 	class TestClass{};
@@ -56,6 +60,7 @@ namespace MyNamespace
 		return 0;
 	};
 
+	float sum(int x);
 	float sum(int x)
 	{
 		return 8.0;

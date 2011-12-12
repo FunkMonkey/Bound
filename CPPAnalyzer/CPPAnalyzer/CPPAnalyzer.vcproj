@@ -178,15 +178,19 @@
 			Name="include"
 			>
 			<File
-				RelativePath=".\include\ASTCreator.hpp"
-				>
-			</File>
-			<File
 				RelativePath=".\include\ASTObject.hpp"
 				>
 			</File>
 			<File
 				RelativePath=".\include\ASTObject_Class.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\include\ASTObject_Constructor.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\include\ASTObject_Destructor.hpp"
 				>
 			</File>
 			<File
@@ -206,7 +210,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\ASTObject_Parameter.hpp"
+				>
+			</File>
+			<File
 				RelativePath=".\include\ASTObject_Struct.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\include\ASTObject_Typedef.hpp"
 				>
 			</File>
 			<File
@@ -229,6 +241,10 @@
 				RelativePath=".\include\clang_helpers.hpp"
 				>
 			</File>
+			<File
+				RelativePath=".\include\JSON_Converter.hpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="src"
@@ -238,7 +254,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\ASTObject_Function.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\ASTObject_Struct.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\Clang_AST.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\JSON_Converter.cpp"
 				>
 			</File>
 			<File

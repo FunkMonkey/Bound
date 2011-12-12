@@ -1,24 +1,22 @@
-#ifndef __ASTOBJECT_VARIABLE_DECL_HPP__
-#define __ASTOBJECT_VARIABLE_DECL_HPP__
+#ifndef __ASTOBJECT_TYPEDEF_HPP__
+#define __ASTOBJECT_TYPEDEF_HPP__
 
-#include <string>
 #include "ASTObject.hpp"
 #include "ASTType.hpp"
 
 namespace CPPAnalyzer
 {
-	class ASTObject_Variable_Decl: public ASTObject
+	class ASTObject_Typedef: public ASTObject
 	{
 	public:
 		
 
-		ASTObject_Variable_Decl(const std::string& nodeName)
+		ASTObject_Typedef(const std::string& nodeName)
 			: ASTObject(nodeName), m_type(NULL), m_typeCanon(NULL)
 		{
-
 		}
 
-		virtual ~ASTObject_Variable_Decl()
+		virtual ~ASTObject_Typedef()
 		{
 			// cleaning up
 			if(m_type)
@@ -34,7 +32,7 @@ namespace CPPAnalyzer
 			}
 		}
 
-		virtual ASTObjectKind getKind() const { return KIND_VARIABLE_DECL; }
+		virtual ASTObjectKind getKind() const { return KIND_TYPEDEF; }
 
 		// TODO: delete when setting
 		ASTType* getType() const { return m_type; }
@@ -51,4 +49,4 @@ namespace CPPAnalyzer
 
 }
 
-#endif // __ASTOBJECT_VARIABLE_DECL_HPP__
+#endif // __ASTOBJECT_TYPEDEF_HPP__

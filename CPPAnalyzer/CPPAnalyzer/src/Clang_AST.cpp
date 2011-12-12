@@ -1,13 +1,16 @@
 
 #include "Clang_AST.hpp"
 
-//#include "ASTCreator.hpp"
 #include "ASTObject_Namespace.hpp"
 #include "ASTObject_Struct.hpp"
 #include "ASTObject_Class.hpp"
 #include "ASTObject_Field.hpp"
 #include "ASTObject_Function.hpp"
 #include "ASTObject_Member_Function.hpp"
+#include "ASTObject_Parameter.hpp"
+#include "ASTObject_Constructor.hpp"
+#include "ASTObject_Destructor.hpp"
+#include "ASTObject_Typedef.hpp"
 
 #include <iostream>
 
@@ -109,6 +112,7 @@ namespace CPPAnalyzer
 
 		CXType returnType = clang_getCursorResultType(cursor);
 
+		// TODO: check if parent is struct or class
 		astObject->setAccess(static_cast<ASTObject_Struct*>(astParent)->getCurrentAccess());
 		astObject->setReturnType(createASTType(returnType, false));
 		astObject->setReturnTypeCanonical(createASTType(returnType, true));
@@ -122,23 +126,95 @@ namespace CPPAnalyzer
 		return astObject;
 	}
 
-	ASTObject_Variable_Decl* Clang_AST::addParameter(CXCursor cursor, ASTObject* astParent)
+	ASTObject_Constructor* Clang_AST::addConstructor(CXCursor cursor, ASTObject* astParent)
 	{
 		CXString displayName = clang_getCursorSpelling(cursor);
 
-		ASTObject_Variable_Decl* astObject = new ASTObject_Variable_Decl(clang_getCString(displayName));
+		ASTObject_Constructor* astObject = new ASTObject_Constructor(clang_getCString(displayName));
+		
+		// TODO: check if parent is struct or class, throw exception
+		ASTObject_Struct* parentStruct = static_cast<ASTObject_Struct*>(astParent);
+		astObject->setAccess(parentStruct->getCurrentAccess());
+		parentStruct->addConstructor(astObject);
+		
+		return astObject;
+	}
+
+	ASTObject_Destructor* Clang_AST::addDestructor(CXCursor cursor, ASTObject* astParent)
+	{
+		CXString displayName = clang_getCursorSpelling(cursor);
+
+		ASTObject_Destructor* astObject = new ASTObject_Destructor(clang_getCString(displayName));
+		
+		// TODO: check if parent is struct or class, throw exception
+		ASTObject_Struct* parentStruct = static_cast<ASTObject_Struct*>(astParent);
+		astObject->setAccess(parentStruct->getCurrentAccess());
+		parentStruct->setDestructor(astObject);
+		
+		return astObject;
+	}
+
+	// TODO: differ between declarations and definitions, otherwise multiple params
+	ASTObject_Parameter* Clang_AST::addParameter(CXCursor cursor, ASTObject* astParent)
+	{
+		CXString displayName = clang_getCursorSpelling(cursor);
+
+		ASTObject_Parameter* astObject = new ASTObject_Parameter(clang_getCString(displayName));
 		
 		astObject->setType(createASTTypeFromCursor(cursor, false));
 		astObject->setTypeCanonical(createASTTypeFromCursor(cursor, true));
 
-		ASTObjectKind kind = astParent->getKind();
-		if(kind == KIND_FUNCTION || kind == KIND_MEMBER_FUNCTION)
-		{
-			static_cast<ASTObject_Function*>(astParent)->addParameter(astObject);
-		}
+		ASTObject_Function* parentFunc = dynamic_cast<ASTObject_Function*>(astParent);
+		if(parentFunc)
+			parentFunc->addParameter(astObject);
+
 		// TODO: else throw exception
 		
 		return astObject;
+	}
+
+	ASTObject_Typedef* Clang_AST::addTypedef(CXCursor cursor, ASTObject* astParent)
+	{
+		CXString displayName = clang_getCursorSpelling(cursor);
+
+		ASTObject_Typedef* astObject = new ASTObject_Typedef(clang_getCString(displayName));
+
+		CXType type = clang_getTypedefDeclUnderlyingType(cursor);
+		
+		astObject->setType(createASTType(type, false));
+		astObject->setTypeCanonical(createASTType(type, true));
+
+		astParent->addChild(astObject);
+
+		// TODO: else throw exception
+		
+		return astObject;
+	}
+
+	void Clang_AST::addBase(CXCursor cursor, ASTObject* astParent)
+	{
+		CXString displayName = clang_getCursorSpelling(cursor);
+
+		ASTObject* baseObject = getTypeDeclaration(cursor, true);
+		// TODO: check if struct or class
+
+		ASTObject_Struct* parentStruct = dynamic_cast<ASTObject_Struct*>(astParent);
+		if(parentStruct)
+			parentStruct->addBase(static_cast<ASTObject_Struct*>(baseObject), ACCESS_PUBLIC);
+		// TODO: else throw exception
+	}
+
+	ASTObject* Clang_AST::getTypeDeclaration(CXCursor cursor, bool canonical)
+	{
+		CXType inputType = clang_getCursorType(cursor);
+		CXType type = (canonical) ? clang_getCanonicalType(inputType): inputType;
+
+		CXCursor typeDecl = clang_getTypeDeclaration(type);
+		CXCursorASTObjectMap::iterator it = m_astObjects.find(typeDecl);
+		if(it != m_astObjects.end())
+			return it->second;
+
+		return NULL;
 	}
 
 	ASTType* Clang_AST::createASTTypeFromCursor(CXCursor cursor, bool canonical)
@@ -164,6 +240,7 @@ namespace CPPAnalyzer
 					break;
 				}
 			case CXType_Record:
+			case CXType_Typedef:
 				{
 					CXCursor typeDecl = clang_getTypeDeclaration(type);
 					CXCursorASTObjectMap::iterator it = m_astObjects.find(typeDecl);
@@ -223,6 +300,12 @@ namespace CPPAnalyzer
 				break;
 			}
 
+			case CXCursor_TypedefDecl:
+			{
+				astObject = addTypedef(cursor, astParent);
+				break;
+			}
+
 			case CXCursor_StructDecl:
 			{
 				astObject = addStruct(cursor, astParent);
@@ -235,20 +318,38 @@ namespace CPPAnalyzer
 				break;
 			}
 
+			case CXCursor_Constructor:
+			{
+				astObject = addConstructor(cursor, astParent);
+				break;
+			}
+
+			case CXCursor_Destructor:
+			{
+				astObject = addDestructor(cursor, astParent);
+				break;
+			}
+
+			case CXCursor_CXXBaseSpecifier:
+			{
+				addBase(cursor, astParent);
+				break;
+			}
+
 			// changing the access
 			case CXCursor_CXXAccessSpecifier:
-				{
-					enum CX_CXXAccessSpecifier access = clang_getCXXAccessSpecifier(cursor);
+			{
+				enum CX_CXXAccessSpecifier access = clang_getCXXAccessSpecifier(cursor);
 
-					switch (access) {
-						case CX_CXXPublic:    static_cast<ASTObject_Struct*>(astParent)->setCurrentAccess(ACCESS_PUBLIC); break;
-						case CX_CXXProtected: static_cast<ASTObject_Struct*>(astParent)->setCurrentAccess(ACCESS_PROTECTED); break;
-						case CX_CXXPrivate:   static_cast<ASTObject_Struct*>(astParent)->setCurrentAccess(ACCESS_PRIVATE); break;
-						default: break; // TODO: error
-					}      
+				switch (access) {
+					case CX_CXXPublic:    static_cast<ASTObject_Struct*>(astParent)->setCurrentAccess(ACCESS_PUBLIC); break;
+					case CX_CXXProtected: static_cast<ASTObject_Struct*>(astParent)->setCurrentAccess(ACCESS_PROTECTED); break;
+					case CX_CXXPrivate:   static_cast<ASTObject_Struct*>(astParent)->setCurrentAccess(ACCESS_PRIVATE); break;
+					default: break; // TODO: error
+				}      
 
-					break;
-				}
+				break;
+			}
 
 			case CXCursor_CXXMethod:
 			{
@@ -257,45 +358,35 @@ namespace CPPAnalyzer
 			}
 
 			case CXCursor_FieldDecl:
-				{
-					astObject = addField(cursor, astParent);
-					break;
-				}
-
-			case CXCursor_NamespaceAlias:
-				{
-					printf("%s: %s - %s\n", clang_getCString(kindString), clang_getCString(displayType), clang_getCString(cursorSpelling));
-					break;
-				}
-
-			case CXCursor_NamespaceRef:
-				{
-					printf("%s: %s - %s\n", clang_getCString(kindString), clang_getCString(displayType), clang_getCString(cursorSpelling));
-					break;
-				}
+			{
+				astObject = addField(cursor, astParent);
+				break;
+			}
 			
 			// parameters
 			case CXCursor_ParmDecl: 
-				{
+			{
+				// fix: parameters for multiple declarations
+				// TODO: put somewhere else
+				CXType funcType = clang_getCursorType(parent);
+				int numArgs = clang_getNumArgTypes(funcType);
+
+				if(static_cast<ASTObject_Function*>(astParent)->getParameters().size() < numArgs)
 					astObject = addParameter(cursor, astParent);
-					break;
-				}
+				break;
+			}
 
 			//case CXCursor_ClassDecl: PrintCursor(cursor); break;
 			// functions
 			case CXCursor_FunctionDecl:
-				{
-					astObject = addFunction(cursor, astParent);
-					break;
-				}
-			case CXCursor_OverloadedDeclRef:
-				{
-					unsigned N = clang_getNumOverloadedDecls(cursor);
-					printf("overloads: %d", N);
-					break;
-				}
+			{
+				astObject = addFunction(cursor, astParent);
+				break;
+			}
 			
-			default: break; // shouldn't happen
+			default: 
+				std::cout << "UNHANDLED: " << clang_getCString(kindString) << " " << clang_getCString(displayType) << "\n";
+				break; // shouldn't happen
 
 				// TODO templates
 		}
@@ -306,7 +397,7 @@ namespace CPPAnalyzer
 			if(usr_string != "")
 				m_usrASTObjects.insert(std::pair<std::string, ASTObject*>(usr_string, astObject));
 
-			std::cout << getASTObjectKind(astObject->getKind()).c_str() << " " << astObject->getNodeName().c_str() << "\n";
+			//std::cout << getASTObjectKind(astObject->getKind()).c_str() << " " << astObject->getNodeName().c_str() << "\n";
 		}
 		
 

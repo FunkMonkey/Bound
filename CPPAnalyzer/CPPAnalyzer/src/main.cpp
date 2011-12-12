@@ -6,6 +6,9 @@
 
 
 #include "Clang_AST.hpp"
+#include "JSON_Converter.hpp"
+
+
 using namespace CPPAnalyzer;
 
 Clang_AST* clang_AST = NULL;
@@ -50,6 +53,11 @@ int main(int argc, char *argv[]) {
 
 		std::cout << "---------------" << std::endl;
 		clang_AST->printTree();
+		std::cout << "---------------" << std::endl;
+		std::string json;
+		JSON_Converter json_conv(clang_AST);
+		json_conv.convertToJSON(json);
+		std::cout << json.c_str();
 
 
 		// dispose unit

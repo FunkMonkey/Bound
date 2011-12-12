@@ -16,8 +16,6 @@ namespace CPPAnalyzer
 			setCurrentAccess(ACCESS_PRIVATE);
 		}
 
-		virtual ~ASTObject_Class(){}
-
 		virtual ASTObjectKind getKind() const { return KIND_CLASS; }
 	};
 

@@ -7,6 +7,17 @@
 
 namespace CPPAnalyzer
 {
+	class ASTObject_Member_Function;
+	class ASTObject_Constructor;
+	class ASTObject_Destructor;
+	class ASTObject_Struct;
+
+	struct AST_BaseStruct
+	{
+		ASTObjectAccess access;
+		ASTObject_Struct* base;
+	};
+
 	class ASTObject_Struct: public ASTObject
 	{
 	public:
@@ -18,35 +29,24 @@ namespace CPPAnalyzer
 
 		}
 
-		virtual ~ASTObject_Struct(){}
-
 		virtual ASTObjectKind getKind() const { return KIND_STRUCT; }
 
-		void addDestructor(ASTObject* destructor)
-		{
-			// TODO check for NULL
-
-			this->addChild(destructor);
-			this->m_destructor = destructor;
-		}
-
-		void addConstructor(ASTObject* constructor)
-		{
-			// TODO check for NULL
-
-			this->addChild(constructor);
-			this->m_constructors.push_back(constructor);
-		}
+		void setDestructor(ASTObject_Destructor* destructor);
+		void addConstructor(ASTObject_Constructor* constructor);
 
 		ASTObjectAccess getCurrentAccess() const { return m_currAccess; }
 		void setCurrentAccess(ASTObjectAccess acc){ m_currAccess = acc; }
 
+		void addBase(ASTObject_Struct* base, ASTObjectAccess access);
+		const std::vector<AST_BaseStruct>& getBases(){ return m_bases; };
+
 	protected:
 
-		ASTObject* m_destructor;
-		std::vector<ASTObject*> m_constructors; // should be ASTObject_Function
-		std::vector<ASTObject*> m_functions;
+		ASTObject_Destructor* m_destructor;
+		std::vector<ASTObject_Constructor*> m_constructors;
+		std::vector<ASTObject_Member_Function*> m_functions;
 		ASTObjectAccess m_currAccess;
+		std::vector<AST_BaseStruct> m_bases;
 	};
 
 
