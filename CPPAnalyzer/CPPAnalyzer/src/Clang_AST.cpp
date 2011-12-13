@@ -46,6 +46,8 @@ namespace CPPAnalyzer
 
 		ASTObject_Namespace* astObject = new ASTObject_Namespace(clang_getCString(displayName));
 		astParent->addChild(astObject);
+
+		astObject->setUSR(clang_getCString(clang_getCursorUSR(cursor)));
 		
 		return astObject;
 	}
@@ -56,6 +58,8 @@ namespace CPPAnalyzer
 
 		ASTObject_Struct* astObject = new ASTObject_Struct(clang_getCString(displayName));
 		astParent->addChild(astObject);
+
+		astObject->setUSR(clang_getCString(clang_getCursorUSR(cursor)));
 		
 		return astObject;
 	}
@@ -67,6 +71,8 @@ namespace CPPAnalyzer
 
 		ASTObject_Class* astObject = new ASTObject_Class(clang_getCString(displayName));
 		astParent->addChild(astObject);
+
+		astObject->setUSR(clang_getCString(clang_getCursorUSR(cursor)));
 
 		return astObject;
 	}
@@ -84,6 +90,8 @@ namespace CPPAnalyzer
 
 		// TODO: use add field
 		astParent->addChild(astObject);
+
+		astObject->setUSR(clang_getCString(clang_getCursorUSR(cursor)));
 		
 		return astObject;
 	}
@@ -100,6 +108,8 @@ namespace CPPAnalyzer
 		astObject->setReturnTypeCanonical(createASTType(returnType, true));
 
 		astParent->addChild(astObject);
+
+		astObject->setUSR(clang_getCString(clang_getCursorUSR(cursor)));
 		
 		return astObject;
 	}
@@ -122,6 +132,8 @@ namespace CPPAnalyzer
 
 		// TODO: use addFunction
 		astParent->addChild(astObject);
+
+		astObject->setUSR(clang_getCString(clang_getCursorUSR(cursor)));
 		
 		return astObject;
 	}
@@ -136,6 +148,8 @@ namespace CPPAnalyzer
 		ASTObject_Struct* parentStruct = static_cast<ASTObject_Struct*>(astParent);
 		astObject->setAccess(parentStruct->getCurrentAccess());
 		parentStruct->addConstructor(astObject);
+
+		astObject->setUSR(clang_getCString(clang_getCursorUSR(cursor)));
 		
 		return astObject;
 	}
@@ -150,6 +164,8 @@ namespace CPPAnalyzer
 		ASTObject_Struct* parentStruct = static_cast<ASTObject_Struct*>(astParent);
 		astObject->setAccess(parentStruct->getCurrentAccess());
 		parentStruct->setDestructor(astObject);
+
+		astObject->setUSR(clang_getCString(clang_getCursorUSR(cursor)));
 		
 		return astObject;
 	}
@@ -169,6 +185,8 @@ namespace CPPAnalyzer
 			parentFunc->addParameter(astObject);
 
 		// TODO: else throw exception
+
+		astObject->setUSR(clang_getCString(clang_getCursorUSR(cursor)));
 		
 		return astObject;
 	}
@@ -187,7 +205,9 @@ namespace CPPAnalyzer
 		astParent->addChild(astObject);
 
 		// TODO: else throw exception
-		
+
+		astObject->setUSR(clang_getCString(clang_getCursorUSR(cursor)));
+
 		return astObject;
 	}
 

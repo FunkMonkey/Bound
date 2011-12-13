@@ -15,6 +15,9 @@
 
 #include "ASTType.hpp"
 
+// TEMP
+#include <iostream>
+
 namespace CPPAnalyzer
 {
 	void JSON_Converter::convertAllChildrenToJSON(ASTObject& astObject, std::stringstream& ss, int depth)
@@ -36,28 +39,36 @@ namespace CPPAnalyzer
 	{
 		ss << indent << propName << ": \"" << value << "\"";
 		if(!isLast)
-			ss << "," << m_lineBreak;
+			ss << ",";
+			
+		ss << m_lineBreak;
 	}
 
 	void JSON_Converter::addProperty(const std::string& propName, unsigned int value, std::stringstream& ss, const std::string& indent, bool isLast)
 	{
 		ss << indent << propName << ": " << value;
 		if(!isLast)
-			ss << "," << m_lineBreak;
+			ss << ",";
+
+		ss << m_lineBreak;
 	}
 
 	void JSON_Converter::addProperty(const std::string& propName, float value, std::stringstream& ss, const std::string& indent, bool isLast)
 	{
 		ss << indent << propName << ": " << value;
 		if(!isLast)
-			ss << "," << m_lineBreak;
+			ss << ",";
+
+		ss << m_lineBreak;
 	}
 
 	void JSON_Converter::addProperty(const std::string& propName, bool value, std::stringstream& ss, const std::string& indent, bool isLast)
 	{
-		ss << indent << propName << ": " << (value) ? "true" : "false";
+		ss << indent << propName << ": " << ((value) ? "true" : "false");
 		if(!isLast)
-			ss << "," << m_lineBreak;
+			ss << ",";
+
+		ss << m_lineBreak;
 	}
 
 	void JSON_Converter::addLine(const std::string& line, std::stringstream& ss, const std::string& indent)
@@ -77,16 +88,17 @@ namespace CPPAnalyzer
 		// --------------------
 		addLine("{", ss, indent_min);
 		addProperty("kind", type.getKind(), ss, indent);
-		addProperty("isConst", type.isConst(), ss, indent);
+		addProperty("isConst", type.isConst(), ss, indent, !(type.getDeclaration() || type.getPointsTo()));
 
 		if((type.getKind() == "Record" || type.getKind() == "Typedef") && type.getDeclaration())
 		{
-			addProperty("declaration", type.getDeclaration()->getID(), ss, indent);
+			addProperty("declaration", type.getDeclaration()->getID(), ss, indent, true);
 		}
 		else if((type.getKind() == "Pointer" || type.getKind() == "LValueReference") && type.getPointsTo())
 		{
-			ss << indent << "pointsTo:";
+			ss << indent << "pointsTo:" << m_lineBreak;
 			convertToJSON(*type.getPointsTo(), ss, depth +2);
+			ss << m_lineBreak;
 		}
 
 		ss << indent_min << "}";
@@ -116,7 +128,39 @@ namespace CPPAnalyzer
 					// adding children
 					addLine("children: [", ss, indent);
 					convertAllChildrenToJSON(astObject, ss, depth);
-					addLine("]", ss, indent);
+					addLine("],", ss, indent);
+
+					// USR
+					addProperty("USR", astObject.getUSR(), ss, indent, true);
+
+					// end of object
+					ss << indent_min <<  "}";
+
+					break;
+				}
+			
+			case KIND_TYPEDEF:
+				{
+					ASTObject_Typedef& astObjectTypedef = static_cast<ASTObject_Typedef&>(astObject);
+
+					addLine("{", ss, indent_min);
+
+					// common props
+					addProperty("name", astObject.getNodeName(), ss, indent);
+					addProperty("kind", getASTObjectKind(astObject.getKind()), ss, indent);
+					addProperty("id", astObject.getID(), ss, indent);
+
+					// access
+					addLine("type: ", ss, indent);
+					convertToJSON(*astObjectTypedef.getType(), ss, depth+2);
+					ss << "," << m_lineBreak;
+
+					addLine("typeCanonical: ", ss, indent);
+					convertToJSON(*astObjectTypedef.getTypeCanonical(), ss, depth+2);
+					ss << "," << m_lineBreak;
+
+					// USR
+					addProperty("USR", astObject.getUSR(), ss, indent, true);
 
 					// end of object
 					ss << indent_min <<  "}";
@@ -151,7 +195,40 @@ namespace CPPAnalyzer
 					// adding children
 					addLine("children: [", ss, indent);
 					convertAllChildrenToJSON(astObject, ss, depth);
-					addLine("]", ss, indent);
+					addLine("],", ss, indent);
+
+					// USR
+					addProperty("USR", astObject.getUSR(), ss, indent, true);
+
+					// end of object
+					ss << indent_min <<  "}";
+
+					break;
+				}
+			case KIND_FIELD:
+				{
+					ASTObject_Field& astObjectField = static_cast<ASTObject_Field&>(astObject);
+
+					addLine("{", ss, indent_min);
+
+					// common props
+					addProperty("name", astObject.getNodeName(), ss, indent);
+					addProperty("kind", getASTObjectKind(astObject.getKind()), ss, indent);
+					addProperty("id", astObject.getID(), ss, indent);
+
+					// access
+					addProperty("access", getASTObjectAccessString(astObjectField.getAccess()), ss, indent);
+					addLine("type: ", ss, indent);
+					convertToJSON(*astObjectField.getType(), ss, depth+2);
+					ss << "," << m_lineBreak;
+
+					addLine("typeCanonical: ", ss, indent);
+					convertToJSON(*astObjectField.getTypeCanonical(), ss, depth+2);
+					ss << "," << m_lineBreak;
+
+					// USR
+					addProperty("USR", astObject.getUSR(), ss, indent, true);
+
 
 					// end of object
 					ss << indent_min <<  "}";
@@ -176,6 +253,7 @@ namespace CPPAnalyzer
 					if(astObjectMemberFunc)
 						addProperty("access", getASTObjectAccessString(astObjectMemberFunc->getAccess()), ss, indent);
 					
+					// return type
 					if(kind == KIND_FUNCTION || kind == KIND_MEMBER_FUNCTION)
 					{
 						addLine("returnType: ", ss, indent);
@@ -186,18 +264,37 @@ namespace CPPAnalyzer
 						ss << "," << m_lineBreak;
 					}
 
-					// adding bases
-					/*addLine("bases: [", ss, indent);
-
-					const std::vector<AST_BaseStruct>& bases = astObjectStruct.getBases();
-					for(std::vector<AST_BaseStruct>::const_iterator it = bases.begin(); it != bases.end(); ++it)
+					// parameters
+					if(kind != KIND_DESTRUCTOR)
 					{
-						ss << indent << m_indent << (*it).base->getID();
-						if(it+1 != bases.end())
+						addLine("parameters: [", ss, indent);
+
+						const std::vector<ASTObject_Parameter*>& parameters = astObjectFunc.getParameters();
+						for(std::vector<ASTObject_Parameter*>::const_iterator it = parameters.begin(); it != parameters.end(); ++it)
+						{
+							ss << indent << m_indent << "{" << m_lineBreak;
+							ss << indent << m_indent << m_indent << "name: \"" << (*it)->getNodeName() << "\"," << m_lineBreak;
+
+							addLine("type: ", ss, indent + m_indent + m_indent);
+							convertToJSON(*(*it)->getType(), ss, depth+4);
 							ss << "," << m_lineBreak;
+
+							addLine("typeCanonical: ", ss, indent + m_indent + m_indent);
+							convertToJSON(*(*it)->getTypeCanonical(), ss, depth+4);
+							ss << m_lineBreak;
+
+							ss << indent << m_indent << "}";
+							if(it+1 != parameters.end())
+								ss << ",";
+
+							ss << m_lineBreak;
+						}
+
+						addLine("],", ss, indent);
 					}
 
-					addLine("],", ss, indent);*/
+					// USR
+					addProperty("USR", astObject.getUSR(), ss, indent, true);
 
 					// end of object
 					ss << indent_min <<  "}";

@@ -28,7 +28,9 @@ namespace CPPAnalyzer
 
 		unsigned getID() const { return m_id; }
 		
-		const std::string& getUSR() const { return m_nodeName; }
+		const std::string& getUSR() const { return m_usr; }
+		void setUSR(const std::string& usr) { m_usr = usr; }
+
 		const std::string& getNodeName() const { return m_nodeName; }
 		const std::string& getLongName() const { return m_longName; }
 		const std::string& getKindName() const { return m_longName; }
