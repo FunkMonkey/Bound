@@ -321,4 +321,5 @@ namespace CPPAnalyzer
 
 		str = ss.str();
 	}
+
 }

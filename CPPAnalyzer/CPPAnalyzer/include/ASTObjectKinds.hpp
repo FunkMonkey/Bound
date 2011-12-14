@@ -38,6 +38,7 @@ namespace CPPAnalyzer
 		return "invalid";
 	}
 
+	// TODO: rename
 	static const char* getASTObjectKind(ASTObjectKind kind)
 	{
 		switch(kind)

@@ -19,7 +19,7 @@
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="2"
 			CharacterSet="2"
 			>
 			<Tool
@@ -41,6 +41,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\..\Dependencies\clang\include&quot;;&quot;$(ProjectDir)include&quot;;&quot;$(SolutionDir)..\..\Dependencies\stdint\include&quot;"
+				PreprocessorDefinitions="LIBRARY_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -89,7 +90,7 @@
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="2"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
@@ -113,6 +114,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\..\Dependencies\clang\include&quot;;&quot;$(ProjectDir)include&quot;;&quot;$(SolutionDir)..\..\Dependencies\stdint\include&quot;"
+				PreprocessorDefinitions="LIBRARY_EXPORTS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				WarningLevel="3"
@@ -242,6 +244,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\Clang_JSON_lib.hpp"
+				>
+			</File>
+			<File
 				RelativePath=".\include\JSON_Converter.hpp"
 				>
 			</File>
@@ -263,6 +269,10 @@
 			</File>
 			<File
 				RelativePath=".\src\Clang_AST.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Clang_JSON_lib.cpp"
 				>
 			</File>
 			<File
