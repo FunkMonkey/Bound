@@ -42,7 +42,7 @@ namespace CPPAnalyzer
 
 	void JSON_Converter::addProperty(const std::string& propName, const char* value, std::stringstream& ss, const std::string& indent, bool isLast)
 	{
-		ss << indent << propName << ": \"" << value << "\"";
+		ss << indent << '"' << propName << "\": \"" << value << "\"";
 		if(!isLast)
 			ss << ",";
 			
@@ -51,7 +51,7 @@ namespace CPPAnalyzer
 
 	void JSON_Converter::addProperty(const std::string& propName, unsigned int value, std::stringstream& ss, const std::string& indent, bool isLast)
 	{
-		ss << indent << propName << ": " << value;
+		ss << indent << '"' << propName << "\": " << value;
 		if(!isLast)
 			ss << ",";
 
@@ -60,7 +60,7 @@ namespace CPPAnalyzer
 
 	void JSON_Converter::addProperty(const std::string& propName, float value, std::stringstream& ss, const std::string& indent, bool isLast)
 	{
-		ss << indent << propName << ": " << value;
+		ss << indent << '"' << propName << "\": " << value;
 		if(!isLast)
 			ss << ",";
 
@@ -69,7 +69,7 @@ namespace CPPAnalyzer
 
 	void JSON_Converter::addProperty(const std::string& propName, bool value, std::stringstream& ss, const std::string& indent, bool isLast)
 	{
-		ss << indent << propName << ": " << ((value) ? "true" : "false");
+		ss << indent << '"' << propName << "\": " << ((value) ? "true" : "false");
 		if(!isLast)
 			ss << ",";
 
@@ -101,7 +101,7 @@ namespace CPPAnalyzer
 		}
 		else if((type.getKind() == "Pointer" || type.getKind() == "LValueReference") && type.getPointsTo())
 		{
-			ss << indent << "pointsTo:" << m_lineBreak;
+			ss << indent << "\"pointsTo\":" << m_lineBreak;
 			convertToJSON(*type.getPointsTo(), ss, depth +2);
 			ss << m_lineBreak;
 		}
@@ -131,7 +131,7 @@ namespace CPPAnalyzer
 					addProperty("id", astObject.getID(), ss, indent);
 
 					// adding children
-					addLine("children: [", ss, indent);
+					addLine("\"children\": [", ss, indent);
 					convertAllChildrenToJSON(astObject, ss, depth);
 					addLine("],", ss, indent);
 
@@ -156,11 +156,11 @@ namespace CPPAnalyzer
 					addProperty("id", astObject.getID(), ss, indent);
 
 					// access
-					addLine("type: ", ss, indent);
+					addLine("\"type\": ", ss, indent);
 					convertToJSON(*astObjectTypedef.getType(), ss, depth+2);
 					ss << "," << m_lineBreak;
 
-					addLine("typeCanonical: ", ss, indent);
+					addLine("\"typeCanonical\": ", ss, indent);
 					convertToJSON(*astObjectTypedef.getTypeCanonical(), ss, depth+2);
 					ss << "," << m_lineBreak;
 
@@ -185,7 +185,7 @@ namespace CPPAnalyzer
 					addProperty("id", astObject.getID(), ss, indent);
 					
 					// adding bases
-					addLine("bases: [", ss, indent);
+					addLine("\"bases\": [", ss, indent);
 
 					const std::vector<AST_BaseStruct>& bases = astObjectStruct.getBases();
 					for(std::vector<AST_BaseStruct>::const_iterator it = bases.begin(); it != bases.end(); ++it)
@@ -198,7 +198,7 @@ namespace CPPAnalyzer
 					addLine("],", ss, indent);
 					
 					// adding children
-					addLine("children: [", ss, indent);
+					addLine("\"children\": [", ss, indent);
 					convertAllChildrenToJSON(astObject, ss, depth);
 					addLine("],", ss, indent);
 
@@ -223,11 +223,11 @@ namespace CPPAnalyzer
 
 					// access
 					addProperty("access", getASTObjectAccessString(astObjectField.getAccess()), ss, indent);
-					addLine("type: ", ss, indent);
+					addLine("\"type\": ", ss, indent);
 					convertToJSON(*astObjectField.getType(), ss, depth+2);
 					ss << "," << m_lineBreak;
 
-					addLine("typeCanonical: ", ss, indent);
+					addLine("\"typeCanonical\": ", ss, indent);
 					convertToJSON(*astObjectField.getTypeCanonical(), ss, depth+2);
 					ss << "," << m_lineBreak;
 
@@ -261,10 +261,10 @@ namespace CPPAnalyzer
 					// return type
 					if(kind == KIND_FUNCTION || kind == KIND_MEMBER_FUNCTION)
 					{
-						addLine("returnType: ", ss, indent);
+						addLine("\"returnType\": ", ss, indent);
 						convertToJSON(*astObjectFunc.getReturnType(), ss, depth+2);
 						ss << "," << m_lineBreak;
-						addLine("returnTypeCanonical: ", ss, indent);
+						addLine("\"returnTypeCanonical\": ", ss, indent);
 						convertToJSON(*astObjectFunc.getReturnTypeCanonical(), ss, depth+2);
 						ss << "," << m_lineBreak;
 					}
@@ -272,19 +272,19 @@ namespace CPPAnalyzer
 					// parameters
 					if(kind != KIND_DESTRUCTOR)
 					{
-						addLine("parameters: [", ss, indent);
+						addLine("\"parameters\": [", ss, indent);
 
 						const std::vector<ASTObject_Parameter*>& parameters = astObjectFunc.getParameters();
 						for(std::vector<ASTObject_Parameter*>::const_iterator it = parameters.begin(); it != parameters.end(); ++it)
 						{
 							ss << indent << m_indent << "{" << m_lineBreak;
-							ss << indent << m_indent << m_indent << "name: \"" << (*it)->getNodeName() << "\"," << m_lineBreak;
+							ss << indent << m_indent << m_indent << "\"name\": \"" << (*it)->getNodeName() << "\"," << m_lineBreak;
 
-							addLine("type: ", ss, indent + m_indent + m_indent);
+							addLine("\"type\": ", ss, indent + m_indent + m_indent);
 							convertToJSON(*(*it)->getType(), ss, depth+4);
 							ss << "," << m_lineBreak;
 
-							addLine("typeCanonical: ", ss, indent + m_indent + m_indent);
+							addLine("\"typeCanonical\": ", ss, indent + m_indent + m_indent);
 							convertToJSON(*(*it)->getTypeCanonical(), ss, depth+4);
 							ss << m_lineBreak;
 

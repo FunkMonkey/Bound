@@ -1,0 +1,33 @@
+
+<!ENTITY editor-main.title "Editor">
+<!ENTITY main-menu-tools.label "Tools">
+<!ENTITY main-menu-tools-extensions.label "Extensions">
+<!ENTITY main-menu-tools-aboutconfig.label "about:config">
+<!ENTITY main-menu-tools-aboutplugins.label "about:plugins">
+
+<!ENTITY level-toolbar-button_loadLevel.tooltip			"Load Level">
+<!ENTITY level-toolbar-button_saveLevel.tooltip			"Save Level">
+<!ENTITY level-toolbar-button_saveLevelAs.tooltip		"Save Level As">
+<!ENTITY level-toolbar-button_cut.tooltip			"Cut">
+<!ENTITY level-toolbar-button_copy.tooltip			"Copy">
+<!ENTITY level-toolbar-button_paste.tooltip			"Paste">
+<!ENTITY level-toolbar-button_toggleGroupSelection.tooltip	"Toggle Group Selection Mode">
+<!ENTITY level-toolbar-button_groupSelection.tooltip		"Group selected items">
+<!ENTITY level-toolbar-button_ungroupIsolation.tooltip		"Ungroup selected items">
+<!ENTITY level-toolbar-button_isolateSelection.tooltip		"Isolate selected items">
+<!ENTITY level-toolbar-button_exitIsolation.tooltip		"Exit isolation">
+<!ENTITY level-toolbar-button_toggleCulling.tooltip		"Toogle Culling">
+<!ENTITY level-toolbar-button_toggleParalaxMapping.tooltip	"Toogle Parallax Scrolling">
+<!ENTITY level-toolbar-button_togglePostProcessing.tooltip	"Toogle PostProcessing">
+<!ENTITY level-toolbar-button_toggleMusic.tooltip		"Toogle Music">
+<!ENTITY level-toolbar-textBox_minShownLayer.tooltip		"Min Visible Layer">
+<!ENTITY level-toolbar-textBox_maxShownLayer.tooltip		"Max Visible Layer">
+<!ENTITY level-toolbar-button_enableDebugLines.tooltip		"Toogle debug lines">
+<!ENTITY level-toolbar-button_showMousePos.tooltip		"Show Mouse Coordinates">			
+<!ENTITY level-toolbar-button_playLevel.tooltip			"Play Level">
+<!ENTITY level-toolbar-button_resetGameToLastSaveState.tooltip	"Reset Level (Last SaveState)">		
+<!ENTITY level-toolbar-button_toggleShowPhysicsObjects.tooltip	"Show All Physics Objects">
+<!ENTITY level-toolbar-button_addObject.tooltip			"Add Object">
+<!ENTITY level-toolbar-button_removeObject.tooltip		"Remove Object">
+<!ENTITY level-toolbar-button_camera_up.tooltip			"Move camera up">
+<!ENTITY level-toolbar-button_camera_down.tooltip		"Move camera down">

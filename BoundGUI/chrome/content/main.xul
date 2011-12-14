@@ -2,13 +2,13 @@
 
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 
-<window id="main" title="My App" width="300" height="300" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<window id="main" title="My App" width="300" height="300" persist="screenX screenY" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <script type="application/javascript" src="chrome://myapp/content/main.js"/>
 
   <caption label="Hello World"/>
   <separator/>
-  <button label="More >>" oncommand="showMore();"/>
+  <button label="More >>" oncommand="window.open('chrome://mozapps/content/extensions/extensions.xul?type=extensions', '', 'chrome, resizable=yes');"/>
   <separator/>
   <description id="more-text" hidden="true">This is a simple XULRunner application. XUL is simple to use and quite powerful and can even be used on mobile devices.</description>
 
