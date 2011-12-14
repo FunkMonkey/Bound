@@ -37,6 +37,11 @@ namespace CPPAnalyzer
 
 	void JSON_Converter::addProperty(const std::string& propName, const std::string& value, std::stringstream& ss, const std::string& indent, bool isLast)
 	{
+		addProperty(propName, value.c_str(), ss, indent, isLast);
+	}
+
+	void JSON_Converter::addProperty(const std::string& propName, const char* value, std::stringstream& ss, const std::string& indent, bool isLast)
+	{
 		ss << indent << propName << ": \"" << value << "\"";
 		if(!isLast)
 			ss << ",";

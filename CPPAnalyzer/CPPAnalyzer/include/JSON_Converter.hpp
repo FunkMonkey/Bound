@@ -26,6 +26,7 @@ namespace CPPAnalyzer
 
 		protected:
 			void addProperty(const std::string& propName, const std::string& value, std::stringstream& ss, const std::string& indent, bool isLast = false);
+			void addProperty(const std::string& propName, const char* value, std::stringstream& ss, const std::string& indent, bool isLast = false);
 			void addProperty(const std::string& propName, unsigned int value, std::stringstream& ss, const std::string& indent, bool isLast = false);
 			void addProperty(const std::string& propName, float value, std::stringstream& ss, const std::string& indent, bool isLast = false);
 			void addProperty(const std::string& propName, bool value, std::stringstream& ss, const std::string& indent, bool isLast = false);

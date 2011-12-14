@@ -27,8 +27,7 @@ namespace CPPAnalyzer
 			ACCESS_PUBLIC
 		};
 
-	// TODO: performance, use references
-	static std::string getASTObjectAccessString(ASTObjectAccess access)
+	static const char* getASTObjectAccessString(ASTObjectAccess access)
 	{
 		switch(access)
 		{
@@ -39,7 +38,7 @@ namespace CPPAnalyzer
 		return "invalid";
 	}
 
-	static std::string getASTObjectKind(ASTObjectKind kind)
+	static const char* getASTObjectKind(ASTObjectKind kind)
 	{
 		switch(kind)
 		{
