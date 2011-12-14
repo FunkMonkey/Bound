@@ -18,9 +18,19 @@ Components.utils.import("resource://gre/modules/ctypes.jsm");
 //var file = FileUtils.getFile("resource:app", ["application.ini"]);
 var file = Components.classes["@mozilla.org/file/directory_service;1"].  
            getService(Components.interfaces.nsIProperties).  
-           get("DefRt", Components.interfaces.nsIFile);  
+           get("CurProcD", Components.interfaces.nsIFile);
+		   
+alert(file.path)
+		   
+var libclangFile = file.clone();
+libclangFile.append("components");
+libclangFile.append("libClang.dll");
+var libClangLib = ctypes.open(libclangFile.path);
+		   
+var cppAnalyzerFile = file.clone();
+cppAnalyzerFile.append("components");
+cppAnalyzerFile.append("CPPAnalyzer.dll");
 
 
-//var parserLib = ctypes.open(file.path);
-alert(file.path);
+var cppAnalyzerLib = ctypes.open(cppAnalyzerFile.path);
 
