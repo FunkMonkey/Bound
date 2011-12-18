@@ -1,4 +1,4 @@
-pref("toolkit.defaultChromeURI", "chrome://myapp/content/main.xul");
+pref("toolkit.defaultChromeURI", "chrome://bound/content/ui/main.xul");
 pref("devtools.errorconsole.enabled", true);
 
 pref("javascript.options.showInConsole", true);

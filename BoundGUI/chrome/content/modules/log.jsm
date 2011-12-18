@@ -3,12 +3,6 @@ var EXPORTED_SYMBOLS = ["log"];
 
 const consoleService = Components.classes['@mozilla.org/consoleservice;1'].getService(Components.interfaces.nsIConsoleService);
 
-function jsdump(str)
-{
-  
-            
-}
-
 function log(str)
 {
 	if(log.useJSConsole)
