@@ -4,7 +4,7 @@ pref("devtools.errorconsole.enabled", true);
 pref("javascript.options.showInConsole", true);
 pref("nglayout.debug.disable_xul_cache", true);
 pref("browser.dom.window.dump.enabled", true);
-pref("javascript.options.strict", true);
+pref("javascript.options.strict", false); // TODO make true
 pref("devtools.chrome.enabled", true);
 pref("extensions.logging.enabled", true);
 pref("nglayout.debug.disable_xul_fastload", true);

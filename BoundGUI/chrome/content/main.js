@@ -1,3 +1,19 @@
+const Cc = Components.classes;
+const Ci = Components.interfaces;
+
+function quitApp(/* in boolean */aForceQuit)
+  {
+	  var appStartup = Cc["@mozilla.org/toolkit/app-startup;1"].getService(Ci.nsIAppStartup);
+
+	  // eAttemptQuit will try to close each XUL window, but the XUL window can cancel the quit
+	  // process if there is unsaved data. eForceQuit will quit no matter what.
+	  var quitSeverity = aForceQuit ? Ci.nsIAppStartup.eForceQuit : Ci.nsIAppStartup.eAttemptQuit;
+	  appStartup.quit(quitSeverity);
+  }
+
+
+window.addEventListener("close", quitApp, false); 
+
 function showMore() {
   document.getElementById("more-text").hidden = false;
 }
@@ -10,6 +26,8 @@ function jsdump(str)
 }
 
 jsdump("test");
+
+console.log("supertest");
 
 Components.utils.import("resource://gre/modules/FileUtils.jsm");
 Components.utils.import("resource://gre/modules/ctypes.jsm");
