@@ -8,6 +8,7 @@
 
   <caption label="Hello World"/>
   <separator/>
+  <button label="Start" oncommand="testParsing();"/>
   <button label="More >>" oncommand="window.open('chrome://mozapps/content/extensions/extensions.xul?type=extensions', '', 'chrome, resizable=yes');console.log('supertest');"/>
   <separator/>
   <description id="more-text" hidden="true">This is a simple XULRunner application. XUL is simple to use and quite powerful and can even be used on mobile devices.</description>

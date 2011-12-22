@@ -1,9 +1,10 @@
+var EXPORTED_SYMBOLS = ["Bound"];
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 const Cu = Components.utils;
 
-var EXPORTED_SYMBOLS = ["Bound"];
+
 
 let Bound = {
 	quit: function quit(aForceQuit)
