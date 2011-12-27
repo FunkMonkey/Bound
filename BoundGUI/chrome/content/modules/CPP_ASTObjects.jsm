@@ -69,6 +69,27 @@ ASTObject.KIND_PARAMETER       = 9;
 ASTObject.KIND_CONSTRUCTOR     = 10;
 ASTObject.KIND_DESTRUCTOR      = 11;
 
+ASTObject.getKindAsString = function getKindAsString(kind)
+{
+	switch(kind)
+	{
+		case ASTObject.KIND_INVALID        : return "Invalid";
+		case ASTObject.KIND_NAMESPACE      : return "Namespace";
+		case ASTObject.KIND_TYPEDEF        : return "Typedef";
+		case ASTObject.KIND_STRUCT         : return "Struct";
+		case ASTObject.KIND_CLASS          : return "Class";
+		case ASTObject.KIND_VARIABLE_DECL  : return "VariableDeclaration";
+		case ASTObject.KIND_FIELD          : return "Field";
+		case ASTObject.KIND_FUNCTION       : return "Function";
+		case ASTObject.KIND_MEMBER_FUNCTION: return "MemberFunction";
+		case ASTObject.KIND_PARAMETER      : return "Parameter";
+		case ASTObject.KIND_CONSTRUCTOR    : return "Constructor";
+		case ASTObject.KIND_DESTRUCTOR     : return "Destructor";
+	}
+	
+	return "Invalid";
+}
+
 ASTObject.prototype = {
 	constructor: ASTObject,
 	

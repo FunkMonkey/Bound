@@ -1,0 +1,127 @@
+﻿
+.dom-tree
+{
+	background-color: #fff;
+	overflow: auto;
+}
+
+.dom-tree-container
+{
+	padding-left: 10px;
+}
+
+.dom-tree-row-content
+{
+}
+
+.dom-tree-row-twisty
+{
+	visibility: hidden;
+	-moz-box-align: center;
+	padding-left: 5px;
+	width: 15px;
+}
+
+
+.dom-tree-row-twisty > image
+{
+	list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif");
+}
+
+.dom-tree-row[isContainerOpen] > hbox > .dom-tree-row-twisty > image
+{
+	list-style-image: url("chrome://global/skin/arrow/arrow-rit.gif");
+}
+
+.dom-tree-row[isContainer] > hbox > .dom-tree-row-twisty
+{
+	visibility: visible;
+	
+}
+
+.dom-tree-row-label-image
+{
+	-moz-box-align: center;
+}
+
+/*.dom-tree-container .dom-tree-row-label-image > image*/
+/*{*/
+/*	list-style-image: url("chrome://bound/skin/AST/small_f.png");*/
+/*}*/
+
+.dom-tree-row > .dom-tree-container
+{
+	display: none;
+}
+
+.dom-tree-row[isContainerOpen] > .dom-tree-container
+{
+	display: -moz-box;
+}
+
+
+/* TODO: move */
+
+.dom-tree-row[ast_kind="Namespace"] > hbox > .dom-tree-row-label-image > image
+{
+	list-style-image: url("chrome://bound/skin/AST/N.png");
+}
+
+.dom-tree-row[ast_kind="Module"] > hbox > .dom-tree-row-label-image > image
+{
+	list-style-image: url("chrome://bound/skin/AST/M.png");
+}
+
+.dom-tree-row[ast_kind="Class"] > hbox > .dom-tree-row-label-image > image
+{
+	list-style-image: url("chrome://bound/skin/AST/C.png");
+}
+
+.dom-tree-row[ast_kind="Struct"] > hbox > .dom-tree-row-label-image > image
+{
+	list-style-image: url("chrome://bound/skin/AST/S.png");
+}
+
+.dom-tree-row[ast_kind="Union"] > hbox > .dom-tree-row-label-image > image
+{
+	list-style-image: url("chrome://bound/skin/AST/U.png");
+}
+
+.dom-tree-row[ast_kind="Enum"] > hbox > .dom-tree-row-label-image > image
+{
+	list-style-image: url("chrome://bound/skin/AST/E.png");
+}
+
+.dom-tree-row[ast_kind="Typedef"] > hbox > .dom-tree-row-label-image > image
+{
+	list-style-image: url("chrome://bound/skin/AST/T.png");
+}
+
+.dom-tree-row[ast_kind="Field"] > hbox > .dom-tree-row-label-image > image
+{
+	list-style-image: url("chrome://bound/skin/AST/F.png");
+}
+
+.dom-tree-row[ast_kind="Property"] > hbox > .dom-tree-row-label-image > image
+{
+	list-style-image: url("chrome://bound/skin/AST/P.png");
+}
+
+.dom-tree-row[ast_kind="Function"] > hbox > .dom-tree-row-label-image > image,
+.dom-tree-row[ast_kind="MemberFunction"] > hbox > .dom-tree-row-label-image > image
+{
+	list-style-image: url("chrome://bound/skin/AST/small_f.png");
+}
+
+.dom-tree-row[ast_kind="Constructor"] > hbox > .dom-tree-row-label-image > image
+{
+	list-style-image: url("chrome://bound/skin/AST/small_c.png");
+}
+
+.dom-tree-row[ast_kind="Destructor"] > hbox > .dom-tree-row-label-image > image
+{
+	list-style-image: url("chrome://bound/skin/AST/small_d.png");
+}
+
+
+

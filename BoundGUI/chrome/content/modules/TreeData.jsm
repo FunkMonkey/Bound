@@ -37,9 +37,6 @@ function TreeItem() {
 	this.isContainerEmpty = true;
 	this.isContainerOpen = false;
 	this.level = 0;
-	this.datakey = null,
-	this.datavalue = null;
-	this.datavalueLinkable = false;
 }
 
 function nsTreeView(dataArray, getCellTextCB) {
@@ -77,17 +74,17 @@ nsTreeView.prototype = {
 		
 	//####################################################################
 	getCellProperties: function getColumnProperties(row,col,props){
-		var n = this._get_tree_item_by_row(row);
-		if (col.id == "value" && !n.isContainer){
-			if (n.datavalueLinkable){
-    			props.AppendElement(this.atomService.getAtom("link"));
-			} else {
-				props.AppendElement(this.atomService.getAtom("nolink"));
-			}			
-		}
-		if (n.isContainer && n.isContainerEmpty){
-			props.AppendElement(this.atomService.getAtom("empty"));
-		}			
+//		var n = this._get_tree_item_by_row(row);
+//		if (col.id == "value" && !n.isContainer){
+//			if (n.datavalueLinkable){
+//    			props.AppendElement(this.atomService.getAtom("link"));
+//			} else {
+//				props.AppendElement(this.atomService.getAtom("nolink"));
+//			}			
+//		}
+//		if (n.isContainer && n.isContainerEmpty){
+//			props.AppendElement(this.atomService.getAtom("empty"));
+//		}			
 	},
 	//####################################################################
 	get rowCount () {
