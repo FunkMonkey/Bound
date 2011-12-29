@@ -22,15 +22,21 @@
 	width: 15px;
 }
 
+.dom-tree-row[selected] > hbox
+{
+	background-color: Highlight;
+	color: HighlightText;
+}
+
 
 .dom-tree-row-twisty > image
 {
-	list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif");
+	list-style-image: url("chrome://global/skin/arrow/arrow-rit.gif");
 }
 
 .dom-tree-row[isContainerOpen] > hbox > .dom-tree-row-twisty > image
 {
-	list-style-image: url("chrome://global/skin/arrow/arrow-rit.gif");
+	list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif");
 }
 
 .dom-tree-row[isContainer] > hbox > .dom-tree-row-twisty

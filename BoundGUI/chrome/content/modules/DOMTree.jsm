@@ -24,6 +24,8 @@ function DOMTree(document, vbox, dataCB)
 	this.box.classList.add("dom-tree");
 	
 	this.dataCB = dataCB;
+	
+	this.selection = [];
 }
 
 DOMTree.prototype =
@@ -54,7 +56,87 @@ DOMTree.prototype =
 			
 			this.isContainerOpen = !this.isContainerOpen;
 		}
+	},
+	
+	/**
+	 * Called when clicked on row content
+	 * 
+	 * @param   {DOMEvent}   event   Description
+	 */
+	_onRowContentClicked: function _onRowContentClicked(event)
+	{
+		let row = event.currentTarget.parentNode;
+		
+		// TODO: exclude twisty
+		// TODO: different keys
+		
+		row.tree.clearSelection();
+		
+		//if(row.hasAttribute("selected"))
+		//	row.tree.removeFromSelection(row);
+		//else
+			row.tree.addToSelection(row);
 	}, 
+	
+	
+	/**
+	 * Adds the given row to the selection
+	 * 
+	 * @param   {DOMElement}   row
+	 */
+	addToSelection: function addToSelection(row)
+	{
+		for(let i = 0; i < this.selection.length; ++i)
+			if(this.selection[i] === row)
+				return;
+			
+		this.selection.push(row);
+		
+		row.setAttribute("selected", "");
+	},
+	
+	/**
+	 * Adds the given row to the selection
+	 * 
+	 * @param   {DOMElement}   row
+	 */
+	removeFromSelection: function removeFromSelection(row)
+	{
+		for(let i = 0; i < this.selection.length; ++i)
+		{
+			if(this.selection[i] === row)
+			{
+				this.selection.splice(i, 1);
+				row.removeAttribute("selected");
+				return;
+			}
+		}
+	},
+	
+	/**
+	 * Clears the selection
+	 */
+	clearSelection: function clearSelection()
+	{
+		for(let i = 0; i < this.selection.length; ++i)
+			this.selection[i].removeAttribute("selected");
+		
+		this.selection.length = 0;
+	},
+	
+	/**
+	 * Selects the given row
+	 * 
+	 * @param   {DOMElement}   row
+	 */
+	select: function select(row)
+	{
+		this.clearSelection();
+		this.addToSelection(row);
+	}, 
+	
+	
+	
 	
 	
 	/**
@@ -70,6 +152,7 @@ DOMTree.prototype =
 	{
 		let row = this.document.createElement("vbox");
 		row.classList.add("dom-tree-row");
+		row.tree = this;
 		
 		row.data = data;
 		
@@ -78,6 +161,7 @@ DOMTree.prototype =
 		// content of the row
 		let rowContent = this.document.createElement("hbox");
 		rowContent.classList.add("dom-tree-row-content");
+		rowContent.addEventListener("click", this._onRowContentClicked);
 		row.appendChild(rowContent);
 		
 		// twisty
@@ -110,8 +194,24 @@ DOMTree.prototype =
 			row.level = parent.level + 1;
 		}
 		else
+		{
+			row.parentRow = null;
 			row.level = 0;
+		}
 		
+		this._makeContainer(row, isContainer);
+		
+		return row;
+	},
+	
+	/**
+	 * Makes a row a container / or removes that
+	 * 
+	 * @param   {DOMElement}   row           The row
+	 * @param   {boolean}      isContainer   
+	 */
+	_makeContainer: function _makeContainer(row, isContainer)
+	{
 		if(isContainer)
 		{
 			row.isContainer = true;
@@ -129,8 +229,8 @@ DOMTree.prototype =
 			row.isContainer = false;
 			row.isContainerOpen = false;
 		}
-		return row;
-	},
+	}, 
+	
 	
 	/**
 	 * Creates a row for the tree and appends it
@@ -148,10 +248,14 @@ DOMTree.prototype =
 		if(!parent)
 			this.box.appendChild(row);
 		else
+		{
+			if(!parent.isContainer)
+				this._makeContainer(parent, true);
+				
 			parent.container.appendChild(row);
+		}
 			
 		return row;
-	}, 
-	
+	},
 	
 }

@@ -7,7 +7,7 @@
 
   <script type="application/javascript" src="chrome://bound/content/scripts/main.js"/>
   
-  <button label="Start" oncommand="testParsing();"/>
+  <button label="Start" oncommand="addAfterSelection();"/>
   <button label="More >>" oncommand="window.open('chrome://mozapps/content/extensions/extensions.xul?type=extensions', '', 'chrome, resizable=yes');console.log('supertest');"/>
   <separator/>
   <!--<tree id="cppTree" flex="1">

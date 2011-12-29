@@ -18,18 +18,8 @@ window.addEventListener("close", Bound.quit, false);
 CPPAnalyzer.init();
 
 var cppAST = null;
+var cppASTTree = null;
 
-function getCellTextCB(item, row, col)
-{
-	if(!item){
-		return "error";
-	}
-	
-	if(item.data.name != "")
-		return item.data.kind + " " + item.data.name;
-	else
-		return "<anonymous>";
-}
 
 function dataCB(type, data, row)
 {
@@ -40,6 +30,21 @@ function dataCB(type, data, row)
 	}
 	
 	return "";
+}
+
+function addAfterSelection()
+{
+	let obj = { name: "ADDED", kind: CPP_ASTObjects.ASTObject.KIND_CLASS}
+	
+	if(cppASTTree.selection.length > 0)
+	{
+		let parent = cppASTTree.selection[0];
+		let newRow = cppASTTree.createAndAppendRow(parent, false, obj);
+		if(!parent.isContainerOpen)
+			parent.toggleCollapse();
+			
+		newRow.tree.select(newRow);
+	}
 }
 
 function astNodeToTreeNode(astNode, domParent, treeView)
@@ -59,19 +64,13 @@ function testParsing()
 	cppAST = CPPAnalyzer.parse_header(["supertest", "D:\\Data\\Projekte\\Bound\\src\\CPPAnalyzer\\Test\\test1.cpp"]);
 	let tree = document.getElementById("cppTree");
 	
-	log(" " + tree);
 	
-	//let treeView = new nsTreeView(cppAST.root.children, getCellTextCB);
-	
-	//tree.view = treeView;
-	
-	let treeView = new DOMTree(document, tree, dataCB);
+	cppASTTree = new DOMTree(document, tree, dataCB);
 	
 	for(let i = 0; i < cppAST.root.children.length; ++i)
 	{
 		let child = cppAST.root.children[i];
-		//treeView.createAndAppendRow(null, child.children.length !== 0, child);
-		astNodeToTreeNode(child, null, treeView);
+		astNodeToTreeNode(child, null, cppASTTree);
 	}
 }
 
