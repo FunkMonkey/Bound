@@ -2,7 +2,7 @@
 
 The term ''language binding'' refers to the process\todo{Word} of exposing functionality written in one programming language, so it can be used from within a different programming language\todo{and verse visa} - for example exposing C++ functions for use in Python.
 
-The need to combine different programming languages and exchange information between those may arise due to several reasons. A specific language may support a different set of programming paradigms and thus be better suited for solving a special group of tasks. A project may also rely on a 3rd party library written in another language.
+The need to combine different programming languages and exchange information between those may arise due to several reasons. A specific language may support a different set of programming paradigms and thus be better suited for solving a special group of tasks. A project may also rely on a 3rd party library written in another language. Software-reuse is a common reason for binding multiple languages together.
 
 Often, language binding is needed to connect a higher-level programming language (f. ex. a scripting language like Python) with a lower-level programming language (f. ex. a system programming language like C).
 
@@ -16,16 +16,50 @@ John Ousterhout, the creator of the scripting language TCL, describes a \textbf{
 
 \textbf{Scripting languages}, on the other hand, represent a very different style of programming than system programming languages. They ''assume that there already exists a collection of useful components written in other languages [...] and are intended primarily for plugging together components'' \todo{Quote}. They offer a higher level of abstraction compared to system programming languages, f. ex. by using dynamic typing, thus sacrificing execution speed to improve development speed.\todo{code-reuse?}\\ Being mostly interpreted languages, they support faster development and rapid prototyping by eliminating compile- and link-time. Interpretation also offers better portability as well as a great deal of flexibility by allowing run-time code-manipulation. Due to their simpler syntax, scripting languages are usually easier to learn.
 
-Scripting and system programming are symbiotic. System programming languages are used to create high-performance components providing platform-access\todo{rewrite}, which can then be assembled using scripting languages.\todo{Quote??} Binding a system programming language and a scripting language together provides the advantages of both worlds\todo{types?}.
+Scripting and system programming languages are symbiotic. System programming languages are used to create high-performance components providing platform-access\todo{rewrite}, which can then be assembled using scripting languages.\todo{Quote??} Binding a system programming language and a scripting language together provides the advantages of both worlds\todo{types?}.
 
 \todo{Software-Reuse, OS-API and access, native, host, guest, extending, embedding, pipe-example}
 
 \section{The process of binding}
 
-''Binding one language to another is a non-trivial task. The binding language needs to understand the calling conventions, type system, data structures, memory allocation mechanisms and linking strategy of the target language, just to get things working. The task is to carefully align the semantics of both languages, so that both languages can understand the data that passes between them''\todo{use in some way}
+\begin{quotation}
+Binding one language to another is a non-trivial task. The binding language needs to understand the calling conventions, type system, data structures, memory allocation mechanisms and linking strategy of the target language, just to get things working. The task is to carefully align the semantics of both languages, so that both languages can understand the data that passes between them
+\end{quotation}\todo{Real World Haskellby Bryan O'Sullivan, Don Stewart, and John Goerzen}
 
-For binding one language to another, special binding-code, often referred to as glue-code, is needed. The process of creating such code is called ''wrapping''. When binding a scripting language to a system programming language, the scripting language usually comes in form of a library exposing an interface that can be used from the system programming language to interact with the other (f. ex. to expose functionality to the scripting language or use data and functions declared in it).\\
-Both Python and Mozilla's JavaScript implementation Spidermonkey are accessible in form of a library exposing a C-API. Thus glue-code for binding C or C++ functionality to one of these languages has to be written in C / C++ using the given API.
+When binding a scripting language to a system programming language, the scripting language usually comes in form of a library exposing an interface that can be used from the system programming language to interact with the scripting language.\\
+The code written to bind both languages together is often referred to as ''glue code'' or ''foreign interface''. The process of creating such code is called ''wrapping''.
+
+\begin{quotation}
+A foreign interface is a piece of glue code, intended to make it possible to use functionality written in one language (often C) available to programs written in another (usually high-level) language. Such glue code involves low-level details that users of high-level languages usually take for granted. For example:
+\begin{itemize}
+\item marshalling objects to and from foreign code,
+\item managing memory and other resources,
+\item dealing with different calling conventions, implicit function arguments, etc.
+\end{itemize}
+\end{quotation}
+
+\textbf{Foreign interfaces} can be either static or dynamic.\\
+\textbf{Static foreign interfaces} are written and compiled in the system programming language using the API the scripting language provides.\\
+\textbf{Dynamic foreign interfaces} are created at run-time. This can be done in two ways:
+\begin{itemize}
+\item writing glue code in the system programming language using the scripting languages API \textbf{in conjunction} with dynamic method invocation
+\item writing glue code in the scripting language itself using the scripting languages dynamic \textbf{foreign function interface} (FFI)
+\end{itemize}
+
+The terminology concerning foreign function interfaces (FFIs) is somewhat confusing. This thesis will use the following definition:
+
+\begin{quotation}
+A foreign function interface is originally a lisp term for dynamically defining and calling functions in outside shared libraries (''foreign function'', ''call-out') and as additional option also creating functions which can be called from outside functions (''callback'', ''foreign-callable'', ''call-in'').
+\end{quotation}\todo{Urban, Design Issues for Foreign Function Interfaces}
+
+To express the dynamic nature of the given definition, this thesis will stick to the term ''\textbf{dynamic} foreign function interface''.
+
+The different ways of creating foreign interfaces will be explained in more detail in the following sections.
+
+\newpage
+\subsection{Static foreign interfaces}
+
+Both Python and Mozilla's JavaScript implementation Spidermonkey are accessible in form of a library exposing a C-API. Thus glue code for binding C or C++ functionality to one of these languages has to be written in C / C++ using the given API.
 
 \begin{lstlisting}[language=C++, caption=Exposing a C function to Spidermonkey (taken from MDN)]
 // A simple JS wrapper for the rand() function from the C standard library
@@ -51,23 +85,41 @@ JS_DefineFunctions(cx, global, myjs_global_functions);
 var r = rand();	// r is a random number
 \end{lstlisting}
 
-Looking at the given example, it is obvious that even the wrapping of a simple C function that does nothing but return a double value without taking any argument, requires a \todo{nicht zu unterschätzen} amount of glue-code, which is most-likely error-prone and hard to maintain.
+The glue code is responsible for converting between the types of the system programming language and the scripting language for arguments and return values, as well as calling the wrapped function in between. \\
+Looking at the given example, it is obvious that even the wrapping of a simple C function that does nothing but return a double value without taking any argument, requires a \todo{nicht zu unterschätzen} amount of glue code, which is most-likely error-prone and hard to maintain.
 
-Thus, the purpose of this thesis is to develop an application that automatically creates glue-code for different scripting languages.
+Thus, the purpose of this thesis is to develop an application that automatically creates glue code for different scripting languages.
 
-\subsection{Foreign function interfaces}
+\subsection{Dynamic foreign interfaces and dynamic method invocation}
 
-\todo{FFI}
+When wrapping a class, instead of writing glue code for every single function, it is also possible to direct every call through a single proxy function that does all the work at run-time. This is also known as dynamic dispatch, thus such a function can be called a ''dispatch function''. \todo{check}\\
 
-''Access is dynamic at runtime without code generation.''\todo{JNA}
+Consider a script object that wraps a class instance. The object internally holds a reference to the wrapped instance. When calling a method of the given object, like ''doSomething'', the call will be directed to the proxy function. Based on the given string ''doSomething'' and the internal instance, the proxy will look up the memory address and expected parameters of the native function, convert the given script-arguments to the expected format, call the native function (dynamic invocation) and convert the return value to a type that is understood by the scripting language - all at run-time.
 
-Some scripting languages allow calling functions and accessing data-types in shared libraries without the need to write glue-code in the system programming language. Python introduced this concept with the development of its foreign function library ''ctypes'', which can be used to wrap public functions from shared libraries in Python itself.\todo{reference} Mozilla developed an equivalent for SpiderMonkey called ''js-ctypes''.\todo{reference}
+The lookup of native functions may be trivial for programming languages that support reflection\todo{explain reflection}, like C\# or Java, where the language provides ways of calling functions using a string-identifier.\\
+A language like C++, which does not support reflection, needs special type libraries\todo{explain typelib}, which map the string-identifiers (''doSomething'') to the according position (offset) of the function in the classes virtual table\todo{explain vtable}. Knowing the offset, the memory address of the function can be retrieved, so it can be called.
+
+Compared to writing glue code for every function, where the memory addresses are known at compile-time (''early binding''), dynamic method invocation has several downsides. Method addresses need to be looked up and type checking needs to be done at run-time which costs performance. As lookup happens at run-time, dynamic invocation has the advantage, that type information of the wrapped classes is not needed at compile-time of the code that handles the binding (proxy function).
+
+\subsection{Dynamic foreign function interfaces}
+
+Some scripting languages allow the use of public symbols from shared libraries, such as calling functions and accessing data types, without the need to write glue code in the system programming language. The scripting language provides an API (the dynamic foreign function interface) for writing the glue code in the scripting language itself.
+
+Such APIs are available in a multitude of programming languages such as Lisp and Haskell. One of the most prominent examples is Pythons foreign function library ''ctypes''. Mozilla developed an equivalent for SpiderMonkey called ''js-ctypes''. Besides the Java Native Interface (JNI), which is part static and part dynamic, there is a completely dynamic foreign function interface for Java called Java Native Access (JNA). \todo{reference}
+
+These APIs provide equivalent types for basic C types like numbers and pointers. Complex data types like structs need to be composited on the scripting side using the given types. C functions can be accessed using the string representation of their name.
+
+\todo{Example}
+
+Due to the complexity of the data structures and the non-standardized name mangling (the creation of unique names for functions for symbol export) in C++, most FFIs are only able to access libraries that use basic C types, plain old data (POD) structures and C name mangling.
+
+As a side note, most FFI implementations use the same library, \textbf{libffi}\todo{link}, for handling the common low level tasks.
 
 \section{Existing language binding systems and tools}
 
-As the need for connecting multiple different programming languages arises in many projects (especially in the computer games industry the embedding of scripting languages is very popular), there are already systems and tools existing for automating the binding-process, creating glue-code or providing semi-dynamic access to native code. Some will be explained in further detail.
+As the need for connecting multiple different programming languages arises in many projects (especially in the computer games industry the embedding of scripting languages is very popular), there are already systems and tools existing for automating the binding-process, creating glue code or providing semi-dynamic access to native code. Some will be explained in further detail.
 
-\subsection{}
+\subsection{Components}
 
 \subsection{COM}
 
@@ -89,6 +141,9 @@ The classes need knowledge about interfaces
 .\\
 .\\
 \todo{TODO-List}
+  - late binding!!!
+  - C++ Name Mangling
+  - Erzeugung von Komponenten in welcher Sprache? Richtung der Aufrufe ...
   - Welche Systeme / Methoden / Tools gibt es schon um Language-Binding zu vereinfachen / automatisieren (COM, Corba, Mozilla XPCOM + IDL, SWIG)
   - Warum wird ein eigenes Tool entwickelt? (Notwendigkeit, Vorteile, Goals- und Non-Goals, etc.)
   - Wie soll die Automatisierung grob erfolgen? -> Übergang zu Static Analysis
