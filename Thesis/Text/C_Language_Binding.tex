@@ -2,7 +2,7 @@
 
 The term ''language binding'' refers to the process\todo{Word} of exposing functionality written in one programming language, so it can be used from within a different programming language\todo{and verse visa} - for example exposing C++ functions for use in Python.
 
-The need to combine different programming languages and exchange information between those may arise due to several reasons. A specific language may support a different set of programming paradigms and thus be better suited for solving a special group of tasks. A project may also rely on a 3rd party library written in another language. Software-reuse is a common reason for binding multiple languages together.
+The need to combine different programming languages and exchange information between those may arise due to several reasons. A specific language may support a different set of programming paradigms and thus be better suited for solving a special group of tasks. A project may also rely on a 3rd party library written in another language. In general, software-reuse is a common reason for binding multiple languages together.
 
 Often, language binding is needed to connect a higher-level programming language (f. ex. a scripting language like Python) with a lower-level programming language (f. ex. a system programming language like C).
 
@@ -20,7 +20,23 @@ Scripting and system programming languages are symbiotic. System programming lan
 
 \todo{Software-Reuse, OS-API and access, native, host, guest, extending, embedding, pipe-example}
 
-\section{The process of binding}
+\section{Types of function binding}
+
+Before the process of binding different languages into one application is explained, it is important to define some terms concerning the binding of functions.
+
+Static or ''early'' binding means that ''the compiler generates a call to a specific function name, and the linker resolves this call to the absolute address of the code to be executed.'' \todo{thinking c++}
+
+Dynamic binding, dynamic dispatch or ''late'' binding, on the opposite side, refers to resolving the address of the code to be called dynamically at run-time. This can be done in various ways, and the definitions in literature and internet vary extremely at this point.
+
+Looking at C++, calls to virtual functions are bound at run-time, as the compiler is unable to know which implementation a base class reference may point to and thus which function to call. Therefore every class containing virtual functions has run-time type information (RTTI). Still the compiler is able to do static type checking. In any case there needs to be compile-time-knowledge about the interface / base class of the object. The compiler can do optimizations to increase the performance of the lookup.
+
+Looking up the address of a function at run-time using a string or other type of identifier is also a kind of dynamic binding. The lookup may still make use of the RTTI in a manual way. Type checking needs to be done at run-time, but therefore no compile-time-knowledge about the interface is needed.
+
+Concerning performance, static binding is the fastest. Due to compiler optimization and static type checking, dynamic binding using RTTI is faster than lookup using an identifier. In contexts outside of standard C++, dynamic binding using RTTI is still sometimes referred to as ''early'' binding, due to its performance advantage compared to lookup using an identifier.
+
+It is important to understand that static binding is only possible in programming languages that support static typing. Scripting languages like JavaScript, where variables are weakly typed, can not know the type of a variable at compilation-time and thus can only use dynamic binding.
+
+\section{The process of binding languages}
 
 \begin{quotation}
 Binding one language to another is a non-trivial task. The binding language needs to understand the calling conventions, type system, data structures, memory allocation mechanisms and linking strategy of the target language, just to get things working. The task is to carefully align the semantics of both languages, so that both languages can understand the data that passes between them
@@ -85,7 +101,10 @@ JS_DefineFunctions(cx, global, myjs_global_functions);
 var r = rand();	// r is a random number
 \end{lstlisting}
 
-The glue code is responsible for converting between the types of the system programming language and the scripting language for arguments and return values, as well as calling the wrapped function in between. \\
+The glue code is responsible for converting between the types of the system programming language and the scripting language for arguments and return values, as well as calling the wrapped function in between.
+
+This type of glue code uses static binding or when working with virtual classes (for calling methods) dynamic binding using RTTI. As JavaScript itself is a weakly typed language, the call to the wrapper function \textbf{myjs\_rand} itself is in fact dynamically bound and its address looked up using the string ''rand''. Type checking, when calling \textbf{myjs\_rand}, if-needed at all, is done by the JavaScript runtime environment.
+
 Looking at the given example, it is obvious that even the wrapping of a simple C function that does nothing but return a double value without taking any argument, requires a \todo{nicht zu unterschätzen} amount of glue code, which is most-likely error-prone and hard to maintain.
 
 Thus, the purpose of this thesis is to develop an application that automatically creates glue code for different scripting languages.
@@ -99,7 +118,7 @@ Consider a script object that wraps a class instance. The object internally hold
 The lookup of native functions may be trivial for programming languages that support reflection\todo{explain reflection}, like C\# or Java, where the language provides ways of calling functions using a string-identifier.\\
 A language like C++, which does not support reflection, needs special type libraries\todo{explain typelib}, which map the string-identifiers (''doSomething'') to the according position (offset) of the function in the classes virtual table\todo{explain vtable}. Knowing the offset, the memory address of the function can be retrieved, so it can be called.
 
-Compared to writing glue code for every function, where the memory addresses are known at compile-time (''early binding''), dynamic method invocation has several downsides. Method addresses need to be looked up and type checking needs to be done at run-time which costs performance. As lookup happens at run-time, dynamic invocation has the advantage, that type information of the wrapped classes is not needed at compile-time of the code that handles the binding (proxy function).
+Compared to writing glue code for every function, where the memory addresses are often known at compile-time (static binding) or looked up via RTTI, dynamic method invocation has several downsides. Method addresses need to be looked up and type checking needs to be done at run-time which costs performance. As lookup happens at run-time, dynamic invocation has the advantage, that type information of the wrapped classes is not needed at compile-time of the code that handles the binding (proxy function).
 
 \subsection{Dynamic foreign function interfaces}
 
@@ -117,9 +136,45 @@ As a side note, most FFI implementations use the same library, \textbf{libffi}\t
 
 \section{Existing language binding systems and tools}
 
-As the need for connecting multiple different programming languages arises in many projects (especially in the computer games industry the embedding of scripting languages is very popular), there are already systems and tools existing for automating the binding-process, creating glue code or providing semi-dynamic access to native code. Some will be explained in further detail.
+As the need for connecting different programming languages arises in many projects (especially in the computer games industry the embedding of scripting languages is very popular), there are already systems and tools existing for automating the binding-process, creating glue code or providing dynamic access to native code. Some will be explained in further detail.
 
-\subsection{Components}
+\subsection{Component models}
+
+\begin{quotation}
+Component-based software engineering is a reuse-based approach to defining, implementing and composing loosely coupled independent components into systems.
+\end{quotation}\todo{Sommerville}
+
+A software component itself is an independent piece of software that encapsulates discrete functionality into a reusable entity to be used in composition with other components. \todo{from component thesis}.
+
+Such components need to conform to component standards, which ''are embodied in a component model and define [...] how component interfaces should be specified and how components communicate.''\todo{Sommerville} They also standardize facets like memory management, exception- and error-handling as well as metadata for runtime type information.\todo{from component thesis}
+
+Prominent examples of such component models (standards and middleware) are the Object Management Group's (OMG) Common Object Request Broker Architecture (CORBA) and Microsoft's Component Object Model (COM). Mozilla uses a cross-platform variant of COM called XPCOM inside its products.
+
+These component models are language-agnostic, meaning that components can be written in and used from a multitude of different programming languages. The process of binding the languages together and letting objects written in different languages communicate with each other is handled by the middleware.
+
+\subsection{Interfaces}
+
+\begin{quotation}
+The services offered by a component are made available through an interface, and all interactions are through that interface.
+\end{quotation}\todo{Sommerville}
+
+CORBA, COM and XPCOM are strictly separating interfaces and implementations. The same interface can be implemented by multiple classes and a class can also implement multiple interfaces.
+
+Interfaces are defined in a special interface definition language (IDL). These interface files are used in different ways.\\
+When implementing COM or CORBA components in C++, an IDL compiler is used to create header files with abstract classes that are to be extended and implemented.\\
+The IDL compiler will also create type libraries which hold information about the interfaces, the functions and their offsets in the virtual table, etc. When calling a components method from a dynamically typed scripting language, these type libraries will be used for dynamically invoking the method by its name at run-time as described in section XXX. \todo{link} In COM, statically typed or compiled languages like Visual Basic also use the type libraries for retrieving function memory addresses at compile-time to eliminate the cost of dynamic method invocation.
+
+\subsection{Communication between components}
+
+When it comes to in-process communication between different components and objects, COM and CORBA go different ways. 
+
+Components written in COM have to follow a binary standard, meaning they have to share the same layout in memory for a given interface, no matter in which language they are implemented. Not all programming languages support COMs binary standard, thus there is only a set of languages COM components can be written in, though a broader set they can be used from.
+
+CORBA on the other hand standardizes the IDL as well as the language bindings. All calls are channeled through the Object Request Broker, which is responsible for translating the calls. CORBA components can be written in any supported language, no matter how the objects look in memory.
+
+When using objects from a weakly typed scripting language, neither CORBA nor COM are producing glue code for binding purposes but handle function calls and type-checking at run-time using dynamic binding with lookup using identifiers. Thus calls to such an object from script are twice dynamically bound. First the the address of the handler-function needs to be looked up, then the handler needs to look up the address of the function to call.
+
+Component models and the according middleware have the advantage of handling the communication between the different languages under the hood, so there is no need for the programmer to write glue code. Therefore, when wrapping C++, the wrapped classes need to inherit from the given interfaces or in the case of COM at least conform to the binary layout of the interface. Already existing libraries can thus not be wrapped without modification or creation of a wrapper-library that conforms to the component standard.
 
 \subsection{COM}
 
@@ -142,7 +197,6 @@ The classes need knowledge about interfaces
 .\\
 \todo{TODO-List}
   - late binding!!!
-  - C++ Name Mangling
   - Erzeugung von Komponenten in welcher Sprache? Richtung der Aufrufe ...
   - Welche Systeme / Methoden / Tools gibt es schon um Language-Binding zu vereinfachen / automatisieren (COM, Corba, Mozilla XPCOM + IDL, SWIG)
   - Warum wird ein eigenes Tool entwickelt? (Notwendigkeit, Vorteile, Goals- und Non-Goals, etc.)
