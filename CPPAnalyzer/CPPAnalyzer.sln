@@ -1,7 +1,7 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CPPAnalyzer", "CPPAnalyzer\CPPAnalyzer.vcproj", "{34737E80-A230-4404-82DE-D2A114826942}"
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CPPAnalyzer", "CPPAnalyzer\CPPAnalyzer.vcxproj", "{34737E80-A230-4404-82DE-D2A114826942}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

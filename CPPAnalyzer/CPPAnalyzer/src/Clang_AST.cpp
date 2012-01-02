@@ -230,7 +230,7 @@ namespace CPPAnalyzer
 		CXType type = (canonical) ? clang_getCanonicalType(inputType): inputType;
 
 		CXCursor typeDecl = clang_getTypeDeclaration(type);
-		CXCursorASTObjectMap::iterator it = m_astObjects.find(typeDecl);
+		auto it = m_astObjects.find(typeDecl);
 		if(it != m_astObjects.end())
 			return it->second;
 
@@ -294,7 +294,7 @@ namespace CPPAnalyzer
 
 		// check for multiple declarations
 		// TODO: use clang_getCanonicalCursor
-		std::map<std::string, ASTObject*>::iterator itUSR = m_usrASTObjects.find(usr_string);
+		auto itUSR = m_usrASTObjects.find(usr_string);
 		if(itUSR != m_usrASTObjects.end())
 		{
 			// use the same ASTObject*
@@ -452,10 +452,10 @@ namespace CPPAnalyzer
 		line += ((node->getNodeName() != "" ) ? node->getNodeName() : "anonymous");
 
 		std::cout << line << std::endl;
-		vector<ASTObject*>& children = node->getChildren();
+		auto& children = node->getChildren();
 
-		vector<ASTObject*>::iterator end = children.end();
-		for(vector<ASTObject*>::iterator it = children.begin(); it != end; ++it)
+		auto end = children.end();
+		for(auto it = children.begin(); it != end; ++it)
 		{
 			printTreeNode(*it, depth + 1);
 		}

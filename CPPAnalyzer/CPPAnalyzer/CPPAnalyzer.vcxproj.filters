@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Dependencies">
+      <UniqueIdentifier>{ed7cf397-6bcb-4041-a1a0-2c11da8f18ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Dependencies\clang">
+      <UniqueIdentifier>{7b5df0f9-2671-4ab8-8e7f-cac99bf811cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Dependencies\clang\lib">
+      <UniqueIdentifier>{cffbae66-a628-4a5d-a348-1e96fa6cf8b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{cbefa789-7757-42e3-bd40-e7cdb5d789ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8c4f00b7-36bd-4643-a9f9-cfc37a91a5ad}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\ASTObject.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ASTObject_Class.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ASTObject_Constructor.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ASTObject_Destructor.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ASTObject_Field.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ASTObject_Function.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ASTObject_Member_Function.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ASTObject_Namespace.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ASTObject_Parameter.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ASTObject_Struct.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ASTObject_Typedef.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ASTObject_Variable_Decl.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ASTObjectKinds.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ASTType.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Clang_AST.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\clang_helpers.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Clang_JSON_lib.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\JSON_Converter.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\ASTObject.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ASTObject_Function.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ASTObject_Struct.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Clang_AST.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Clang_JSON_lib.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JSON_Converter.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

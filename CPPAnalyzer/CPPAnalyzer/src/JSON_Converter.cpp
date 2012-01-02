@@ -22,9 +22,9 @@ namespace CPPAnalyzer
 {
 	void JSON_Converter::convertAllChildrenToJSON(ASTObject& astObject, std::stringstream& ss, int depth)
 	{
-		std::vector<ASTObject*> children = astObject.getChildren();
-		std::vector<ASTObject*>::const_iterator it = children.begin();
-		std::vector<ASTObject*>::const_iterator end = children.end();
+		auto& children = astObject.getChildren();
+		auto it = children.begin();
+		auto end = children.end();
 
 		for(; it!= end; ++it)
 		{
@@ -175,7 +175,7 @@ namespace CPPAnalyzer
 			case KIND_STRUCT:
 			case KIND_CLASS:
 				{
-					ASTObject_Struct& astObjectStruct = static_cast<ASTObject_Struct&>(astObject);
+					auto astObjectStruct = static_cast<ASTObject_Struct&>(astObject);
 
 					addLine("{", ss, indent_min);
 
@@ -187,8 +187,8 @@ namespace CPPAnalyzer
 					// adding bases
 					addLine("\"bases\": [", ss, indent);
 
-					const std::vector<AST_BaseStruct>& bases = astObjectStruct.getBases();
-					for(std::vector<AST_BaseStruct>::const_iterator it = bases.begin(); it != bases.end(); ++it)
+					auto bases = astObjectStruct.getBases();
+					for(auto it = bases.begin(); it != bases.end(); ++it)
 					{
 						ss << indent << m_indent << (*it).base->getID();
 						if(it+1 != bases.end())
@@ -274,8 +274,8 @@ namespace CPPAnalyzer
 					{
 						addLine("\"parameters\": [", ss, indent);
 
-						const std::vector<ASTObject_Parameter*>& parameters = astObjectFunc.getParameters();
-						for(std::vector<ASTObject_Parameter*>::const_iterator it = parameters.begin(); it != parameters.end(); ++it)
+						auto parameters = astObjectFunc.getParameters();
+						for(auto it = parameters.begin(); it != parameters.end(); ++it)
 						{
 							ss << indent << m_indent << "{" << m_lineBreak;
 							ss << indent << m_indent << m_indent << "\"name\": \"" << (*it)->getNodeName() << "\"," << m_lineBreak;
