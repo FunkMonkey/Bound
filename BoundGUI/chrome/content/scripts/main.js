@@ -7,6 +7,8 @@ Cu.import("chrome://bound/content/modules/Bound.jsm");
 Cu.import("chrome://bound/content/modules/CPPAnalyzer.jsm");
 Cu.import("chrome://bound/content/modules/TreeData.jsm");
 
+Cu.import("chrome://bound/content/modules/jSmart.jsm");
+
 Cu.import("chrome://bound/content/modules/DOMTree.jsm");
 
 let CPP_ASTObjects = {};
@@ -32,6 +34,16 @@ function dataCB(type, data, row)
 	return "";
 }
 
+function jSmartTest()
+{
+	let template = new jSmart("void {$funcName}();");
+	let res = template.fetch({funcName: "SuperFunc"});
+	
+	log("template: " + res);
+	
+	
+}
+
 function addAfterSelection()
 {
 	let obj = { name: "ADDED", kind: CPP_ASTObjects.ASTObject.KIND_CLASS}
@@ -45,6 +57,8 @@ function addAfterSelection()
 			
 		newRow.tree.select(newRow);
 	}
+	
+	//jSmartTest();
 }
 
 function astNodeToTreeNode(astNode, domParent, treeView)
