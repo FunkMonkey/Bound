@@ -4,6 +4,9 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
 const Cu = Components.utils;
 
+Cu.import("chrome://bound/content/modules/Extension.jsm");
+Cu.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm");
+
 /**
  * ASTObject
  *
@@ -12,16 +15,13 @@ const Cu = Components.utils;
  */
 function Export_ASTObject(parent, name, kind)
 {
-	this.parent = parent;
-	this.name = name;
+	ASTObject.call(this, parent, name);
+	
 	this.kind = kind;
 	
-	this.connectedItem = null;
+	this.sourceObject = null;
 	
 	this.codeGenerators = {};
-	
-	this.children = [];
-	this._childrenMap = {};
 }
 
 Export_ASTObject.prototype = {
@@ -34,8 +34,8 @@ Export_ASTObject.prototype = {
 	 */
 	addCodeGenerator: function addCodeGenerator(codeGen)
 	{
-		if(this.codeGenerators[codeGen.language])
-			throw "ASTObject already contains code generator for given language: " + codeGen.language;
+		if(this.codeGenerators[codeGen.context])
+			throw "ASTObject already contains code generator for given context: " + codeGen.context;
 		
 		this.codeGenerators[codeGen.language] = codeGen;
 		codeGen.astObject = this;
@@ -44,17 +44,17 @@ Export_ASTObject.prototype = {
 	/**
 	 * Returns the code generator for the given language
 	 * 
-	 * @param   {String}   language   Language of the code-generator
+	 * @param   {String}   context   Context of the code-generator
 	 * 
 	 * @returns {CodeGenerator}   Code generator; null if not found
 	 */
-	getCodeGenerator: function getCodeGenerator(language)
+	getCodeGenerator: function getCodeGenerator(context)
 	{
-		if(this.codeGenerators[language])
-			return this.codeGenerators[language];
+		if(this.codeGenerators[context])
+			return this.codeGenerators[context];
 			
 		return null;
 	}, 
-	
-	
 };
+
+Extension.borrow(Export_ASTObject.prototype, ASTObject.prototype);
