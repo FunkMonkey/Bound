@@ -1,17 +1,17 @@
 
 var EXPORTED_SYMBOLS = ["CPP_ASTObject",
-						"ASTType",
-						"ASTObject_Namespace",
-						"ASTObject_Struct",
-						"ASTObject_Class",
-						"ASTObject_Typedef",
-						"ASTObject_Var_Decl",
-						"ASTObject_Field",
-						"ASTObject_Parameter",
-						"ASTObject_Function",
-						"ASTObject_Member_Function",
-						"ASTObject_Constructor",
-						"ASTObject_Destructor"];
+						"CPP_ASTType",
+						"CPP_ASTObject_Namespace",
+						"CPP_ASTObject_Struct",
+						"CPP_ASTObject_Class",
+						"CPP_ASTObject_Typedef",
+						"CPP_ASTObject_Var_Decl",
+						"CPP_ASTObject_Field",
+						"CPP_ASTObject_Parameter",
+						"CPP_ASTObject_Function",
+						"CPP_ASTObject_Member_Function",
+						"CPP_ASTObject_Constructor",
+						"CPP_ASTObject_Destructor"];
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
@@ -46,12 +46,12 @@ Extension.borrow(CPP_ASTObject.prototype, ASTObject.prototype);
 //======================================================================================
 
 /**
- * ASTType
+ * CPP_ASTType
  *
  * @constructor
- * @this {ASTType}
+ * @this {CPP_ASTType}
  */
-function ASTType(kind, declaration, isConst)
+function CPP_ASTType(kind, declaration, isConst)
 {
 	this.kind = kind;
 	
@@ -60,8 +60,8 @@ function ASTType(kind, declaration, isConst)
 	this.isConst = isConst;
 };
 
-ASTType.prototype = {
-	constructor: ASTType
+CPP_ASTType.prototype = {
+	constructor: CPP_ASTType
 };
 
 
@@ -69,33 +69,33 @@ ASTType.prototype = {
 //======================================================================================
 
 /**
- * ASTObject_Namespace
+ * CPP_ASTObject_Namespace
  *
  * @constructor
- * @this {ASTObject_Namespace}
+ * @this {CPP_ASTObject_Namespace}
  */
-function ASTObject_Namespace(parent, name, id, usr)
+function CPP_ASTObject_Namespace(parent, name, id, usr)
 {
 	CPP_ASTObject.call(this, parent, name, id, usr);
 };
 
-ASTObject_Namespace.prototype = {
-	constructor: ASTObject_Namespace,
+CPP_ASTObject_Namespace.prototype = {
+	constructor: CPP_ASTObject_Namespace,
 	kind: ASTObject.KIND_NAMESPACE
 };
 
 // TODO: use borrowing?
-Extension.inherit(ASTObject_Namespace, CPP_ASTObject);
+Extension.inherit(CPP_ASTObject_Namespace, CPP_ASTObject);
 
 //======================================================================================
 
 /**
- * ASTObject_Struct
+ * CPP_ASTObject_Struct
  *
  * @constructor
- * @this {ASTObject_Struct}
+ * @this {CPP_ASTObject_Struct}
  */
-function ASTObject_Struct(parent, name, id, usr)
+function CPP_ASTObject_Struct(parent, name, id, usr)
 {
 	CPP_ASTObject.call(this, parent, name, id, usr);
 	
@@ -103,8 +103,8 @@ function ASTObject_Struct(parent, name, id, usr)
 	this.functions = [];
 };
 
-ASTObject_Struct.prototype = {
-	constructor: ASTObject_Struct,
+CPP_ASTObject_Struct.prototype = {
+	constructor: CPP_ASTObject_Struct,
 	kind: ASTObject.KIND_STRUCT,
 	
 	/**
@@ -120,122 +120,122 @@ ASTObject_Struct.prototype = {
 	
 };
 
-Extension.inherit(ASTObject_Struct, CPP_ASTObject);
+Extension.inherit(CPP_ASTObject_Struct, CPP_ASTObject);
 
 //======================================================================================
 
 /**
- * ASTObject_Class
+ * CPP_ASTObject_Class
  *
  * @constructor
- * @this {ASTObject_Class}
+ * @this {CPP_ASTObject_Class}
  */
-function ASTObject_Class(parent, name, id, usr)
+function CPP_ASTObject_Class(parent, name, id, usr)
 {
-	ASTObject_Struct.call(this, parent, name, id, usr);
+	CPP_ASTObject_Struct.call(this, parent, name, id, usr);
 };
 
-ASTObject_Class.prototype = {
-	constructor: ASTObject_Class,
+CPP_ASTObject_Class.prototype = {
+	constructor: CPP_ASTObject_Class,
 	kind: ASTObject.KIND_CLASS,
 };
 
-Extension.inherit(ASTObject_Class, ASTObject_Struct);
+Extension.inherit(CPP_ASTObject_Class, CPP_ASTObject_Struct);
 
 //======================================================================================
 
 /**
- * ASTObject_Typedef
+ * CPP_ASTObject_Typedef
  *
  * @constructor
- * @this {ASTObject_Typedef}
+ * @this {CPP_ASTObject_Typedef}
  */
-function ASTObject_Typedef(parent, name, id, usr, type, typeCanonical)
+function CPP_ASTObject_Typedef(parent, name, id, usr, type, typeCanonical)
 {
 	CPP_ASTObject.call(this, parent, name, id, usr);
 	this.type = type;
 	this.typeCanonical = typeCanonical;
 };
 
-ASTObject_Typedef.prototype = {
-	constructor: ASTObject_Typedef,
+CPP_ASTObject_Typedef.prototype = {
+	constructor: CPP_ASTObject_Typedef,
 	kind: ASTObject.KIND_TYPEDEF,
 };
 
-Extension.inherit(ASTObject_Typedef, CPP_ASTObject);
+Extension.inherit(CPP_ASTObject_Typedef, CPP_ASTObject);
 
 //======================================================================================
 
 /**
- * ASTObject_Var_Decl
+ * CPP_ASTObject_Var_Decl
  *
  * @constructor
- * @this {ASTObject_Var_Decl}
+ * @this {CPP_ASTObject_Var_Decl}
  */
-function ASTObject_Var_Decl(parent, name, id, usr, type, typeCanonical)
+function CPP_ASTObject_Var_Decl(parent, name, id, usr, type, typeCanonical)
 {
 	CPP_ASTObject.call(this, parent, name, id, usr);
 	this.type = type;
 	this.typeCanonical = typeCanonical;
 };
 
-ASTObject_Var_Decl.prototype = {
-	constructor: ASTObject_Var_Decl,
+CPP_ASTObject_Var_Decl.prototype = {
+	constructor: CPP_ASTObject_Var_Decl,
 	kind: ASTObject.KIND_VARIABLE_DECL,
 };
 
-Extension.inherit(ASTObject_Var_Decl, CPP_ASTObject);
+Extension.inherit(CPP_ASTObject_Var_Decl, CPP_ASTObject);
 
 //======================================================================================
 
 /**
- * ASTObject_Field
+ * CPP_ASTObject_Field
  *
  * @constructor
- * @this {ASTObject_Field}
+ * @this {CPP_ASTObject_Field}
  */
-function ASTObject_Field(parent, name, id, usr, type, typeCanonical, access)
+function CPP_ASTObject_Field(parent, name, id, usr, type, typeCanonical, access)
 {
-	ASTObject_Var_Decl.call(this, parent, name, id, usr, type, typeCanonical);
+	CPP_ASTObject_Var_Decl.call(this, parent, name, id, usr, type, typeCanonical);
 	this.access = access;
 };
 
-ASTObject_Field.prototype = {
-	constructor: ASTObject_Field,
+CPP_ASTObject_Field.prototype = {
+	constructor: CPP_ASTObject_Field,
 	kind: ASTObject.KIND_FIELD,
 };
 
-Extension.inherit(ASTObject_Field, ASTObject_Var_Decl);
+Extension.inherit(CPP_ASTObject_Field, CPP_ASTObject_Var_Decl);
 
 //======================================================================================
 
 /**
- * ASTObject_Parameter
+ * CPP_ASTObject_Parameter
  *
  * @constructor
- * @this {ASTObject_Parameter}
+ * @this {CPP_ASTObject_Parameter}
  */
-function ASTObject_Parameter(parent, name, type, typeCanonical)
+function CPP_ASTObject_Parameter(parent, name, type, typeCanonical)
 {
-	ASTObject_Var_Decl.call(this, parent, name, -1, "", type, typeCanonical);
+	CPP_ASTObject_Var_Decl.call(this, parent, name, -1, "", type, typeCanonical);
 };
 
-ASTObject_Parameter.prototype = {
-	constructor: ASTObject_Parameter,
+CPP_ASTObject_Parameter.prototype = {
+	constructor: CPP_ASTObject_Parameter,
 	kind: ASTObject.KIND_PARAMETER,
 };
 
-Extension.inherit(ASTObject_Parameter, ASTObject_Var_Decl);
+Extension.inherit(CPP_ASTObject_Parameter, CPP_ASTObject_Var_Decl);
 
 //======================================================================================
 
 /**
- * ASTObject_Function
+ * CPP_ASTObject_Function
  *
  * @constructor
- * @this {ASTObject_Function}
+ * @this {CPP_ASTObject_Function}
  */
-function ASTObject_Function(parent, name, id, usr, returnType, returnTypeCanonical)
+function CPP_ASTObject_Function(parent, name, id, usr, returnType, returnTypeCanonical)
 {
 	CPP_ASTObject.call(this, parent, name, id, usr);
 	this.returnType = returnType;
@@ -244,14 +244,14 @@ function ASTObject_Function(parent, name, id, usr, returnType, returnTypeCanonic
 	this.parameters = [];
 };
 
-ASTObject_Function.prototype = {
-	constructor: ASTObject_Function,
+CPP_ASTObject_Function.prototype = {
+	constructor: CPP_ASTObject_Function,
 	kind: ASTObject.KIND_FUNCTION,
 	
 	/**
 	 * Adds a parameter
 	 * 
-	 * @param   {ASTObject_Parameter}   param   Param to add
+	 * @param   {CPP_ASTObject_Parameter}   param   Param to add
 	 */
 	addParameter: function addParameter(param)
 	{
@@ -260,68 +260,68 @@ ASTObject_Function.prototype = {
 	
 };
 
-Extension.inherit(ASTObject_Function, CPP_ASTObject);
+Extension.inherit(CPP_ASTObject_Function, CPP_ASTObject);
 
 //======================================================================================
 
 /**
- * ASTObject_Member_Function
+ * CPP_ASTObject_Member_Function
  *
  * @constructor
- * @this {ASTObject_Member_Function}
+ * @this {CPP_ASTObject_Member_Function}
  */
-function ASTObject_Member_Function(parent, name, id, usr, returnType, returnTypeCanonical, access, isVirtual, isConst)
+function CPP_ASTObject_Member_Function(parent, name, id, usr, returnType, returnTypeCanonical, access, isVirtual, isConst)
 {
-	ASTObject_Function.call(this, parent, name, id, usr, returnType, returnTypeCanonical);
+	CPP_ASTObject_Function.call(this, parent, name, id, usr, returnType, returnTypeCanonical);
 	this.access = access;
 	this.isVirtual = isVirtual;
 	this.isConst = isConst;
 };
 
-ASTObject_Member_Function.prototype = {
-	constructor: ASTObject_Member_Function,
+CPP_ASTObject_Member_Function.prototype = {
+	constructor: CPP_ASTObject_Member_Function,
 	kind: ASTObject.KIND_MEMBER_FUNCTION,
 };
 
-Extension.inherit(ASTObject_Member_Function, ASTObject_Function);
+Extension.inherit(CPP_ASTObject_Member_Function, CPP_ASTObject_Function);
 
 //======================================================================================
 
 /**
- * ASTObject_Constructor
+ * CPP_ASTObject_Constructor
  *
  * @constructor
- * @this {ASTObject_Constructor}
+ * @this {CPP_ASTObject_Constructor}
  */
-function ASTObject_Constructor(parent, name, id, usr, access)
+function CPP_ASTObject_Constructor(parent, name, id, usr, access)
 {
-	ASTObject_Member_Function.call(this, parent, name, id, usr, null, null, access, false, false)
+	CPP_ASTObject_Member_Function.call(this, parent, name, id, usr, null, null, access, false, false)
 };
 
-ASTObject_Constructor.prototype = {
-	constructor: ASTObject_Constructor,
+CPP_ASTObject_Constructor.prototype = {
+	constructor: CPP_ASTObject_Constructor,
 	kind: ASTObject.KIND_CONSTRUCTOR,
 };
 
-Extension.inherit(ASTObject_Constructor, ASTObject_Member_Function);
+Extension.inherit(CPP_ASTObject_Constructor, CPP_ASTObject_Member_Function);
 
 //======================================================================================
 
 /**
- * ASTObject_Destructor
+ * CPP_ASTObject_Destructor
  *
  * @constructor
- * @this {ASTObject_Destructor}
+ * @this {CPP_ASTObject_Destructor}
  */
-function ASTObject_Destructor(parent, name, id, usr, access, isVirtual)
+function CPP_ASTObject_Destructor(parent, name, id, usr, access, isVirtual)
 {
-	ASTObject_Member_Function.call(this, parent, name, id, usr, null, null, access, isVirtual, false)
+	CPP_ASTObject_Member_Function.call(this, parent, name, id, usr, null, null, access, isVirtual, false)
 };
 
-ASTObject_Destructor.prototype = {
-	constructor: ASTObject_Destructor,
+CPP_ASTObject_Destructor.prototype = {
+	constructor: CPP_ASTObject_Destructor,
 	kind: ASTObject.KIND_DESTRUCTOR,
 };
 
-Extension.inherit(ASTObject_Destructor, ASTObject_Member_Function);
+Extension.inherit(CPP_ASTObject_Destructor, CPP_ASTObject_Member_Function);
 

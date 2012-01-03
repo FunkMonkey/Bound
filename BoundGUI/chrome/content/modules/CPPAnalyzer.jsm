@@ -37,7 +37,7 @@ let CPPAnalyzer =
 	 */
 	createASTTypeFromJSON: function createASTTypeFromJSON(astTree, jsonObject)
 	{
-		let astType = new ASTType(jsonObject.kind, astTree.astObjectsByID[jsonObject.declaration], jsonObject.isConst);
+		let astType = new CPP_ASTType(jsonObject.kind, astTree.astObjectsByID[jsonObject.declaration], jsonObject.isConst);
 		
 		if(jsonObject.pointsTo)
 			astType.pointsTo = this.createASTTypeFromJSON(astTree, jsonObject.pointsTo);
@@ -65,19 +65,19 @@ let CPPAnalyzer =
 		switch(jsonObject.kind)
 		{
 			case "Namespace":
-				astObject = new ASTObject_Namespace(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
+				astObject = new CPP_ASTObject_Namespace(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
 				astTree.astObjectsByID[jsonObject.id] = astObject;
 				break;
 			
 			case "Typedef":
 				type = this.createASTTypeFromJSON(astTree, jsonObject.type);
 				typeCanonical = this.createASTTypeFromJSON(astTree, jsonObject.typeCanonical);
-				astObject = new ASTObject_Typedef(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical);
+				astObject = new CPP_ASTObject_Typedef(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical);
 				astTree.astObjectsByID[jsonObject.id] = astObject;
 				break;
 			
 			case "Struct":
-				astObject = new ASTObject_Struct(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
+				astObject = new CPP_ASTObject_Struct(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
 				astTree.astObjectsByID[jsonObject.id] = astObject;
 				
 				for(let i = 0; i < jsonObject.bases.length; ++i)
@@ -86,7 +86,7 @@ let CPPAnalyzer =
 				break;
 			
 			case "Class":
-				astObject = new ASTObject_Class(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
+				astObject = new CPP_ASTObject_Class(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
 				astTree.astObjectsByID[jsonObject.id] = astObject;
 				
 				for(let i = 0; i < jsonObject.bases.length; ++i)
@@ -97,28 +97,28 @@ let CPPAnalyzer =
 			case "VariableDeclaration":
 				type = this.createASTTypeFromJSON(astTree, jsonObject.type);
 				typeCanonical = this.createASTTypeFromJSON(astTree, jsonObject.typeCanonical);
-				astObject = new ASTObject_Var_Decl(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical);
+				astObject = new CPP_ASTObject_Var_Decl(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical);
 				astTree.astObjectsByID[jsonObject.id] = astObject;
 				break;
 			
 			case "Field":
 				type = this.createASTTypeFromJSON(astTree, jsonObject.type);
 				typeCanonical = this.createASTTypeFromJSON(astTree, jsonObject.typeCanonical);
-				astObject = new ASTObject_Field(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical, ASTObject.getAccessFromString(jsonObject.access));
+				astObject = new CPP_ASTObject_Field(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical, ASTObject.getAccessFromString(jsonObject.access));
 				astTree.astObjectsByID[jsonObject.id] = astObject;
 				break;
 			
 			case "Function":
 				type = this.createASTTypeFromJSON(astTree, jsonObject.returnType);
 				typeCanonical = this.createASTTypeFromJSON(astTree, jsonObject.returnTypeCanonical);
-				astObject = new ASTObject_Function(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical);
+				astObject = new CPP_ASTObject_Function(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical);
 				astTree.astObjectsByID[jsonObject.id] = astObject;
 				
 				for(let i = 0; i < jsonObject.parameters.length; ++i)
 				{
 					type = this.createASTTypeFromJSON(astTree, jsonObject.parameters[i].type);
 					typeCanonical = this.createASTTypeFromJSON(astTree, jsonObject.parameters[i].typeCanonical);
-					let param = new ASTObject_Parameter(astObject, jsonObject.name, type, typeCanonical);
+					let param = new CPP_ASTObject_Parameter(astObject, jsonObject.name, type, typeCanonical);
 					astObject.addParameter(param);
 				}
 				
@@ -127,14 +127,14 @@ let CPPAnalyzer =
 			case "MemberFunction":
 				type = this.createASTTypeFromJSON(astTree, jsonObject.returnType);
 				typeCanonical = this.createASTTypeFromJSON(astTree, jsonObject.returnTypeCanonical);
-				astObject = new ASTObject_Member_Function(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical, ASTObject.getAccessFromString(jsonObject.access), false, false);
+				astObject = new CPP_ASTObject_Member_Function(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical, ASTObject.getAccessFromString(jsonObject.access), false, false);
 				astTree.astObjectsByID[jsonObject.id] = astObject;
 				
 				for(let i = 0; i < jsonObject.parameters.length; ++i)
 				{
 					type = this.createASTTypeFromJSON(astTree, jsonObject.parameters[i].type);
 					typeCanonical = this.createASTTypeFromJSON(astTree, jsonObject.parameters[i].typeCanonical);
-					let param = new ASTObject_Parameter(astObject, jsonObject.name, type, typeCanonical);
+					let param = new CPP_ASTObject_Parameter(astObject, jsonObject.name, type, typeCanonical);
 					astObject.addParameter(param);
 				}
 				
@@ -144,21 +144,21 @@ let CPPAnalyzer =
 				break;
 			
 			case "Constructor":
-				astObject = new ASTObject_Constructor(parent, jsonObject.name, jsonObject.id, jsonObject.USR, ASTObject.getAccessFromString(jsonObject.access));
+				astObject = new CPP_ASTObject_Constructor(parent, jsonObject.name, jsonObject.id, jsonObject.USR, ASTObject.getAccessFromString(jsonObject.access));
 				astTree.astObjectsByID[jsonObject.id] = astObject;
 				
 				for(let i = 0; i < jsonObject.parameters.length; ++i)
 				{
 					type = this.createASTTypeFromJSON(astTree, jsonObject.parameters[i].type);
 					typeCanonical = this.createASTTypeFromJSON(astTree, jsonObject.parameters[i].typeCanonical);
-					let param = new ASTObject_Parameter(astObject, jsonObject.name, type, typeCanonical);
+					let param = new CPP_ASTObject_Parameter(astObject, jsonObject.name, type, typeCanonical);
 					astObject.addParameter(param);
 				}
 				
 				break;	
 				
 			case "Destructor":
-				astObject = new ASTObject_Destructor(parent, jsonObject.name, jsonObject.id, jsonObject.USR, ASTObject.getAccessFromString(jsonObject.access), false);
+				astObject = new CPP_ASTObject_Destructor(parent, jsonObject.name, jsonObject.id, jsonObject.USR, ASTObject.getAccessFromString(jsonObject.access), false);
 				astTree.astObjectsByID[jsonObject.id] = astObject;
 				break;	
 		}
