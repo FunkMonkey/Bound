@@ -1,3 +1,17 @@
-the term language binding refers to the process of exposing 
+Practical:
+-----------
 
-glue-code (wrapping), c-types
+CPPAnalyzer
+-----------
+- AST Objects
+- visitChildren
+- Logic for access
+- function parameter problem
+- JSON conversion
+
+BoundGUI
+---------
+- Tree
+- calling CPPAnalyzer using js-ctypes (conversion) --> JSON
+- transforming JSON to AST-Tree
+- templating using jSmart

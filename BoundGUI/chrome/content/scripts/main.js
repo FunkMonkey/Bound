@@ -11,7 +11,13 @@ Cu.import("chrome://bound/content/modules/jSmart.jsm");
 
 Cu.import("chrome://bound/content/modules/DOMTree.jsm");
 
+Cu.import("chrome://bound/content/modules/Extension.jsm");
+
+
+
+let Base_ASTObjects = {};
 let CPP_ASTObjects = {};
+Cu.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm", Base_ASTObjects);
 Cu.import("chrome://bound/content/modules/CPP_ASTObjects.jsm", CPP_ASTObjects);
 
 window.addEventListener("close", Bound.quit, false); 
@@ -28,25 +34,27 @@ function dataCB(type, data, row)
 	switch(type)
 	{
 		case "label":  return data.name;
-		case "attributes" : return { ast_kind: CPP_ASTObjects.ASTObject.getKindAsString(data.kind)};
+		case "attributes" : return { ast_kind: Base_ASTObjects.ASTObject.getKindAsString(data.kind)};
 	}
 	
 	return "";
 }
 
+var theTo = new Object();
+
 function jSmartTest()
 {
-	let template = new jSmart("void {$funcName}();");
-	let res = template.fetch({funcName: "SuperFunc"});
+	//let template = new jSmart("void {$funcName}();");
+	//let res = template.fetch({funcName: "SuperFunc"});
+	//
+	//log("template: " + res);
 	
-	log("template: " + res);
-	
-	
+	Extension.borrow(theTo, CPP_ASTObjects.ASTObject.prototype);
 }
 
 function addAfterSelection()
 {
-	let obj = { name: "ADDED", kind: CPP_ASTObjects.ASTObject.KIND_CLASS}
+	let obj = { name: "ADDED", kind: Base_ASTObjects.ASTObject.KIND_CLASS}
 	
 	if(cppASTTree.selection.length > 0)
 	{
@@ -58,7 +66,7 @@ function addAfterSelection()
 		newRow.tree.select(newRow);
 	}
 	
-	//jSmartTest();
+	jSmartTest();
 }
 
 function astNodeToTreeNode(astNode, domParent, treeView)
