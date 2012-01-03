@@ -9,7 +9,7 @@ Cu.import("chrome://bound/content/modules/log.jsm");
 Components.utils.import("resource://gre/modules/FileUtils.jsm");
 Components.utils.import("resource://gre/modules/ctypes.jsm");
 Cu.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm");
-Cu.import("chrome://bound/content/modules/CPP_ASTObjects.jsm")
+Cu.import("chrome://bound/content/modules/AST/CPP_ASTObjects.jsm")
 
 let CPPAnalyzer =
 {

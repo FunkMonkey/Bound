@@ -18,7 +18,7 @@ Cu.import("chrome://bound/content/modules/Extension.jsm");
 let Base_ASTObjects = {};
 let CPP_ASTObjects = {};
 Cu.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm", Base_ASTObjects);
-Cu.import("chrome://bound/content/modules/CPP_ASTObjects.jsm", CPP_ASTObjects);
+Cu.import("chrome://bound/content/modules/AST/CPP_ASTObjects.jsm", CPP_ASTObjects);
 
 window.addEventListener("close", Bound.quit, false); 
 
