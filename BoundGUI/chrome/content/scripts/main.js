@@ -120,7 +120,7 @@ function testParsing()
 window.addEventListener("load", testParsing, true);
 
 
-
+Cu.import("chrome://bound/content/modules/CodeGenerators/CPP_Spidermonkey.jsm");
 
 
 
