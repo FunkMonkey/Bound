@@ -238,10 +238,13 @@ Extension.inherit(CPP_ASTObject_Parameter, CPP_ASTObject_Var_Decl);
 function CPP_ASTObject_Function(parent, name, id, usr, returnType, returnTypeCanonical)
 {
 	CPP_ASTObject.call(this, parent, name, id, usr);
+	
 	this.returnType = returnType;
 	this.returnTypeCanonical = returnTypeCanonical;
 	
 	this.parameters = [];
+	
+	this.overloadName = name + "()";
 };
 
 CPP_ASTObject_Function.prototype = {
@@ -256,7 +259,28 @@ CPP_ASTObject_Function.prototype = {
 	addParameter: function addParameter(param)
 	{
 		this.parameters.push(param);
+		
+		// TODO: performance
+		this._updateOverloadName();
+	},
+	
+	/**
+	 * Updates the overload name
+	 */
+	_updateOverloadName: function _updateOverloadName()
+	{
+		this.overloadName = this.name + "(";
+		for(let i = 0; i < this.parameters.length; ++i)
+		{
+			this.overloadName += this.parameters[i].name;	
+			
+			if(i !== this.parameters.length - 1)
+				this.overloadName +=", ";
+		}
+		
+		this.overloadName += ")";
 	}, 
+	
 	
 };
 

@@ -90,14 +90,25 @@ ASTObject.prototype = {
 			{
 				let obj = this._childrenMap[child.name];
 				if(obj instanceof Array)
+				{
 					obj.push(child);
+					child.overloadContainer = obj;
+				}
 				else
 				{
 					let arr = [];
+					arr.name = child.name;
+					arr.kind = child.kind; // so it is just the last kind
+					
+					obj.overloadContainer = arr;
+					child.overloadContainer = arr;
+					
 					arr.push(obj);
 					arr.push(child);
 					this._childrenMap[child.name] = arr;
 				}
+				
+				
 			}
 		}
 	},

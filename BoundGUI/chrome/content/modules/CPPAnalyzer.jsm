@@ -118,7 +118,7 @@ let CPPAnalyzer =
 				{
 					type = this.createASTTypeFromJSON(astTree, jsonObject.parameters[i].type);
 					typeCanonical = this.createASTTypeFromJSON(astTree, jsonObject.parameters[i].typeCanonical);
-					let param = new CPP_ASTObject_Parameter(astObject, jsonObject.name, type, typeCanonical);
+					let param = new CPP_ASTObject_Parameter(astObject, jsonObject.parameters[i].name, type, typeCanonical);
 					astObject.addParameter(param);
 				}
 				
@@ -134,7 +134,7 @@ let CPPAnalyzer =
 				{
 					type = this.createASTTypeFromJSON(astTree, jsonObject.parameters[i].type);
 					typeCanonical = this.createASTTypeFromJSON(astTree, jsonObject.parameters[i].typeCanonical);
-					let param = new CPP_ASTObject_Parameter(astObject, jsonObject.name, type, typeCanonical);
+					let param = new CPP_ASTObject_Parameter(astObject, jsonObject.parameters[i].name, type, typeCanonical);
 					astObject.addParameter(param);
 				}
 				

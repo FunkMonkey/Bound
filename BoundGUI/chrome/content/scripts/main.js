@@ -33,7 +33,8 @@ function dataCB(type, data, row)
 {
 	switch(type)
 	{
-		case "label":  return data.name;
+		case "label":
+			return (data.overloadContainer && data.overloadName) ? data.overloadName : data.name;
 		case "attributes" : return { ast_kind: Base_ASTObjects.ASTObject.getKindAsString(data.kind)};
 	}
 	
@@ -73,10 +74,30 @@ function astNodeToTreeNode(astNode, domParent, treeView)
 {
 	var row = treeView.createAndAppendRow(domParent, astNode.children.length !== 0, astNode);	
 	
-	for(let i = 0; i < astNode.children.length; ++i)
+	for(let childName in astNode._childrenMap)
 	{
-		astNodeToTreeNode(astNode.children[i], row, treeView);
+		let child = astNode._childrenMap[childName];
+		
+		// handle overloads
+		if(child.constructor.name === "Array") // can't use instance of, as it may come from a different module
+		{
+			var sameNameRow = treeView.createAndAppendRow(row, true, child);
+			
+			for(let i = 0; i < child.length; ++i)
+			{
+				astNodeToTreeNode(child[i], sameNameRow, treeView);
+			}
+		}
+		else
+		{
+			astNodeToTreeNode(child, row, treeView);
+		}
 	}
+	
+	//for(let i = 0; i < astNode.children.length; ++i)
+	//{
+	//	astNodeToTreeNode(astNode.children[i], row, treeView);
+	//}
 	
 	return row;
 }
