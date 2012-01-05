@@ -13,13 +13,13 @@ Cu.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm");
  * @constructor
  * @this {ASTObject}
  */
-function Export_ASTObject(parent, name, kind)
+function Export_ASTObject(parent, name, sourceObject)
 {
 	ASTObject.call(this, parent, name);
 	
-	this.kind = kind;
+	//this.kind = kind;
 	
-	this.sourceObject = null;
+	this.sourceObject = sourceObject;
 	
 	this.codeGenerators = {};
 }
@@ -37,8 +37,8 @@ Export_ASTObject.prototype = {
 		if(this.codeGenerators[codeGen.context])
 			throw "ASTObject already contains code generator for given context: " + codeGen.context;
 		
-		this.codeGenerators[codeGen.language] = codeGen;
-		codeGen.astObject = this;
+		this.codeGenerators[codeGen.context] = codeGen;
+		codeGen.exportObject = this;
 	},
 	
 	/**

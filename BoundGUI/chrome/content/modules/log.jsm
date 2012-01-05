@@ -7,8 +7,8 @@ function log(str)
 {
 	if(log.useJSConsole)
 	{
-		if(typeof(str) === "undefined")
-			str = "undefined";
+		if(str == null)
+			str = "" + str;
 		consoleService.logStringMessage(str);
 	}
 	

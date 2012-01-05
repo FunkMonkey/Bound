@@ -20,6 +20,9 @@ let CPP_ASTObjects = {};
 Cu.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm", Base_ASTObjects);
 Cu.import("chrome://bound/content/modules/AST/CPP_ASTObjects.jsm", CPP_ASTObjects);
 
+// TMP
+Cu.import("chrome://bound/content/modules/CodeGenerators/CPP_Spidermonkey.jsm");
+
 window.addEventListener("close", Bound.quit, false); 
 
 
@@ -41,31 +44,31 @@ function dataCB(type, data, row)
 	return "";
 }
 
-var theTo = new Object();
 
 function jSmartTest()
 {
-	//let template = new jSmart("void {$funcName}();");
-	//let res = template.fetch({funcName: "SuperFunc"});
-	//
-	//log("template: " + res);
-	
-	Extension.borrow(theTo, CPP_ASTObjects.ASTObject.prototype);
+	if(cppASTTree.selection.length > 0)
+	{
+		let row = cppASTTree.selection[0];
+		var data = row.data;
+		
+		log(Plugin_CPP_Spidermonkey.getCodeGeneratorByASTObject(data));
+	}
 }
 
 function addAfterSelection()
 {
-	let obj = { name: "ADDED", kind: Base_ASTObjects.ASTObject.KIND_CLASS}
-	
-	if(cppASTTree.selection.length > 0)
-	{
-		let parent = cppASTTree.selection[0];
-		let newRow = cppASTTree.createAndAppendRow(parent, false, obj);
-		if(!parent.isContainerOpen)
-			parent.toggleCollapse();
-			
-		newRow.tree.select(newRow);
-	}
+	//let obj = { name: "ADDED", kind: Base_ASTObjects.ASTObject.KIND_CLASS}
+	//
+	//if(cppASTTree.selection.length > 0)
+	//{
+	//	let parent = cppASTTree.selection[0];
+	//	let newRow = cppASTTree.createAndAppendRow(parent, false, obj);
+	//	if(!parent.isContainerOpen)
+	//		parent.toggleCollapse();
+	//		
+	//	newRow.tree.select(newRow);
+	//}
 	
 	jSmartTest();
 }
@@ -79,13 +82,13 @@ function astNodeToTreeNode(astNode, domParent, treeView)
 		let child = astNode._childrenMap[childName];
 		
 		// handle overloads
-		if(child.constructor.name === "Array") // can't use instance of, as it may come from a different module
+		if(child instanceof Base_ASTObjects.ASTOverloadContainer) // can't use instance of, as it may come from a different module
 		{
 			var sameNameRow = treeView.createAndAppendRow(row, true, child);
 			
-			for(let i = 0; i < child.length; ++i)
+			for(let i = 0; i < child.overloads.length; ++i)
 			{
-				astNodeToTreeNode(child[i], sameNameRow, treeView);
+				astNodeToTreeNode(child.overloads[i], sameNameRow, treeView);
 			}
 		}
 		else

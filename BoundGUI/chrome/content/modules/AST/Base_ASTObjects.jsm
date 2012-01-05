@@ -1,4 +1,4 @@
-var EXPORTED_SYMBOLS = ["ASTObject"];
+var EXPORTED_SYMBOLS = ["ASTObject", "ASTOverloadContainer"];
 
 
 //======================================================================================
@@ -89,27 +89,79 @@ ASTObject.prototype = {
 			else
 			{
 				let obj = this._childrenMap[child.name];
-				if(obj instanceof Array)
+				if(obj instanceof ASTOverloadContainer)
 				{
-					obj.push(child);
-					child.overloadContainer = obj;
+					obj.addOverload(child);
 				}
 				else
 				{
-					let arr = [];
-					arr.name = child.name;
-					arr.kind = child.kind; // so it is just the last kind
+					var overloadContainer = new ASTOverloadContainer();
 					
-					obj.overloadContainer = arr;
-					child.overloadContainer = arr;
-					
-					arr.push(obj);
-					arr.push(child);
-					this._childrenMap[child.name] = arr;
+					overloadContainer.addOverload(obj);
+					overloadContainer.addOverload(child);
+					this._childrenMap[child.name] = overloadContainer;
 				}
 				
 				
 			}
 		}
 	},
+	
+	/**
+	 * Returns the kind as a string
+	 *   - uses own kind or the kind specified
+	 * 
+	 * @param   {Number}   kind   Optional: kind to get
+	 * 
+	 * @returns {String}   String representation of the kind
+	 */
+	getKindAsString: function getKindAsString(kind)
+	{
+		return ASTObject.getKindAsString((kind == null) ? this.kind : kind);
+	}, 
+	
+};
+
+/**
+ * 
+ *
+ * @constructor
+ * @this {ASTOverloadContainer}
+ */
+function ASTOverloadContainer()
+{
+	this.overloads = [];
+}
+
+ASTOverloadContainer.prototype = {
+	constructor: ASTOverloadContainer,
+	
+	get name(){ return this.overloads[0].name; },
+	get kind(){ return this.overloads[0].kind; },
+	
+	/**
+	 * Returns the kind as a string
+	 *   - uses own kind or the kind specified
+	 * 
+	 * @param   {Number}   kind   Optional: kind to get
+	 * 
+	 * @returns {String}   String representation of the kind
+	 */
+	getKindAsString: function getKindAsString(kind)
+	{
+		return this.overloads[0].getKindAsString(kind);
+	}, 
+	
+	/**
+	 * Adds an overloaded member
+	 * 
+	 * @param   {ASTObject}   overload   Overloaded member to add
+	 */
+	addOverload: function addOverload(overload)
+	{
+		this.overloads.push(overload);
+		overload.overloadContainer = this;
+	}, 
+	
+	
 };

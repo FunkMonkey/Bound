@@ -127,8 +127,6 @@ let TemplateManager = {
 		return this.addTemplate(searchTerm, (alternativeName == null) ? templateStr : alternativeName);
 	}, 
 	
-	
-	
 	/**
 	 * Fetches the template with the given name
 	 * 
@@ -145,9 +143,35 @@ let TemplateManager = {
 		return this._templates[templateName].fetch(data);
 	},
 	
+	/**
+	 * Checks for the existence of a template
+	 * 
+	 * @param   {String}   templateName   Name of the template
+	 * 
+	 * @returns {boolean}   True if exists, otherwise false
+	 */
+	hasTemplate: function hasTemplate(templateName)
+	{
+		return (this._templates[templateName] == null) ? false : true;
+	},
+	
+	/**
+	 * Returns the template with the given name
+	 * 
+	 * @param   {String}   templateName   Name of the template
+	 * 
+	 * @returns {jSmart}   jSmart template or null
+	 */
+	getTemplate: function getTemplate(templateName)
+	{
+		return (this._templates[templateName] == null) ? null : this._templates[templateName];
+	}, 
+	
+	
+	
 };
 
-// TODO: move
+// TODO: move to IO module
 function readFile(file)
 {
     // open an input stream from file  
