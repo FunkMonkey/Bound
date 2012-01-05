@@ -10,13 +10,13 @@ Often, language binding is needed to connect a higher-level programming language
 
 Speaking of language binding, there is a set of terms that need explanation.\todo{rewrite}
 
-\todo{References to Ousterhout}The terms ''low(er)-level'' and ''high(er)-level'' refer to the degree of abstraction a programming language provides in comparison to another language. Higher-level languages encapsulate more machine instructions per statement and thus usually need less code to be written to perform a given task, by handling machine-oriented details like register allocation automatically and omitting complexity\todo{rewrite}. This leads to better code-maintainability and faster development at the cost of performance. 
+According to John Ousterhout, the creator of the scripting language TCL, the terms ''low(er)-level'' and ''high(er)-level'' refer to the degree of abstraction a programming language provides in comparison to another language. Higher-level languages encapsulate more machine instructions per statement and thus usually need less code to be written to perform a given task, by handling machine-oriented details like register allocation automatically and omitting complexity\todo{rewrite}. This leads to better code-maintainability and faster development at the cost of performance.\footnote{\citep{Ousterhout}}
 
-John Ousterhout, the creator of the scripting language TCL, describes a \textbf{system programming language} as a strongly (statically) typed language designed to create applications from scratch, but offering a higher level of abstraction in doing so compared to assembly programming languages, which are considered very low-level.
+Ousterhout describes a \textbf{system programming language} as a strongly (statically) typed language designed to create applications from scratch, but offering a higher level of abstraction in doing so compared to assembly programming languages, which are considered very low-level.
 
-\textbf{Scripting languages}, on the other hand, represent a very different style of programming than system programming languages. They ''assume that there already exists a collection of useful components written in other languages [...] and are intended primarily for plugging together components'' \todo{Quote}. They offer a higher level of abstraction compared to system programming languages, f. ex. by using dynamic typing, thus sacrificing execution speed to improve development speed.\todo{code-reuse?}\\ Being mostly interpreted languages, they support faster development and rapid prototyping by eliminating compile- and link-time. Interpretation also offers better portability as well as a great deal of flexibility by allowing run-time code-manipulation. Due to their simpler syntax, scripting languages are usually easier to learn.
+He states, that \textbf{Scripting languages}, on the other hand, represent a very different style of programming than system programming languages. They ''assume that there already exists a collection of useful components written in other languages [...] and are intended primarily for plugging together components''\footnote{\citep{Ousterhout}}. They offer a higher level of abstraction compared to system programming languages, f. ex. by using dynamic typing, thus sacrificing execution speed to improve development speed.\todo{code-reuse?}\\ Being mostly interpreted languages, they support faster development and rapid prototyping by eliminating compile- and link-time. Interpretation also offers better portability as well as a great deal of flexibility by allowing run-time code-manipulation. Due to their simpler syntax, scripting languages are usually easier to learn.
 
-Scripting and system programming languages are symbiotic. System programming languages are used to create high-performance components providing platform-access\todo{rewrite}, which can then be assembled using scripting languages.\todo{Quote??} Binding a system programming language and a scripting language together provides the advantages of both worlds\todo{types?}.
+Scripting and system programming languages are symbiotic. System programming languages are used to create high-performance components providing platform-access\todo{rewrite}, which can then be assembled using scripting languages.\footnote{\citep{Ousterhout}} Binding a system programming language and a scripting language together provides the advantages of both worlds\todo{types?}.
 
 \todo{Software-Reuse, OS-API and access, native, host, guest, extending, embedding, pipe-example}
 
@@ -24,7 +24,7 @@ Scripting and system programming languages are symbiotic. System programming lan
 
 Before the process of binding different languages into one application is explained, it is important to define some terms concerning the binding of functions.
 
-Static or ''early'' binding means that ''the compiler generates a call to a specific function name, and the linker resolves this call to the absolute address of the code to be executed.'' \todo{thinking c++}
+Static or ''early'' binding means that ''the compiler generates a call to a specific function name, and the linker resolves this call to the absolute address of the code to be executed.''\footnote{\citep[41]{ThinkingInCPP}}
 
 Dynamic binding, dynamic dispatch or ''late'' binding, on the opposite side, refers to resolving the address of the code to be called dynamically at run-time. This can be done in various ways, and the definitions in literature and internet vary extremely at this point.
 
@@ -39,8 +39,8 @@ It is important to understand that static binding is only possible in programmin
 \section{The process of binding languages}
 
 \begin{quotation}
-Binding one language to another is a non-trivial task. The binding language needs to understand the calling conventions, type system, data structures, memory allocation mechanisms and linking strategy of the target language, just to get things working. The task is to carefully align the semantics of both languages, so that both languages can understand the data that passes between them.
-\end{quotation}\todo{Real World Haskellby Bryan O'Sullivan, Don Stewart, and John Goerzen}
+Binding one language to another is a non-trivial task. The binding language needs to understand the calling conventions, type system, data structures, memory allocation mechanisms and linking strategy of the target language, just to get things working. The task is to carefully align the semantics of both languages, so that both languages can understand the data that passes between them.\footnote{\citep{RealWorldHaskell}}
+\end{quotation}
 
 When binding a scripting language to a system programming language, the scripting language usually comes in form of a library exposing an interface that can be used from the system programming language to interact with the scripting language.\\
 The code written to bind both languages together is often referred to as ''glue code'' or ''foreign interface''. The process of creating such code is called ''wrapping''.
@@ -50,7 +50,7 @@ A foreign interface is a piece of glue code, intended to make it possible to use
 \begin{itemize}
 \item marshalling objects to and from foreign code,
 \item managing memory and other resources,
-\item dealing with different calling conventions, implicit function arguments, etc.
+\item dealing with different calling conventions, implicit function arguments, etc.\footnote{\citep{FFIScheme}}
 \end{itemize}
 \end{quotation}
 
@@ -65,8 +65,8 @@ A foreign interface is a piece of glue code, intended to make it possible to use
 The terminology concerning foreign \textbf{function} interfaces (FFIs) is somewhat confusing. This thesis will use the following definition:
 
 \begin{quotation}
-A foreign function interface is originally a lisp term for dynamically defining and calling functions in outside shared libraries (''foreign function'', ''call-out') and as additional option also creating functions which can be called from outside functions (''callback'', ''foreign-callable'', ''call-in'').
-\end{quotation}\todo{Urban, Design Issues for Foreign Function Interfaces}
+A foreign function interface is originally a lisp term for dynamically defining and calling functions in outside shared libraries (''foreign function'', ''call-out') and as additional option also creating functions which can be called from outside functions (''callback'', ''foreign-callable'', ''call-in'').\footnote{\citep{DesignFFI}}
+\end{quotation}
 
 To express the dynamic nature of the given definition, this thesis will stick to the term ''\textbf{dynamic} foreign function interface''.
 
@@ -141,12 +141,12 @@ As the need for connecting different programming languages arises in many projec
 \subsection{Component models}
 
 \begin{quotation}
-Component-based software engineering is a reuse-based approach to defining, implementing and composing loosely coupled independent components into systems.
-\end{quotation}\todo{Sommerville}
+Component-based software engineering is a reuse-based approach to defining, implementing and composing loosely coupled independent components into systems.\footnote{\citep[460]{Sommerville}}
+\end{quotation}
 
-A software component itself is an independent piece of software that encapsulates discrete functionality into a reusable entity to be used in composition with other components. \todo{from component thesis}.
+A software component itself is an independent piece of software that encapsulates discrete functionality into a reusable entity\footnote{\citep[3]{ComponentTechnology}} to be used in composition with other components.
 
-Such components need to conform to component standards, which ''are embodied in a component model and define [...] how component interfaces should be specified and how components communicate.''\todo{Sommerville} They also standardize facets like memory management, exception- and error-handling as well as metadata for runtime type information.\todo{from component thesis}
+Such components need to conform to component standards, which ''are embodied in a component model and define [...] how component interfaces should be specified and how components communicate.''\footnote{\citep[440]{Sommerville}} Polberger further notes that they also standardize facets like memory management, exception- and error-handling as well as metadata for runtime type information.\footnote{\citep[8]{ComponentTechnology}}
 
 Prominent examples of such component models (standards and middleware) are the Object Management Group's (OMG) Common Object Request Broker Architecture (CORBA) and Microsoft's Component Object Model (COM). Mozilla uses a cross-platform variant of COM called XPCOM inside its products.
 
@@ -155,8 +155,8 @@ These component models are language-agnostic, meaning that components can be wri
 \subsection{Interfaces}
 
 \begin{quotation}
-The services offered by a component are made available through an interface, and all interactions are through that interface.
-\end{quotation}\todo{Sommerville}
+The services offered by a component are made available through an interface, and all interactions are through that interface.\footnote{\citep[444]{Sommerville}}
+\end{quotation}
 
 CORBA, COM and XPCOM are strictly separating interfaces and implementations. The same interface can be implemented by multiple classes and a class can also implement multiple interfaces.
 
@@ -170,7 +170,7 @@ When it comes to in-process communication between different components and objec
 
 Components written in COM have to follow a binary standard, meaning they have to share the same layout in memory for a given interface, no matter in which language they are implemented. Not all programming languages support COMs binary standard, thus there is only a set of languages COM components can be written in, though a broader set they can be used from.
 
-CORBA on the other hand standardizes the IDL as well as the language bindings. All calls are routed through the Object Request Broker, which is responsible for translating the calls and converting arguments. ''By mandating the use of runtime software for all object invocations, CORBA can effectively hide differences between communicating objects — what languages they are written in, on what machines they are running and the operating system used — without requiring that their interfaces all look the same in memory. Thus, CORBA is, unlike COM, not a binary standard.''\todo{compo thesis}
+CORBA on the other hand standardizes the IDL as well as the language bindings. All calls are routed through the Object Request Broker, which is responsible for translating the calls and converting arguments. ''By mandating the use of runtime software for all object invocations, CORBA can effectively hide differences between communicating objects — what languages they are written in, on what machines they are running and the operating system used — without requiring that their interfaces all look the same in memory. Thus, CORBA is, unlike COM, not a binary standard.''\footnote{\citep[83]{ComponentTechnology}}
 
 When using objects from a weakly typed scripting language, neither CORBA nor COM are producing glue code for binding purposes but handle function calls and type-checking at run-time using dynamic binding with lookup using identifiers (dynamic method invocation). Thus calls to such an object from script are dynamically bound twice. First the address of the handler-function needs to be looked up, then the handler needs to look up the address and parameter information of the function to call. This is a performance overhead compared to compiled glue code that uses static binding.
 
