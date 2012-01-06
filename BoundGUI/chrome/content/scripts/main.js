@@ -31,6 +31,9 @@ CPPAnalyzer.init();
 var cppAST = null;
 var cppASTTree = null;
 
+var exportAST = null;
+var exportASTTree = null;
+
 
 function dataCB(type, data, row)
 {
@@ -82,7 +85,7 @@ function astNodeToTreeNode(astNode, domParent, treeView)
 		let child = astNode._childrenMap[childName];
 		
 		// handle overloads
-		if(child instanceof Base_ASTObjects.ASTOverloadContainer) // can't use instance of, as it may come from a different module
+		if(child instanceof Base_ASTObjects.ASTOverloadContainer)
 		{
 			var sameNameRow = treeView.createAndAppendRow(row, true, child);
 			
@@ -97,21 +100,46 @@ function astNodeToTreeNode(astNode, domParent, treeView)
 		}
 	}
 	
-	//for(let i = 0; i < astNode.children.length; ++i)
-	//{
-	//	astNodeToTreeNode(astNode.children[i], row, treeView);
-	//}
-	
 	return row;
+}
+
+function checkDrag(event)
+{
+	if(event.dataTransfer.types.contains("application/x-tree-data"))
+		event.preventDefault();
+}
+
+function onDrop(event)
+{
+	var data = event.dataTransfer.mozGetDataAt("application/x-tree-data", 0);	
+	
+	if(event.target === exportASTTree.box)
+	{
+		var newRow = exportASTTree.createAndAppendRow(null, false, data);
+	}
+	else
+	{
+		var parentNode = event.target.parentNode;
+		while(!parentNode.isRow)
+			parentNode = parentNode.parentNode;
+			
+		var newRow = exportASTTree.createAndAppendRow(parentNode, false, data);
+		if(!parentNode.isContainerOpen)
+			parentNode.toggleCollapse();
+	}
 }
 
 function testParsing()
 {
 	cppAST = CPPAnalyzer.parse_header(["supertest", "D:\\Data\\Projekte\\Bound\\src\\CPPAnalyzer\\Test\\test1.cpp"]);
-	let tree = document.getElementById("cppTree");
+
+	var $exportTree = document.getElementById("exportTree");
+	exportASTTree = new DOMTree(document, $exportTree, dataCB);
+	$exportTree.addEventListener("dragover", checkDrag);
+	$exportTree.addEventListener("dragenter", checkDrag);
+	$exportTree.addEventListener("drop", onDrop);
 	
-	
-	cppASTTree = new DOMTree(document, tree, dataCB);
+	cppASTTree = new DOMTree(document, document.getElementById("cppTree"), dataCB);
 	
 	for(let i = 0; i < cppAST.root.children.length; ++i)
 	{
@@ -123,7 +151,7 @@ function testParsing()
 window.addEventListener("load", testParsing, true);
 
 
-Cu.import("chrome://bound/content/modules/CodeGenerators/CPP_Spidermonkey.jsm");
+
 
 
 

@@ -76,7 +76,20 @@ DOMTree.prototype =
 		//	row.tree.removeFromSelection(row);
 		//else
 			row.tree.addToSelection(row);
+	},
+	
+	/**
+	 * Called when drag start event is initialized on row content
+	 * 
+	 * @param   {DOMEvent}   event   Row content
+	 */
+	_onRowContentDragStart: function _onRowContentDragStart(event)
+	{
+		log("drag start")
+		event.dataTransfer.mozSetDataAt("application/x-tree-data", event.currentTarget.parentNode.data, 0);
+		event.dataTransfer.setDragImage(event.currentTarget, 0, 0);
 	}, 
+	
 	
 	
 	/**
@@ -152,6 +165,7 @@ DOMTree.prototype =
 	{
 		let row = this.document.createElement("vbox");
 		row.classList.add("dom-tree-row");
+		row.isRow = true;
 		row.tree = this;
 		
 		row.data = data;
@@ -162,6 +176,8 @@ DOMTree.prototype =
 		let rowContent = this.document.createElement("hbox");
 		rowContent.classList.add("dom-tree-row-content");
 		rowContent.addEventListener("click", this._onRowContentClicked);
+		rowContent.addEventListener("dragstart", this._onRowContentDragStart);
+		
 		row.appendChild(rowContent);
 		
 		// twisty
