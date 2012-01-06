@@ -51,7 +51,7 @@ var Extension =
 					continue;
 				
 				// don't overwrite existing properties
-				if(!options.overwriteExisting && to[propNames[j]])
+				if(!options.overwriteExisting && (propNames[j] in to))
 					continue;
 				
 				// copy the property
