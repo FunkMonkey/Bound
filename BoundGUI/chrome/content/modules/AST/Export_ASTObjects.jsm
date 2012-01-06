@@ -27,6 +27,9 @@ function Export_ASTObject(parent, name, sourceObject)
 Export_ASTObject.prototype = {
 	constructor: Export_ASTObject,
 	
+	// TEMPORARY
+	get kind(){ return (this.sourceObject == null) ? ASTObject.KIND_INVALID : this.sourceObject.kind; },
+	
 	/**
 	 * Adds a code generator to the ASTObject
 	 * 
@@ -58,3 +61,4 @@ Export_ASTObject.prototype = {
 };
 
 Extension.borrow(Export_ASTObject.prototype, ASTObject.prototype);
+

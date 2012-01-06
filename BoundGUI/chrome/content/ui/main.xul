@@ -20,8 +20,9 @@
 	<vbox  flex="1">
 		<button label="Testing" oncommand="addAfterSelection();"/>
 		<hbox  flex="1">
-			<vbox id="exportTree" flex="1" />
-			<vbox id="cppTree" flex="1" />
+			<vbox id="cppTree" width="200"  />
+			<vbox id="exportTree" width="200" />
+			<textbox id="resultCode" flex="1" multiline="true"></textbox>
 		</hbox>
 	</vbox>
 </window>

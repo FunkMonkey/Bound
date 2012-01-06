@@ -1,0 +1,14 @@
+JSBool {$wrapper_funcName}(JSContext *cx, uintN argc, jsval *vp)
+{
+{if $useExceptions}
+	JSWRAP_TRY_START
+	
+{/if}
+	{$funcName}();
+{if $useExceptions}
+	
+	JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "TODO")
+{/if}	
+	JS_SET_RVAL(cx, vp, JSVAL_VOID);
+	return true;
+}

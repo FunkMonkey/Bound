@@ -15,13 +15,26 @@ Cu.import("chrome://bound/content/modules/Extension.jsm");
 
 
 
-var Base_ASTObjects = {};
-var CPP_ASTObjects = {};
-Cu.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm", Base_ASTObjects);
-Cu.import("chrome://bound/content/modules/AST/CPP_ASTObjects.jsm", CPP_ASTObjects);
+var ASTObjects = {
+	Base: {},
+	CPP: {},
+	Export: {}
+}
+
+Cu.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm", ASTObjects.Base);
+Cu.import("chrome://bound/content/modules/AST/CPP_ASTObjects.jsm", ASTObjects.CPP);
+
+Cu.import("chrome://bound/content/modules/AST/Export_ASTObjects.jsm", ASTObjects.Export);
+
 
 // TMP
-Cu.import("chrome://bound/content/modules/CodeGenerators/CPP_Spidermonkey.jsm");
+// adding some plugins
+
+// TODO: move into exportASTTree as a code generator
+Components.utils.import("chrome://bound/content/modules/CodeGeneratorPlugins/CodeGeneratorPluginManager.jsm");
+Components.utils.import("chrome://bound/content/modules/CodeGeneratorPlugins/CPP_Spidermonkey.jsm");
+CodeGeneratorPluginManager.registerPlugin(new Plugin_CPP_Spidermonkey());
+var currentContext = "CPP_Spidermonkey";
 
 window.addEventListener("close", Bound.quit, false); 
 
@@ -32,7 +45,9 @@ var cppAST = null;
 var cppASTTree = null;
 
 var exportAST = null;
-var exportASTTree = null;
+var exportASTTree = new ASTObjects.Export.Export_ASTObject(null, "root", null);
+
+var $resultCode = null;
 
 
 function dataCB(type, data, row)
@@ -41,7 +56,7 @@ function dataCB(type, data, row)
 	{
 		case "label":
 			return (data.overloadContainer && data.overloadName) ? data.overloadName : data.name;
-		case "attributes" : return { ast_kind: Base_ASTObjects.ASTObject.getKindAsString(data.kind)};
+		case "attributes" : return { ast_kind: data.getKindAsString()};
 	}
 	
 	return "";
@@ -85,7 +100,7 @@ function astNodeToTreeNode(astNode, domParent, treeView)
 		var child = astNode._childrenMap[childName];
 		
 		// handle overloads
-		if(child instanceof Base_ASTObjects.ASTOverloadContainer)
+		if(child instanceof ASTObjects.Base.ASTOverloadContainer)
 		{
 			var sameNameRow = treeView.createAndAppendRow(row, true, child);
 			
@@ -113,24 +128,36 @@ function onDrop(event)
 {
 	var data = event.dataTransfer.mozGetDataAt("application/x-tree-data", 0);
 	
-	if(event.target === exportASTTree.box)
+	var plugin = CodeGeneratorPluginManager.getPlugin(currentContext);
+	var codeGenConstructor = plugin.getCodeGeneratorByASTObject(data);
+	
+	if(codeGenConstructor)
 	{
-		var newRow = exportASTTree.createAndAppendRow(null, false, data);
-	}
-	else
-	{
-		var parentNode = event.target.parentNode;
-		while(!parentNode.isRow)
-			parentNode = parentNode.parentNode;
-			
-		var newRow = exportASTTree.createAndAppendRow(parentNode, false, data);
-		if(!parentNode.isContainerOpen)
+		var parentNode = null;
+		if(event.target !== exportASTTree.box)
+		{
+			var parentNode = event.target.parentNode;
+			while(!parentNode.isRow)
+				parentNode = parentNode.parentNode;
+		}
+		
+		var exportASTObject = new ASTObjects.Export.Export_ASTObject(((parentNode == null) ? exportASTTree : parentNode.data), data.name, data);
+		exportASTObject.addCodeGenerator(new codeGenConstructor(plugin));
+		var newRow = exportASTTree.createAndAppendRow(parentNode, false, exportASTObject);
+		
+		$resultCode.value = exportASTObject.getCodeGenerator(currentContext).generate();
+		
+		if(parentNode && !parentNode.isContainerOpen)
 			parentNode.toggleCollapse();
 	}
+	
+	
 }
 
 function testParsing()
 {
+	$resultCode = document.getElementById("resultCode");	
+	
 	cppAST = CPPAnalyzer.parse_header(["supertest", "D:\\Data\\Projekte\\Bound\\src\\CPPAnalyzer\\Test\\test1.cpp"]);
 
 	var $exportTree = document.getElementById("exportTree");

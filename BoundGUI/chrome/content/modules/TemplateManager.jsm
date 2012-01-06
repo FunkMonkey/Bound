@@ -185,7 +185,7 @@ function readFile(file)
 	var str = "";
     do {  
       hasmore = istream.readLine(line);  
-      str += line.value;   
+      str += line.value + "\n";   
     } while(hasmore);  
       
     istream.close();

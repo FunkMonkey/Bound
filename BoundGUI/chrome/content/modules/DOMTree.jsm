@@ -85,7 +85,6 @@ DOMTree.prototype =
 	 */
 	_onRowContentDragStart: function _onRowContentDragStart(event)
 	{
-		log("drag start")
 		event.dataTransfer.mozSetDataAt("application/x-tree-data", event.currentTarget.parentNode.data, 0);
 		event.dataTransfer.setDragImage(event.currentTarget, 0, 0);
 	}, 
