@@ -1,6 +1,6 @@
 var EXPORTED_SYMBOLS = ["Extension"];
 
-let Extension =
+var Extension =
 {
 	inherit: function inherit(child, supertype)
 	{

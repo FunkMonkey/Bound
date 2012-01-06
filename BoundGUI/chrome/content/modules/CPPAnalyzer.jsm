@@ -11,7 +11,7 @@ Components.utils.import("resource://gre/modules/ctypes.jsm");
 Cu.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm");
 Cu.import("chrome://bound/content/modules/AST/CPP_ASTObjects.jsm")
 
-let CPPAnalyzer =
+var CPPAnalyzer =
 {
 	init: function init()
 	{
@@ -37,7 +37,7 @@ let CPPAnalyzer =
 	 */
 	createASTTypeFromJSON: function createASTTypeFromJSON(astTree, jsonObject)
 	{
-		let astType = new CPP_ASTType(jsonObject.kind, astTree.astObjectsByID[jsonObject.declaration], jsonObject.isConst);
+		var astType = new CPP_ASTType(jsonObject.kind, astTree.astObjectsByID[jsonObject.declaration], jsonObject.isConst);
 		
 		if(jsonObject.pointsTo)
 			astType.pointsTo = this.createASTTypeFromJSON(astTree, jsonObject.pointsTo);
@@ -57,10 +57,10 @@ let CPPAnalyzer =
 	 */
 	createASTObjectFromJSON: function createASTObjectFromJSON(astTree, parent, jsonObject)
 	{
-		let astObject = null;
+		var astObject = null;
 		
-		let type = null;
-		let typeCanonical = null;
+		var type = null;
+		var typeCanonical = null;
 		
 		switch(jsonObject.kind)
 		{
@@ -80,7 +80,7 @@ let CPPAnalyzer =
 				astObject = new CPP_ASTObject_Struct(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
 				astTree.astObjectsByID[jsonObject.id] = astObject;
 				
-				for(let i = 0; i < jsonObject.bases.length; ++i)
+				for(var i = 0; i < jsonObject.bases.length; ++i)
 					astObject.addBase(astTree.astObjectsByID[jsonObject.bases[i]], ASTObject.ACCESS_PUBLIC);
 				
 				break;
@@ -89,7 +89,7 @@ let CPPAnalyzer =
 				astObject = new CPP_ASTObject_Class(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
 				astTree.astObjectsByID[jsonObject.id] = astObject;
 				
-				for(let i = 0; i < jsonObject.bases.length; ++i)
+				for(var i = 0; i < jsonObject.bases.length; ++i)
 					astObject.addBase(astTree.astObjectsByID[jsonObject.bases[i]], ASTObject.ACCESS_PUBLIC);
 				
 				break;
@@ -114,11 +114,11 @@ let CPPAnalyzer =
 				astObject = new CPP_ASTObject_Function(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical);
 				astTree.astObjectsByID[jsonObject.id] = astObject;
 				
-				for(let i = 0; i < jsonObject.parameters.length; ++i)
+				for(var i = 0; i < jsonObject.parameters.length; ++i)
 				{
 					type = this.createASTTypeFromJSON(astTree, jsonObject.parameters[i].type);
 					typeCanonical = this.createASTTypeFromJSON(astTree, jsonObject.parameters[i].typeCanonical);
-					let param = new CPP_ASTObject_Parameter(astObject, jsonObject.parameters[i].name, type, typeCanonical);
+					var param = new CPP_ASTObject_Parameter(astObject, jsonObject.parameters[i].name, type, typeCanonical);
 					astObject.addParameter(param);
 				}
 				
@@ -130,11 +130,11 @@ let CPPAnalyzer =
 				astObject = new CPP_ASTObject_Member_Function(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical, ASTObject.getAccessFromString(jsonObject.access), false, false);
 				astTree.astObjectsByID[jsonObject.id] = astObject;
 				
-				for(let i = 0; i < jsonObject.parameters.length; ++i)
+				for(var i = 0; i < jsonObject.parameters.length; ++i)
 				{
 					type = this.createASTTypeFromJSON(astTree, jsonObject.parameters[i].type);
 					typeCanonical = this.createASTTypeFromJSON(astTree, jsonObject.parameters[i].typeCanonical);
-					let param = new CPP_ASTObject_Parameter(astObject, jsonObject.parameters[i].name, type, typeCanonical);
+					var param = new CPP_ASTObject_Parameter(astObject, jsonObject.parameters[i].name, type, typeCanonical);
 					astObject.addParameter(param);
 				}
 				
@@ -147,11 +147,11 @@ let CPPAnalyzer =
 				astObject = new CPP_ASTObject_Constructor(parent, jsonObject.name, jsonObject.id, jsonObject.USR, ASTObject.getAccessFromString(jsonObject.access));
 				astTree.astObjectsByID[jsonObject.id] = astObject;
 				
-				for(let i = 0; i < jsonObject.parameters.length; ++i)
+				for(var i = 0; i < jsonObject.parameters.length; ++i)
 				{
 					type = this.createASTTypeFromJSON(astTree, jsonObject.parameters[i].type);
 					typeCanonical = this.createASTTypeFromJSON(astTree, jsonObject.parameters[i].typeCanonical);
-					let param = new CPP_ASTObject_Parameter(astObject, jsonObject.name, type, typeCanonical);
+					var param = new CPP_ASTObject_Parameter(astObject, jsonObject.name, type, typeCanonical);
 					astObject.addParameter(param);
 				}
 				
@@ -165,7 +165,7 @@ let CPPAnalyzer =
 		
 		if(jsonObject.children)
 		{
-			for(let i = 0; i < jsonObject.children.length; ++i)
+			for(var i = 0; i < jsonObject.children.length; ++i)
 				astObject.addChild(this.createASTObjectFromJSON(astTree, astObject, jsonObject.children[i]));
 		}
 		
@@ -182,7 +182,7 @@ let CPPAnalyzer =
 	 */
 	astJSONtoASTObjects: function astJSONtoASTObjects(json)
 	{
-		let result = {};
+		var result = {};
 		result.astObjectsByID = {};
 		result.root = this.createASTObjectFromJSON(result, null, json);
 		
@@ -192,17 +192,17 @@ let CPPAnalyzer =
 	
 	parse_header: function parse_header(cmdParams)
 	{
-		let params = this.libCPPAnalyzer.CharPtrArray(cmdParams.length);
+		var params = this.libCPPAnalyzer.CharPtrArray(cmdParams.length);
 		
-		for(let i = 0; i < cmdParams.length; ++i)
+		for(var i = 0; i < cmdParams.length; ++i)
 		{
 			params[i] = ctypes.char.array()(cmdParams[i])
 		}
 		
-		//let params = CharPtrArray([ctypes.char.array()("supertest"), ctypes.char.array()("D:\\Data\\Projekte\\Bound\\src\\CPPAnalyzer\\Test\\test1.cpp")]);
-		let result = this.libCPPAnalyzer.parse_header(params.length, params)
+		//var params = CharPtrArray([ctypes.char.array()("supertest"), ctypes.char.array()("D:\\Data\\Projekte\\Bound\\src\\CPPAnalyzer\\Test\\test1.cpp")]);
+		var result = this.libCPPAnalyzer.parse_header(params.length, params)
 		
-		let resultJSON = JSON.parse(result.contents.astTreeJSON.readString());
+		var resultJSON = JSON.parse(result.contents.astTreeJSON.readString());
 		
 		return this.astJSONtoASTObjects(resultJSON);
 	}

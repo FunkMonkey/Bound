@@ -8,12 +8,12 @@ Components.utils.import("chrome://bound/content/modules/jSmart.jsm");
 var IOService = Components.classes['@mozilla.org/network/io-service;1'].getService(Components.interfaces["nsIIOService"]);
 var ChromeRegistry = Components.classes["@mozilla.org/chrome/chrome-registry;1"].getService(Components.interfaces.nsIChromeRegistry);
 
-let TemplateNotFoundException = createExceptionClass("TemplateNotFound", "Could not find template with name: ");
-let TemplateAlreadyExistingException = createExceptionClass("TemplateAlreadyExisting", "The template is already existing: ");
-let TemplateUnableToResolveSearchPathException = createExceptionClass("TemplateUnableToResolveSearchPath", "Cannot resolve the template search path: ");
-let TemplateFileNotExistingException = createExceptionClass("TemplateFileNotExisting", "The template file cannot be resolved within the search paths: ");
+var TemplateNotFoundException =                  createExceptionClass("TemplateNotFound",                  "Could not find template with name: ");
+var TemplateAlreadyExistingException =           createExceptionClass("TemplateAlreadyExisting",           "The template is already existing: ");
+var TemplateUnableToResolveSearchPathException = createExceptionClass("TemplateUnableToResolveSearchPath", "Cannot resolve the template search path: ");
+var TemplateFileNotExistingException =           createExceptionClass("TemplateFileNotExisting",           "The template file cannot be resolved within the search paths: ");
 
-let TemplateManager = {
+var TemplateManager = {
 	_templates: {},
 	
 	_templateSearchPaths: [],
@@ -39,7 +39,7 @@ let TemplateManager = {
 		{
 			try
 			{
-				let fileURL = ChromeRegistry.convertChromeURL(uri);
+				var fileURL = ChromeRegistry.convertChromeURL(uri);
 				fileURL.QueryInterface(Components.interfaces.nsIFileURL);
 				file = fileURL.file;
 			}

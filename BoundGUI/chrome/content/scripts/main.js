@@ -15,8 +15,8 @@ Cu.import("chrome://bound/content/modules/Extension.jsm");
 
 
 
-let Base_ASTObjects = {};
-let CPP_ASTObjects = {};
+var Base_ASTObjects = {};
+var CPP_ASTObjects = {};
 Cu.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm", Base_ASTObjects);
 Cu.import("chrome://bound/content/modules/AST/CPP_ASTObjects.jsm", CPP_ASTObjects);
 
@@ -52,7 +52,7 @@ function jSmartTest()
 {
 	if(cppASTTree.selection.length > 0)
 	{
-		let row = cppASTTree.selection[0];
+		var row = cppASTTree.selection[0];
 		var data = row.data;
 		
 		log(Plugin_CPP_Spidermonkey.getCodeGeneratorByASTObject(data));
@@ -61,12 +61,12 @@ function jSmartTest()
 
 function addAfterSelection()
 {
-	//let obj = { name: "ADDED", kind: Base_ASTObjects.ASTObject.KIND_CLASS}
+	//var obj = { name: "ADDED", kind: Base_ASTObjects.ASTObject.KIND_CLASS}
 	//
 	//if(cppASTTree.selection.length > 0)
 	//{
-	//	let parent = cppASTTree.selection[0];
-	//	let newRow = cppASTTree.createAndAppendRow(parent, false, obj);
+	//	var parent = cppASTTree.selection[0];
+	//	var newRow = cppASTTree.createAndAppendRow(parent, false, obj);
 	//	if(!parent.isContainerOpen)
 	//		parent.toggleCollapse();
 	//		
@@ -80,16 +80,16 @@ function astNodeToTreeNode(astNode, domParent, treeView)
 {
 	var row = treeView.createAndAppendRow(domParent, astNode.children.length !== 0, astNode);	
 	
-	for(let childName in astNode._childrenMap)
+	for(var childName in astNode._childrenMap)
 	{
-		let child = astNode._childrenMap[childName];
+		var child = astNode._childrenMap[childName];
 		
 		// handle overloads
 		if(child instanceof Base_ASTObjects.ASTOverloadContainer)
 		{
 			var sameNameRow = treeView.createAndAppendRow(row, true, child);
 			
-			for(let i = 0; i < child.overloads.length; ++i)
+			for(var i = 0; i < child.overloads.length; ++i)
 			{
 				astNodeToTreeNode(child.overloads[i], sameNameRow, treeView);
 			}
@@ -111,7 +111,7 @@ function checkDrag(event)
 
 function onDrop(event)
 {
-	var data = event.dataTransfer.mozGetDataAt("application/x-tree-data", 0);	
+	var data = event.dataTransfer.mozGetDataAt("application/x-tree-data", 0);
 	
 	if(event.target === exportASTTree.box)
 	{
@@ -141,9 +141,9 @@ function testParsing()
 	
 	cppASTTree = new DOMTree(document, document.getElementById("cppTree"), dataCB);
 	
-	for(let i = 0; i < cppAST.root.children.length; ++i)
+	for(var i = 0; i < cppAST.root.children.length; ++i)
 	{
-		let child = cppAST.root.children[i];
+		var child = cppAST.root.children[i];
 		astNodeToTreeNode(child, null, cppASTTree);
 	}
 }

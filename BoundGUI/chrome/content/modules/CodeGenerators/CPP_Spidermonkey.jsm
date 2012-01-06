@@ -5,7 +5,19 @@ Components.utils.import("chrome://bound/content/modules/AST/CPP_ASTObjects.jsm")
 
 Components.utils.import("chrome://bound/content/modules/TemplateManager.jsm");
 
-var Plugin_CPP_Spidermonkey = {
+/**
+ * 
+ *
+ * @constructor
+ * @this {Plugin_CPP_Spidermonkey}
+ */
+function Plugin_CPP_Spidermonkey()
+{
+	
+}
+
+Plugin_CPP_Spidermonkey.prototype = {
+	constructor: Plugin_CPP_Spidermonkey,
 	
 	/**
 	 * Returns a code generator that is compatible with the given ASTObject
@@ -34,9 +46,7 @@ var Plugin_CPP_Spidermonkey = {
 		
 		return null;
 	}, 
-	
-	
-}
+};
 
 /**
  * Code generator for a function

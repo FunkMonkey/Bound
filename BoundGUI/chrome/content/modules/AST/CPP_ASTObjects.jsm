@@ -270,7 +270,7 @@ CPP_ASTObject_Function.prototype = {
 	_updateOverloadName: function _updateOverloadName()
 	{
 		this.overloadName = this.name + "(";
-		for(let i = 0; i < this.parameters.length; ++i)
+		for(var i = 0; i < this.parameters.length; ++i)
 		{
 			this.overloadName += this.parameters[i].name;	
 			

@@ -65,7 +65,7 @@ DOMTree.prototype =
 	 */
 	_onRowContentClicked: function _onRowContentClicked(event)
 	{
-		let row = event.currentTarget.parentNode;
+		var row = event.currentTarget.parentNode;
 		
 		// TODO: exclude twisty
 		// TODO: different keys
@@ -99,7 +99,7 @@ DOMTree.prototype =
 	 */
 	addToSelection: function addToSelection(row)
 	{
-		for(let i = 0; i < this.selection.length; ++i)
+		for(var i = 0; i < this.selection.length; ++i)
 			if(this.selection[i] === row)
 				return;
 			
@@ -115,7 +115,7 @@ DOMTree.prototype =
 	 */
 	removeFromSelection: function removeFromSelection(row)
 	{
-		for(let i = 0; i < this.selection.length; ++i)
+		for(var i = 0; i < this.selection.length; ++i)
 		{
 			if(this.selection[i] === row)
 			{
@@ -131,7 +131,7 @@ DOMTree.prototype =
 	 */
 	clearSelection: function clearSelection()
 	{
-		for(let i = 0; i < this.selection.length; ++i)
+		for(var i = 0; i < this.selection.length; ++i)
 			this.selection[i].removeAttribute("selected");
 		
 		this.selection.length = 0;
@@ -163,7 +163,7 @@ DOMTree.prototype =
 	 */
 	createRow: function createTreeRow(parent, isContainer, data)
 	{
-		let row = this.document.createElement("vbox");
+		var row = this.document.createElement("vbox");
 		row.classList.add("dom-tree-row");
 		row.isRow = true;
 		row.tree = this;
@@ -173,7 +173,7 @@ DOMTree.prototype =
 		row.toggleCollapse = this._rowToggleCollapse;
 		
 		// content of the row
-		let rowContent = this.document.createElement("hbox");
+		var rowContent = this.document.createElement("hbox");
 		rowContent.classList.add("dom-tree-row-content");
 		rowContent.addEventListener("click", this._onRowContentClicked);
 		rowContent.addEventListener("dragstart", this._onRowContentDragStart);
@@ -181,14 +181,14 @@ DOMTree.prototype =
 		row.appendChild(rowContent);
 		
 		// twisty
-		let twisty = this.document.createElement("box");
+		var twisty = this.document.createElement("box");
 		twisty.appendChild(this.document.createElement("image"));
 		twisty.classList.add("dom-tree-row-twisty");
 		twisty.addEventListener("click", this._onToggleCollapse, true);
 		rowContent.appendChild(twisty);
 		
 		// image
-		let labelImage = this.document.createElement("box");
+		var labelImage = this.document.createElement("box");
 		labelImage.appendChild(this.document.createElement("image"));
 		labelImage.classList.add("dom-tree-row-label-image");
 		rowContent.appendChild(labelImage);
@@ -233,7 +233,7 @@ DOMTree.prototype =
 			row.isContainer = true;
 			row.isContainerOpen = false;
 			
-			let containerBox = this.document.createElement("vbox");
+			var containerBox = this.document.createElement("vbox");
 			containerBox.classList.add("dom-tree-container");
 			row.appendChild(containerBox);
 			row.container = containerBox;
@@ -259,7 +259,7 @@ DOMTree.prototype =
 	 */
 	createAndAppendRow: function createAndAppendRow(parent, isContainer, data)
 	{
-		let row = this.createRow(parent, isContainer, data);
+		var row = this.createRow(parent, isContainer, data);
 		
 		if(!parent)
 			this.box.appendChild(row);

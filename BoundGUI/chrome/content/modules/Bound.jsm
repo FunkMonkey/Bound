@@ -6,7 +6,7 @@ const Cu = Components.utils;
 
 
 
-let Bound = {
+var Bound = {
 	quit: function quit(aForceQuit)
 	{
 		var appStartup = Cc["@mozilla.org/toolkit/app-startup;1"].getService(Ci.nsIAppStartup);

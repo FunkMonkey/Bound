@@ -55,7 +55,7 @@ function nsTreeView(dataArray, getCellTextCB) {
 	this.treebox = null;
 	this.atomService = Components.classes["@mozilla.org/atom-service;1"].getService(Components.interfaces.nsIAtomService);
 	
-     for(let i = 0; i < dataArray.length; ++i)
+     for(var i = 0; i < dataArray.length; ++i)
           this.addItem(null, dataArray[i], dataArray[i].children); // TODO: children-callback!
          
     /*for (prop in json){
@@ -321,7 +321,7 @@ nsTreeView.prototype = {
      */
     addItem: function addItem(parent, data, children)
     {
-          let ti = new TreeItem();
+          var ti = new TreeItem();
           
           ti.data = data;
           
@@ -343,7 +343,7 @@ nsTreeView.prototype = {
           
           if(children)
           {
-               for(let i = 0; i < children.length; ++i)
+               for(var i = 0; i < children.length; ++i)
                     this.addItem(ti, children[i], children[i].children)
           }
     }, 
