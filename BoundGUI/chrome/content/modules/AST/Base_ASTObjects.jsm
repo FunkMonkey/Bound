@@ -88,7 +88,7 @@ ASTObject.prototype = {
 				this._childrenMap[child.name] = child;
 			else
 			{
-				let obj = this._childrenMap[child.name];
+				var obj = this._childrenMap[child.name];
 				if(obj instanceof ASTOverloadContainer)
 				{
 					obj.addOverload(child);

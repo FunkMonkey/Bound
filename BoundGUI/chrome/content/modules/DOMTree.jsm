@@ -195,11 +195,11 @@ DOMTree.prototype =
 		var rowAttr = this.dataCB("attributes", data, row);
 		
 		if(rowAttr)		
-			for(let attr in rowAttr)
+			for(var attr in rowAttr)
 				row.setAttribute(attr, rowAttr[attr]);
 		
 		// label
-		let label = this.document.createElement("label");
+		var label = this.document.createElement("label");
 		label.classList.add("dom-tree-row-label");
 		label.setAttribute("value", this.dataCB("label", data, row));
 		rowContent.appendChild(label);
