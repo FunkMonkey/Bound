@@ -26,6 +26,12 @@ namespace jswrap
 
 		return result;
 	}
+
+	static void double_to_jsval_x(JSContext* cx, double value, jsval* rval)
+	{
+		if(!JS_NewNumberValue(cx, value, rval))
+			throw exception("Could not convert double to jsval");
+	}
 }
 
 #endif // WRAP_HELPERS_FLOAT_X_HPP

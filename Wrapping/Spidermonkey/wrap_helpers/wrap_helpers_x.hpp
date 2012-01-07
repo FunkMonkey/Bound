@@ -11,6 +11,13 @@ namespace jswrap
 		if(given != expected)
 			throw exception("Wrong number of arguments");
 	}
+
+	static void checkMinNumberOfArguments_x(int given, int expected)
+	{
+		if(given < expected)
+			throw exception("Wrong number of arguments");
+	}
+
 }
 
 #endif // WRAP_HELPERS_X_HPP

@@ -29,23 +29,23 @@ void void_param1_wchar_t         (wchar_t x)         {}
 
 bool           bool_param0            (){ return true; }
 
-char           char_param0            (){ return 1; }
-signed char    signed_char_param0     (){ return 1; }
-unsigned char  unsigned_char_param0   (){ return 1; }
-short          short_param0           (){ return 1; }
-unsigned short unsigned_short_param0  (){ return 1; }
-int            int_param0             (){ return 1; }
-unsigned int   unsigned_int_param0    (){ return 1; }
-long           long_param0            (){ return 1; }
-unsigned long  unsigned_long_param0   (){ return 1; }
+char           char_param0            (){ return 5; }
+signed char    signed_char_param0     (){ return 5; }
+unsigned char  unsigned_char_param0   (){ return 5; }
+short          short_param0           (){ return 5; }
+unsigned short unsigned_short_param0  (){ return 5; }
+int            int_param0             (){ return 5; }
+unsigned int   unsigned_int_param0    (){ return 5; }
+long           long_param0            (){ return 5; }
+unsigned long  unsigned_long_param0   (){ return 5; }
 
-float          float_param0           (){ return 1.0f; }
-double         double_param0          (){ return 1.0; }
-long double    long_double_param0     (){ return 1.0; }
+float          float_param0           (){ return 5.0f; }
+double         double_param0          (){ return 5.0; }
+long double    long_double_param0     (){ return 5.0; }
 
 wchar_t        wchar_t_param0         (){ return 1; }
 
-// OTHER combinations
+// OTHER COMBINATIONS
 void void_param1_int_float  (int x, float y)  {}
 int  int_param1_int         (int x)           { return 1; }
 int  int_param1_int_float   (int x, float y)  { return 1; }

@@ -73,6 +73,13 @@ namespace jswrap
 		return jsval_to_int32_convert_x(cx, val);
 	}
 
+	static void int_to_jsval_x(JSContext* cx, int value, jsval* rval)
+	{
+		// TODO: we could use INT_FITS_IN_JSVAL here for performance reasons
+		if(!JS_NewNumberValue(cx, value, rval))
+			throw exception("Could not convert int to jsval");
+	}
+
 }
 
 #endif // WRAP_HELPERS_INT_X_HPP

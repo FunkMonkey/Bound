@@ -67,7 +67,7 @@ int main(int argc, const char *argv[])
 	jsval rval;
 	JSBool ok;
 	//char *source = "var test = new SimpleClass(); test.voidFunc0();";
-	char *source = "void_param1_char(3);";
+	char *source = "var x = void_param1_int_float(3.34, 3)";
 
 	ok = JS_EvaluateScript(cx, global, source, strlen(source),
                        "foo", 4, &rval);
