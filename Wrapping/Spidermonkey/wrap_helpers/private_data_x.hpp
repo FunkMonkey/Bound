@@ -1,29 +1,11 @@
-#ifndef WRAP_HELPERS_HPP
-#define WRAP_HELPERS_HPP
 
-#include "jsapi.h"
-#include <exception>
+#ifndef WRAP_HELPERS_PRIVATE_DATA_X_HPP
+#define WRAP_HELPERS_PRIVATE_DATA_X_HPP
 
-
-#define JSWRAP_TRY_START try{
-#define JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, funcName)	} \
-														catch(std::exception& e) { \
-															JS_ReportError(cx, e.what()); \
-															return false; \
-														}
+#include "wrap_helpers_x.hpp"
 
 namespace jswrap
 {
-	class exception: public std::exception
-	{
-		public:
-		exception(const char* text)
-			:std::exception(text)
-		{
-
-		}
-	};
-
 	//---------------------------------------------------
 	// getThisPrivateXXX
 	//---------------------------------------------------
@@ -145,4 +127,4 @@ namespace jswrap
 	}
 }
 
-#endif // WRAP_HELPERS_HPP
+#endif // WRAP_HELPERS_PRIVATE_DATA_X_HPP

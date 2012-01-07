@@ -1,9 +1,8 @@
-#include "../wrap/SimpleClass_wrap.hpp"
-
-#include "jsapi.h"
-#include "wrap_helpers.hpp"
+#include "SimpleClass_wrap.hpp"
 #include "SimpleClass.hpp"
-#include <exception>
+
+#include "../wrap_helpers/private_data_x.hpp"
+
 
 namespace jswrap
 {

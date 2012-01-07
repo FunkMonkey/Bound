@@ -1,5 +1,10 @@
 
 /Debug/*
+/ipch/*
+/_UpgradeReport_Files/*
+/UpgradeLog.xml
+
+
 *.suo
 *.ncb
 *.user
@@ -10,3 +15,5 @@
 *.dep
 *.ilk
 *.pdb
+*.sdf
+*.opensdf

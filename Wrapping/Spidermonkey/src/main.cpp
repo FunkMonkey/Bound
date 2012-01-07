@@ -8,6 +8,7 @@
 #include <iostream>
 #include "jsapi.h"
 #include "../wrap/SimpleClass_wrap.hpp"
+#include "../wrap/Functions_BasicTypes_wrap.hpp"
 
 /* The class of the global object. */
 static JSClass global_class = {
@@ -59,11 +60,14 @@ int main(int argc, const char *argv[])
     /* -----------------------------------------------------------
 		Your application code here. This may include JSAPI calls
        to create your own custom JS objects and run scripts. */
+
 	jswrap::SimpleClass::initClass(cx, global);
+	jswrap::Functions_BasicTypes::init(cx, global);
 
 	jsval rval;
 	JSBool ok;
-	char *source = "var test = new SimpleClass(); test.voidFunc0();";
+	//char *source = "var test = new SimpleClass(); test.voidFunc0();";
+	char *source = "void_param1_char(3);";
 
 	ok = JS_EvaluateScript(cx, global, source, strlen(source),
                        "foo", 4, &rval);
