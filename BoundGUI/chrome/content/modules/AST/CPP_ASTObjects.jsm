@@ -61,7 +61,56 @@ function CPP_ASTType(kind, declaration, isConst)
 };
 
 CPP_ASTType.prototype = {
-	constructor: CPP_ASTType
+	constructor: CPP_ASTType,
+	
+	// taken from http://clang.llvm.org/doxygen/MicrosoftMangle_8cpp_source.html
+	_fundamentalTypeCodes: {
+		"Void":      "void",
+		"Bool":      "bool",
+		"Char_U":    "char", // ???
+		"UChar":     "unsigned char",
+		"Char16":    "char16_t",
+		"Char32":    "char32_t",
+		"UShort":    "unsigned short",
+		"UInt":      "unsigned int",
+		"ULong":     "unsigned long",
+		"ULongLong": "unsigned long long",
+		"UInt128":   "unsigned __int128",
+		"Char_S":    "char", // ???
+		"SChar":     "signed char",
+		"WChar":     "wchar_t",
+		"Short":     "short",
+		"Int":       "int",
+		"Long":      "long",
+		"LongLong":  "long long",
+		"Int128":    "__int128",
+		"Float":     "float",
+		"Double":    "double",
+		"LongDouble":"long double"
+	},
+	
+	/**
+	 * Returns the type as its C++ code
+	 * 
+	 * @returns {String} 
+	 */
+	getAsCPPCode: function getAsCPPCode()
+	{
+		if(this.declaration)
+		{
+			return "INVALID";
+		}
+		else if(this.pointsTo)
+		{
+			return "INVALID";
+		}
+		else if(this._fundamentalTypeCodes[this.kind])
+		{
+			return ((this.isConst == true) ? "const " : "") + this._fundamentalTypeCodes[this.kind];
+		}
+		else return "INVALID";
+	}, 
+	
 };
 
 

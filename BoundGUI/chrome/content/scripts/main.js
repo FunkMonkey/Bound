@@ -147,6 +147,8 @@ function onDrop(event)
 		
 		$resultCode.value = exportASTObject.getCodeGenerator(currentContext).generate();
 		
+		
+		
 		if(parentNode && !parentNode.isContainerOpen)
 			parentNode.toggleCollapse();
 	}

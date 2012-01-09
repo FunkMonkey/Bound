@@ -1,0 +1,1 @@
+{$param_type} {$param_name} = {if $cast}($param_type){/if}jsval_to_double_x(cx, args[{$param_index}]);

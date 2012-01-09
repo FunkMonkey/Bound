@@ -4,6 +4,8 @@
 #include <jsapi.h>
 #include "exceptions.hpp"
 
+#include "conversion_templates.hpp"
+
 namespace jswrap
 {
 	static double jsval_to_double_x(JSContext* cx, jsval val)
@@ -32,6 +34,23 @@ namespace jswrap
 		if(!JS_NewNumberValue(cx, value, rval))
 			throw exception("Could not convert double to jsval");
 	}
+
+	//---------------------------------------------------
+	// TEMPLATED
+	//---------------------------------------------------
+
+	//template<>
+	//double jsval_to_type_x(JSContext* cx, jsval val)
+	//{
+	//	return jsval_to_double_x(cx, val);
+	//}
+
+	//template<>
+	//double jsval_to_type_convert_x(JSContext* cx, jsval val)
+	//{
+	//	return jsval_to_double_convert_x(cx, val);
+	//}
+
 }
 
 #endif // WRAP_HELPERS_FLOAT_X_HPP

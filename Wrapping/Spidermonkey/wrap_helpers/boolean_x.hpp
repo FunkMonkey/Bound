@@ -3,6 +3,7 @@
 
 #include <jsapi.h>
 #include "exceptions.hpp"
+#include "conversion_templates.hpp"
 
 namespace jswrap
 {
@@ -22,6 +23,22 @@ namespace jswrap
 
 		return result != 0;
 	}
+
+	//---------------------------------------------------
+	// TEMPLATED
+	//---------------------------------------------------
+
+	//template<>
+	//bool jsval_to_type_x(JSContext* cx, jsval val)
+	//{
+	//	return jsval_to_boolean_x(val);
+	//}
+
+	//template<>
+	//bool jsval_to_type_convert_x(JSContext* cx, jsval val)
+	//{
+	//	return jsval_to_boolean_convert_x(cx, val);
+	//}
 
 }
 

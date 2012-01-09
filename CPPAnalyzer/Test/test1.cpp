@@ -1,10 +1,17 @@
 
+	float float_param_int_float(int x, float y)
+	{
+		return 8.0;
+	}
+
 namespace MyNamespace
 {
 	namespace
 	{
 
 	}
+	
+
 
 	int SOMETHING = 3;
 
@@ -61,7 +68,7 @@ namespace MyNamespace
 	};
 
 	float sum(int x);
-	float sum(int x)
+	float sum(int x, float y)
 	{
 		return 8.0;
 	}

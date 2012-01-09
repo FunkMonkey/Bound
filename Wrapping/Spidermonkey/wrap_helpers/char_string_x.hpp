@@ -45,6 +45,22 @@ namespace jswrap
 		JSString* jsstr = nullterminated_char_array_to_jsstring_x(cx, charArray);
 		*val = STRING_TO_JSVAL(jsstr);
 	}
+
+	//---------------------------------------------------
+	// TEMPLATED
+	//---------------------------------------------------
+
+	template<char*>
+	char* jsval_to_type_x(JSContext* cx, jsval val)
+	{
+		return jsval_to_char_array_x(val);
+	}
+
+	template<char*>
+	char* jsval_to_type_convert_x(JSContext* cx, jsval val)
+	{
+		return jsval_to_char_array_convert_x(val);
+	}
 }
 
 #endif // WRAP_HELPERS_CHAR_STRING_X_HPP

@@ -1,14 +1,28 @@
-JSBool {$wrapper_funcName}(JSContext *cx, uintN argc, jsval *vp)
+{* 
+(String)  wrapper_funcName: name of the wrapper-function
+(String)  parent_qualifier: full name of parent (with namespaces and class name)
+(String)  funcName        : name of the function to call
+
+(boolean) is_instance_call: true if it is a call to a function of an instance, otherwise false
+
+(String)  parameters_init : initialization code for parameter variables
+(String)  call_parameters : parameter names given to the function (comma-separated list)
+(String)  return          : code for setting the resturn value
+
+(String)  error_source    : source name that will be part of the error message
+
+*}JSBool {$wrapper_funcName}(JSContext *cx, uintN argc, jsval *vp)
 {
-{if $useExceptions}
 	JSWRAP_TRY_START
 	
-{/if}
-	{$funcName}();
-{if $useExceptions}
+{if $is_instance_call}		{$parent_qualifier}& inst = getThisPrivateRef<{$parent_qualifier}>(cx, vp);
+		
+{/if}{$parameters_init|indent:2:"\t"}
+		{if $is_instance_call}inst.{else}{$parent_qualifier}::{/if}{$funcName}({$call_parameters});
 	
-	JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "TODO")
-{/if}	
-	JS_SET_RVAL(cx, vp, JSVAL_VOID);
+		{$return}
+	
+	JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "{$error_source}")
+	
 	return true;
 }
