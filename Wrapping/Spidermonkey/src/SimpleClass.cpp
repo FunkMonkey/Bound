@@ -2,7 +2,12 @@
 
 #include <iostream>
 
-void SimpleClass::voidFunc0()
+void SimpleClass::void_param0()
 {
-	std::cout << "Called voidFunc0\n";
+	std::cout << "Called void_param0\n";
+}
+
+void SimpleClass::static_void_param0()
+{
+	std::cout << "Called static_void_param0\n";
 }

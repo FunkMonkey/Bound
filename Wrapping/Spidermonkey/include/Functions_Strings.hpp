@@ -20,13 +20,13 @@ void void_param0_stdStringRef        (std::string& val){}
 //---------------------------------------------------
 
 char * charPtr;
-std::string stdString;
+std::string stdString("ReturnString");
 
-const char*          constCharPtr              (){ return ""; }
+const char*          constCharPtr_param0       (){ return "ReturnString"; }
 
-std::string          stdString_param0          (){ return ""; }
-const std::string&   constStdStringRef_param0  (){ return ""; }
-const std::string*   constStdStringPtr_param0  (){ return &""; }
+std::string          stdString_param0          (){ return stdString; }
+const std::string&   constStdStringRef_param0  (){ return stdString; }
+const std::string*   constStdStringPtr_param0  (){ return &stdString; }
 
 // complicated / differing behaviour
 char*                charPtr_param0            (){ return charPtr; }

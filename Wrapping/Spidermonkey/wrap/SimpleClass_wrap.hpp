@@ -9,7 +9,7 @@ namespace jswrap
 	{
 		extern JSObject* prototype;
 		extern JSClass jsClass;
-		JSBool initClass(JSContext* cx, JSObject* scope);
+		JSBool init(JSContext* cx, JSObject* scope);
 	}
 }
 

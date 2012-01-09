@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\SimpleClass.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="wrap\SimpleClass_wrap.hpp">
       <Filter>wrap</Filter>
     </ClInclude>
@@ -51,6 +48,21 @@
     <ClInclude Include="include\Functions_Strings.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="wrap_helpers\char_string_x.hpp">
+      <Filter>wrap_helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="wrap_helpers\std_string_x.hpp">
+      <Filter>wrap_helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="wrap\Functions_Strings_wrap.hpp">
+      <Filter>wrap</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GlobalFunctions.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SimpleClass.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="wrap\SimpleClass_wrap.cpp">
@@ -67,6 +79,12 @@
     </ClCompile>
     <ClCompile Include="wrap\Functions_BasicTypes_wrap.cpp">
       <Filter>wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="wrap\Functions_Strings_wrap.cpp">
+      <Filter>wrap</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GlobalFunctions.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

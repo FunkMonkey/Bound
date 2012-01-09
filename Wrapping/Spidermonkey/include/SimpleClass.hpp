@@ -4,12 +4,9 @@
 class SimpleClass
 {
 public:
-	void voidFunc0();
-	bool boolFunc0(){return true;}
-	double doubleFunc0(){return 88.9;}
-	float floatFunc0(){return 88.8f;}
-	int intFunc0(){return -16;}
-	unsigned int uintFunc0(){ return 17;}
+	void void_param0();
+	static void static_void_param0();
+
 };
 
 #endif //SIMPLECLASS_HPP

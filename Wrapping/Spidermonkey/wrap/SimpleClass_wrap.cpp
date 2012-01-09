@@ -39,25 +39,39 @@ namespace jswrap
 		//---------------------------------------------------
 		// instance functions
 		//---------------------------------------------------
-		JSBool voidFunc0(JSContext *cx, uintN argc, jsval *vp)
+		JSBool void_param0_wrap(JSContext *cx, uintN argc, jsval *vp)
 		{
 			JSWRAP_TRY_START
 				::SimpleClass& inst = getThisPrivateRef<::SimpleClass>(cx, vp);
-			inst.voidFunc0();
-			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "SimpleClass::voidFunc0")
-
+				inst.void_param0();
 				JS_SET_RVAL(cx, vp, JSVAL_VOID);
+			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "SimpleClass::void_param0")
+
 			return true;
 		}
 
 		JSFunctionSpec instance_functions[] = {
-			JS_FS("voidFunc0",   voidFunc0,   0, 0),
+			JS_FS("void_param0",   void_param0_wrap,   0, 0),
 			JS_FS_END
 		};
 
 		//---------------------------------------------------
 		// static functions
 		//---------------------------------------------------
+		JSBool static_void_param0_wrap(JSContext *cx, uintN argc, jsval *vp)
+		{
+			JSWRAP_TRY_START
+				::SimpleClass::static_void_param0();
+				JS_SET_RVAL(cx, vp, JSVAL_VOID);
+			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "SimpleClass::static_void_param0")
+
+			return true;
+		}
+
+		JSFunctionSpec static_functions[] = {
+			JS_FS("static_void_param0",   static_void_param0_wrap,   0, 0),
+			JS_FS_END
+		};
 
 		//---------------------------------------------------
 		// instance properties
@@ -66,10 +80,6 @@ namespace jswrap
 		//---------------------------------------------------
 		// static properties
 		//---------------------------------------------------
-
-
-
-
 
 
 		//---------------------------------------------------
@@ -82,7 +92,9 @@ namespace jswrap
 				return false;
 
 			if(!JS_SetPrivate(cx, obj, new ::SimpleClass()))
-				int i; // throw js-exception
+			{
+				// TODO: throw js-exception
+			}
 
 			JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(obj));
 
@@ -92,7 +104,7 @@ namespace jswrap
 		//---------------------------------------------------
 		// Exposing the functionality
 		//---------------------------------------------------
-		JSBool initClass(JSContext* cx, JSObject* scope)
+		JSBool init(JSContext* cx, JSObject* scope)
 		{
 			prototype = JS_InitClass(cx, scope, 
 
@@ -114,7 +126,7 @@ namespace jswrap
 				NULL, 
 
 				// static functions
-				NULL);
+				static_functions);
 
 			return true;
 		}
