@@ -71,7 +71,7 @@ int main(int argc, const char *argv[])
 	jsval rval;
 	JSBool ok;
 	//char *source = "var test = new SimpleClass(); test.voidFunc0();";
-	char *source = "SimpleClass.static_void_param0()";
+	char *source = "SimpleClass.staticFloatPropField = 343;";
 
 	ok = JS_EvaluateScript(cx, global, source, strlen(source),
                        "foo", 4, &rval);

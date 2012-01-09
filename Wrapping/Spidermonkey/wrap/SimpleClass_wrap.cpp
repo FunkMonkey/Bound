@@ -2,6 +2,9 @@
 #include "SimpleClass.hpp"
 
 #include "../wrap_helpers/private_data_x.hpp"
+#include "../wrap_helpers/int_x.hpp"
+#include "../wrap_helpers/float_x.hpp"
+
 
 
 namespace jswrap
@@ -77,10 +80,101 @@ namespace jswrap
 		// instance properties
 		//---------------------------------------------------
 
+		JSBool intProp_getter_wrap(JSContext* cx, JSObject* obj, jsid id, jsval* vp)
+		{
+			JSWRAP_TRY_START
+				::SimpleClass& inst = getThisPrivateRef<::SimpleClass>(cx, vp);
+				int cppResult = inst.getIntProp();
+				int_to_jsval_x(cx, cppResult, vp);
+			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "SimpleClass::intProp")
+
+			return true;
+		}
+
+		JSBool intProp_setter_wrap(JSContext* cx, JSObject* obj, jsid id, JSBool strict, jsval* vp)
+		{
+			JSWRAP_TRY_START
+				::SimpleClass& inst = getThisPrivateRef<::SimpleClass>(cx, vp);
+				int val = jsval_to_int32_x(cx, *vp);
+				inst.setIntProp(val);
+			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "SimpleClass::intProp")
+
+			return true;
+		}
+
+		JSBool floatPropField_getter_wrap(JSContext* cx, JSObject* obj, jsid id, jsval* vp)
+		{
+			JSWRAP_TRY_START
+				::SimpleClass& inst = getThisPrivateRef<::SimpleClass>(cx, vp);
+				double_to_jsval_x(cx, inst.floatPropField, vp);
+			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "SimpleClass::floatProp")
+
+			return true;
+		}
+
+		JSBool floatPropField_setter_wrap(JSContext* cx, JSObject* obj, jsid id, JSBool strict, jsval* vp)
+		{
+			JSWRAP_TRY_START
+				::SimpleClass& inst = getThisPrivateRef<::SimpleClass>(cx, vp);
+				inst.floatPropField = (float)jsval_to_double_x(cx, *vp);
+			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "SimpleClass::floatProp")
+
+			return true;
+		}
+
+		JSPropertySpec instance_properties[] = {
+			{ "intProp", 0,        JSPROP_SHARED | JSPROP_ENUMERATE, intProp_getter_wrap,        intProp_setter_wrap },
+			{ "floatPropField", 0, JSPROP_SHARED | JSPROP_ENUMERATE, floatPropField_getter_wrap, floatPropField_setter_wrap },
+			{ 0, 0, 0, NULL, NULL }
+		};
+
 		//---------------------------------------------------
 		// static properties
 		//---------------------------------------------------
 
+		JSBool staticIntProp_getter_wrap(JSContext* cx, JSObject* obj, jsid id, jsval* vp)
+		{
+			JSWRAP_TRY_START
+				int cppResult = ::SimpleClass::getStaticIntProp();
+				int_to_jsval_x(cx, cppResult, vp);
+			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "SimpleClass::intProp")
+
+			return true;
+		}
+
+		JSBool staticIntProp_setter_wrap(JSContext* cx, JSObject* obj, jsid id, JSBool strict, jsval* vp)
+		{
+			JSWRAP_TRY_START
+				int val = jsval_to_int32_x(cx, *vp);
+				::SimpleClass::setStaticIntProp(val);
+			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "SimpleClass::intProp")
+
+			return true;
+		}
+
+		JSBool staticFloatPropField_getter_wrap(JSContext* cx, JSObject* obj, jsid id, jsval* vp)
+		{
+			JSWRAP_TRY_START
+				double_to_jsval_x(cx, ::SimpleClass::staticFloatPropField, vp);
+			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "SimpleClass::floatProp")
+
+			return true;
+		}
+
+		JSBool staticFloatPropField_setter_wrap(JSContext* cx, JSObject* obj, jsid id, JSBool strict, jsval* vp)
+		{
+			JSWRAP_TRY_START
+				::SimpleClass::staticFloatPropField = (float)jsval_to_double_x(cx, *vp);
+			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "SimpleClass::floatProp")
+
+			return true;
+		}
+
+		JSPropertySpec static_properties[] = {
+			{ "staticIntProp",        0, JSPROP_SHARED | JSPROP_ENUMERATE, staticIntProp_getter_wrap,        staticIntProp_setter_wrap },
+			{ "staticFloatPropField", 0, JSPROP_SHARED | JSPROP_ENUMERATE, staticFloatPropField_getter_wrap, staticFloatPropField_setter_wrap },
+			{ 0, 0, 0, NULL, NULL }
+		};
 
 		//---------------------------------------------------
 		// Constructor
@@ -117,13 +211,13 @@ namespace jswrap
 				constructor, 0,
 
 				// instance properties
-				NULL, 
+				instance_properties, 
 
 				// instance functions
 				instance_functions,
 
 				// static properties
-				NULL, 
+				static_properties, 
 
 				// static functions
 				static_functions);
