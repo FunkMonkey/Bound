@@ -1,11 +1,15 @@
 #ifndef FUNCTIONS_BASICTYPES_HPP
 #define FUNCTIONS_BASICTYPES_HPP
 
+//---------------------------------------------------
 // VOID FUNCTION, NO PARAMETER
+//---------------------------------------------------
 
 void void_param0(){}
 
+//---------------------------------------------------
 // VOID FUNCTION, 1 PARAMETER
+//---------------------------------------------------
 
 void void_param1_bool            (bool x)            {}
 
@@ -25,7 +29,9 @@ void void_param1_long_double     (long double x)     {}
 
 void void_param1_wchar_t         (wchar_t x)         {}
 
+//---------------------------------------------------
 // RETURN VALUE, NO PARAMETER
+//---------------------------------------------------
 
 bool           bool_param0            (){ return true; }
 
@@ -45,7 +51,9 @@ long double    long_double_param0     (){ return 5.0; }
 
 wchar_t        wchar_t_param0         (){ return 1; }
 
+//---------------------------------------------------
 // OTHER COMBINATIONS
+//---------------------------------------------------
 void void_param1_int_float  (int x, float y)  {}
 int  int_param1_int         (int x)           { return 1; }
 int  int_param1_int_float   (int x, float y)  { return 1; }

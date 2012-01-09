@@ -48,6 +48,9 @@
     <ClInclude Include="wrap_helpers\float_x.hpp">
       <Filter>wrap_helpers</Filter>
     </ClInclude>
+    <ClInclude Include="include\Functions_Strings.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="wrap\SimpleClass_wrap.cpp">

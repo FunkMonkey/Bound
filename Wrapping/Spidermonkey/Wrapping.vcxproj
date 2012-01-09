@@ -81,6 +81,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\Functions_BasicTypes.hpp" />
+    <ClInclude Include="include\Functions_Strings.hpp" />
     <ClInclude Include="include\SimpleClass.hpp" />
     <ClInclude Include="include\test.hpp" />
     <ClInclude Include="wrap\Functions_BasicTypes_wrap.hpp" />
