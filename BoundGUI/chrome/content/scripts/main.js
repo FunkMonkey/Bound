@@ -33,7 +33,7 @@ Cu.import("chrome://bound/content/modules/AST/Export_ASTObjects.jsm", ASTObjects
 // TODO: move into exportASTTree as a code generator
 Components.utils.import("chrome://bound/content/modules/CodeGeneratorPlugins/CodeGeneratorPluginManager.jsm");
 Components.utils.import("chrome://bound/content/modules/CodeGeneratorPlugins/CPP_Spidermonkey.jsm");
-CodeGeneratorPluginManager.registerPlugin(new Plugin_CPP_Spidermonkey());
+//CodeGeneratorPluginManager.registerPlugin(new Plugin_CPP_Spidermonkey());
 var currentContext = "CPP_Spidermonkey";
 
 window.addEventListener("close", Bound.quit, false); 
@@ -42,10 +42,10 @@ window.addEventListener("close", Bound.quit, false);
 CPPAnalyzer.init();
 
 var cppAST = null;
-var cppASTTree = null;
+var $cppASTTree = null;
 
 var exportAST = null;
-var exportASTTree = new ASTObjects.Export.Export_ASTObject(null, "root", null);
+var $exportASTTree = null;
 
 var $resultCode = null;
 
@@ -60,35 +60,6 @@ function dataCB(type, data, row)
 	}
 	
 	return "";
-}
-
-
-function jSmartTest()
-{
-	if(cppASTTree.selection.length > 0)
-	{
-		var row = cppASTTree.selection[0];
-		var data = row.data;
-		
-		log(Plugin_CPP_Spidermonkey.getCodeGeneratorByASTObject(data));
-	}
-}
-
-function addAfterSelection()
-{
-	//var obj = { name: "ADDED", kind: Base_ASTObjects.ASTObject.KIND_CLASS}
-	//
-	//if(cppASTTree.selection.length > 0)
-	//{
-	//	var parent = cppASTTree.selection[0];
-	//	var newRow = cppASTTree.createAndAppendRow(parent, false, obj);
-	//	if(!parent.isContainerOpen)
-	//		parent.toggleCollapse();
-	//		
-	//	newRow.tree.select(newRow);
-	//}
-	
-	jSmartTest();
 }
 
 function astNodeToTreeNode(astNode, domParent, treeView)
@@ -128,53 +99,102 @@ function onDrop(event)
 {
 	var data = event.dataTransfer.mozGetDataAt("application/x-tree-data", 0);
 	
-	var plugin = CodeGeneratorPluginManager.getPlugin(currentContext);
-	var codeGenConstructor = plugin.getCodeGeneratorByASTObject(data);
+	var $parentNode = null;
+	if(event.target !== $exportASTTree.box)
+	{
+		var $parentNode = event.target.parentNode;
+		while(!$parentNode.isRow)
+			$parentNode = $parentNode.parentNode;
+	}
+	
+	var exportParent = ($parentNode == null) ? exportAST.root : $parentNode.data;
+	var exportParentCodeGen = exportParent.getCodeGenerator(currentContext);
+	
+	if(!exportParentCodeGen)
+		return;
+	
+	var plugin = exportParentCodeGen.plugin;
+	
+	var codeGenConstructor = plugin.getCodeGeneratorByASTObject(data, exportParentCodeGen);
 	
 	if(codeGenConstructor)
 	{
-		var parentNode = null;
-		if(event.target !== exportASTTree.box)
-		{
-			var parentNode = event.target.parentNode;
-			while(!parentNode.isRow)
-				parentNode = parentNode.parentNode;
-		}
 		
-		var exportASTObject = new ASTObjects.Export.Export_ASTObject(((parentNode == null) ? exportASTTree : parentNode.data), data.name, data);
+		var exportASTObject = new ASTObjects.Export.Export_ASTObject(exportParent, data.name, data);
+		exportParent.addChild(exportASTObject);
 		exportASTObject.addCodeGenerator(new codeGenConstructor(plugin));
-		var newRow = exportASTTree.createAndAppendRow(parentNode, false, exportASTObject);
+		var $newRow = $exportASTTree.createAndAppendRow($parentNode, false, exportASTObject);
 		
-		$resultCode.value = exportASTObject.getCodeGenerator(currentContext).generate();
+		printCodeGenResult(exportASTObject);
 		
+		if($parentNode && !$parentNode.isContainerOpen)
+			$parentNode.toggleCollapse();
+	}
+}
+
+function printCodeGenResult(exportASTObject)
+{
+	var genResult = exportASTObject.getCodeGenerator(currentContext).generate();
 		
-		
-		if(parentNode && !parentNode.isContainerOpen)
-			parentNode.toggleCollapse();
+	var textResult = ""
+	
+	if(genResult["files"])
+	{
+		for(var fileName in genResult["files"])
+		{
+			textResult += fileName + ":\n\n" + genResult["files"][fileName] + "\n\n";
+		}
+	}
+	else
+	{
+		for(var code in genResult)
+		{
+			textResult += code + ":\n\n" + genResult[code] + "\n\n";
+		}
 	}
 	
 	
+	
+	$resultCode.value = textResult;
+}
+
+function exportTree_onClick(event)
+{
+	if($exportASTTree.selection.length > 0)
+	{
+		printCodeGenResult($exportASTTree.selection[0].data);
+	}
 }
 
 function testParsing()
 {
 	$resultCode = document.getElementById("resultCode");	
 	
+	// ----- C++ -----
 	cppAST = CPPAnalyzer.parse_header(["supertest", "D:\\Data\\Projekte\\Bound\\src\\CPPAnalyzer\\Test\\test1.cpp"]);
 
-	var $exportTree = document.getElementById("exportTree");
-	exportASTTree = new DOMTree(document, $exportTree, dataCB);
-	$exportTree.addEventListener("dragover", checkDrag);
-	$exportTree.addEventListener("dragenter", checkDrag);
-	$exportTree.addEventListener("drop", onDrop);
-	
-	cppASTTree = new DOMTree(document, document.getElementById("cppTree"), dataCB);
+	$cppASTTree = new DOMTree(document, document.getElementById("cppTree"), dataCB);
 	
 	for(var i = 0; i < cppAST.root.children.length; ++i)
 	{
 		var child = cppAST.root.children[i];
-		astNodeToTreeNode(child, null, cppASTTree);
+		astNodeToTreeNode(child, null, $cppASTTree);
 	}
+	
+	// ----- export tree -----
+	exportAST = {};
+	exportAST.root = new ASTObjects.Export.Export_ASTObject(null, "ProjectName", cppAST.root);
+	
+	var spidermonkeyPlugin = new Plugin_CPP_Spidermonkey();
+	var codeGenConstructor = spidermonkeyPlugin.getCodeGeneratorByASTObject(cppAST.root);
+	exportAST.root.addCodeGenerator(new codeGenConstructor(spidermonkeyPlugin));
+	
+	var $exportTree = document.getElementById("exportTree");
+	$exportASTTree = new DOMTree(document, $exportTree, dataCB);
+	$exportTree.addEventListener("dragover", checkDrag);
+	$exportTree.addEventListener("dragenter", checkDrag);
+	$exportTree.addEventListener("drop", onDrop);
+	$exportTree.addEventListener("click", exportTree_onClick);
 }
 
 window.addEventListener("load", testParsing, true);

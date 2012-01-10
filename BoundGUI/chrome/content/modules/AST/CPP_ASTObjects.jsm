@@ -49,6 +49,7 @@ CPP_ASTObject.prototype = {
 	 */
 	_onParentChanged: function _onParentChanged()
 	{
+		// TODO: also change for children recursively
 		this.cppLongName = (this.parent == null) ? this.name : (this.parent.cppLongName + "::" + this.name);
 	}, 
 	

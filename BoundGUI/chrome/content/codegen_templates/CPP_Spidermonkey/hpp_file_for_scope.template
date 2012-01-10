@@ -1,0 +1,11 @@
+#ifndef {$includeGuard}
+#define {$includeGuard}
+
+#include "jsapi.h"
+
+namespace jswrap
+{
+{$scopeDefinition|indent:1:"\t"}
+}
+
+#endif // {$includeGuard}

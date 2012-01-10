@@ -1,0 +1,6 @@
+{$includes}
+
+namespace jswrap
+{
+{$scopeDefinition|indent:1:"\t"}
+}

@@ -1,0 +1,5 @@
+{* 
+(String)  wrapper_funcName: name of the wrapper-function
+(String)  funcName        : name to register the function as
+(int)     num_params      : number of parameters
+*}JS_FS("{$funcName}", {$wrapper_funcName}, {$num_params}, 0),

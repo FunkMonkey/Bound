@@ -1,0 +1,4 @@
+namespace {$scopeName}
+{
+{$scopeContent|indent:2:"\t"}
+}

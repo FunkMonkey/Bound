@@ -1,0 +1,1 @@
+JSBool init(JSContext* cx, JSObject* scope);
