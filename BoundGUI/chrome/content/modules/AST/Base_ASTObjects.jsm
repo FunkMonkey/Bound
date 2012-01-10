@@ -11,8 +11,9 @@ var EXPORTED_SYMBOLS = ["ASTObject", "ASTOverloadContainer"];
  */
 function ASTObject(parent, name)
 {
-	this.parent = parent;
 	this.name = name;
+	this._parent = null;
+	this.parent = (parent == null) ? null : parent;
 	
 	this.children = [];
 	this._childrenMap = {};
@@ -121,6 +122,12 @@ ASTObject.prototype = {
 	}, 
 	
 };
+
+Object.defineProperties(ASTObject.prototype, {
+	"parent": { configurable: true, enumerable: true,
+				get: function getParent(){ return this._parent; },
+				set: function setParent(val){ this._parent = val }}
+});
 
 /**
  * 

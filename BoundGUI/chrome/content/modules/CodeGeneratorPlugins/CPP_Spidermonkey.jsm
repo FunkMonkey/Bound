@@ -44,6 +44,7 @@ Plugin_CPP_Spidermonkey.prototype = {
 		switch(kind)
 		{
 			case "Function": codegen = CodeGenerator_Function; break;
+			case "MemberFunction": codegen = CodeGenerator_Function; break;
 			default: return null;
 		}
 		
@@ -89,7 +90,7 @@ CodeGenerator_Function.prototype = {
 	context: Plugin_CPP_Spidermonkey.prototype.context,
 	
 	parameterTemplates: {
-		"Bool":      "bool",
+		"Bool":      "CPP_Spidermonkey/param_jsval_to_boolean",
 		"Char_U":    "CPP_Spidermonkey/param_jsval_to_int", // ???
 		"UChar":     "CPP_Spidermonkey/param_jsval_to_uint",
 		"Char16":    "CPP_Spidermonkey/param_jsval_to_int",
@@ -112,6 +113,30 @@ CodeGenerator_Function.prototype = {
 		"LongDouble":"CPP_Spidermonkey/param_jsval_to_float"
 	},
 	
+	returnTemplates: {
+		"Bool":      "CPP_Spidermonkey/return_boolean",
+		"Char_U":    "CPP_Spidermonkey/return_int", // ???
+		"UChar":     "CPP_Spidermonkey/return_int",
+		"Char16":    "CPP_Spidermonkey/return_int",
+		"Char32":    "CPP_Spidermonkey/return_int",
+		"UShort":    "CPP_Spidermonkey/return_int",
+		"UInt":      "CPP_Spidermonkey/return_int",
+		"ULong":     "CPP_Spidermonkey/return_int",
+		"ULongLong": "CPP_Spidermonkey/return_int",
+		"UInt128":   "CPP_Spidermonkey/return_int",
+		"Char_S":    "CPP_Spidermonkey/return_int", // ???
+		"SChar":     "CPP_Spidermonkey/return_int",
+		"WChar":     "CPP_Spidermonkey/return_int", // TODO: may change
+		"Short":     "CPP_Spidermonkey/return_int",
+		"Int":       "CPP_Spidermonkey/return_int",
+		"Long":      "CPP_Spidermonkey/return_int",
+		"LongLong":  "CPP_Spidermonkey/return_int",
+		"Int128":    "CPP_Spidermonkey/return_int",
+		"Float":     "CPP_Spidermonkey/return_float",
+		"Double":    "CPP_Spidermonkey/return_float",
+		"LongDouble":"CPP_Spidermonkey/return_float"
+	},
+	
 	/**
 	 * Generates wrapper code for the connected function
 	 * 
@@ -122,18 +147,35 @@ CodeGenerator_Function.prototype = {
 		var astFunc = this.exportObject.sourceObject;
 		
 		var parameters_init = "";
+		var call_parameters = "";
 		for(var i = 0; i < astFunc.parameters.length; ++i)
 		{
 			var param = astFunc.parameters[i];
-			parameters_init += TemplateManager.fetch(this.parameterTemplates[param.typeCanonical.kind], {param_name: param.name, param_type: param.typeCanonical.getAsCPPCode(), param_index: i});
+			var name = "p__" + param.name;
+			parameters_init += TemplateManager.fetch(this.parameterTemplates[param.typeCanonical.kind], {param_name: name, param_type: param.typeCanonical.getAsCPPCode(), param_index: i}) + "\n";
+		
+			call_parameters += name + ((i != astFunc.parameters.length - 1) ? ", " : "");
 		}
 		
-		
+		var parent_qualifier = astFunc.parent.cppLongName;
 		
 		var data = {
+			is_instance_call: (astFunc.kind === ASTObject.KIND_MEMBER_FUNCTION && !astFunc.isStatic),
 			parameters_init: parameters_init,
+			call_parameters: call_parameters,
+			parent_qualifier: parent_qualifier,
 			wrapper_funcName: "wrapper_" + this.exportObject.name,
 			funcName: this.exportObject.sourceObject.name,
+		}
+		
+		if(astFunc.returnTypeCanonical.kind !== "Void")
+		{
+			data.return_type = astFunc.returnTypeCanonical.getAsCPPCode();
+			data.returnCode = TemplateManager.fetch(this.returnTemplates[astFunc.returnTypeCanonical.kind], {});
+		}
+		else
+		{
+			data.returnCode = TemplateManager.fetch("CPP_Spidermonkey/return_void", {});
 		}
 		
 		return TemplateManager.fetch("CPP_Spidermonkey/function", data);
@@ -143,7 +185,13 @@ CodeGenerator_Function.prototype = {
 };
 
 TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/function");
+TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/param_jsval_to_boolean");
 TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/param_jsval_to_int");
 TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/param_jsval_to_uint");
 TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/param_jsval_to_float");
+
+TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/return_void");
+TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/return_boolean");
+TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/return_int");
+TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/return_float");
 //log();

@@ -20,6 +20,8 @@ namespace MyNamespace
 	struct List {
 		List(int foo);
 		~List();
+		
+		int int_param_float(float x);
 
 		char* testString;
 		const bool fool;

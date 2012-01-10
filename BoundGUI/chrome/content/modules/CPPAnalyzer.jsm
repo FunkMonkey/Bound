@@ -104,7 +104,7 @@ var CPPAnalyzer =
 			case "Field":
 				type = this.createASTTypeFromJSON(astTree, jsonObject.type);
 				typeCanonical = this.createASTTypeFromJSON(astTree, jsonObject.typeCanonical);
-				astObject = new CPP_ASTObject_Field(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical, ASTObject.getAccessFromString(jsonObject.access));
+				astObject = new CPP_ASTObject_Field(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical, ASTObject.getAccessFromString(jsonObject.access), false);
 				astTree.astObjectsByID[jsonObject.id] = astObject;
 				break;
 			
@@ -127,7 +127,7 @@ var CPPAnalyzer =
 			case "MemberFunction":
 				type = this.createASTTypeFromJSON(astTree, jsonObject.returnType);
 				typeCanonical = this.createASTTypeFromJSON(astTree, jsonObject.returnTypeCanonical);
-				astObject = new CPP_ASTObject_Member_Function(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical, ASTObject.getAccessFromString(jsonObject.access), false, false);
+				astObject = new CPP_ASTObject_Member_Function(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical, ASTObject.getAccessFromString(jsonObject.access), false, false, false);
 				astTree.astObjectsByID[jsonObject.id] = astObject;
 				
 				for(var i = 0; i < jsonObject.parameters.length; ++i)

@@ -60,5 +60,5 @@ Export_ASTObject.prototype = {
 	}, 
 };
 
-Extension.borrow(Export_ASTObject.prototype, ASTObject.prototype);
+Extension.inherit(Export_ASTObject, ASTObject);
 

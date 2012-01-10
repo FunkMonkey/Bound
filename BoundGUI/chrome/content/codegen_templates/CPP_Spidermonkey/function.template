@@ -7,7 +7,8 @@
 
 (String)  parameters_init : initialization code for parameter variables
 (String)  call_parameters : parameter names given to the function (comma-separated list)
-(String)  return          : code for setting the resturn value
+(String)  return_type     : return type of the called function
+(String)  returnCode      : code for setting the resturn value
 
 (String)  error_source    : source name that will be part of the error message
 
@@ -18,10 +19,9 @@
 {if $is_instance_call}		{$parent_qualifier}& inst = getThisPrivateRef<{$parent_qualifier}>(cx, vp);
 		
 {/if}{$parameters_init|indent:2:"\t"}
-		{if $is_instance_call}inst.{else}{$parent_qualifier}::{/if}{$funcName}({$call_parameters});
+		{if $return_type}{$return_type} cpp__result = {/if}{if $is_instance_call}inst.{else}{$parent_qualifier}::{/if}{$funcName}({$call_parameters});
 	
-		{$return}
-	
+		{$returnCode}
 	JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "{$error_source}")
 	
 	return true;

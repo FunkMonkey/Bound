@@ -1,0 +1,1 @@
+JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(cpp__result));

@@ -17,6 +17,7 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
 const Cu = Components.utils;
 
+Cu.import("chrome://bound/content/modules/log.jsm");
 Cu.import("chrome://bound/content/modules/Extension.jsm");
 Cu.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm");
 
@@ -30,18 +31,37 @@ Cu.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm");
  */
 function CPP_ASTObject(parent, name, id, usr)
 {
+	this.cppLongName = "";	
 	ASTObject.call(this, parent, name);
 	this.id = id;
 	this.USR = usr;
+	
+	
 }
 
 CPP_ASTObject.prototype = {
 	constructor: CPP_ASTObject,
 	source: "C++",
-	language: "C++"
+	language: "C++",
+	
+	/**
+	 * Called when the parent was changed
+	 */
+	_onParentChanged: function _onParentChanged()
+	{
+		this.cppLongName = (this.parent == null) ? this.name : (this.parent.cppLongName + "::" + this.name);
+	}, 
+	
 }
 
-Extension.borrow(CPP_ASTObject.prototype, ASTObject.prototype);
+//var ASTObject_parentDesc = Object.getOwnPropertyDescriptor(ASTObject.prototype, "parent");
+Object.defineProperties(CPP_ASTObject.prototype, {
+	"parent": { configurable: true, enumerable: true,
+				get: function getParent(){ return this._parent; },
+				set: function setParent(val){ this._parent = val; this._onParentChanged(); }}
+});
+
+Extension.inherit(CPP_ASTObject, ASTObject);
 
 //======================================================================================
 
@@ -243,10 +263,11 @@ Extension.inherit(CPP_ASTObject_Var_Decl, CPP_ASTObject);
  * @constructor
  * @this {CPP_ASTObject_Field}
  */
-function CPP_ASTObject_Field(parent, name, id, usr, type, typeCanonical, access)
+function CPP_ASTObject_Field(parent, name, id, usr, type, typeCanonical, access, isStatic)
 {
 	CPP_ASTObject_Var_Decl.call(this, parent, name, id, usr, type, typeCanonical);
 	this.access = access;
+	this.isStatic = isStatic;
 };
 
 CPP_ASTObject_Field.prototype = {
@@ -343,12 +364,13 @@ Extension.inherit(CPP_ASTObject_Function, CPP_ASTObject);
  * @constructor
  * @this {CPP_ASTObject_Member_Function}
  */
-function CPP_ASTObject_Member_Function(parent, name, id, usr, returnType, returnTypeCanonical, access, isVirtual, isConst)
+function CPP_ASTObject_Member_Function(parent, name, id, usr, returnType, returnTypeCanonical, access, isStatic, isVirtual, isConst)
 {
 	CPP_ASTObject_Function.call(this, parent, name, id, usr, returnType, returnTypeCanonical);
 	this.access = access;
 	this.isVirtual = isVirtual;
 	this.isConst = isConst;
+	this.isStatic = isStatic;
 };
 
 CPP_ASTObject_Member_Function.prototype = {
