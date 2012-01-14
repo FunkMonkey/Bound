@@ -1,1 +1,8 @@
-int_to_jsval_x(cx, cpp__result, &JS_RVAL(cx, vp));
+{
+
+"description":"",
+	
+"templateCode":
+"int_to_jsval_x(cx, cpp__result, &JS_RVAL(cx, vp));"
+
+}

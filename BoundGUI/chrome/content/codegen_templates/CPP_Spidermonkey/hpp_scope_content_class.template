@@ -1,3 +1,10 @@
-extern JSObject* prototype;
+{
+
+"description":"",
+	
+"templateCode":
+"extern JSObject* prototype;
 extern JSClass jsClass;
-JSBool init(JSContext* cx, JSObject* scope);
+JSBool init(JSContext* cx, JSObject* scope);"
+
+}

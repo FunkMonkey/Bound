@@ -1,1 +1,7 @@
-{$param_type} {$param_name} = {if $cast}($param_type){/if}jsval_to_boolean_x(args[{$param_index}]);
+{
+
+"description":"",
+	
+"templateCode":
+"{$param_type} {$param_name} = {if $cast}($param_type){/if}jsval_to_boolean_x(args[{$param_index}]);"
+}

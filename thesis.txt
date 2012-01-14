@@ -15,3 +15,6 @@ BoundGUI
 - calling CPPAnalyzer using js-ctypes (conversion) --> JSON
 - transforming JSON to AST-Tree
 - templating using jSmart
+- templates in JSON for additional data
+   - problem with escaping \n and \t
+- export AST and code-generators for contexts

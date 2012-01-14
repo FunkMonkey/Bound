@@ -1,8 +1,14 @@
-{$otherScopesInline}
+{
+"description":"",
+	
+"templateCode":
+"{$otherScopesInline}
 
 {$wrapperFunctions}
 
 JSBool init(JSContext* cx, JSObject* scope)
 {
 	return true;
+}"
+
 }

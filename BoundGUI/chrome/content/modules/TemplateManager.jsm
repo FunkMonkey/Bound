@@ -67,24 +67,40 @@ var TemplateManager = {
 	/**
 	 * Adds a template
 	 * 
-	 * @param   {String}          templateName   Name to save the template
-	 * @param   {jSmart|String}   template       jSmart template or String to construct it
+	 * @param   {String}                 templateName   Name to save the template
+	 * @param   {jSmart|String|Object}   template       jSmart template or String to construct it or Object with String in .templateCode
 	 *
-	 * @returns {jSmart}   Template, that was added and may have been constructed
+	 * @returns {jSmart}   Template, that was added and may have been constructed, String in .data.templateCode, Object in .data
 	 */
 	addTemplate: function addTemplate(templateName, template)
 	{
 		if(this._templates[templateName])
 			throw new TemplateAlreadyExistingException(templateName);
 			
-		if(!(template instanceof jSmart))
+		if(template instanceof jSmart)
 		{
-			template = new jSmart(template);
+			this._templates[templateName] = template;
+			return template;
+			
+		} else if(typeof(template) === "String")
+		{
+			var newTemplate = new jSmart(template);
+			newTemplate.data = {templateCode: template};
+			this._templates[templateName] = newTemplate;
+			return newTemplate;
 		}
-		
-		this._templates[templateName] = template;
-		
-		return template;
+		else if(template && "templateCode" in template)
+		{
+			var newTemplate = new jSmart(template.templateCode);
+			newTemplate.data = template;
+			this._templates[templateName] = newTemplate;
+			return newTemplate;
+		}
+		else
+		{
+			// TODO: throw exception
+			return null;
+		}
 	},
 	
 	/**
@@ -121,11 +137,65 @@ var TemplateManager = {
 		if(!fileToLoad)
 			throw new TemplateFileNotExistingException(searchTerm);
 			
-		var templateStr = readFile(fileToLoad);
+		var templateJSONStr = readFile(fileToLoad);
+		var templateData = this._templateStringToJSON(templateJSONStr);
 		
 		searchTerm = searchTerm.replace(/\\/, "/");
-		return this.addTemplate(searchTerm, (alternativeName == null) ? templateStr : alternativeName);
+		return this.addTemplate((alternativeName == null) ? searchTerm : alternativeName, templateData);
+	},
+	
+	/**
+	 * Escapes some control characters
+	 * 
+	 * @param   {String}   str   String to escape
+	 * 
+	 * @returns {String}
+	 */
+	_escape: function _escape(str)
+	{
+		// Damn pesky carriage returns...
+		str = str.replace(/\r\n/gm, "\n");
+		str = str.replace(/\r/gm, "\n");
+	
+		// JSON requires new line characters be escaped
+		str = str.replace(/\n/gm, "\\n");
+		str = str.replace(/\t/gm, "\\t");
+		
+		return str;
 	}, 
+	
+	
+	/**
+	 * Converts a given template String (stringified JSON) to JSON
+	 *    - will escape tabs and newlines
+	 * 
+	 * @param   {String}   fullTemplateString   The string to parse
+	 * 
+	 * @returns {Object}   JSON
+	 */
+	_templateStringToJSON: function _templateStringToJSON(fullTemplateString)
+	{
+		var finString = "";
+		var splits = fullTemplateString.split('"');
+		var quoteOpen = false;
+		for(var i = 0; i < splits.length; ++i)
+		{
+			//log(((quoteOpen == true) ? "*": "") + " Progressing: " + splits[i])
+			finString += (quoteOpen == true) ? this._escape(splits[i]) : splits[i];
+			finString += (i !== splits.length - 1) ? '"' : "";
+			
+			var subStr = splits[i];
+			if(subStr.length == 0 || (subStr.length > 0 && subStr.charAt(subStr.length-1) !== '\\'))
+			{
+				quoteOpen = !quoteOpen;
+			}
+		}
+		
+		//log("tryping to parse: " + finString);
+		
+		return JSON.parse(finString);
+	}, 
+	
 	
 	/**
 	 * Fetches the template with the given name

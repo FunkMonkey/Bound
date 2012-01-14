@@ -338,11 +338,6 @@ CodeGenerator_Object.prototype = {
 			return { isInline: false,
 			         files: files};
 		}
-		
-		
-		
-		//return {  wrapper_function_code: TemplateManager.fetch("CPP_Spidermonkey/function", data),
-		//          define_code:           TemplateManager.fetch("CPP_Spidermonkey/function_define", defineData)};
 	},
 	
 	/**

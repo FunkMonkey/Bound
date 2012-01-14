@@ -1,1 +1,8 @@
-JSBool init(JSContext* cx, JSObject* scope);
+{
+
+"description":"",
+	
+"templateCode":
+"JSBool init(JSContext* cx, JSObject* scope);"
+
+}

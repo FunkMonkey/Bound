@@ -1,5 +1,11 @@
-{* 
-(String)  wrapper_funcName: name of the wrapper-function
+{
+
+"description":
+"(String)  wrapper_funcName: name of the wrapper-function
 (String)  funcName        : name to register the function as
-(int)     num_params      : number of parameters
-*}JS_FS("{$funcName}", {$wrapper_funcName}, {$num_params}, 0),
+(int)     num_params      : number of parameters",
+	
+"templateCode":
+"JS_FS(\"{$funcName}\", {$wrapper_funcName}, {$num_params}, 0),"
+
+}

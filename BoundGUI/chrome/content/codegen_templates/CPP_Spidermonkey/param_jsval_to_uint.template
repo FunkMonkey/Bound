@@ -1,1 +1,8 @@
-{$param_type} {$param_name} = {if $cast}($param_type){/if}jsval_to_uint32_x(cx, args[{$param_index}]);
+{
+
+"description":"",
+	
+"templateCode":
+"{$param_type} {$param_name} = {if $cast}($param_type){/if}jsval_to_uint32_x(cx, args[{$param_index}]);"
+
+}

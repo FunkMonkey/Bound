@@ -1,6 +1,12 @@
-{$includes}
+{
+"description":"",
+	
+"templateCode":
+"{$includes}
 
 namespace jswrap
 {
-{$scopeDefinition|indent:1:"\t"}
+{$scopeDefinition|indent:1:\"\\t\"}
+}"
+
 }

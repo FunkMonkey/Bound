@@ -1,4 +1,11 @@
-namespace {$scopeName}
 {
-{$scopeContent|indent:2:"\t"}
+
+"description":"",
+	
+"templateCode":
+"namespace {$scopeName}
+{
+{$scopeContent|indent:2:\"\\t\"}
+}"
+
 }

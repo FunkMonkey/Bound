@@ -1,1 +1,8 @@
-void {$funcName}(int x);
+{
+
+"description":"",
+	
+"templateCode":
+"void {$funcName}(int x);"
+
+}
