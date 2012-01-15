@@ -28,6 +28,7 @@ Cu.import("chrome://bound/content/modules/AST/Export_ASTObjects.jsm", ASTObjects
 
 
 // TMP
+Components.utils.import("chrome://bound/content/modules/TemplateManager.jsm");
 // adding some plugins
 
 // TODO: move into exportASTTree as a code generator

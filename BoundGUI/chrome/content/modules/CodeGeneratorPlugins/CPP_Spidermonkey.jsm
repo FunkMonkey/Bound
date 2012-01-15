@@ -170,6 +170,13 @@ CodeGenerator_Function.prototype = {
 	 */
 	generate: function generate()
 	{
+		var usedTemplates = [];
+		
+		var tFunction = TemplateManager.getTemplate("CPP_Spidermonkey/function");
+		var tFunctionDefine = TemplateManager.getTemplate("CPP_Spidermonkey/function_define");
+		usedTemplates.push(tFunction);
+		usedTemplates.push(tFunctionDefine);
+		
 		var astFunc = this.exportObject.sourceObject;
 		
 		var parameters_init = "";
@@ -178,7 +185,11 @@ CodeGenerator_Function.prototype = {
 		{
 			var param = astFunc.parameters[i];
 			var name = "p__" + param.name;
-			parameters_init += TemplateManager.fetch(this.parameterTemplates[param.typeCanonical.kind], {param_name: name, param_type: param.typeCanonical.getAsCPPCode(), param_index: i}) + "\n";
+			
+			var tParamInit = TemplateManager.getTemplate(this.parameterTemplates[param.typeCanonical.kind]);
+			usedTemplates.push(tParamInit);
+			
+			parameters_init += tParamInit.fetch({param_name: name, param_type: param.typeCanonical.getAsCPPCode(), param_index: i}) + "\n";
 		
 			call_parameters += name + ((i != astFunc.parameters.length - 1) ? ", " : "");
 		}
@@ -203,17 +214,48 @@ CodeGenerator_Function.prototype = {
 		if(astFunc.returnTypeCanonical.kind !== "Void")
 		{
 			data.return_type = astFunc.returnTypeCanonical.getAsCPPCode();
-			data.returnCode = TemplateManager.fetch(this.returnTemplates[astFunc.returnTypeCanonical.kind], {});
+			var tReturnCode = TemplateManager.getTemplate(this.returnTemplates[astFunc.returnTypeCanonical.kind]);
+			usedTemplates.push(tReturnCode);
+			data.returnCode = tReturnCode.fetch({});
 		}
 		else
 		{
-			data.returnCode = TemplateManager.fetch("CPP_Spidermonkey/return_void", {});
+			var tReturnVoid = TemplateManager.getTemplate("CPP_Spidermonkey/return_void");
+			usedTemplates.push(tReturnVoid);
+			data.returnCode = tReturnVoid.fetch({});
 		}
 		
-		return {  wrapper_function_code: TemplateManager.fetch("CPP_Spidermonkey/function", data),
-		          define_code:           TemplateManager.fetch("CPP_Spidermonkey/function_define", defineData)};
+		var includeFiles = [];
+		for(var i = 0; i < usedTemplates.length; ++i)
+		{
+			if(usedTemplates[i].userdata.includes)
+			{
+				includeFiles.push.apply(includeFiles, usedTemplates[i].userdata.includes);
+			}
+		}
+		
+		return {  isStatic: true,
+		  		  wrapper_function_code: tFunction.fetch(data),
+		          define_code:           tFunctionDefine.fetch(defineData),
+				  includeFiles:          includeFiles}; // TODO: return as the data itself (name, etc)
 	}, 
 };
+
+function eliminateDuplicates(arr) {
+  var i,
+      len=arr.length,
+      out=[],
+      obj={};
+
+  for (i=0;i<len;i++) {
+    obj[arr[i]]=0;
+  }
+  for (i in obj) {
+    out.push(i);
+  }
+  return out;
+}
+
 
 /**
  * Code generator for objects
@@ -243,13 +285,16 @@ CodeGenerator_Object.prototype = {
 		var scopeObj = this.exportObject;
 		
 		var isInline = (scopeObj.children.length === 0) && (scopeObj.parent !== null);
+		var nameChain = this.getNameChain();
 		
 		// ------ children ------
 		
 		var cppIncludes = [];
 		var files = {};
-		var childCodesScopes = [];
-		var childCodesFunctions = [];
+		
+		var subScopes = [];
+		var nonScopeElements = [];
+		
 		// adding children recursively
 		for(var i = 0; i < scopeObj.children.length; ++i)
 		{
@@ -260,83 +305,98 @@ CodeGenerator_Object.prototype = {
 				var childCode = childCodeGen.generate();
 				if(childCodeGen instanceof CodeGenerator_Object)
 				{
-					
+					subScopes.push(childCode)
 				}
 				else if(childCodeGen instanceof CodeGenerator_Function)
 				{
-					
+					nonScopeElements.push(childCode);
+					cppIncludes.push.apply(cppIncludes, childCode.includeFiles);
 				}
 			}
 		}
 		
+		cppIncludes = eliminateDuplicates(cppIncludes);
+		
 		// ------ header ------
 		var hpp_scopeContent = "";
 		
-		// TODO: inline children
+		// adding inline children
+		var hppInlineScopes = []; // TODO: pass subscopes as array (with all hpp and cpp)
+		for(var i = 0; i < subScopes.length; ++i)
+		{
+			if(subScopes[i].isInline)
+				hpp_scopeContent += subScopes[i].hpp_scope_definition + "\n\n"; // TODO: array
+		}
 		
+		// TODO: merge
 		hpp_scopeContent += TemplateManager.fetch("CPP_Spidermonkey/hpp_scope_content_init", {});
 		var hpp_scope_definition = TemplateManager.fetch("CPP_Spidermonkey/scope_definition", { scopeName: scopeObj.name, scopeContent: hpp_scopeContent});
 		
 		// ------ cpp ------
 		
-		var cpp_scopeContent = "";
+		// adding inline children and making initcall
+		var initCalls = [];
+		var cppInlineScopes = [];
+		for(var i = 0; i < subScopes.length; ++i)
+		{
+			if(subScopes[i].isInline)
+			{
+				cppInlineScopes.push(subScopes[i].cpp_scope_definition);
+				cppIncludes.push.apply(cppIncludes, childCode.cppIncludes);
+			}
+			else
+			{
+				cppIncludes.push('#include "' + childCode.hppFileName + '"');
+			}
+			
+			initCalls.push(subScopes[i].scopeName); // TODO: use scopes array instead of initCalls
+		}
+			
+		// wrapper code
+		var functionDefs = []
+		var wrapperFunctions = [];
+		for(var i = 0; i < nonScopeElements.length; ++i) // TODO: move up!
+		{
+			wrapperFunctions.push(nonScopeElements[i].wrapper_function_code);
+			functionDefs.push(nonScopeElements[i].define_code)
+		}
 		
-		// TODO: inline children
-		// TODO: wrapper code
-		// TODO: init
-		
-		//cpp_scopeContent += TemplateManager.fetch("CPP_Spidermonkey/hpp_scope_content_init", {});
+		// TODO: merge
+		var cpp_scopeContent = TemplateManager.fetch("CPP_Spidermonkey/cpp_scope_content_object", { inlineScopes: cppInlineScopes,
+			                                                                                        initCalls: initCalls,
+												                                                    wrapperFunctions: wrapperFunctions,
+		                                                                                            functionDefs: functionDefs,
+																									nameChain: nameChain,
+																						    	    newObjectName: (scopeObj.parent == null) ? null : scopeObj.name});
 		var cpp_scope_definition = TemplateManager.fetch("CPP_Spidermonkey/scope_definition", { scopeName: scopeObj.name, scopeContent: cpp_scopeContent});
 		
 		// ------ result ------
 		if(isInline)
 		{
 			return { isInline: true,
-			         hpp_scope_definition: hpp_scope_definition};
+			         hpp_scope_definition: hpp_scope_definition,
+					 cpp_scope_definition: cpp_scope_definition,
+					 scopeName: scopeObj.name,
+					 cppIncludes: cppIncludes};
 		}
 		else
 		{
-			var nameChain = this.getNameChain();
-			var includeGuard = "JSWRAP_"
-			var fileName = "";
-			for(var i = 0; i < nameChain.length; ++i)
-			{
-				includeGuard += nameChain[i];
-				fileName += nameChain[i];
-				
-				
-				if(i != nameChain.length - 1)
-				{
-					includeGuard += "_";
-					fileName += "/";
-					
-					hpp_scope_definition = TemplateManager.fetch("CPP_Spidermonkey/scope_definition", { scopeName: nameChain[i], scopeContent: hpp_scope_definition});
-					cpp_scope_definition = TemplateManager.fetch("CPP_Spidermonkey/scope_definition", { scopeName: nameChain[i], scopeContent: cpp_scope_definition});
-				}
-				else
-				{
-					includeGuard += "_HPP";
-					includeGuard = includeGuard.toUpperCase();
-				}
-			}
+			var fileName = "";	
+			for(var i = nameChain.length - 1; i >= 0 ; --i)
+				fileName = nameChain[i] + ((i !== nameChain.length-1) ? "/" : "") + fileName;
 			
-			cppIncludes.push(fileName + ".hpp");
+			cppIncludes.push('#include "' + fileName + '.hpp"');
 			
-			// TODO: includes
-			var cppIncludeList = "";
-			for(var i = 0; i < cppIncludes.length; ++i)
-			{
-				cppIncludeList += 'include "' + cppIncludes[i] + '"';
-			}
+			// TODO: include-templates
 			
-			var hpp_file_for_scope = TemplateManager.fetch("CPP_Spidermonkey/hpp_file_for_scope", {includeGuard: includeGuard, scopeDefinition: hpp_scope_definition});
-			files[fileName + ".hpp"] = hpp_file_for_scope;
-			
-			var cpp_file_for_scope = TemplateManager.fetch("CPP_Spidermonkey/cpp_file_for_scope", {includes: cppIncludeList, scopeDefinition: cpp_scope_definition});
-			files[fileName + ".cpp"] = cpp_file_for_scope;
+			// creating the files
+			files[fileName + ".hpp"] = TemplateManager.fetch("CPP_Spidermonkey/hpp_file_for_scope", {scopeDefinition: hpp_scope_definition, nameChain: nameChain});
+			files[fileName + ".cpp"] = TemplateManager.fetch("CPP_Spidermonkey/cpp_file_for_scope", {includes: cppIncludes, scopeDefinition: cpp_scope_definition, nameChain: nameChain});
 			
 			return { isInline: false,
-			         files: files};
+			         files: files,
+					 scopeName: scopeObj.name,
+					 hppFileName: fileName + ".hpp"};
 		}
 	},
 	
@@ -381,5 +441,6 @@ TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/hpp_file_for_scope");
 TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/hpp_scope_content_class");
 TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/hpp_scope_content_init");
 TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/cpp_file_for_scope");
-TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/cpp_scope_content");
+TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/cpp_scope_content_object");
+TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/scope_init_call");
 //log();

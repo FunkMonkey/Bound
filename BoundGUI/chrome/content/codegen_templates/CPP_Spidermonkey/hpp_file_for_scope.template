@@ -3,16 +3,34 @@
 "description":"",
 	
 "templateCode":
-"#ifndef {$includeGuard}
-#define {$includeGuard}
+"
+{$incGuard = 'JSWRAP'}
+{section name=nameChainIdx loop=$nameChain.length}
+{$incGuard = $incGuard + '_' + $nameChain[nameChainIdx]}
+{/section}
+{$incGuard = $incGuard + '_HPP'}{*
+
+*}#ifndef {$incGuard|upper}
+#define {$incGuard|upper}
 
 #include \"jsapi.h\"
 
 namespace jswrap
 {
-{$scopeDefinition|indent:1:\"\\t\"}
+{section name=nameChainIdx2 loop=$nameChain.length}
+{if !{$smarty.section.nameChainIdx2.last}}
+{'\\t'|str_repeat:{$smarty.section.nameChainIdx2.index+1}}namespace {$nameChain[nameChainIdx2]}
+{'\\t'|str_repeat:{$smarty.section.nameChainIdx2.index+1}}{
+{/if}
+{/section}
+{$scopeDefinition|indent:{$nameChain.length}:\"\\t\"}
+{section name=nameChainIdx3 loop=$nameChain.length step=-1}
+{if not {$smarty.section.nameChainIdx3.last}}
+{'\\t'|str_repeat:{$smarty.section.nameChainIdx3.index+1}}}
+{/if}
+{/section}
 }
 
-#endif // {$includeGuard}"
+#endif // {$incGuard|upper}"
 
 }

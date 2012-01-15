@@ -82,17 +82,20 @@ var TemplateManager = {
 			this._templates[templateName] = template;
 			return template;
 			
-		} else if(typeof(template) === "String")
+		}
+		else if(typeof(template) === "String")
 		{
 			var newTemplate = new jSmart(template);
-			newTemplate.data = {templateCode: template};
+			newTemplate.userdata = {templateCode: template};
+			newTemplate.name = templateName;
 			this._templates[templateName] = newTemplate;
 			return newTemplate;
 		}
 		else if(template && "templateCode" in template)
 		{
 			var newTemplate = new jSmart(template.templateCode);
-			newTemplate.data = template;
+			newTemplate.userdata = template;
+			newTemplate.name = templateName;
 			this._templates[templateName] = newTemplate;
 			return newTemplate;
 		}

@@ -1,0 +1,42 @@
+{
+"description":"",
+	
+"templateCode":
+"{$fullNamespace='::jswrap'}{section name=nameChainIdx loop=$nameChain.length}
+{$fullNamespace=$fullNamespace+'::'+{$nameChain[nameChainIdx]}}
+{/section}
+{if $inlineScopes.length > 0}{section name=inlineScopeIdx loop=$inlineScopes.length}
+{$inlineScopes[inlineScopeIdx]}
+{/section}
+
+{/if}{if $wrapperFunctions.length > 0}{section name=wrapperFunctionIdx loop=$wrapperFunctions.length}
+{$wrapperFunctions[wrapperFunctionIdx]}
+{/section}
+
+{/if}{if $functionDefs.length > 0}JSFunctionSpec functionsDefs[] = {
+{section name=functionDefIdx loop=$functionDefs.length}
+		{$functionDefs[functionDefIdx]}
+{/section}
+		JS_FS_END
+	};
+{/if}
+
+JSBool init(JSContext* cx, JSObject* scope)
+{ 
+{if $newObjectName}{assign var='defScope' value='newObj'}{else}{assign var='defScope' value='scope'}{/if}
+{if $newObjectName}	JSObject* newObj = JS_DefineObject(cx, scope, \"{$newObjectName}\", NULL, NULL, 0);
+	if(!newObj)
+		return false;
+		
+{/if}{if $functionDefs.length > 0}	if(!JS_DefineFunctions(cx, {$defScope}, functionsDefs))
+		return false;
+		
+{/if}{if $initCalls.length > 0}{section name=initCallIdx loop=$initCalls.length}
+	{$fullNamespace}::{$initCalls[initCallIdx]}::init(cx, {$defScope});
+{/section}
+
+{/if}
+	return true;
+}"
+
+}

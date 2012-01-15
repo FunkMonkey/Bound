@@ -1,0 +1,7 @@
+{
+"description":"",
+	
+"templateCode":
+"{$scopeName}::init(cx, {$parentScopeObjectName})"
+
+}
