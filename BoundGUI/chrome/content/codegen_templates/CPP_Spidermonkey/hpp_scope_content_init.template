@@ -3,6 +3,27 @@
 "description":"",
 	
 "templateCode":
-"JSBool init(JSContext* cx, JSObject* scope);"
+"namespace {$namespaceName}
+{
+{if $childScopesContent}{$childScopesContent|indent:1:'\\t'}
+{/if}	JSBool init(JSContext* cx, JSObject* scope);
+}",
+
+"customFunctionsSource": {
+
+	"childScopesContent":	
+		["data", "
+			var childScopesContent = '';
+			for(var i = 0; i < data.childScopes.length; ++i)
+				if(data.childScopes[i].isInline)
+					childScopesContent += data.childScopes[i].hpp_scope_definition + '\\n\\n'
+			data.childScopesContent = childScopesContent;
+		"],
+
+	"namespaceName":	
+		["data", "
+			data.namespaceName = data.nameChain[data.nameChain.length-1];
+		"]
+}
 
 }

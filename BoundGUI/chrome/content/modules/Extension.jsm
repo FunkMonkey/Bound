@@ -87,7 +87,30 @@ var Extension =
 				borrowedProps[propNames[j]] = true;
 			}
 		}
+	},
+	
+	/**
+	 * Creates an instance of the given class with arguments given as an array
+	 *    see http://www.bennadel.com/blog/2291-Invoking-A-Native-JavaScript-Constructor-Using-Call-Or-Apply-.htm
+	 * 
+	 * @param   {Function}   constructorFunc   Constructor function
+	 * @param   {Array}      arguments         Array of arguments
+	 * 
+	 * @returns {Object}   Newly created object
+	 */
+	createInstance: function createInstance(constructorFunc, args)
+	{
+		// Create an object that extends the target prototype
+		var newInstance = Object.create(constructorFunc.prototype);
+		
+		// Invoke the custom constructor on the new object,
+		// passing in any arguments that were provided.
+		newInstance = (constructorFunc.apply( newInstance, args ) || newInstance);
+		
+		// Return the newly created friend.
+		return newInstance;
 	}
+	
 };
 
 Extension.borrow.stdOptions = {

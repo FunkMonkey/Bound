@@ -27,6 +27,10 @@
 	JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, \"{$error_source}\")
 	
 	return true;
-}"
+}",
+
+"customFunctionsSource": {
+	"doWhatever":	["param", "return {name: 'foo'};"]
+}
 
 }

@@ -2,41 +2,70 @@
 "description":"",
 	
 "templateCode":
-"{$fullNamespace='::jswrap'}{section name=nameChainIdx loop=$nameChain.length}
-{$fullNamespace=$fullNamespace+'::'+{$nameChain[nameChainIdx]}}
-{/section}
-{if $inlineScopes.length > 0}{section name=inlineScopeIdx loop=$inlineScopes.length}
-{$inlineScopes[inlineScopeIdx]}
-{/section}
+"
+namespace {$namespaceName}
+{
+	{if $inlineScopes.length > 0}{section name=inlineScopeIdx loop=$inlineScopes.length}
+	{$inlineScopes[inlineScopeIdx]}
+	{/section}
 
-{/if}{if $wrapperFunctions.length > 0}{section name=wrapperFunctionIdx loop=$wrapperFunctions.length}
-{$wrapperFunctions[wrapperFunctionIdx]}
-{/section}
+	{/if}{if $wrapperFunctions.length > 0}{section name=wrapperFunctionIdx loop=$wrapperFunctions.length}
+	{$wrapperFunctions[wrapperFunctionIdx]}
+	{/section}
 
-{/if}{if $functionDefs.length > 0}JSFunctionSpec functionsDefs[] = {
-{section name=functionDefIdx loop=$functionDefs.length}
-		{$functionDefs[functionDefIdx]}
-{/section}
-		JS_FS_END
-	};
-{/if}
+	{/if}{if $functionDefs.length > 0}JSFunctionSpec functionsDefs[] = {
+	{section name=functionDefIdx loop=$functionDefs.length}
+			{$functionDefs[functionDefIdx]}
+	{/section}
+			JS_FS_END
+		};
+	{/if}
 
-JSBool init(JSContext* cx, JSObject* scope)
-{ 
-{if $newObjectName}{assign var='defScope' value='newObj'}{else}{assign var='defScope' value='scope'}{/if}
-{if $newObjectName}	JSObject* newObj = JS_DefineObject(cx, scope, \"{$newObjectName}\", NULL, NULL, 0);
-	if(!newObj)
-		return false;
-		
-{/if}{if $functionDefs.length > 0}	if(!JS_DefineFunctions(cx, {$defScope}, functionsDefs))
-		return false;
-		
-{/if}{if $initCalls.length > 0}{section name=initCallIdx loop=$initCalls.length}
-	{$fullNamespace}::{$initCalls[initCallIdx]}::init(cx, {$defScope});
-{/section}
+	JSBool init(JSContext* cx, JSObject* scope)
+	{ 
+	{if $newObjectName}	JSObject* newObj = JS_DefineObject(cx, scope, \"{$newObjectName}\", NULL, NULL, 0);
+		if(!newObj)
+			return false;
+			
+	{/if}{if $functionDefs.length > 0}	if(!JS_DefineFunctions(cx, {$defScope}, functionsDefs))
+			return false;
+	{/if}{if $initCalls}{$initCalls|indent:1:'\\t'}{/if}
+		return true;
+	}
+}",
 
-{/if}
-	return true;
-}"
+"customFunctionsSource": {
+
+	"namespaceName":	
+		["data", "
+			data.namespaceName = data.nameChain[data.nameChain.length-1];
+		"],
+
+	"fullNamespace":	
+		["data", "
+			var fullNamespace = '::jswrap';
+			for(var i = 0; i < data.nameChain.length; ++i)
+				fullNamespace += '::' + data.nameChain[i];
+			
+			data.fullNamespace = fullNamespace;
+		"],
+	
+	"defScope":	
+		["data", "
+			data.defScope = (data.newObjectName == null) ? 'scope' : 'newObj';
+		"],
+	
+	"initCalls":	
+		["data", "
+			if(data.childScopes.length == 0)
+				return;
+				
+			var initCalls = '';
+			for(var i = 0; i < data.childScopes.length; ++i)
+				initCalls += data.fullNamespace + '::init(cx, ' + data.defScope + ');\\n';
+			
+			data.initCalls = initCalls;
+		"]
+}
 
 }

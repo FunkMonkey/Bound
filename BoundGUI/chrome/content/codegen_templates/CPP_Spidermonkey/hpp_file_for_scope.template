@@ -4,33 +4,37 @@
 	
 "templateCode":
 "
-{$incGuard = 'JSWRAP'}
-{section name=nameChainIdx loop=$nameChain.length}
-{$incGuard = $incGuard + '_' + $nameChain[nameChainIdx]}
-{/section}
-{$incGuard = $incGuard + '_HPP'}{*
-
-*}#ifndef {$incGuard|upper}
-#define {$incGuard|upper}
+#ifndef {$incGuard}
+#define {$incGuard}
 
 #include \"jsapi.h\"
 
 namespace jswrap
 {
-{section name=nameChainIdx2 loop=$nameChain.length}
-{if !{$smarty.section.nameChainIdx2.last}}
-{'\\t'|str_repeat:{$smarty.section.nameChainIdx2.index+1}}namespace {$nameChain[nameChainIdx2]}
-{'\\t'|str_repeat:{$smarty.section.nameChainIdx2.index+1}}{
-{/if}
-{/section}
-{$scopeDefinition|indent:{$nameChain.length}:\"\\t\"}
-{section name=nameChainIdx3 loop=$nameChain.length step=-1}
-{if not {$smarty.section.nameChainIdx3.last}}
-{'\\t'|str_repeat:{$smarty.section.nameChainIdx3.index+1}}}
-{/if}
-{/section}
+{$scopeDefFull}
 }
 
-#endif // {$incGuard|upper}"
+#endif // {$incGuard}",
+
+"customFunctionsSource": {
+
+	"init":	
+		["data", "
+			var incGuard = 'JSWRAP_';
+			var scopeDefFull = '';
+			var rest = '';
+			for(var i = 0; i < data.nameChain.length - 1; ++i)
+			{
+				incGuard += data.nameChain[i] + '_'
+			
+			    var tabs = new Array(i+1).join('');
+				scopeDefFull += tabs + 'namespace ' + data.nameChain[i] + '\\n' + tabs + '{\\n';
+				rest += tabs + '}\\n';
+			}
+			
+			data.incGuard = (incGuard + data.nameChain[data.nameChain.length-1] + '_HPP').toUpperCase();
+			data.scopeDefFull = scopeDefFull + data.scopeDefinition + '\\n' + rest;
+		"]
+}
 
 }

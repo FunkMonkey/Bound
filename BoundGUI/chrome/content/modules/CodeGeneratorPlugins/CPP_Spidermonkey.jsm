@@ -234,7 +234,8 @@ CodeGenerator_Function.prototype = {
 			}
 		}
 		
-		return {  isStatic: true,
+		return {  isFunction: true,
+				  isStatic: true,
 		  		  wrapper_function_code: tFunction.fetch(data),
 		          define_code:           tFunctionDefine.fetch(defineData),
 				  includeFiles:          includeFiles}; // TODO: return as the data itself (name, etc)
@@ -292,7 +293,7 @@ CodeGenerator_Object.prototype = {
 		var cppIncludes = [];
 		var files = {};
 		
-		var subScopes = [];
+		var childScopes = [];
 		var nonScopeElements = [];
 		
 		// adding children recursively
@@ -305,7 +306,7 @@ CodeGenerator_Object.prototype = {
 				var childCode = childCodeGen.generate();
 				if(childCodeGen instanceof CodeGenerator_Object)
 				{
-					subScopes.push(childCode)
+					childScopes.push(childCode)
 				}
 				else if(childCodeGen instanceof CodeGenerator_Function)
 				{
@@ -317,59 +318,45 @@ CodeGenerator_Object.prototype = {
 		
 		cppIncludes = eliminateDuplicates(cppIncludes);
 		
-		// ------ header ------
-		var hpp_scopeContent = "";
+		// ------ hpp ------
 		
-		// adding inline children
-		var hppInlineScopes = []; // TODO: pass subscopes as array (with all hpp and cpp)
-		for(var i = 0; i < subScopes.length; ++i)
-		{
-			if(subScopes[i].isInline)
-				hpp_scopeContent += subScopes[i].hpp_scope_definition + "\n\n"; // TODO: array
-		}
-		
-		// TODO: merge
-		hpp_scopeContent += TemplateManager.fetch("CPP_Spidermonkey/hpp_scope_content_init", {});
-		var hpp_scope_definition = TemplateManager.fetch("CPP_Spidermonkey/scope_definition", { scopeName: scopeObj.name, scopeContent: hpp_scopeContent});
-		
+		var hpp_scope_definition = TemplateManager.fetch("CPP_Spidermonkey/hpp_scope_content_init", { childScopes: childScopes,
+																									  nameChain: nameChain});
 		// ------ cpp ------
 		
 		// adding inline children and making initcall
-		var initCalls = [];
 		var cppInlineScopes = [];
-		for(var i = 0; i < subScopes.length; ++i)
+		for(var i = 0; i < childScopes.length; ++i)
 		{
-			if(subScopes[i].isInline)
+			if(childScopes[i].isInline)
 			{
-				cppInlineScopes.push(subScopes[i].cpp_scope_definition);
+				cppInlineScopes.push(childScopes[i].cpp_scope_definition);
 				cppIncludes.push.apply(cppIncludes, childCode.cppIncludes);
 			}
 			else
 			{
 				cppIncludes.push('#include "' + childCode.hppFileName + '"');
 			}
-			
-			initCalls.push(subScopes[i].scopeName); // TODO: use scopes array instead of initCalls
 		}
 			
 		// wrapper code
 		var functionDefs = []
 		var wrapperFunctions = [];
+		var childFunctions = [];
 		for(var i = 0; i < nonScopeElements.length; ++i) // TODO: move up!
 		{
 			wrapperFunctions.push(nonScopeElements[i].wrapper_function_code);
 			functionDefs.push(nonScopeElements[i].define_code)
 		}
 		
-		// TODO: merge
-		var cpp_scopeContent = TemplateManager.fetch("CPP_Spidermonkey/cpp_scope_content_object", { inlineScopes: cppInlineScopes,
-			                                                                                        initCalls: initCalls,
+		var cpp_scope_definition = TemplateManager.fetch("CPP_Spidermonkey/cpp_scope_content_object", { codeGen: this,
+																									inlineScopes: cppInlineScopes,
+													                                                childScopes: childScopes,
+																									childFunctions: childFunctions,
 												                                                    wrapperFunctions: wrapperFunctions,
 		                                                                                            functionDefs: functionDefs,
 																									nameChain: nameChain,
 																						    	    newObjectName: (scopeObj.parent == null) ? null : scopeObj.name});
-		var cpp_scope_definition = TemplateManager.fetch("CPP_Spidermonkey/scope_definition", { scopeName: scopeObj.name, scopeContent: cpp_scopeContent});
-		
 		// ------ result ------
 		if(isInline)
 		{

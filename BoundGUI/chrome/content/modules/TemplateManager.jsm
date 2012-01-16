@@ -97,6 +97,19 @@ var TemplateManager = {
 			newTemplate.userdata = template;
 			newTemplate.name = templateName;
 			this._templates[templateName] = newTemplate;
+			
+			if("customFunctionsSource" in template)
+			{
+				var funcs = {};
+				for(var funcName in template.customFunctionsSource)
+					funcs[funcName] = Function.apply(null, template.customFunctionsSource[funcName]);
+				
+				newTemplate.userdata.customFunctions = funcs;
+			}
+			
+			newTemplate._fetch = newTemplate.fetch;
+			newTemplate.fetch = this._templateFetch;
+			
 			return newTemplate;
 		}
 		else
@@ -104,6 +117,18 @@ var TemplateManager = {
 			// TODO: throw exception
 			return null;
 		}
+	},
+	
+	_templateFetch: function fetch(data)
+	{
+		if("customFunctions" in this.userdata)
+		{
+			for(var funcName in this.userdata.customFunctions)
+			{
+				this.userdata.customFunctions[funcName](data);
+			}
+		}
+		return this._fetch(data);
 	},
 	
 	/**
