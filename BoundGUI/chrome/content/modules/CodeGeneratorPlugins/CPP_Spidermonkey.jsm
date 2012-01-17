@@ -364,14 +364,14 @@ CodeGenerator_Object.prototype = {
 			for(var i = nameChain.length - 1; i >= 0 ; --i)
 				fileName = nameChain[i] + ((i !== nameChain.length-1) ? "/" : "") + fileName;
 			
-			cppIncludes.push('#include "' + fileName + '.hpp"');
+			cppIncludes.push('#include "{$project_include_dir}' + fileName + '.hpp"');
 			
 			for(var i = 0; i < cppIncludes.length; ++i)
 				cppIncludes[i] = (new TemplateManager.jSmart(cppIncludes[i])).fetch({});
 			
 			// creating the files
-			files[fileName + ".hpp"] = TemplateManager.fetch("CPP_Spidermonkey/hpp_file_for_scope", {codeGen: this, includes: hppIncludes, scopeDefinition: hpp_scope_definition, nameChain: nameChain});
-			files[fileName + ".cpp"] = TemplateManager.fetch("CPP_Spidermonkey/cpp_file_for_scope", {codeGen: this, includes: cppIncludes, scopeDefinition: cpp_scope_definition, nameChain: nameChain});
+			files["include/" + fileName + ".hpp"] = TemplateManager.fetch("CPP_Spidermonkey/hpp_file_for_scope", {codeGen: this, includes: hppIncludes, scopeDefinition: hpp_scope_definition, nameChain: nameChain});
+			files["src/"     + fileName + ".cpp"] = TemplateManager.fetch("CPP_Spidermonkey/cpp_file_for_scope", {codeGen: this, includes: cppIncludes, scopeDefinition: cpp_scope_definition, nameChain: nameChain});
 			
 			return { codeGen: this,
 					 isInline: false,

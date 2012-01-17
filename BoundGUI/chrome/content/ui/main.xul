@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://bound/skin/main.css" type="text/css"?>
 <?xml-stylesheet href="chrome://bound/skin/DOMTree.css" type="text/css"?>
 
 <window id="main" title="My App" width="300" height="300" persist="screenX screenY width height" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
@@ -16,15 +17,22 @@
 		  </menu>
 	  </menubar>
 	</toolbox>
+	<toolbox>
+		<toolbar>
+			<toolbarbutton label="Testing" oncommand="addAfterSelection();"></toolbarbutton>
+			<toolbarbutton label="Export" oncommand="exportFiles();"></toolbarbutton>
+		</toolbar>
+	</toolbox>
 	
 	<vbox  flex="1">
-		<button label="Testing" oncommand="addAfterSelection();"/>
 		<hbox  flex="1">
 			<vbox id="cppTree" width="200"  />
 			<vbox id="exportTree" width="200" />
-			<tabbox id="results" flex="1">
-				<tabs id="resultTabs">
-				</tabs>
+			<tabbox id="resultTabbox" flex="1">
+				<arrowscrollbox allowevents="true" class="tabbrowser-arrowscrollbox" orient="horizontal">
+					<tabs id="resultTabs">
+					</tabs>
+				</arrowscrollbox>
 				<tabpanels id="resultTabPanels" flex="1">
 				</tabpanels>
 			</tabbox>

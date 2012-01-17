@@ -13,6 +13,9 @@ Cu.import("chrome://bound/content/modules/DOMTree.jsm");
 
 Cu.import("chrome://bound/content/modules/Extension.jsm");
 
+Components.utils.import("resource://gre/modules/Services.jsm");
+Cu.import("chrome://bound/content/modules/FileIO.jsm");
+
 
 
 var ASTObjects = {
@@ -49,7 +52,7 @@ var exportAST = null;
 var $exportASTTree = null;
 
 var $resultCode = null;
-var $results = null;
+var $resultTabbox = null;
 var $resultTabs = null;
 var $resultTabPanels = null;
 
@@ -123,11 +126,11 @@ function onDrop(event)
 	
 	if(codeGenConstructor)
 	{
-		
 		var exportASTObject = new ASTObjects.Export.Export_ASTObject(exportParent, data.name, data);
 		exportParent.addChild(exportASTObject);
 		exportASTObject.addCodeGenerator(new codeGenConstructor(plugin));
 		var $newRow = $exportASTTree.createAndAppendRow($parentNode, false, exportASTObject);
+		$exportASTTree.select($newRow);
 		
 		printCodeGenResult(exportASTObject);
 		
@@ -165,6 +168,8 @@ function printCodeGenResult(exportASTObject)
 			
 			var $newTab = document.createElement("tab");
 			$newTab.setAttribute("label", fileName);
+			$newTab.setAttribute("tooltiptext", fileName);
+			$newTab.setAttribute("crop", "start");
 			$resultTabs.appendChild($newTab);
 			
 			var $newTabPanel = document.createElement("tabpanel");
@@ -200,6 +205,44 @@ function printCodeGenResult(exportASTObject)
 		
 		$newTextbox.value = textResult;
 	}
+	
+	$resultTabbox.selectedIndex = 0;
+}
+
+function exportFiles()
+{
+	const nsIFilePicker = Components.interfaces.nsIFilePicker;
+	const nsIFile = Components.interfaces.nsIFile;
+
+	var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+	fp.init(window, "Open directory", nsIFilePicker.modeGetFolder);
+	
+	var rv = fp.show();
+	if (rv == nsIFilePicker.returnOK || rv == nsIFilePicker.returnReplace)
+	{
+		var dir = fp.file;
+		
+		// save the files
+		var genResult = exportAST.root.getCodeGenerator(currentContext).generate();
+		
+		if(!("files" in genResult))
+			return;
+		
+		for(var fileName in genResult.files)
+		{
+			var file = dir.clone();
+			var split = fileName.split("/");
+			
+			for(var i = 0; i < split.length; ++i)
+				if(split[i] !== "")
+					file.append(split[i]);
+					
+			if(!file.exists())
+				file.create(nsIFile.NORMAL_FILE_TYPE, FileIO.PERMS_FILE);
+			
+			FileIO.writeTextFile(genResult.files[fileName], file);
+		}
+	}
 }
 
 function exportTree_onClick(event)
@@ -212,13 +255,14 @@ function exportTree_onClick(event)
 
 function testParsing()
 {
-	$resultCode = document.getElementById("resultCode");
-	$results = document.getElementById("results");
+	$resultTabbox = document.getElementById("resultTabbox");
 	$resultTabs = document.getElementById("resultTabs");
 	$resultTabPanels = document.getElementById("resultTabPanels");
 	
 	// ----- C++ -----
 	cppAST = CPPAnalyzer.parse_header(["supertest", "D:\\Data\\Projekte\\Bound\\src\\CPPAnalyzer\\Test\\test1.cpp"]);
+	//cppAST = CPPAnalyzer.parse_header(["supertest", "D:\\Data\\Projekte\\Bound\\src\\Wrapping\\Spidermonkey\\include\\Functions_BasicTypes.hpp"]);
+	
 
 	$cppASTTree = new DOMTree(document, document.getElementById("cppTree"), dataCB);
 	
@@ -230,7 +274,7 @@ function testParsing()
 	
 	// ----- export tree -----
 	exportAST = {};
-	exportAST.root = new ASTObjects.Export.Export_ASTObject(null, "ProjectName", cppAST.root);
+	exportAST.root = new ASTObjects.Export.Export_ASTObject(null, "wrap_Test", cppAST.root);
 	
 	var spidermonkeyPlugin = new Plugin_CPP_Spidermonkey();
 	var codeGenConstructor = spidermonkeyPlugin.getCodeGeneratorByASTObject(cppAST.root);

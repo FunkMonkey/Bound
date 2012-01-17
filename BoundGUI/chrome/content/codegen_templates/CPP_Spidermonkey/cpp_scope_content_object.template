@@ -80,7 +80,7 @@ namespace {$namespaceName}
 				
 			var initCalls = '';
 			for(var i = 0; i < data.childScopes.length; ++i)
-				initCalls += data.fullNamespace + '::init(cx, ' + data.defScope + ');\\n';
+				initCalls += data.fullNamespace + '::' + data.childScopes[i].scopeName + '::init(cx, ' + data.defScope + ');\\n';
 			
 			data.initCalls = initCalls;
 		"]
