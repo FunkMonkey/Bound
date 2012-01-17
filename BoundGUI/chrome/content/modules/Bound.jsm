@@ -7,6 +7,19 @@ const Cu = Components.utils;
 
 
 var Bound = {
+	
+	/**
+	 * Initializes the application
+	 * 
+	 * @param   {Object}   mainWindowModule   Main-window JSM
+	 */
+	init: function init(mainWindow)
+	{
+		this.MainWindow = mainWindow;
+		this.currentContext = "CPP_Spidermonkey";
+	}, 
+	
+	
 	quit: function quit(aForceQuit)
 	{
 		var appStartup = Cc["@mozilla.org/toolkit/app-startup;1"].getService(Ci.nsIAppStartup);

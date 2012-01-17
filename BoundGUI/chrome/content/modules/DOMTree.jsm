@@ -17,7 +17,7 @@ function TreeRow()
 
 function DOMTree(document, vbox, dataCB)
 {
-	this.document = document;
+	this.document = document;	// TODO: use document from vbox
 	this.box = vbox;
 	this.box.isDOMTree = true;
 	
