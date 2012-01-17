@@ -173,9 +173,9 @@ CodeGenerator_Function.prototype = {
 		var usedTemplates = [];
 		
 		var tFunction = TemplateManager.getTemplate("CPP_Spidermonkey/function");
-		var tFunctionDefine = TemplateManager.getTemplate("CPP_Spidermonkey/function_define");
+		//var tFunctionDefine = TemplateManager.getTemplate("CPP_Spidermonkey/function_define");
 		usedTemplates.push(tFunction);
-		usedTemplates.push(tFunctionDefine);
+		//usedTemplates.push(tFunctionDefine);
 		
 		var astFunc = this.exportObject.sourceObject;
 		
@@ -205,11 +205,11 @@ CodeGenerator_Function.prototype = {
 			funcName: this.exportObject.sourceObject.name,
 		}
 		
-		var defineData = {
-			wrapper_funcName: data.wrapper_funcName,
-			funcName: this.exportObject.name,
-			num_params: astFunc.parameters.length
-		}
+		//var defineData = {
+		//	wrapper_funcName: data.wrapper_funcName,
+		//	funcName: this.exportObject.name,
+		//	num_params: astFunc.parameters.length
+		//}
 		
 		if(astFunc.returnTypeCanonical.kind !== "Void")
 		{
@@ -236,8 +236,11 @@ CodeGenerator_Function.prototype = {
 		
 		return {  isFunction: true,
 				  isStatic: true,
+				  numParams: astFunc.parameters.length,
 		  		  wrapper_function_code: tFunction.fetch(data),
-		          define_code:           tFunctionDefine.fetch(defineData),
+				  wrapper_function_name: data.wrapper_funcName,
+				  funcName: this.exportObject.name,
+		          //define_code:           tFunctionDefine.fetch(defineData),
 				  includeFiles:          includeFiles}; // TODO: return as the data itself (name, etc)
 	}, 
 };
@@ -290,11 +293,13 @@ CodeGenerator_Object.prototype = {
 		
 		// ------ children ------
 		
+		var hppIncludes = [];
 		var cppIncludes = [];
 		var files = {};
 		
 		var childScopes = [];
 		var nonScopeElements = [];
+		var childFunctions = [];
 		
 		// adding children recursively
 		for(var i = 0; i < scopeObj.children.length; ++i)
@@ -306,12 +311,25 @@ CodeGenerator_Object.prototype = {
 				var childCode = childCodeGen.generate();
 				if(childCodeGen instanceof CodeGenerator_Object)
 				{
-					childScopes.push(childCode)
+					childScopes.push(childCode);
+					
+					if(childCode.isInline)
+					{
+						cppIncludes.push.apply(cppIncludes, childCode.cppIncludes);
+					}
+					else
+					{
+						cppIncludes.push('#include "' + childCode.hppFileName + '"');
+						for(var file in childCode.files)
+							files[file] = childCode.files[file];
+					}
 				}
 				else if(childCodeGen instanceof CodeGenerator_Function)
 				{
 					nonScopeElements.push(childCode);
 					cppIncludes.push.apply(cppIncludes, childCode.includeFiles);
+					
+					childFunctions.push(childCode);
 				}
 			}
 		}
@@ -320,47 +338,21 @@ CodeGenerator_Object.prototype = {
 		
 		// ------ hpp ------
 		
-		var hpp_scope_definition = TemplateManager.fetch("CPP_Spidermonkey/hpp_scope_content_init", { childScopes: childScopes,
+		var hpp_scope_definition = TemplateManager.fetch("CPP_Spidermonkey/hpp_scope_content_init", { codeGen: this,
+																									  childScopes: childScopes,
 																									  nameChain: nameChain});
 		// ------ cpp ------
 		
-		// adding inline children and making initcall
-		var cppInlineScopes = [];
-		for(var i = 0; i < childScopes.length; ++i)
-		{
-			if(childScopes[i].isInline)
-			{
-				cppInlineScopes.push(childScopes[i].cpp_scope_definition);
-				cppIncludes.push.apply(cppIncludes, childCode.cppIncludes);
-			}
-			else
-			{
-				cppIncludes.push('#include "' + childCode.hppFileName + '"');
-			}
-		}
-			
-		// wrapper code
-		var functionDefs = []
-		var wrapperFunctions = [];
-		var childFunctions = [];
-		for(var i = 0; i < nonScopeElements.length; ++i) // TODO: move up!
-		{
-			wrapperFunctions.push(nonScopeElements[i].wrapper_function_code);
-			functionDefs.push(nonScopeElements[i].define_code)
-		}
-		
 		var cpp_scope_definition = TemplateManager.fetch("CPP_Spidermonkey/cpp_scope_content_object", { codeGen: this,
-																									inlineScopes: cppInlineScopes,
-													                                                childScopes: childScopes,
-																									childFunctions: childFunctions,
-												                                                    wrapperFunctions: wrapperFunctions,
-		                                                                                            functionDefs: functionDefs,
-																									nameChain: nameChain,
-																						    	    newObjectName: (scopeObj.parent == null) ? null : scopeObj.name});
+																										childScopes: childScopes,
+																										childFunctions: childFunctions,
+																										nameChain: nameChain,
+																										newObjectName: (scopeObj.parent == null) ? null : scopeObj.name});
 		// ------ result ------
 		if(isInline)
 		{
-			return { isInline: true,
+			return { codeGen: this,
+					 isInline: true,
 			         hpp_scope_definition: hpp_scope_definition,
 					 cpp_scope_definition: cpp_scope_definition,
 					 scopeName: scopeObj.name,
@@ -374,13 +366,15 @@ CodeGenerator_Object.prototype = {
 			
 			cppIncludes.push('#include "' + fileName + '.hpp"');
 			
-			// TODO: include-templates
+			for(var i = 0; i < cppIncludes.length; ++i)
+				cppIncludes[i] = (new TemplateManager.jSmart(cppIncludes[i])).fetch({});
 			
 			// creating the files
-			files[fileName + ".hpp"] = TemplateManager.fetch("CPP_Spidermonkey/hpp_file_for_scope", {scopeDefinition: hpp_scope_definition, nameChain: nameChain});
-			files[fileName + ".cpp"] = TemplateManager.fetch("CPP_Spidermonkey/cpp_file_for_scope", {includes: cppIncludes, scopeDefinition: cpp_scope_definition, nameChain: nameChain});
+			files[fileName + ".hpp"] = TemplateManager.fetch("CPP_Spidermonkey/hpp_file_for_scope", {codeGen: this, includes: hppIncludes, scopeDefinition: hpp_scope_definition, nameChain: nameChain});
+			files[fileName + ".cpp"] = TemplateManager.fetch("CPP_Spidermonkey/cpp_file_for_scope", {codeGen: this, includes: cppIncludes, scopeDefinition: cpp_scope_definition, nameChain: nameChain});
 			
-			return { isInline: false,
+			return { codeGen: this,
+					 isInline: false,
 			         files: files,
 					 scopeName: scopeObj.name,
 					 hppFileName: fileName + ".hpp"};
@@ -411,23 +405,23 @@ CodeGenerator_Object.prototype = {
 	
 };
 
-TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/function");
-TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/function_define");
-TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/param_jsval_to_boolean");
-TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/param_jsval_to_int");
-TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/param_jsval_to_uint");
-TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/param_jsval_to_float");
-
-TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/return_void");
-TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/return_boolean");
-TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/return_int");
-TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/return_float");
-
-TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/scope_definition");
-TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/hpp_file_for_scope");
-TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/hpp_scope_content_class");
-TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/hpp_scope_content_init");
-TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/cpp_file_for_scope");
-TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/cpp_scope_content_object");
-TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/scope_init_call");
+//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/function");
+//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/function_define");
+//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/param_jsval_to_boolean");
+//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/param_jsval_to_int");
+//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/param_jsval_to_uint");
+//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/param_jsval_to_float");
+//
+//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/return_void");
+//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/return_boolean");
+//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/return_int");
+//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/return_float");
+//
+//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/scope_definition");
+//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/hpp_file_for_scope");
+//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/hpp_scope_content_class");
+//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/hpp_scope_content_init");
+//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/cpp_file_for_scope");
+//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/cpp_scope_content_object");
+//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/scope_init_call");
 //log();

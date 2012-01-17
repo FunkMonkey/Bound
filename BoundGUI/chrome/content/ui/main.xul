@@ -22,7 +22,12 @@
 		<hbox  flex="1">
 			<vbox id="cppTree" width="200"  />
 			<vbox id="exportTree" width="200" />
-			<textbox id="resultCode" flex="1" multiline="true"></textbox>
+			<tabbox id="results" flex="1">
+				<tabs id="resultTabs">
+				</tabs>
+				<tabpanels id="resultTabPanels" flex="1">
+				</tabpanels>
+			</tabbox>
 		</hbox>
 	</vbox>
 </window>

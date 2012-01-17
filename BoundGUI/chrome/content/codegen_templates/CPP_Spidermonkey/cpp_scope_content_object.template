@@ -5,31 +5,27 @@
 "
 namespace {$namespaceName}
 {
-	{if $inlineScopes.length > 0}{section name=inlineScopeIdx loop=$inlineScopes.length}
-	{$inlineScopes[inlineScopeIdx]}
-	{/section}
-
-	{/if}{if $wrapperFunctions.length > 0}{section name=wrapperFunctionIdx loop=$wrapperFunctions.length}
-	{$wrapperFunctions[wrapperFunctionIdx]}
-	{/section}
-
-	{/if}{if $functionDefs.length > 0}JSFunctionSpec functionsDefs[] = {
-	{section name=functionDefIdx loop=$functionDefs.length}
-			{$functionDefs[functionDefIdx]}
-	{/section}
+{if $childScopesContent}{$childScopesContent|indent:1:'\\t'}
+	
+{/if}{if $functionsWrapperCode}{$functionsWrapperCode|indent:1:'\\t'}
+	
+{/if}{if $functionsDefineCode}	JSFunctionSpec functionsDefs[] = {
+{$functionsDefineCode|indent:3:'\\t'}
 			JS_FS_END
 		};
-	{/if}
-
+	
+{/if}
 	JSBool init(JSContext* cx, JSObject* scope)
 	{ 
 	{if $newObjectName}	JSObject* newObj = JS_DefineObject(cx, scope, \"{$newObjectName}\", NULL, NULL, 0);
 		if(!newObj)
 			return false;
 			
-	{/if}{if $functionDefs.length > 0}	if(!JS_DefineFunctions(cx, {$defScope}, functionsDefs))
+{/if}{if functionsDefineCode}		if(!JS_DefineFunctions(cx, {$defScope}, functionsDefs))
 			return false;
-	{/if}{if $initCalls}{$initCalls|indent:1:'\\t'}{/if}
+			
+{/if}{if $initCalls}{$initCalls|indent:2:'\\t'}
+{/if}
 		return true;
 	}
 }",
@@ -39,6 +35,28 @@ namespace {$namespaceName}
 	"namespaceName":	
 		["data", "
 			data.namespaceName = data.nameChain[data.nameChain.length-1];
+		"],
+		
+	"childScopesContent":	
+		["data", "
+			var childScopesContent = '';
+			for(var i = 0; i < data.childScopes.length; ++i)
+				if(data.childScopes[i].isInline)
+					childScopesContent += data.childScopes[i].cpp_scope_definition + '\\n\\n'
+			data.childScopesContent = childScopesContent;
+		"],
+		
+	"functionCode":	
+		["data", "
+			var functionsWrapperCode = ''; var functionsDefineCode = '';
+			for(var i = 0; i < data.childFunctions.length; ++i)
+			{
+				var func = data.childFunctions[i];
+				functionsWrapperCode += func.wrapper_function_code + '\\n\\n';
+				functionsDefineCode += 'JS_FS(\"' + func.funcName + '\", ' + func.wrapper_function_name + ', ' + func.numParams + ', 0),\\n';
+			}
+			data.functionsWrapperCode = functionsWrapperCode;
+			data.functionsDefineCode = functionsDefineCode;
 		"],
 
 	"fullNamespace":	

@@ -2,7 +2,7 @@
 
 "description":"d",
 
-"includes": ["#include \"${cpp_spidermonkey_lib_include_dir}wrap_helpers/int_x.hpp\""],
+"includes": ["#include \"{$cpp_spidermonkey_lib_include_dir}wrap_helpers/int_x.hpp\""],
 	
 "templateCode":
 "{$param_type} {$param_name} = {if $cast}($param_type){/if}jsval_to_int32_x(cx, args[{$param_index}]);"

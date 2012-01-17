@@ -49,6 +49,9 @@ var exportAST = null;
 var $exportASTTree = null;
 
 var $resultCode = null;
+var $results = null;
+var $resultTabs = null;
+var $resultTabPanels = null;
 
 
 function dataCB(type, data, row)
@@ -133,30 +136,70 @@ function onDrop(event)
 	}
 }
 
+/**
+ * Removes all elements from the given element
+ * 
+ * @param   {element}   elem 
+ */
+function emptyDOMElement(elem)
+{
+	while(elem.firstChild)
+		elem.removeChild(elem.firstChild);
+}
+
+
 function printCodeGenResult(exportASTObject)
 {
 	var genResult = exportASTObject.getCodeGenerator(currentContext).generate();
+	
+	emptyDOMElement($resultTabs);
+	emptyDOMElement($resultTabPanels);
 		
-	var textResult = ""
+	
 	
 	if(genResult["files"])
 	{
 		for(var fileName in genResult["files"])
 		{
-			textResult += fileName + ":\n\n" + genResult["files"][fileName] + "\n\n";
+			//textResult += fileName + ":\n\n" + genResult["files"][fileName] + "\n\n";
+			
+			var $newTab = document.createElement("tab");
+			$newTab.setAttribute("label", fileName);
+			$resultTabs.appendChild($newTab);
+			
+			var $newTabPanel = document.createElement("tabpanel");
+			$resultTabPanels.appendChild($newTabPanel);
+			
+			var $newTextbox = document.createElement("textbox");
+			$newTextbox.setAttribute("flex", "1");
+			$newTextbox.setAttribute("multiline", "true");
+			$newTabPanel.appendChild($newTextbox);
+			
+			$newTextbox.value = genResult["files"][fileName];
 		}
 	}
 	else
 	{
+		var $newTab = document.createElement("tab");
+		$newTab.setAttribute("label", "Info");
+		$resultTabs.appendChild($newTab);
+		
+		var $newTabPanel = document.createElement("tabpanel");
+		$resultTabPanels.appendChild($newTabPanel);
+		
+		var $newTextbox = document.createElement("textbox");
+		$newTextbox.setAttribute("flex", "1");
+		$newTextbox.setAttribute("multiline", "true");
+		$newTabPanel.appendChild($newTextbox);
+		
+		var textResult = ""
 		for(var code in genResult)
 		{
 			textResult += code + ":\n\n" + genResult[code] + "\n\n";
 		}
+		
+		$newTextbox.value = textResult;
 	}
-	
-	
-	
-	$resultCode.value = textResult;
 }
 
 function exportTree_onClick(event)
@@ -169,7 +212,10 @@ function exportTree_onClick(event)
 
 function testParsing()
 {
-	$resultCode = document.getElementById("resultCode");	
+	$resultCode = document.getElementById("resultCode");
+	$results = document.getElementById("results");
+	$resultTabs = document.getElementById("resultTabs");
+	$resultTabPanels = document.getElementById("resultTabPanels");
 	
 	// ----- C++ -----
 	cppAST = CPPAnalyzer.parse_header(["supertest", "D:\\Data\\Projekte\\Bound\\src\\CPPAnalyzer\\Test\\test1.cpp"]);
@@ -199,7 +245,6 @@ function testParsing()
 }
 
 window.addEventListener("load", testParsing, true);
-
 
 
 

@@ -16,7 +16,11 @@ var TemplateFileNotExistingException =           createExceptionClass("TemplateF
 var TemplateManager = {
 	_templates: {},
 	
+	jSmart: jSmart,
+	
 	_templateSearchPaths: [],
+	
+	autoloadTemplates: true,
 	
 	/**
 	 * Adds a path for searching template files
@@ -236,7 +240,12 @@ var TemplateManager = {
 	fetch: function fetch(templateName, data)
 	{
 		if(!this._templates[templateName])
-			throw new TemplateNotFoundException(templateName);
+		{
+			if(this.autoloadTemplates)
+				return this.loadTemplateFromFile(templateName).fetch(data);
+			else
+				throw new TemplateNotFoundException(templateName);
+		}
 			
 		return this._templates[templateName].fetch(data);
 	},
@@ -248,8 +257,11 @@ var TemplateManager = {
 	 * 
 	 * @returns {boolean}   True if exists, otherwise false
 	 */
-	hasTemplate: function hasTemplate(templateName)
+	hasTemplate: function hasTemplate(templateName, autoLoad)
 	{
+		if(autoLoad)
+			this.loadTemplateFromFile(templateName);
+		
 		return (this._templates[templateName] == null) ? false : true;
 	},
 	
@@ -262,9 +274,29 @@ var TemplateManager = {
 	 */
 	getTemplate: function getTemplate(templateName)
 	{
-		return (this._templates[templateName] == null) ? null : this._templates[templateName];
+		if(this._templates[templateName] == null)
+		{
+			if(this.autoloadTemplates)
+				return this.loadTemplateFromFile(templateName);
+			else
+				return null;
+		}
+		
+		return this._templates[templateName];
 	}, 
 	
+	/**
+	 * Calls a custom function from a template
+	 * 
+	 * @param   {String}   templateName   Name of the template
+	 * @param   {String}   funcName       Name of the function to call
+	 * @param   {Object}   data           Data to pass to the custom function
+	 */
+	callTemplateFunction: function callTemplateFunction(templateName, funcName, data)
+	{
+		var temp = this.getTemplate(templateName);
+		temp.userdata.customFunctions[funcName].call(null, data);
+	}, 
 	
 	
 };
