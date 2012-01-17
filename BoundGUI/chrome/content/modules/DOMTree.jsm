@@ -61,21 +61,59 @@ DOMTree.prototype =
 	/**
 	 * Called when clicked on row content
 	 * 
-	 * @param   {DOMEvent}   event   Description
+	 * @param   {MouseEvent}   event   Description
 	 */
 	_onRowContentClicked: function _onRowContentClicked(event)
 	{
 		var row = event.currentTarget.parentNode;
+		var tree = row.tree;
+		
 		
 		// TODO: exclude twisty
 		// TODO: different keys
 		
-		row.tree.clearSelection();
-		
-		//if(row.hasAttribute("selected"))
-		//	row.tree.removeFromSelection(row);
-		//else
-			row.tree.addToSelection(row);
+		if(event.shiftKey)
+		{
+			if(tree.selection.length === 0)
+				tree.addToSelection(row);
+			else
+			{
+				var firstSelected = tree.selection[0];
+				tree.clearSelection();
+				
+				if(firstSelected.parentRow !== row.parentRow)
+				{
+					tree.addToSelection(firstSelected);
+					tree.addToSelection(row);
+				}
+				else
+				{
+					var nodeContainer = (row.parentRow == null) ? tree.box : row.parentRow.container;
+					var add = false;
+					for(var i = 0; i < nodeContainer.childNodes.length; ++i)
+					{
+						var child = nodeContainer.childNodes[i];
+						if(add)
+							tree.addToSelection(child);
+							
+						if(child === firstSelected || child === row)
+						{
+							if(add)
+								break;
+							else
+							{
+								tree.addToSelection(child);
+								add = true;
+							}
+						}
+					}
+				}
+			}
+		}
+		else if(!event.ctrlKey)
+			tree.clearSelection();
+			
+		tree.addToSelection(row);
 	},
 	
 	/**
@@ -85,8 +123,35 @@ DOMTree.prototype =
 	 */
 	_onRowContentDragStart: function _onRowContentDragStart(event)
 	{
-		event.dataTransfer.mozSetDataAt("application/x-tree-data", event.currentTarget.parentNode.data, 0);
-		event.dataTransfer.setDragImage(event.currentTarget, 0, 0);
+		/** @type element  */
+		var row = event.currentTarget.parentNode;
+		var tree = row.tree;
+		
+		var data = {
+			data: []
+		};
+		
+		// check if current node is in selection
+		if(row.hasAttribute("selected"))
+		{
+			// copy whole selection
+			
+			for(var i = 0; i < tree.selection.length; ++i)
+				data.data.push(tree.selection[i].data);
+			
+			event.dataTransfer.mozSetDataAt("application/x-tree-data", data, 0);
+			event.dataTransfer.setDragImage(event.currentTarget, 0, 0);
+		}
+		else
+		{
+			log("start");
+			tree.select(row);
+			data.data.push(event.currentTarget.parentNode.data);
+			event.dataTransfer.mozSetDataAt("application/x-tree-data", data, 0);
+			event.dataTransfer.setDragImage(event.currentTarget, 0, 0);
+		}
+		
+		
 	}, 
 	
 	
@@ -94,13 +159,12 @@ DOMTree.prototype =
 	/**
 	 * Adds the given row to the selection
 	 * 
-	 * @param   {DOMElement}   row
+	 * @param   {Element}   row
 	 */
 	addToSelection: function addToSelection(row)
 	{
-		for(var i = 0; i < this.selection.length; ++i)
-			if(this.selection[i] === row)
-				return;
+		if(row.hasAttribute("selected"))
+			return;
 			
 		this.selection.push(row);
 		
@@ -154,11 +218,11 @@ DOMTree.prototype =
 	/**
 	 * Creates a row for the tree
 	 * 
-	 * @param   {DOMElement}    parent        Parent node
+	 * @param   {Element}       parent        Parent node
 	 * @param   {boolean}       isContainer   Does it have a 
 	 * @param   {Object}        data          Private data
 	 * 
-	 * @returns {DOMElement}    newly created element
+	 * @returns {Element}    newly created element
 	 */
 	createRow: function createTreeRow(parent, isContainer, data)
 	{

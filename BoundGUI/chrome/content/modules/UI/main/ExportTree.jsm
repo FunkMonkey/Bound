@@ -52,7 +52,7 @@ var ExportTree = {
 
 function onDrop(event)
 {
-	var data = event.dataTransfer.mozGetDataAt("application/x-tree-data", 0);
+	var data = event.dataTransfer.mozGetDataAt("application/x-tree-data", 0).data;
 	
 	var $parentNode = null;
 	if(event.target !== this.$exportASTTree.box)
@@ -70,20 +70,23 @@ function onDrop(event)
 	
 	var plugin = exportParentCodeGen.plugin;
 	
-	var codeGenConstructor = plugin.getCodeGeneratorByASTObject(data, exportParentCodeGen);
-	
-	if(codeGenConstructor)
+	for(var i = 0; i < data.length; ++i)
 	{
-		var exportASTObject = new Export_ASTObject(exportParent, data.name, data);
-		exportParent.addChild(exportASTObject);
-		exportASTObject.addCodeGenerator(new codeGenConstructor(plugin));
-		var $newRow = this.$exportASTTree.createAndAppendRow($parentNode, false, exportASTObject);
-		this.$exportASTTree.select($newRow);
+		var codeGenConstructor = plugin.getCodeGeneratorByASTObject(data[i], exportParentCodeGen);
 		
-		MainWindow.ResultTabbox.displayCodeGenResult(exportASTObject);
-		
-		if($parentNode && !$parentNode.isContainerOpen)
-			$parentNode.toggleCollapse();
+		if(codeGenConstructor)
+		{
+			var exportASTObject = new Export_ASTObject(exportParent, data[i].name, data[i]);
+			exportParent.addChild(exportASTObject);
+			exportASTObject.addCodeGenerator(new codeGenConstructor(plugin));
+			var $newRow = this.$exportASTTree.createAndAppendRow($parentNode, false, exportASTObject);
+			this.$exportASTTree.select($newRow);
+			
+			MainWindow.ResultTabbox.displayCodeGenResult(exportASTObject);
+			
+			if($parentNode && !$parentNode.isContainerOpen)
+				$parentNode.toggleCollapse();
+		}
 	}
 }
 
