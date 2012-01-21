@@ -75,6 +75,14 @@ ASTObject.prototype = {
 	
 	kind: ASTObject.KIND_INVALID,
 	
+	get AST()
+	{
+		if(this._AST)
+			return this._AST;
+		else
+			return this.parent.AST;
+	},
+	
 	/**
 	 * Adds a child to the object, does overload resolution
 	 * 
@@ -119,7 +127,18 @@ ASTObject.prototype = {
 	getKindAsString: function getKindAsString(kind)
 	{
 		return ASTObject.getKindAsString((kind == null) ? this.kind : kind);
+	},
+	
+	/**
+	 * Returns a unique identifier that can be used to reference this AST_Object f. ex. when loading
+	 * 
+	 * @returns {String}   Reference identifier
+	 */
+	getReferenceID: function getReferenceID()
+	{
+		throw "No Reference Identifier given!";
 	}, 
+	
 	
 };
 

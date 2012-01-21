@@ -1,5 +1,6 @@
 
-var EXPORTED_SYMBOLS = ["CPP_ASTObject",
+var EXPORTED_SYMBOLS = ["CPP_AST",
+						"CPP_ASTObject",
 						"CPP_ASTType",
 						"CPP_ASTObject_Namespace",
 						"CPP_ASTObject_Struct",
@@ -21,6 +22,198 @@ Cu.import("chrome://bound/content/modules/log.jsm");
 Cu.import("chrome://bound/content/modules/Extension.jsm");
 Cu.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm");
 
+//======================================================================================
+
+/**
+ * Export_AST
+ *
+ * @constructor
+ */
+function CPP_AST()
+{
+	this.root = null;
+	this.astObjectsByID = {};
+}
+
+/**
+ * Creates a CPP_AST given a JSON compatible object
+ * 
+ * @param   {Object}   jsonObj   JSON compatible object
+ * 
+ * @returns {CPP_AST} New CPP_AST
+ */
+CPP_AST.createFromJSONObject = function createFromJSONObject(jsonObj)
+{
+	var result = new CPP_AST();
+	
+	result.root = result._addASTObjectFromJSON(null, jsonObj);
+	result.root._AST = result;
+	
+	return result;
+}
+
+/**
+ * Creates a CPP_AST given a JSON compatible object
+ * 
+ * @param   {String}   jsonStr   JSON compatible string
+ * 
+ * @returns {CPP_AST} New CPP_AST
+ */
+CPP_AST.createFromJSONString = function createFromJSONString(jsonStr)
+{
+	var result = CPP_AST.createFromJSONObject(JSON.parse(jsonStr));
+	result._jsonStr = jsonStr;
+	
+	return result;
+}
+
+CPP_AST.prototype = {
+	constructor: CPP_AST,
+
+	/**
+	* Creates an ASTType from JSON-data
+	* 
+	* @param   {Object}   jsonObject   The JSON-data
+	* 
+	* @returns {ASTType}   The newly created type
+	*/
+	_addASTTypeFromJSON: function _addASTTypeFromJSON(jsonObject)
+	{
+	   var astType = new CPP_ASTType(jsonObject.kind, this.astObjectsByID[jsonObject.declaration], jsonObject.isConst);
+	   
+	   if(jsonObject.pointsTo)
+		   astType.pointsTo = this._addASTTypeFromJSON(jsonObject.pointsTo);
+		   
+	   return astType;
+	}, 
+	
+	
+	/**
+	* Summary
+	* 
+	* @param   {ASTObject}   parent       The parent ASTObject
+	* @param   {Object}      jsonObject   The JSON-data
+	*
+	* @returns {ASTObject}   The newly created object
+	*/
+	_addASTObjectFromJSON: function _addASTObjectFromJSON(parent, jsonObject)
+	{
+	   var astObject = null;
+	   
+	   var type = null;
+	   var typeCanonical = null;
+	   
+	   switch(jsonObject.kind)
+	   {
+		   case "Namespace":
+			   astObject = new CPP_ASTObject_Namespace(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
+			   this.astObjectsByID[jsonObject.id] = astObject;
+			   break;
+		   
+		   case "Typedef":
+			   type = this._addASTTypeFromJSON(jsonObject.type);
+			   typeCanonical = this._addASTTypeFromJSON(jsonObject.typeCanonical);
+			   astObject = new CPP_ASTObject_Typedef(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical);
+			   this.astObjectsByID[jsonObject.id] = astObject;
+			   break;
+		   
+		   case "Struct":
+			   astObject = new CPP_ASTObject_Struct(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
+			   this.astObjectsByID[jsonObject.id] = astObject;
+			   
+			   for(var i = 0; i < jsonObject.bases.length; ++i)
+				   astObject.addBase(this.astObjectsByID[jsonObject.bases[i]], ASTObject.ACCESS_PUBLIC);
+			   
+			   break;
+		   
+		   case "Class":
+			   astObject = new CPP_ASTObject_Class(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
+			   this.astObjectsByID[jsonObject.id] = astObject;
+			   
+			   for(var i = 0; i < jsonObject.bases.length; ++i)
+				   astObject.addBase(this.astObjectsByID[jsonObject.bases[i]], ASTObject.ACCESS_PUBLIC);
+			   
+			   break;
+		   
+		   case "VariableDeclaration":
+			   type = this._addASTTypeFromJSON(jsonObject.type);
+			   typeCanonical = this._addASTTypeFromJSON(jsonObject.typeCanonical);
+			   astObject = new CPP_ASTObject_Var_Decl(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical);
+			   this.astObjectsByID[jsonObject.id] = astObject;
+			   break;
+		   
+		   case "Field":
+			   type = this._addASTTypeFromJSON(jsonObject.type);
+			   typeCanonical = this._addASTTypeFromJSON(jsonObject.typeCanonical);
+			   astObject = new CPP_ASTObject_Field(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical, ASTObject.getAccessFromString(jsonObject.access), false);
+			   this.astObjectsByID[jsonObject.id] = astObject;
+			   break;
+		   
+		   case "Function":
+			   type = this._addASTTypeFromJSON(jsonObject.returnType);
+			   typeCanonical = this._addASTTypeFromJSON(jsonObject.returnTypeCanonical);
+			   astObject = new CPP_ASTObject_Function(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical);
+			   this.astObjectsByID[jsonObject.id] = astObject;
+			   
+			   for(var i = 0; i < jsonObject.parameters.length; ++i)
+			   {
+				   type = this._addASTTypeFromJSON(jsonObject.parameters[i].type);
+				   typeCanonical = this._addASTTypeFromJSON(jsonObject.parameters[i].typeCanonical);
+				   var param = new CPP_ASTObject_Parameter(astObject, jsonObject.parameters[i].name, type, typeCanonical);
+				   astObject.addParameter(param);
+			   }
+			   
+			   break;
+		   
+		   case "MemberFunction":
+			   type = this._addASTTypeFromJSON(jsonObject.returnType);
+			   typeCanonical = this._addASTTypeFromJSON(jsonObject.returnTypeCanonical);
+			   astObject = new CPP_ASTObject_Member_Function(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical, ASTObject.getAccessFromString(jsonObject.access), false, false, false);
+			   this.astObjectsByID[jsonObject.id] = astObject;
+			   
+			   for(var i = 0; i < jsonObject.parameters.length; ++i)
+			   {
+				   type = this._addASTTypeFromJSON(jsonObject.parameters[i].type);
+				   typeCanonical = this._addASTTypeFromJSON(jsonObject.parameters[i].typeCanonical);
+				   var param = new CPP_ASTObject_Parameter(astObject, jsonObject.parameters[i].name, type, typeCanonical);
+				   astObject.addParameter(param);
+			   }
+			   
+			   break;	
+			   
+		   case "Parameter":
+			   break;
+		   
+		   case "Constructor":
+			   astObject = new CPP_ASTObject_Constructor(parent, jsonObject.name, jsonObject.id, jsonObject.USR, ASTObject.getAccessFromString(jsonObject.access));
+			   this.astObjectsByID[jsonObject.id] = astObject;
+			   
+			   for(var i = 0; i < jsonObject.parameters.length; ++i)
+			   {
+				   type = this._addASTTypeFromJSON(jsonObject.parameters[i].type);
+				   typeCanonical = this._addASTTypeFromJSON(jsonObject.parameters[i].typeCanonical);
+				   var param = new CPP_ASTObject_Parameter(astObject, jsonObject.name, type, typeCanonical);
+				   astObject.addParameter(param);
+			   }
+			   
+			   break;	
+			   
+		   case "Destructor":
+			   astObject = new CPP_ASTObject_Destructor(parent, jsonObject.name, jsonObject.id, jsonObject.USR, ASTObject.getAccessFromString(jsonObject.access), false);
+			   this.astObjectsByID[jsonObject.id] = astObject;
+			   break;	
+	   }
+	   
+	   if(jsonObject.children)
+	   {
+		   for(var i = 0; i < jsonObject.children.length; ++i)
+			   astObject.addChild(this._addASTObjectFromJSON(astObject, jsonObject.children[i]));
+	   }
+	   
+	   return astObject;
+	}
+}
+	
 //======================================================================================
 
 /**
@@ -51,6 +244,16 @@ CPP_ASTObject.prototype = {
 	{
 		// TODO: also change for children recursively
 		this.cppLongName = (this.parent == null) ? this.name : (this.parent.cppLongName + "::" + this.name);
+	},
+	
+	/**
+	 * Returns a unique identifier that can be used to reference this AST_Object f. ex. when loading
+	 * 
+	 * @returns {String}   Reference identifier
+	 */
+	getReferenceID: function getReferenceID()
+	{
+		return this.USR;
 	}, 
 	
 }

@@ -21,6 +21,7 @@
 		<toolbar>
 			<toolbarbutton label="Testing" oncommand="addAfterSelection();"></toolbarbutton>
 			<toolbarbutton label="Export" oncommand="exportFiles();"></toolbarbutton>
+			<toolbarbutton label="Save Project" oncommand="saveProject();"></toolbarbutton>
 		</toolbar>
 	</toolbox>
 	

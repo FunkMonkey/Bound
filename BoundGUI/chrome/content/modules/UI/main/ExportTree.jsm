@@ -37,11 +37,15 @@ var ExportTree = {
 	 */
 	newExportAST: function newExportAST(cppAST)
 	{
-		this.exportAST = {}; // TODO: move into Export_ASTObjects.jsm
+		/*this.exportAST = {}; // TODO: move into Export_ASTObjects.jsm
 		this.exportAST.root = new Export_ASTObject(null, "wrap_Test", cppAST.root); // TODO: rootNodeName
+		this.exportAST.root._AST = this.exportAST;*/
+		this.exportAST = new Export_AST("wrap_Test");
+		this.exportAST.root.sourceObject = cppAST.root;
 		
 		// TODO: put somewhere else
 		var spidermonkeyPlugin = new Plugin_CPP_Spidermonkey();
+		this.exportAST.addCodeGeneratorPlugin(spidermonkeyPlugin);
 		var codeGenConstructor = spidermonkeyPlugin.getCodeGeneratorByASTObject(cppAST.root);
 		this.exportAST.root.addCodeGenerator(new codeGenConstructor(spidermonkeyPlugin));
 		

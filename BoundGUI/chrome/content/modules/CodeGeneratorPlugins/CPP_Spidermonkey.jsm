@@ -15,7 +15,7 @@ Components.utils.import("chrome://bound/content/modules/TemplateManager.jsm");
  */
 function Plugin_CPP_Spidermonkey()
 {
-	
+	this.AST = null;
 }
 
 Plugin_CPP_Spidermonkey.prototype = {
@@ -80,6 +80,30 @@ Plugin_CPP_Spidermonkey.prototype = {
 		
 		return true;
 	},
+	
+	/**
+	 * Returns the plugin as a JSON compatible savable object
+	 * 
+	 * @returns {Object}   Object that contains savable data
+	 */
+	toSaveObject: function toSaveObject()
+	{
+		return {};
+	},
+	
+	/**
+	 * Creates a code generator from the given save object
+	 * 
+	 * @param   {Object}             saveObj        Save object with data
+	 * @param   {Export_ASTObject}   exportASTObj   ASTObject the generator will belong to
+	 * 
+	 * @returns {CodeGenerator}   The created generator
+	 */
+	createCodeGeneratorFromSaveObject: function createCodeGeneratorFromSaveObject(saveObj, exportASTObj)
+	{
+		var codeGen = this.getCodeGeneratorByASTObject(exportASTObj.sourceObject, exportASTObj.parent);
+		return codeGen.createFromSaveObject(saveObj, this, exportASTObj);
+	}, 
 	
 	/**
 	 * Generates wrapper code for the connected function
@@ -242,8 +266,33 @@ CodeGenerator_Function.prototype = {
 				  funcName: this.exportObject.name,
 		          //define_code:           tFunctionDefine.fetch(defineData),
 				  includeFiles:          includeFiles}; // TODO: return as the data itself (name, etc)
-	}, 
+	},
+	
+	/**
+	 * Returns the generator as a JSON compatible savable object
+	 * 
+	 * @returns {Object}   Object that contains savable data
+	 */
+	toSaveObject: function toSaveObject()
+	{
+		return {};
+	},
 };
+
+/**
+ * Creates the code generator from the given save object
+ * 
+ * @param   {Object}                    saveObj        Save object with data
+ * @param   {Plugin_CPP_Spidermonkey}   plugin         The plugin the generator will belong to
+ * @param   {Export_ASTObject}          exportASTObj   ASTObject the generator will belong to
+ * 
+ * @returns {CodeGenerator}   The created generator
+ */
+CodeGenerator_Function.createFromSaveObject =  function createFromSaveObject(saveObj, plugin, exportASTObj)
+{
+	var result = new CodeGenerator_Function(plugin);
+	return result;
+}, 
 
 function eliminateDuplicates(arr) {
   var i,
@@ -401,9 +450,34 @@ CodeGenerator_Object.prototype = {
 		result.reverse();
 		
 		return result;
-	}, 
+	},
+	
+	/**
+	 * Returns the generator as a JSON compatible savable object
+	 * 
+	 * @returns {Object}   Object that contains savable data
+	 */
+	toSaveObject: function toSaveObject()
+	{
+		return {};
+	},
 	
 };
+
+/**
+ * Creates the code generator from the given save object
+ * 
+ * @param   {Object}                    saveObj        Save object with data
+ * @param   {Plugin_CPP_Spidermonkey}   plugin         The plugin the generator will belong to
+ * @param   {Export_ASTObject}          exportASTObj   ASTObject the generator will belong to
+ * 
+ * @returns {CodeGenerator}   The created generator
+ */
+CodeGenerator_Object.createFromSaveObject =  function createFromSaveObject(saveObj, plugin, exportASTObj)
+{
+	var result = new CodeGenerator_Object(plugin);
+	return result;
+}
 
 //TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/function");
 //TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/function_define");

@@ -51,6 +51,32 @@ function exportFiles()
 	}
 }
 
+function saveProject()
+{
+	const nsIFilePicker = Components.interfaces.nsIFilePicker;
+	const nsIFile = Components.interfaces.nsIFile;
+
+	var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+	fp.init(window, "Open directory", nsIFilePicker.modeSave);
+	
+	var rv = fp.show();
+	if (rv == nsIFilePicker.returnOK || rv == nsIFilePicker.returnReplace)
+	{
+		var saveFile = fp.file;
+		
+		// save the project
+		var projectSaveData = JSON.stringify(ExportTree.exportAST.toSaveObject());
+		FileIO.writeTextFile(projectSaveData, saveFile);
+		
+		// save the CPP AST
+		var cppASTFile = saveFile.parent.clone();
+		cppASTFile.append(saveFile.leafName + "_CPP_AST.json");
+		
+		var cppASTSaveData = CPPTree.cppAST._jsonStr;
+		FileIO.writeTextFile(cppASTSaveData, cppASTFile);
+	}
+}
+
 function init()
 {
 	Bound.init(MainWindow);
