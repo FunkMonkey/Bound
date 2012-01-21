@@ -26,12 +26,12 @@ Plugin_CPP_Spidermonkey.prototype = {
 	/**
 	 * Returns a code generator that is compatible with the given ASTObject
 	 * 
-	 * @param   {ASTObject|ASTOverloadContainer}          astObject             ASTObject to find codegen for
-	 * @param   {CodeGenerator}                           exportParentCodegen   The export parents codegen
+	 * @param   {ASTObject|ASTOverloadContainer}          astObject      ASTObject to find codegen for
+     * @param   {Export_ASTObject}                        exportParent   The export parent
 	 * 
 	 * @returns {CodeGenerator}   Codegenerator that is compatible, or null
 	 */
-	getCodeGeneratorByASTObject: function getCodeGeneratorByASTObject(astObject, exportParentCodegen)
+	getCodeGeneratorByASTObject: function getCodeGeneratorByASTObject(astObject, exportParent)
 	{
 		if(!astObject)
 			return null;
@@ -50,18 +50,18 @@ Plugin_CPP_Spidermonkey.prototype = {
 			default: return null;
 		}
 		
-		return (codegen.isCompatible(astObject, exportParentCodegen)) ? codegen : null;
+		return (codegen.isCompatible(astObject, exportParent)) ? codegen : null;
 	},
 	
 	/**
 	 * Checks if the given ASTObject is compatible with the plugin
 	 * 
-	 * @param   {ASTObject|ASTOverloadContainer}   obj                   ASTObject to check compatibility for
-	 * @param   {CodeGenerator}                    exportParentCodegen   The export parents codegen
+	 * @param   {ASTObject|ASTOverloadContainer}   obj            ASTObject to check compatibility for
+	 * @param   {Export_ASTObject}                 exportParent   The export parent
 	 * 
 	 * @returns {boolean}   True if compatible, otherwise false
 	 */
-	_isCompatible: function _isCompatible(astObject, exportParentCodegen)
+	_isCompatible: function _isCompatible(astObject, exportParent)
 	{
 		// check the source language
 		// only C++ and custom ASTObjects allowed
@@ -75,7 +75,12 @@ Plugin_CPP_Spidermonkey.prototype = {
 		if(astObject.parent == null)
 			return true;
 		
-		if(!exportParentCodegen || !(exportParentCodegen instanceof CodeGenerator_Object))
+		if(!exportParent)
+			return false;
+		
+		var parentCodeGen = exportParent.getCodeGenerator(Plugin_CPP_Spidermonkey.prototype.context);
+		
+		if(!parentCodeGen || !(parentCodeGen instanceof CodeGenerator_Object))
 			return false;
 		
 		return true;

@@ -67,16 +67,21 @@ function onDrop(event)
 	}
 	
 	var exportParent = ($parentNode == null) ? this.exportAST.root : $parentNode.data;
-	var exportParentCodeGen = exportParent.getCodeGenerator(Bound.currentContext);
 	
-	if(!exportParentCodeGen)
+	var plugin = exportParent.AST.getCodeGeneratorPlugin(Bound.currentContext);
+	if(!plugin)
 		return;
 	
-	var plugin = exportParentCodeGen.plugin;
+	//var exportParentCodeGen = exportParent.getCodeGenerator(Bound.currentContext);
+	
+	//if(!exportParentCodeGen)
+	//	return;
+	
+	
 	
 	for(var i = 0; i < data.length; ++i)
 	{
-		var codeGenConstructor = plugin.getCodeGeneratorByASTObject(data[i], exportParentCodeGen);
+		var codeGenConstructor = plugin.getCodeGeneratorByASTObject(data[i], exportParent);
 		
 		if(codeGenConstructor)
 		{

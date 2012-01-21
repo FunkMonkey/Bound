@@ -144,7 +144,6 @@ DOMTree.prototype =
 		}
 		else
 		{
-			log("start");
 			tree.select(row);
 			data.data.push(event.currentTarget.parentNode.data);
 			event.dataTransfer.mozSetDataAt("application/x-tree-data", data, 0);
