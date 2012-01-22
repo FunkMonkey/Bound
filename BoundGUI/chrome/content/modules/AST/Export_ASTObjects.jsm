@@ -8,6 +8,10 @@ const Cu = Components.utils;
 Cu.import("chrome://bound/content/modules/Extension.jsm");
 Cu.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm");
 
+Components.utils.import("chrome://bound/content/modules/CodeGeneratorPlugins/CodeGeneratorPluginManager.jsm");
+
+Cu.import("chrome://bound/content/modules/log.jsm");
+
 /**
  * Export_AST
  *
@@ -23,22 +27,30 @@ function Export_AST(rootNodeName)
 	else
 		this.root = null;
 	
-	
 	this.codeGeneratorPlugins = {};
 }
 
 /**
  * Creates a CPP_AST given a JSON compatible object
  * 
- * @param   {Object}   jsonObj   JSON compatible object
+ * @param   {Object}   saveObj    JSON compatible object
+ * @param   {AST}      inputAST   The Input AST TODO: think about something else
  * 
- * @returns {CPP_AST} New CPP_AST
+ * @returns {Exort_AST} New Exort_AST
  */
-Export_AST.createFromSaveObject = function createFromSaveObject(jsonObj)
+Export_AST.createFromSaveObject = function createFromSaveObject(saveObj, inputAST)
 {
 	var result = new Export_AST();
+	result.inputAST = inputAST;
 	
-	result.root = Export_ASTObject.createFromSaveObject(null, jsonObj, result);
+	// load code generator plugins
+	for(var context in saveObj.codeGeneratorPlugins)
+	{
+		var Plugin = CodeGeneratorPluginManager.getPlugin(context);
+		result.addCodeGeneratorPlugin(Plugin.createFromSaveObject(saveObj.codeGeneratorPlugins[context]));
+	}
+	
+	result.root = Export_ASTObject.createFromSaveObject(saveObj.root, null, result);
 	
 	return result;
 }
@@ -85,7 +97,7 @@ Export_AST.prototype = {
 		var result = {};
 		result.root = this.root.toSaveObject();
 		
-		// code generator plugins
+		// save code generator plugins
 		result.codeGeneratorPlugins = {};
 		for(var context in this.codeGeneratorPlugins)
 			result.codeGeneratorPlugins[context] = this.codeGeneratorPlugins[context].toSaveObject();
@@ -190,28 +202,31 @@ Export_ASTObject.prototype = {
 */
 Export_ASTObject.createFromSaveObject = function createFromSaveObject(saveObject, parent, ast)
 {
-	var sourceObject = null; // name resolution
-	
-	var result = new Export_ASTObject(parent, saveObject.name, sourceObject);
+	var result = new Export_ASTObject(parent, saveObject.name, null);
 	
 	if(ast)
 		result._AST = ast;
 	else
 		ast = parent.AST;
 		
+	// name resolution, TODO: do not C++-specific!
+	var obj = ast.inputAST.astObjectsByUSR[saveObject.sourceObject.referenceID];
+	var sourceObject = (obj == null) ? null : obj;
+	result.sourceObject = obj;
+		
 	// loading codeGenerators
 	for(var context in saveObject.codeGenerators)
 	{
 		var plugin = ast.getCodeGeneratorPlugin(context);
 		var codeGen = plugin.createCodeGeneratorFromSaveObject(saveObject.codeGenerators, result);
-		this.addCodeGenerator(codeGen);
+		result.addCodeGenerator(codeGen);
 	}
 	
 	// loading children
 	for(var i = 0, len = saveObject.children.length; i < len; ++i)
 	{
 		var child = Export_ASTObject.createFromSaveObject(saveObject.children[i], result);
-		this.addChild(child);
+		result.addChild(child);
 	}
 	
 	return result;

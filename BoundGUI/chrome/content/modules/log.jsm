@@ -1,5 +1,5 @@
 
-var EXPORTED_SYMBOLS = ["log"];
+var EXPORTED_SYMBOLS = ["log", "LogUtils"];
 
 const consoleService = Components.classes['@mozilla.org/consoleservice;1'].getService(Components.interfaces.nsIConsoleService);
 
@@ -19,3 +19,24 @@ function log(str)
 log.useFirebug = true;
 log.firebugLog = null;
 log.useJSConsole = true;
+
+var LogUtils = {
+	/**
+	 * Logs the given object
+	 * 
+	 * @param   {Object}    object      Object to log
+	 * @param   {boolean}   recursive   Log recursively
+	 */
+	logObject: function logObject(object, recursive)
+	{
+		// TODO: recursive
+		var str = "";
+		for(var member in object)
+		{
+			str += member + ": " + object[member] + "\n";
+		}
+		
+		log(str);
+	}, 
+	
+}

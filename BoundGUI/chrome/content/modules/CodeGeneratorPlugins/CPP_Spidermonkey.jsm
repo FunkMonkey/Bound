@@ -6,6 +6,7 @@ Components.utils.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm"
 Components.utils.import("chrome://bound/content/modules/AST/CPP_ASTObjects.jsm");
 
 Components.utils.import("chrome://bound/content/modules/TemplateManager.jsm");
+Components.utils.import("chrome://bound/content/modules/CodeGeneratorPlugins/CodeGeneratorPluginManager.jsm");
 
 /**
  * 
@@ -17,6 +18,19 @@ function Plugin_CPP_Spidermonkey()
 {
 	this.AST = null;
 }
+
+/**
+ * Creates the code generator plugin from the given save object
+ * 
+ * @param   {Object}                    saveObj        Save object with data
+ * 
+ * @returns {CodeGenerator}   The created generator
+ */
+Plugin_CPP_Spidermonkey.createFromSaveObject =  function createFromSaveObject(saveObj)
+{
+	var result = new Plugin_CPP_Spidermonkey();
+	return result;
+}, 
 
 Plugin_CPP_Spidermonkey.prototype = {
 	constructor: Plugin_CPP_Spidermonkey,
@@ -120,6 +134,8 @@ Plugin_CPP_Spidermonkey.prototype = {
 	}
 	
 };
+
+CodeGeneratorPluginManager.registerPlugin(Plugin_CPP_Spidermonkey.prototype.context, Plugin_CPP_Spidermonkey);
 
 /**
  * Code generator for functions and member functions

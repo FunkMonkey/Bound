@@ -6,12 +6,13 @@ var CodeGeneratorPluginManager = {
 	
 	/**
 	 * Registers a plugin
-	 * 
+	 *
+	 * @param   {String}                context  Context of the plugin
 	 * @param   {CodeGeneratorPlugin}   plugin   Plugin to register
 	 */
-	registerPlugin: function registerPlugin(plugin)
+	registerPlugin: function registerPlugin(context, plugin)
 	{
-		this._plugins[plugin.context] = plugin;
+		this._plugins[context] = plugin;
 	},
 	
 	/**

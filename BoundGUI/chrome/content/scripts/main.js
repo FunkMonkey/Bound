@@ -13,6 +13,9 @@ Components.utils.import("chrome://bound/content/modules/UI/main/ResultTabbox.jsm
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("chrome://bound/content/modules/FileIO.jsm");
 
+Components.utils.import("chrome://bound/content/modules/AST/CPP_ASTObjects.jsm");
+Components.utils.import("chrome://bound/content/modules/AST/Export_ASTObjects.jsm");
+
 
 
 function exportFiles()
@@ -69,11 +72,44 @@ function saveProject()
 		FileIO.writeTextFile(projectSaveData, saveFile);
 		
 		// save the CPP AST
-		var cppASTFile = saveFile.parent.clone();
-		cppASTFile.append(saveFile.leafName + "_CPP_AST.json");
+		if(CPPTree.cppAST._jsonStr)
+		{
+			var cppASTFile = saveFile.parent.clone();
+			cppASTFile.append(saveFile.leafName + "_CPP_AST.json");
+			
+			var cppASTSaveData = CPPTree.cppAST._jsonStr;
+			FileIO.writeTextFile(cppASTSaveData, cppASTFile);
+		}
+	}
+}
+
+function loadProject()
+{
+	const nsIFilePicker = Components.interfaces.nsIFilePicker;
+	const nsIFile = Components.interfaces.nsIFile;
+
+	var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+	fp.init(window, "Open directory", nsIFilePicker.modeOpen);
+	
+	var rv = fp.show();
+	if (rv == nsIFilePicker.returnOK || rv == nsIFilePicker.returnReplace)
+	{
+		var projectFile = fp.file;
 		
-		var cppASTSaveData = CPPTree.cppAST._jsonStr;
-		FileIO.writeTextFile(cppASTSaveData, cppASTFile);
+		// load the CPP AST
+		var cppASTFile = projectFile.parent.clone();
+		cppASTFile.append(projectFile.leafName + "_CPP_AST.json");
+		
+		var cppJSONStr = FileIO.readTextFile(cppASTFile);
+		var cppAST = CPP_AST.createFromJSONObject(JSON.parse(cppJSONStr));
+		CPPTree.setCPPAST(cppAST);
+		
+		// load the project
+		var projectJSONStr = FileIO.readTextFile(projectFile);
+		var exportAST = Export_AST.createFromSaveObject(JSON.parse(projectJSONStr), CPPTree.cppAST);
+		ExportTree.setExportAST(exportAST);
+		
+		// fill the trees
 	}
 }
 

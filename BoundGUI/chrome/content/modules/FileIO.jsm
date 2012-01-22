@@ -22,7 +22,28 @@ var FileIO = {
 		converter.init(foStream, "UTF-8", 0, 0);  
 		converter.writeString(text);  
 		converter.close(); // this closes foStream  	
-	}, 
+	},
+	
+	readTextFile: function readTextFile(file)
+	{
+		// open an input stream from file  
+		var istream = Components.classes["@mozilla.org/network/file-input-stream;1"].  
+					  createInstance(Components.interfaces.nsIFileInputStream);  
+		istream.init(file, 0x01, 0444, 0);  
+		istream.QueryInterface(Components.interfaces.nsILineInputStream);  
+		  
+		// read lines into array  
+		var line = {}, lines = [], hasmore;
+		var str = "";
+		do {  
+		  hasmore = istream.readLine(line);  
+		  str += line.value + ((hasmore == true) ? "\n" : "");   
+		} while(hasmore);  
+		  
+		istream.close();
+		
+		return str;
+	}
 	
 };
 

@@ -33,6 +33,7 @@ function CPP_AST()
 {
 	this.root = null;
 	this.astObjectsByID = {};
+	this.astObjectsByUSR = {};
 }
 
 /**
@@ -106,20 +107,28 @@ CPP_AST.prototype = {
 	   switch(jsonObject.kind)
 	   {
 		   case "Namespace":
-			   astObject = new CPP_ASTObject_Namespace(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
-			   this.astObjectsByID[jsonObject.id] = astObject;
-			   break;
+				// TODO: hack
+				var USR = jsonObject.USR;
+				if(USR == "")
+					USR = "namespace_global";
+				
+				astObject = new CPP_ASTObject_Namespace(parent, jsonObject.name, jsonObject.id, USR);
+				this.astObjectsByID[jsonObject.id] = astObject;
+				this.astObjectsByUSR[USR] = astObject;
+				break;
 		   
 		   case "Typedef":
 			   type = this._addASTTypeFromJSON(jsonObject.type);
 			   typeCanonical = this._addASTTypeFromJSON(jsonObject.typeCanonical);
 			   astObject = new CPP_ASTObject_Typedef(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical);
 			   this.astObjectsByID[jsonObject.id] = astObject;
+			   this.astObjectsByUSR[jsonObject.USR] = astObject;
 			   break;
 		   
 		   case "Struct":
 			   astObject = new CPP_ASTObject_Struct(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
 			   this.astObjectsByID[jsonObject.id] = astObject;
+			   this.astObjectsByUSR[jsonObject.USR] = astObject;
 			   
 			   for(var i = 0; i < jsonObject.bases.length; ++i)
 				   astObject.addBase(this.astObjectsByID[jsonObject.bases[i]], ASTObject.ACCESS_PUBLIC);
@@ -129,6 +138,7 @@ CPP_AST.prototype = {
 		   case "Class":
 			   astObject = new CPP_ASTObject_Class(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
 			   this.astObjectsByID[jsonObject.id] = astObject;
+			   this.astObjectsByUSR[jsonObject.USR] = astObject;
 			   
 			   for(var i = 0; i < jsonObject.bases.length; ++i)
 				   astObject.addBase(this.astObjectsByID[jsonObject.bases[i]], ASTObject.ACCESS_PUBLIC);
@@ -140,6 +150,7 @@ CPP_AST.prototype = {
 			   typeCanonical = this._addASTTypeFromJSON(jsonObject.typeCanonical);
 			   astObject = new CPP_ASTObject_Var_Decl(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical);
 			   this.astObjectsByID[jsonObject.id] = astObject;
+			   this.astObjectsByUSR[jsonObject.USR] = astObject;
 			   break;
 		   
 		   case "Field":
@@ -147,6 +158,7 @@ CPP_AST.prototype = {
 			   typeCanonical = this._addASTTypeFromJSON(jsonObject.typeCanonical);
 			   astObject = new CPP_ASTObject_Field(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical, ASTObject.getAccessFromString(jsonObject.access), false);
 			   this.astObjectsByID[jsonObject.id] = astObject;
+			   this.astObjectsByUSR[jsonObject.USR] = astObject;
 			   break;
 		   
 		   case "Function":
@@ -154,6 +166,7 @@ CPP_AST.prototype = {
 			   typeCanonical = this._addASTTypeFromJSON(jsonObject.returnTypeCanonical);
 			   astObject = new CPP_ASTObject_Function(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical);
 			   this.astObjectsByID[jsonObject.id] = astObject;
+			   this.astObjectsByUSR[jsonObject.USR] = astObject;
 			   
 			   for(var i = 0; i < jsonObject.parameters.length; ++i)
 			   {
@@ -170,6 +183,7 @@ CPP_AST.prototype = {
 			   typeCanonical = this._addASTTypeFromJSON(jsonObject.returnTypeCanonical);
 			   astObject = new CPP_ASTObject_Member_Function(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical, ASTObject.getAccessFromString(jsonObject.access), false, false, false);
 			   this.astObjectsByID[jsonObject.id] = astObject;
+			   this.astObjectsByUSR[jsonObject.USR] = astObject;
 			   
 			   for(var i = 0; i < jsonObject.parameters.length; ++i)
 			   {
@@ -187,6 +201,7 @@ CPP_AST.prototype = {
 		   case "Constructor":
 			   astObject = new CPP_ASTObject_Constructor(parent, jsonObject.name, jsonObject.id, jsonObject.USR, ASTObject.getAccessFromString(jsonObject.access));
 			   this.astObjectsByID[jsonObject.id] = astObject;
+			   this.astObjectsByUSR[jsonObject.USR] = astObject;
 			   
 			   for(var i = 0; i < jsonObject.parameters.length; ++i)
 			   {
@@ -201,6 +216,7 @@ CPP_AST.prototype = {
 		   case "Destructor":
 			   astObject = new CPP_ASTObject_Destructor(parent, jsonObject.name, jsonObject.id, jsonObject.USR, ASTObject.getAccessFromString(jsonObject.access), false);
 			   this.astObjectsByID[jsonObject.id] = astObject;
+			   this.astObjectsByUSR[jsonObject.USR] = astObject;
 			   break;	
 	   }
 	   

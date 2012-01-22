@@ -336,4 +336,17 @@ DOMTree.prototype =
 		return row;
 	},
 	
+	/**
+	 * Removes all rows
+	 */
+	removeAllRows: function removeAllRows()
+	{
+		this.clearSelection();
+		
+		while(this.box.firstChild)
+			this.box.removeChild(this.box.firstChild);
+		
+	}, 
+	
+	
 }

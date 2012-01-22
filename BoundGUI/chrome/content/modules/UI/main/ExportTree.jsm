@@ -21,6 +21,8 @@ var ExportTree = {
 		MainWindow = mainWindowModule;
 		document = MainWindow.$document;
 		
+		this.exportAST = null;
+		
 		this.$exportTree = document.getElementById("exportTree");
 		this.$exportTree.addEventListener("dragover", checkDrag);
 		this.$exportTree.addEventListener("dragenter", checkDrag);
@@ -42,6 +44,7 @@ var ExportTree = {
 		this.exportAST.root._AST = this.exportAST;*/
 		this.exportAST = new Export_AST("wrap_Test");
 		this.exportAST.root.sourceObject = cppAST.root;
+		this.exportAST.inputAST = cppAST;
 		
 		// TODO: put somewhere else
 		var spidermonkeyPlugin = new Plugin_CPP_Spidermonkey();
@@ -51,6 +54,46 @@ var ExportTree = {
 		
 		// TODO: clear $exportTree
 	},
+	
+	astNodeToTreeNode: function astNodeToTreeNode(astNode, domParent, treeView)
+	{
+		var row = treeView.createAndAppendRow(domParent, astNode.children.length !== 0, astNode);	
+		
+		for(var childName in astNode._childrenMap)
+		{
+			var child = astNode._childrenMap[childName];
+			
+			// handle overloads
+			if(child instanceof ASTOverloadContainer)
+			{
+				var sameNameRow = treeView.createAndAppendRow(row, true, child);
+				
+				for(var i = 0; i < child.overloads.length; ++i)
+				{
+					this.astNodeToTreeNode(child.overloads[i], sameNameRow, treeView);
+				}
+			}
+			else
+			{
+				this.astNodeToTreeNode(child, row, treeView);
+			}
+		}
+		
+		return row;
+	},
+	
+	setExportAST: function setExportAST(exportAST)
+	{
+		this.exportAST = exportAST;
+		
+		this.$exportASTTree.removeAllRows();
+		
+		for(var i = 0; i < this.exportAST.root.children.length; ++i)
+		{
+			var child = this.exportAST.root.children[i];
+			this.astNodeToTreeNode(child, null, this.$exportASTTree);
+		}
+	}, 
 	
 };
 

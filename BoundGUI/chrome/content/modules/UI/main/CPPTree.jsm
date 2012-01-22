@@ -18,6 +18,8 @@ var CPPTree = {
 		MainWindow = mainWindowModule;
 		document = MainWindow.$document;
 		
+		this.cppAST = null;
+		
 		this.$cppASTTree = new DOMTree(document, document.getElementById("cppTree"), dataCB);
 	},
 	
@@ -52,7 +54,7 @@ var CPPTree = {
 	{
 		this.cppAST = cppAST;
 		
-		// TODO: clear $cppASTTree
+		this.$cppASTTree.removeAllRows();
 		
 		for(var i = 0; i < this.cppAST.root.children.length; ++i)
 		{
