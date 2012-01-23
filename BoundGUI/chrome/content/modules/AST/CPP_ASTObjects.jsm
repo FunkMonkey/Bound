@@ -34,6 +34,8 @@ function CPP_AST()
 	this.root = null;
 	this.astObjectsByID = {};
 	this.astObjectsByUSR = {};
+	
+	this.TUPath = "";
 }
 
 /**
@@ -43,33 +45,37 @@ function CPP_AST()
  * 
  * @returns {CPP_AST} New CPP_AST
  */
-CPP_AST.createFromJSONObject = function createFromJSONObject(jsonObj)
+CPP_AST.createFromSaveObject = function createFromSaveObject(saveObj)
 {
 	var result = new CPP_AST();
 	
-	result.root = result._addASTObjectFromJSON(null, jsonObj);
+	result.root = result._addASTObjectFromJSON(null, saveObj.rootJSON);
 	result.root._AST = result;
+	result.TUPath = saveObj.TUPath;
 	
-	return result;
-}
-
-/**
- * Creates a CPP_AST given a JSON compatible object
- * 
- * @param   {String}   jsonStr   JSON compatible string
- * 
- * @returns {CPP_AST} New CPP_AST
- */
-CPP_AST.createFromJSONString = function createFromJSONString(jsonStr)
-{
-	var result = CPP_AST.createFromJSONObject(JSON.parse(jsonStr));
-	result._jsonStr = jsonStr;
+	result._toSave = saveObj._toSave;
+	
+	result.rootJSON = saveObj.rootJSON;
 	
 	return result;
 }
 
 CPP_AST.prototype = {
 	constructor: CPP_AST,
+	
+	/**
+	 * Returns the CPP_AST as a JSON compatible savable object
+	 * 
+	 * @returns {Object}   Object that contains savable data
+	 */
+	toSaveObject: function toSaveObject()
+	{
+		var result = {};
+		result.rootJSON = this.rootJSON;
+		result.TUPath = this.TUPath;
+		
+		return result;
+	},
 
 	/**
 	* Creates an ASTType from JSON-data
@@ -220,6 +226,20 @@ CPP_AST.prototype = {
 			   break;	
 	   }
 	   
+		if(astObject)
+		{
+			astObject.isDefinition = jsonObject.isDefinition;
+			if(jsonObject.isDefinition)
+			{
+				astObject.definition = jsonObject.definition;
+			}
+			else
+			{
+				for(var i = 0, len = jsonObject.declarations; i < len; ++i)
+					astObject.declarations.push(jsonObject.declarations[i]);
+			}
+		}
+	   
 	   if(jsonObject.children)
 	   {
 		   for(var i = 0; i < jsonObject.children.length; ++i)
@@ -244,8 +264,9 @@ function CPP_ASTObject(parent, name, id, usr)
 	ASTObject.call(this, parent, name);
 	this.id = id;
 	this.USR = usr;
-	
-	
+	this.isDefinition = false;
+	this.declarations = [];
+	this.definition = null;
 }
 
 CPP_ASTObject.prototype = {

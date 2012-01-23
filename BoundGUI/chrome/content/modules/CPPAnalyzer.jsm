@@ -28,7 +28,7 @@ var CPPAnalyzer =
 	},
 	
 	
-	parse_header: function parse_header(cmdParams)
+	parse_header: function parse_header(tuPath, cmdParams)
 	{
 		var params = this.libCPPAnalyzer.CharPtrArray(cmdParams.length);
 		
@@ -38,9 +38,17 @@ var CPPAnalyzer =
 		}
 		
 		//var params = CharPtrArray([ctypes.char.array()("supertest"), ctypes.char.array()("D:\\Data\\Projekte\\Bound\\src\\CPPAnalyzer\\Test\\test1.cpp")]);
-		var result = this.libCPPAnalyzer.parse_header(params.length, params)
+		var result = this.libCPPAnalyzer.parse_header(params.length, params);
 		
-		return CPP_AST.createFromJSONString(result.contents.astTreeJSON.readString());
+		var ASTJSON = JSON.parse(result.contents.astTreeJSON.readString());
+		
+		var obj = {
+			TUPath: tuPath,
+			rootJSON: ASTJSON,
+			_toSave: true
+		}
+		
+		return CPP_AST.createFromSaveObject(obj);
 	}
 };
 

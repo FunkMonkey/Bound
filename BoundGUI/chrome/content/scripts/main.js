@@ -72,12 +72,12 @@ function saveProject()
 		FileIO.writeTextFile(projectSaveData, saveFile);
 		
 		// save the CPP AST
-		if(CPPTree.cppAST._jsonStr)
+		if(CPPTree.cppAST._toSave)
 		{
 			var cppASTFile = saveFile.parent.clone();
 			cppASTFile.append(saveFile.leafName + "_CPP_AST.json");
 			
-			var cppASTSaveData = CPPTree.cppAST._jsonStr;
+			var cppASTSaveData = JSON.stringify(CPPTree.cppAST.toSaveObject());
 			FileIO.writeTextFile(cppASTSaveData, cppASTFile);
 		}
 	}
@@ -101,7 +101,7 @@ function loadProject()
 		cppASTFile.append(projectFile.leafName + "_CPP_AST.json");
 		
 		var cppJSONStr = FileIO.readTextFile(cppASTFile);
-		var cppAST = CPP_AST.createFromJSONObject(JSON.parse(cppJSONStr));
+		var cppAST = CPP_AST.createFromSaveObject(JSON.parse(cppJSONStr));
 		CPPTree.setCPPAST(cppAST);
 		
 		// load the project

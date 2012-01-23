@@ -27,9 +27,10 @@ var MainWindow = {
 		ResultTabbox.init(this);
 		
 		// TODO: move somewhere else
-		//CPPAnalyzer.init();
+		CPPAnalyzer.init();
 		////var cppAST = CPPAnalyzer.parse_header(["supertest", "D:\\Data\\Projekte\\Bound\\src\\CPPAnalyzer\\Test\\test1.cpp"]);
-		//var cppAST = CPPAnalyzer.parse_header(["supertest", "D:\\Data\\Projekte\\Bound\\src\\Wrapping\\Spidermonkey\\include\\Functions_BasicTypes.hpp"]);
+		//var path = "D:/Data/Projekte/Bound/src/Wrapping/Spidermonkey/include/";
+		//var cppAST = CPPAnalyzer.parse_header(path, ["supertest", path + "Functions_BasicTypes.hpp"]);
 		//CPPTree.setCPPAST(cppAST);
 		//ExportTree.newExportAST(cppAST);
 		

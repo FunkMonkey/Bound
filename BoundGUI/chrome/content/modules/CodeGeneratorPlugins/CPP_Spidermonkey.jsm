@@ -279,6 +279,15 @@ CodeGenerator_Function.prototype = {
 			}
 		}
 		
+		var location = (astFunc.isDefinition == true) ? astFunc.definition : astFunc.declarations[0];
+		
+		if(location)
+		{
+			var fixedPath = location.fileName.replace(astFunc.AST.TUPath, "");
+			//log("path: " + fixedPath)
+			includeFiles.push('#include "{$CPP_TU_DIR}' + fixedPath + '"');
+		}
+		
 		return {  isFunction: true,
 				  isStatic: true,
 				  numParams: astFunc.parameters.length,
@@ -313,7 +322,7 @@ CodeGenerator_Function.createFromSaveObject =  function createFromSaveObject(sav
 {
 	var result = new CodeGenerator_Function(plugin);
 	return result;
-}, 
+};
 
 function eliminateDuplicates(arr) {
   var i,
