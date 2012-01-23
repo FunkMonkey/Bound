@@ -1,6 +1,7 @@
 /.metadata/*
 /CPPAnalyzer/.settings/*
 /CPPAnalyzer/Debug/*
+/CPPAnalyzerExe/Debug/*
 /Debug/*
 /ipch/*
 /_UpgradeReport_Files/*

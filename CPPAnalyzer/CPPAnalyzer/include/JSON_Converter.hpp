@@ -32,6 +32,8 @@ namespace CPPAnalyzer
 			void addProperty(const std::string& propName, bool value, std::stringstream& ss, const std::string& indent, bool isLast = false);
 			void addLine(const std::string& line, std::stringstream& ss, const std::string& indent);
 
+			void addCommonProps(ASTObject& astObject, std::stringstream& ss, std::string& indent);
+
 			Clang_AST* m_ast;
 			std::string m_lineBreak;
 			std::string m_indent;

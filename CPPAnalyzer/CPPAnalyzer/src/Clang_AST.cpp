@@ -31,6 +31,49 @@ inline std::string to_string (const T& t)
 
 namespace CPPAnalyzer
 {
+	std::string CXStringToStdStringAndFree(CXString cxString)
+	{
+		std::string result(clang_getCString(cxString));
+		clang_disposeString(cxString);
+		return result;
+	}
+
+	ASTObject_SourceLocation getSourceLocation(CXCursor cursor)
+	{
+		auto cursorLocation = clang_getCursorLocation(cursor);
+		auto cursorRange = clang_getCursorExtent(cursor);
+
+		CXFile file;
+		unsigned line, column, offset;
+		clang_getExpansionLocation(cursorLocation, &file, &line, &column, &offset);
+
+		ASTObject_SourceLocation location;
+
+		if(file)
+		{
+			location.fileName = CXStringToStdStringAndFree(clang_getFileName(file));
+
+			std::cout << "LOCATION: " << location.fileName << std::endl;
+		}
+
+		// TODO: etc
+
+		return location;
+		
+		// ranges ...
+		/*CXSourceRange range = clang_getCursorExtent(cursor);
+		CXSourceLocation startLocation = clang_getRangeStart(range);
+		CXSourceLocation endLocation = clang_getRangeEnd(range);
+
+		CXFile file;
+		unsigned int line, column, offset;
+		clang_getInstantiationLocation(startLocation, &file, &line, &column, &offset);
+		printf("Start: Line: %u Column: %u Offset: %u\n", line, column, offset);
+		clang_getInstantiationLocation(endLocation, &file, &line, &column, &offset);
+		printf("End: Line: %u Column: %u Offset: %u\n", line, column, offset);*/
+	}
+
+
 	Clang_AST::Clang_AST(CXCursor translationUnit)
 	: m_rootCursor(translationUnit)
 	{
@@ -293,14 +336,37 @@ namespace CPPAnalyzer
 		std::string usr_string = std::string(clang_getCString(clang_getCursorUSR(cursor)));
 
 		// check for multiple declarations
+
+		
 		// TODO: use clang_getCanonicalCursor
-		auto itUSR = m_usrASTObjects.find(usr_string);
-		if(itUSR != m_usrASTObjects.end())
+		//auto itUSR = m_usrASTObjects.find(usr_string);
+		//if(itUSR != m_usrASTObjects.end())
+		//{
+		//	// use the same ASTObject*
+		//	m_astObjects.insert(std::pair<CXCursor, ASTObject*>(cursor, itUSR->second));
+		//	return CXChildVisit_Recurse;
+		//}
+
+		auto canonicalCursor = clang_getCanonicalCursor(cursor);
+		auto itCanonicalCursor = m_canonicalASTObjects.find(canonicalCursor);
+		if(itCanonicalCursor != m_canonicalASTObjects.end())
 		{
+			auto existingASTObject = itCanonicalCursor->second;
+
 			// use the same ASTObject*
-			m_astObjects.insert(std::pair<CXCursor, ASTObject*>(cursor, itUSR->second));
+			m_astObjects.insert(std::pair<CXCursor, ASTObject*>(cursor, existingASTObject));
+
+			auto location = getSourceLocation(cursor);
+
+			if(clang_isCursorDefinition(cursor))
+				existingASTObject->setDefinition(location);
+			else
+				existingASTObject->addDeclaration(location);
+
+
 			return CXChildVisit_Recurse;
 		}
+
 
 		//std::cout << clang_getCString(kindString) << " " << clang_getCString(displayType) << " " << usr_string.c_str() << std::endl;
 
@@ -396,7 +462,6 @@ namespace CPPAnalyzer
 				break;
 			}
 
-			//case CXCursor_ClassDecl: PrintCursor(cursor); break;
 			// functions
 			case CXCursor_FunctionDecl:
 			{
@@ -414,27 +479,22 @@ namespace CPPAnalyzer
 		if(astObject)
 		{
 			m_astObjects.insert(std::pair<CXCursor, ASTObject*>(cursor, astObject));
-			if(usr_string != "")
-				m_usrASTObjects.insert(std::pair<std::string, ASTObject*>(usr_string, astObject));
+			
+			//if(usr_string != "")
+			//	m_usrASTObjects.insert(std::pair<std::string, ASTObject*>(usr_string, astObject));
+
+			auto location = getSourceLocation(cursor);
+
+			if(clang_isCursorDefinition(cursor))
+				astObject->setDefinition(location);
+			else
+				astObject->addDeclaration(location);
+
+			m_canonicalASTObjects.insert(std::pair<CXCursor, ASTObject*>(canonicalCursor, astObject));
 
 			//std::cout << getASTObjectKind(astObject->getKind()).c_str() << " " << astObject->getNodeName().c_str() << "\n";
 		}
 		
-
-		//
-
-		// ranges ...
-		/*CXSourceRange range = clang_getCursorExtent(cursor);
-		CXSourceLocation startLocation = clang_getRangeStart(range);
-		CXSourceLocation endLocation = clang_getRangeEnd(range);
-
-		CXFile file;
-		unsigned int line, column, offset;
-		clang_getInstantiationLocation(startLocation, &file, &line, &column, &offset);
-		printf("Start: Line: %u Column: %u Offset: %u\n", line, column, offset);
-		clang_getInstantiationLocation(endLocation, &file, &line, &column, &offset);
-		printf("End: Line: %u Column: %u Offset: %u\n", line, column, offset);*/
-
 		return CXChildVisit_Recurse;
 	}
 

@@ -7,11 +7,17 @@
 
 namespace CPPAnalyzer
 {
+	struct ASTObject_SourceLocation
+	{
+		std::string fileName;
+
+	};
+
 	class ASTObject
 	{
 	public:
 		ASTObject(const std::string& nodeName)
-			: m_id(ASTObject::count+1),m_nodeName(nodeName), m_usr(""), m_parent(NULL)
+			: m_id(ASTObject::count+1),m_nodeName(nodeName), m_usr(""), m_parent(NULL), m_isDefinition(false)
 		{
 			++ASTObject::count;
 		}
@@ -61,6 +67,21 @@ namespace CPPAnalyzer
 
 		// TODO: removeChild
 
+		bool isDefinition(){return m_isDefinition;}
+		const ASTObject_SourceLocation& getDefinitionSource(){ return m_definitionSource; }
+		const std::vector<ASTObject_SourceLocation>& getDeclarationsSource(){ return m_declarationsSource; }
+
+		void setDefinition(ASTObject_SourceLocation location)
+		{
+			m_isDefinition = true;
+			m_definitionSource = location;
+		}
+
+		void addDeclaration(ASTObject_SourceLocation location)
+		{
+			m_declarationsSource.push_back(location);
+		}
+
 
 	protected:
 		static unsigned count;
@@ -69,7 +90,10 @@ namespace CPPAnalyzer
 		std::string m_usr;
 		std::string m_longName;
 
-		
+		std::vector<ASTObject_SourceLocation> m_declarationsSource;	// TODO: use pointers?
+		ASTObject_SourceLocation m_definitionSource;
+
+		bool m_isDefinition;
 
 		ASTObject* m_parent;
 		std::vector<ASTObject*> m_children;

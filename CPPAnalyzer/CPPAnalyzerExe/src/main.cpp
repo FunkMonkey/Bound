@@ -5,7 +5,7 @@
 
 int main(int argc, char *argv[]) {
 
-	//parse_header(argc, argv, );
+	parse_header(argc, argv);
 
 	int foo;
 	std::cin >> foo;

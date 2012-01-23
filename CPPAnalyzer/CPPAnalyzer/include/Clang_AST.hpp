@@ -66,7 +66,8 @@ namespace CPPAnalyzer
 
 			ASTObject_Namespace* m_rootASTObject;
 			CXCursor m_rootCursor;
-			CXCursorASTObjectMap m_astObjects;
+			CXCursorASTObjectMap m_astObjects;	// TODO: merge
+			CXCursorASTObjectMap m_canonicalASTObjects;
 			std::map<std::string, ASTObject*> m_usrASTObjects;
 	};
 }

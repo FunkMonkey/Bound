@@ -109,6 +109,43 @@ namespace CPPAnalyzer
 		ss << indent_min << "}";
 	}
 
+	void JSON_Converter::addCommonProps(ASTObject& astObject, std::stringstream& ss, std::string& indent)
+	{
+		addProperty("name", astObject.getNodeName(), ss, indent);
+		addProperty("kind", getASTObjectKind(astObject.getKind()), ss, indent);
+		addProperty("id", astObject.getID(), ss, indent);
+		addProperty("isDefinition", astObject.isDefinition(), ss, indent);
+		// TODO: filename escape backslash
+		if(astObject.isDefinition())
+		{
+			ss << indent << m_indent << "\"definition\": {" << m_lineBreak;
+			ss << indent << m_indent << m_indent << "\"fileName\": \"" << astObject.getDefinitionSource().fileName << "\"" << m_lineBreak;
+
+			ss << indent << m_indent << "},";
+			ss << m_lineBreak;
+		}
+		else
+		{
+			addLine("\"declarations\": [", ss, indent);
+
+			auto& declarations = astObject.getDeclarationsSource();
+			for(auto it = declarations.begin(); it != declarations.end(); ++it)
+			{
+				ss << indent << m_indent << "{" << m_lineBreak;
+				ss << indent << m_indent << m_indent << "\"fileName\": \"" << (*it).fileName << "\"" << m_lineBreak;
+
+				ss << indent << m_indent << "}";
+				if(it+1 != declarations.end())
+					ss << ",";
+
+				ss << m_lineBreak;
+			}
+
+			addLine("],", ss, indent);
+		}
+
+	}
+
 	bool JSON_Converter::convertToJSON(ASTObject& astObject, std::stringstream& ss, int depth)
 	{
 		// TEMP indent, TODO: performance
@@ -126,9 +163,7 @@ namespace CPPAnalyzer
 					addLine("{", ss, indent_min);
 
 					// common props
-					addProperty("name", astObject.getNodeName(), ss, indent);
-					addProperty("kind", getASTObjectKind(astObject.getKind()), ss, indent);
-					addProperty("id", astObject.getID(), ss, indent);
+					addCommonProps(astObject, ss, indent);
 
 					// adding children
 					addLine("\"children\": [", ss, indent);
@@ -151,9 +186,7 @@ namespace CPPAnalyzer
 					addLine("{", ss, indent_min);
 
 					// common props
-					addProperty("name", astObject.getNodeName(), ss, indent);
-					addProperty("kind", getASTObjectKind(astObject.getKind()), ss, indent);
-					addProperty("id", astObject.getID(), ss, indent);
+					addCommonProps(astObject, ss, indent);
 
 					// access
 					addLine("\"type\": ", ss, indent);
@@ -180,9 +213,7 @@ namespace CPPAnalyzer
 					addLine("{", ss, indent_min);
 
 					// common props
-					addProperty("name", astObject.getNodeName(), ss, indent);
-					addProperty("kind", getASTObjectKind(astObject.getKind()), ss, indent);
-					addProperty("id", astObject.getID(), ss, indent);
+					addCommonProps(astObject, ss, indent);
 					
 					// adding bases
 					addLine("\"bases\": [", ss, indent);
@@ -217,9 +248,7 @@ namespace CPPAnalyzer
 					addLine("{", ss, indent_min);
 
 					// common props
-					addProperty("name", astObject.getNodeName(), ss, indent);
-					addProperty("kind", getASTObjectKind(astObject.getKind()), ss, indent);
-					addProperty("id", astObject.getID(), ss, indent);
+					addCommonProps(astObject, ss, indent);
 
 					// access
 					addProperty("access", getASTObjectAccessString(astObjectField.getAccess()), ss, indent);
@@ -250,9 +279,7 @@ namespace CPPAnalyzer
 					addLine("{", ss, indent_min);
 
 					// common props
-					addProperty("name", astObject.getNodeName(), ss, indent);
-					addProperty("kind", getASTObjectKind(astObject.getKind()), ss, indent);
-					addProperty("id", astObject.getID(), ss, indent);
+					addCommonProps(astObject, ss, indent);
 					
 					ASTObject_Member_Function* astObjectMemberFunc = dynamic_cast<ASTObject_Member_Function*>(&astObject);
 					if(astObjectMemberFunc)
@@ -274,7 +301,7 @@ namespace CPPAnalyzer
 					{
 						addLine("\"parameters\": [", ss, indent);
 
-						auto parameters = astObjectFunc.getParameters();
+						auto& parameters = astObjectFunc.getParameters();
 						for(auto it = parameters.begin(); it != parameters.end(); ++it)
 						{
 							ss << indent << m_indent << "{" << m_lineBreak;
