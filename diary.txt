@@ -1,3 +1,21 @@
+==== Week 3 - 9 ====
+
+== CPPAnalyzer ==
+
+- Erzeugung eines einfachen AST
+-- ASTObject, ASTType
+- C-Interface
+- Export nach JSON-String
+-- Formatierung (zur Überprüfung)
+-- Referenzierung
+- Unterscheidung von Deklarationen und Definitionen
+-- Source-code Positionen
+- C++11x Experimente: auto, decltype
+
+Export
+
+- Beschäftigung mit Source-Code-Formatierern (Astyle, Uncrustify)
+
 ==== Week 1 - 2 ====
 
 == CPPAnalyzer ==
