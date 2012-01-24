@@ -41,12 +41,12 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)../../../xulrunner/include;$(ProjectDir)include;$(SolutionDir)SpidermonkeyWrapper/include;$(ProjectDir)wrap_example/include;$(ProjectDir)wrap_autogen/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)../../../Dependencies/xulrunner/include;$(ProjectDir)include;$(SolutionDir)SpidermonkeyWrapper/include;$(ProjectDir)wrap_example/include;$(ProjectDir)wrap_autogen/include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions) XP_WIN</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)../../../xulrunner/lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)../../../Dependencies/xulrunner/lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>mozjs.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -56,14 +56,14 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(SolutionDir)../../../xulrunner/include;$(ProjectDir)include;$(SolutionDir)SpidermonkeyWrapper/include;$(ProjectDir)wrap_example/include;$(ProjectDir)wrap_autogen/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)../../../Dependencies/xulrunner/include;$(ProjectDir)include;$(SolutionDir)SpidermonkeyWrapper/include;$(ProjectDir)wrap_example/include;$(ProjectDir)wrap_autogen/include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions) XP_WIN</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(SolutionDir)../../../xulrunner/lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)../../../Dependencies/xulrunner/lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>mozjs.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
