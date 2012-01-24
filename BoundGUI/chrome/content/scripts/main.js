@@ -65,17 +65,18 @@ function saveProject()
 	var rv = fp.show();
 	if (rv == nsIFilePicker.returnOK || rv == nsIFilePicker.returnReplace)
 	{
-		var saveFile = fp.file;
+		var projectFile = fp.file;
+		var projectFileSplit = projectFile.leafName.split(".");
 		
 		// save the project
 		var projectSaveData = JSON.stringify(ExportTree.exportAST.toSaveObject());
-		FileIO.writeTextFile(projectSaveData, saveFile);
+		FileIO.writeTextFile(projectSaveData, projectFile);
 		
 		// save the CPP AST
 		if(CPPTree.cppAST._toSave)
 		{
-			var cppASTFile = saveFile.parent.clone();
-			cppASTFile.append(saveFile.leafName + "_CPP_AST.json");
+			var cppASTFile = projectFile.parent.clone();
+			cppASTFile.append(projectFileSplit[0] + "_CPP_AST.json");
 			
 			var cppASTSaveData = JSON.stringify(CPPTree.cppAST.toSaveObject());
 			FileIO.writeTextFile(cppASTSaveData, cppASTFile);
@@ -95,10 +96,11 @@ function loadProject()
 	if (rv == nsIFilePicker.returnOK || rv == nsIFilePicker.returnReplace)
 	{
 		var projectFile = fp.file;
+		var projectFileSplit = projectFile.leafName.split(".");
 		
 		// load the CPP AST
 		var cppASTFile = projectFile.parent.clone();
-		cppASTFile.append(projectFile.leafName + "_CPP_AST.json");
+		cppASTFile.append(projectFileSplit[0] + "_CPP_AST.json");
 		
 		var cppJSONStr = FileIO.readTextFile(cppASTFile);
 		var cppAST = CPP_AST.createFromSaveObject(JSON.parse(cppJSONStr));
