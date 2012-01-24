@@ -1,8 +1,8 @@
 #include "GlobalFunctions.hpp"
 
-#include "../wrap_helpers/wrap_helpers_x.hpp"
-#include "../wrap_helpers/char_string_x.hpp"
-#include "../wrap_helpers/std_string_x.hpp"
+#include "wrap_helpers/wrap_helpers_x.hpp"
+#include "wrap_helpers/char_string_x.hpp"
+#include "wrap_helpers/std_string_x.hpp"
 
 #include <iostream>
 
@@ -22,7 +22,7 @@ namespace jswrap
 
 				JS_SET_RVAL(cx, vp, JSVAL_VOID);
 
-			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "void_param0_constStdStringRef")
+			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "print")
 
 			return true;
 		}

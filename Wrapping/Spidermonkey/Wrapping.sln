@@ -1,7 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Wrapping", "Wrapping.vcxproj", "{CA07B9C1-1FD3-4477-AD31-C33E6E3180D2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SpidermonkeyWrapper", "SpidermonkeyWrapper\SpidermonkeyWrapper.vcxproj", "{5F9250DA-E5F9-4A84-993C-F0A07B594C17}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WrappingTest", "WrappingTest\WrappingTest.vcxproj", "{AAE7A59E-A64D-4DC9-8FFB-34CE07E23421}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,10 +11,14 @@ Global
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{CA07B9C1-1FD3-4477-AD31-C33E6E3180D2}.Debug|Win32.ActiveCfg = Debug|Win32
-		{CA07B9C1-1FD3-4477-AD31-C33E6E3180D2}.Debug|Win32.Build.0 = Debug|Win32
-		{CA07B9C1-1FD3-4477-AD31-C33E6E3180D2}.Release|Win32.ActiveCfg = Release|Win32
-		{CA07B9C1-1FD3-4477-AD31-C33E6E3180D2}.Release|Win32.Build.0 = Release|Win32
+		{5F9250DA-E5F9-4A84-993C-F0A07B594C17}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5F9250DA-E5F9-4A84-993C-F0A07B594C17}.Debug|Win32.Build.0 = Debug|Win32
+		{5F9250DA-E5F9-4A84-993C-F0A07B594C17}.Release|Win32.ActiveCfg = Release|Win32
+		{5F9250DA-E5F9-4A84-993C-F0A07B594C17}.Release|Win32.Build.0 = Release|Win32
+		{AAE7A59E-A64D-4DC9-8FFB-34CE07E23421}.Debug|Win32.ActiveCfg = Debug|Win32
+		{AAE7A59E-A64D-4DC9-8FFB-34CE07E23421}.Debug|Win32.Build.0 = Debug|Win32
+		{AAE7A59E-A64D-4DC9-8FFB-34CE07E23421}.Release|Win32.ActiveCfg = Release|Win32
+		{AAE7A59E-A64D-4DC9-8FFB-34CE07E23421}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

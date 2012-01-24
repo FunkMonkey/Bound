@@ -1,10 +1,10 @@
 #include "Functions_BasicTypes_wrap.hpp"
 #include "Functions_BasicTypes.hpp"
 
-#include "../wrap_helpers/wrap_helpers_x.hpp"
-#include "../wrap_helpers/boolean_x.hpp"
-#include "../wrap_helpers/int_x.hpp"
-#include "../wrap_helpers/float_x.hpp"
+#include "wrap_helpers/wrap_helpers_x.hpp"
+#include "wrap_helpers/boolean_x.hpp"
+#include "wrap_helpers/int_x.hpp"
+#include "wrap_helpers/float_x.hpp"
 
 namespace jswrap
 {

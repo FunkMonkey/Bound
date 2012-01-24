@@ -7,9 +7,10 @@
 
 #include <iostream>
 #include "jsapi.h"
-#include "../wrap/SimpleClass_wrap.hpp"
-#include "../wrap/Functions_BasicTypes_wrap.hpp"
-#include "../wrap/Functions_Strings_wrap.hpp"
+#include "SimpleClass_wrap.hpp"
+#include "Functions_BasicTypes_wrap.hpp"
+#include "wrap_Test.hpp"
+#include "Functions_Strings_wrap.hpp"
 #include "GlobalFunctions.hpp"
 
 /* The class of the global object. */
@@ -65,13 +66,15 @@ int main(int argc, const char *argv[])
 
 	jswrap::GlobalFunctions::init(cx, global);
 	jswrap::SimpleClass::init(cx, global);
-	jswrap::Functions_BasicTypes::init(cx, global);
+	
+	//jswrap::Functions_BasicTypes::init(cx, global);
+	jswrap::wrap_Test::init(cx, global);
 	jswrap::Functions_Strings::init(cx, global);
 
 	jsval rval;
 	JSBool ok;
 	//char *source = "var test = new SimpleClass(); test.voidFunc0();";
-	char *source = "SimpleClass.staticFloatPropField = 343;";
+	char *source = "print(int_param1_int_float(3, 7))";
 
 	ok = JS_EvaluateScript(cx, global, source, strlen(source),
                        "foo", 4, &rval);

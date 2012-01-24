@@ -1,9 +1,9 @@
 #include "SimpleClass_wrap.hpp"
 #include "SimpleClass.hpp"
 
-#include "../wrap_helpers/private_data_x.hpp"
-#include "../wrap_helpers/int_x.hpp"
-#include "../wrap_helpers/float_x.hpp"
+#include "wrap_helpers/private_data_x.hpp"
+#include "wrap_helpers/int_x.hpp"
+#include "wrap_helpers/float_x.hpp"
 
 
 

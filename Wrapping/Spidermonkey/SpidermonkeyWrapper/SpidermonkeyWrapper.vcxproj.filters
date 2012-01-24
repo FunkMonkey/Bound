@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{d3fb24ef-b314-49f5-adbf-06622abb93f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{e8c56bb5-3b7e-4ce0-a332-ae9a49edad28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\wrap_helpers">
+      <UniqueIdentifier>{6007dd0b-76d3-41af-8c55-ba643eda80e9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\wrap_helpers\boolean_x.hpp">
+      <Filter>include\wrap_helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wrap_helpers\char_string_x.hpp">
+      <Filter>include\wrap_helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wrap_helpers\conversion_templates.hpp">
+      <Filter>include\wrap_helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wrap_helpers\exceptions.hpp">
+      <Filter>include\wrap_helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wrap_helpers\float_x.hpp">
+      <Filter>include\wrap_helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wrap_helpers\int_x.hpp">
+      <Filter>include\wrap_helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wrap_helpers\private_data_x.hpp">
+      <Filter>include\wrap_helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wrap_helpers\std_string_x.hpp">
+      <Filter>include\wrap_helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wrap_helpers\wrap_helpers_x.hpp">
+      <Filter>include\wrap_helpers</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

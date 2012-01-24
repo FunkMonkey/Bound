@@ -1,5 +1,7 @@
 
 /Debug/*
+/SpidermonkeyWrapper/Debug/*
+/WrappingTest/Debug/*
 /ipch/*
 /_UpgradeReport_Files/*
 /UpgradeLog.xml

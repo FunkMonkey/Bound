@@ -1,9 +1,9 @@
 #include "Functions_Strings_wrap.hpp"
 #include "Functions_Strings.hpp"
 
-#include "../wrap_helpers/wrap_helpers_x.hpp"
-#include "../wrap_helpers/char_string_x.hpp"
-#include "../wrap_helpers/std_string_x.hpp"
+#include "wrap_helpers/wrap_helpers_x.hpp"
+#include "wrap_helpers/char_string_x.hpp"
+#include "wrap_helpers/std_string_x.hpp"
 
 namespace jswrap
 {
