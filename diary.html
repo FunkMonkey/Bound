@@ -507,7 +507,7 @@ Also see [[AdvancedOptions]]</pre>
 </div>
 <!--POST-SHADOWAREA-->
 <div id="storeArea">
-<div title="Diary" creator="Test" modifier="Test" created="201201242016" modified="201201242042" changecount="7">
+<div title="Diary" creator="Test" modifier="Test" created="201201242016" modified="201201242106" changecount="12">
 <pre>!Week 3 - 9
 
 !!CPPAnalyzer
@@ -530,7 +530,7 @@ Also see [[AdvancedOptions]]</pre>
 
 !!!GUI
 * Aufbau der Grund-GUI
-** zwei Bäume, eine Toolbox, eine Tabbox
+** zwei Bäume mit Icons, eine Toolbox, eine Tabbox
 ** Drag &amp; Drop
 * Entwurf eines Tree-GUI-Elements
 ** Das XUL Tree GUI-Element basiert auf einer Liste, die entsprechend angepasst werden muss, sobald man Zweige öffnet
@@ -569,12 +569,22 @@ Also see [[AdvancedOptions]]</pre>
 * Include-Handling
 ** nutzt Templates
 ** nutzt Source-Code-Positionen (Formatierung des Pfades notwendig)
+* Inline vs eigene Dateien
+* Scope-Handling
 * Einfacher Test auf Kompatiblität mit Export_ASTObject / sourceObject
 * Beschäftigung mit Source-Code-Formatierern (Astyle, Uncrustify)
 
 !!!Projekte
 * Laden und Speichern
 ** von ExportTree und C++-Tree
+** JSON
+** Objekte geben JSON-SaveObject zurück
+
+!!Wrapping
+* Wrap-Library für Spidermonkey
+** einfache Funktionen mit Parametern und Rückgabe für Basistypen und Strings
+** Wrapping einer einfachen Klasse
+** Wrapping von Properties
 
 
 !Week 1 - 2
