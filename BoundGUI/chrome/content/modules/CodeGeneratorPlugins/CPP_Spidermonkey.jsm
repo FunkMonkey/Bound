@@ -243,6 +243,7 @@ CodeGenerator_Function.prototype = {
 		
 		var data = {
 			is_instance_call: (astFunc.kind === ASTObject.KIND_MEMBER_FUNCTION && !astFunc.isStatic),
+			numParams: astFunc.parameters.length,
 			parameters_init: parameters_init,
 			call_parameters: call_parameters,
 			parent_qualifier: parent_qualifier,

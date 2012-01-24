@@ -13,6 +13,8 @@
 
 	(String)  error_source    : source name that will be part of the error message",
 	
+"includes": ["#include \"{$cpp_spidermonkey_lib_include_dir}wrap_helpers/wrap_helpers_x.hpp\""],
+	
 "templateCode":
 "JSBool {$wrapper_funcName}(JSContext *cx, uintN argc, jsval *vp)
 {
@@ -20,6 +22,10 @@
 	
 {if $is_instance_call}		{$parent_qualifier}& inst = getThisPrivateRef<{$parent_qualifier}>(cx, vp);
 		
+{/if}{if $numParams > 0}
+		checkMinNumberOfArguments_x(argc, {$numParams});
+		jsval* args = JS_ARGV(cx, vp);
+
 {/if}{$parameters_init|indent:2:\"\\t\"}
 		{if $return_type}{$return_type} cpp__result = {/if}{if $is_instance_call}inst.{else}{$parent_qualifier}::{/if}{$funcName}({$call_parameters});
 	
