@@ -85,24 +85,26 @@ namespace CPPAnalyzer
 
 	ASTObject_Namespace* Clang_AST::addNamespace(CXCursor cursor, ASTObject* astParent)
 	{
-		CXString displayName = clang_getCursorSpelling(cursor);
+		// Common properties
+		SelfDisposingCXString displayName(clang_getCursorSpelling(cursor));
+		SelfDisposingCXString USR(clang_getCursorUSR(cursor));
 
-		ASTObject_Namespace* astObject = new ASTObject_Namespace(clang_getCString(displayName));
+		ASTObject_Namespace* astObject = new ASTObject_Namespace(displayName.c_str());
 		astParent->addChild(astObject);
-
-		astObject->setUSR(clang_getCString(clang_getCursorUSR(cursor)));
+		astObject->setUSR(USR.c_str());
 		
 		return astObject;
 	}
 
 	ASTObject_Struct* Clang_AST::addStruct(CXCursor cursor, ASTObject* astParent)
 	{
-		CXString displayName = clang_getCursorSpelling(cursor);
+		// Common properties
+		SelfDisposingCXString displayName(clang_getCursorSpelling(cursor));
+		SelfDisposingCXString USR(clang_getCursorUSR(cursor));
 
-		ASTObject_Struct* astObject = new ASTObject_Struct(clang_getCString(displayName));
+		ASTObject_Struct* astObject = new ASTObject_Struct(displayName.c_str());
 		astParent->addChild(astObject);
-
-		astObject->setUSR(clang_getCString(clang_getCursorUSR(cursor)));
+		astObject->setUSR(USR.c_str());
 		
 		return astObject;
 	}
@@ -110,12 +112,13 @@ namespace CPPAnalyzer
 
 	ASTObject_Class* Clang_AST::addClass(CXCursor cursor, ASTObject* astParent)
 	{
-		CXString displayName = clang_getCursorSpelling(cursor);
+		// Common properties
+		SelfDisposingCXString displayName(clang_getCursorSpelling(cursor));
+		SelfDisposingCXString USR(clang_getCursorUSR(cursor));
 
-		ASTObject_Class* astObject = new ASTObject_Class(clang_getCString(displayName));
+		ASTObject_Class* astObject = new ASTObject_Class(displayName.c_str());
 		astParent->addChild(astObject);
-
-		astObject->setUSR(clang_getCString(clang_getCursorUSR(cursor)));
+		astObject->setUSR(USR.c_str());
 
 		return astObject;
 	}
@@ -123,46 +126,51 @@ namespace CPPAnalyzer
 
 	ASTObject_Field* Clang_AST::addField(CXCursor cursor, ASTObject* astParent)
 	{
-		CXString displayName = clang_getCursorSpelling(cursor);
+		// Common properties
+		SelfDisposingCXString displayName(clang_getCursorSpelling(cursor));
+		SelfDisposingCXString USR(clang_getCursorUSR(cursor));
 
-		ASTObject_Field* astObject = new ASTObject_Field(clang_getCString(displayName));
+		ASTObject_Field* astObject = new ASTObject_Field(displayName.c_str());
+		astParent->addChild(astObject);
+		astObject->setUSR(USR.c_str());
+
+		// Field properties
 		astObject->setAccess(static_cast<ASTObject_Struct*>(astParent)->getCurrentAccess());
-
 		astObject->setType(createASTTypeFromCursor(cursor, false));
 		astObject->setTypeCanonical(createASTTypeFromCursor(cursor, true));
-
-		// TODO: use add field
-		astParent->addChild(astObject);
-
-		astObject->setUSR(clang_getCString(clang_getCursorUSR(cursor)));
 		
 		return astObject;
 	}
 
 	ASTObject_Function* Clang_AST::addFunction(CXCursor cursor, ASTObject* astParent)
 	{
-		CXString displayName = clang_getCursorSpelling(cursor);
+		// Common properties
+		SelfDisposingCXString displayName(clang_getCursorSpelling(cursor));
+		SelfDisposingCXString USR(clang_getCursorUSR(cursor));
 
-		ASTObject_Function* astObject = new ASTObject_Function(clang_getCString(displayName));
+		ASTObject_Function* astObject = new ASTObject_Function(displayName.c_str());
+		astParent->addChild(astObject);
+		astObject->setUSR(USR.c_str());
 
+		// Function properties
 		CXType returnType = clang_getCursorResultType(cursor);
-
 		astObject->setReturnType(createASTType(returnType, false));
 		astObject->setReturnTypeCanonical(createASTType(returnType, true));
 
-		astParent->addChild(astObject);
-
-		astObject->setUSR(clang_getCString(clang_getCursorUSR(cursor)));
-		
 		return astObject;
 	}
 
 	ASTObject_Member_Function* Clang_AST::addMemberFunction(CXCursor cursor, ASTObject* astParent)
 	{
-		CXString displayName = clang_getCursorSpelling(cursor);
+		// Common properties
+		SelfDisposingCXString displayName(clang_getCursorSpelling(cursor));
+		SelfDisposingCXString USR(clang_getCursorUSR(cursor));
 
-		ASTObject_Member_Function* astObject = new ASTObject_Member_Function(clang_getCString(displayName));
+		ASTObject_Member_Function* astObject = new ASTObject_Member_Function(displayName.c_str());
+		astParent->addChild(astObject);	
+		astObject->setUSR(USR.c_str());
 
+		// Member function properties
 		CXType returnType = clang_getCursorResultType(cursor);
 
 		// TODO: check if parent is struct or class
@@ -173,53 +181,56 @@ namespace CPPAnalyzer
 
 		// TODO: is static
 
-		// TODO: use addFunction
-		astParent->addChild(astObject);
-
-		astObject->setUSR(clang_getCString(clang_getCursorUSR(cursor)));
-		
 		return astObject;
 	}
 
 	ASTObject_Constructor* Clang_AST::addConstructor(CXCursor cursor, ASTObject* astParent)
 	{
-		CXString displayName = clang_getCursorSpelling(cursor);
+		// Common properties
+		SelfDisposingCXString displayName(clang_getCursorSpelling(cursor));
+		SelfDisposingCXString USR(clang_getCursorUSR(cursor));
 
-		ASTObject_Constructor* astObject = new ASTObject_Constructor(clang_getCString(displayName));
+		ASTObject_Constructor* astObject = new ASTObject_Constructor(displayName.c_str());
+		astObject->setUSR(USR.c_str());
 		
+		// Constructor properties
 		// TODO: check if parent is struct or class, throw exception
 		ASTObject_Struct* parentStruct = static_cast<ASTObject_Struct*>(astParent);
 		astObject->setAccess(parentStruct->getCurrentAccess());
 		parentStruct->addConstructor(astObject);
-
-		astObject->setUSR(clang_getCString(clang_getCursorUSR(cursor)));
 		
 		return astObject;
 	}
 
 	ASTObject_Destructor* Clang_AST::addDestructor(CXCursor cursor, ASTObject* astParent)
 	{
-		CXString displayName = clang_getCursorSpelling(cursor);
+		// Common properties
+		SelfDisposingCXString displayName(clang_getCursorSpelling(cursor));
+		SelfDisposingCXString USR(clang_getCursorUSR(cursor));
 
-		ASTObject_Destructor* astObject = new ASTObject_Destructor(clang_getCString(displayName));
+		ASTObject_Destructor* astObject = new ASTObject_Destructor(displayName.c_str());
+		astObject->setUSR(USR.c_str());
 		
+		// Destructor properties
 		// TODO: check if parent is struct or class, throw exception
 		ASTObject_Struct* parentStruct = static_cast<ASTObject_Struct*>(astParent);
 		astObject->setAccess(parentStruct->getCurrentAccess());
 		parentStruct->setDestructor(astObject);
 
-		astObject->setUSR(clang_getCString(clang_getCursorUSR(cursor)));
-		
 		return astObject;
 	}
 
 	// TODO: differ between declarations and definitions, otherwise multiple params
 	ASTObject_Parameter* Clang_AST::addParameter(CXCursor cursor, ASTObject* astParent)
 	{
-		CXString displayName = clang_getCursorSpelling(cursor);
+		// Common properties
+		SelfDisposingCXString displayName(clang_getCursorSpelling(cursor));
+		SelfDisposingCXString USR(clang_getCursorUSR(cursor));
 
-		ASTObject_Parameter* astObject = new ASTObject_Parameter(clang_getCString(displayName));
+		ASTObject_Parameter* astObject = new ASTObject_Parameter(displayName.c_str());
+		astObject->setUSR(USR.c_str());
 		
+		// Parameter properties
 		astObject->setType(createASTTypeFromCursor(cursor, false));
 		astObject->setTypeCanonical(createASTTypeFromCursor(cursor, true));
 
@@ -229,35 +240,32 @@ namespace CPPAnalyzer
 
 		// TODO: else throw exception
 
-		astObject->setUSR(clang_getCString(clang_getCursorUSR(cursor)));
-		
 		return astObject;
 	}
 
 	ASTObject_Typedef* Clang_AST::addTypedef(CXCursor cursor, ASTObject* astParent)
 	{
-		CXString displayName = clang_getCursorSpelling(cursor);
+		// Common properties
+		SelfDisposingCXString displayName(clang_getCursorSpelling(cursor));
+		SelfDisposingCXString USR(clang_getCursorUSR(cursor));
 
-		ASTObject_Typedef* astObject = new ASTObject_Typedef(clang_getCString(displayName));
+		ASTObject_Typedef* astObject = new ASTObject_Typedef(displayName.c_str());
+		astParent->addChild(astObject);	
+		astObject->setUSR(USR.c_str());
 
+		// Typedef properties
 		CXType type = clang_getTypedefDeclUnderlyingType(cursor);
 		
 		astObject->setType(createASTType(type, false));
 		astObject->setTypeCanonical(createASTType(type, true));
 
-		astParent->addChild(astObject);
-
 		// TODO: else throw exception
-
-		astObject->setUSR(clang_getCString(clang_getCursorUSR(cursor)));
 
 		return astObject;
 	}
 
 	void Clang_AST::addBase(CXCursor cursor, ASTObject* astParent)
 	{
-		CXString displayName = clang_getCursorSpelling(cursor);
-
 		ASTObject* baseObject = getTypeDeclaration(cursor, true);
 		// TODO: check if struct or class
 
@@ -291,8 +299,10 @@ namespace CPPAnalyzer
 		// do we use the canonical type or not?
 		CXType type = (canonical) ? clang_getCanonicalType(inputType): inputType;
 
+		SelfDisposingCXString kind(clang_getTypeKindSpelling(type.kind));
+
 		ASTType* asttype = new ASTType();
-		asttype->setKind(clang_getCString(clang_getTypeKindSpelling(type.kind)));
+		asttype->setKind(kind.c_str());
 		switch(type.kind)
 		{
 			case CXType_Pointer:
@@ -327,13 +337,12 @@ namespace CPPAnalyzer
 	 */
 	CXChildVisitResult Clang_AST::visitCursor(CXCursor cursor, CXCursor parent, CXClientData client_data)
 	{
-		CXString kindString, displayType, cursorSpelling;
+		SelfDisposingCXString kindSpelling(clang_getCursorKindSpelling(cursor.kind));
+		SelfDisposingCXString displayName(clang_getCursorDisplayName(cursor));
+		SelfDisposingCXString cursorSpelling(clang_getCursorSpelling(cursor));
+		SelfDisposingCXString usr(clang_getCursorUSR(cursor));
 
-		kindString = clang_getCursorKindSpelling(cursor.kind);
-		displayType = clang_getCursorDisplayName(cursor);
-		cursorSpelling = clang_getCursorSpelling(cursor);
-
-		std::string usr_string = std::string(clang_getCString(clang_getCursorUSR(cursor)));
+		std::string usr_string(usr.c_str());
 
 		// check for multiple declarations
 
@@ -366,9 +375,6 @@ namespace CPPAnalyzer
 
 			return CXChildVisit_Recurse;
 		}
-
-
-		//std::cout << clang_getCString(kindString) << " " << clang_getCString(displayType) << " " << usr_string.c_str() << std::endl;
 
 		// get the parent ASTObject*
 		ASTObject* astParent = NULL;
@@ -470,7 +476,7 @@ namespace CPPAnalyzer
 			}
 			
 			default: 
-				std::cout << "UNHANDLED: " << clang_getCString(kindString) << " " << clang_getCString(displayType) << "\n";
+				std::cout << "UNHANDLED: " << kindSpelling.c_str() << " " << displayName.c_str() << "\n";
 				break; // shouldn't happen
 
 				// TODO templates

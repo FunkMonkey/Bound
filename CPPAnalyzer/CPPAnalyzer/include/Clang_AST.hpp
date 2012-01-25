@@ -33,6 +33,25 @@ namespace CPPAnalyzer
 	};
 
 	typedef std::map<CXCursor, ASTObject*, CXCursor_less> CXCursorASTObjectMap;
+
+	class SelfDisposingCXString
+	{
+		public:
+			SelfDisposingCXString(CXString str)
+				: m_cxString(str)
+			{}
+
+			~SelfDisposingCXString()
+			{
+				clang_disposeString(m_cxString);
+			}
+
+			const char* c_str() const { return clang_getCString(m_cxString); }
+			CXString getCXString() const { return m_cxString; }
+
+		protected:
+			CXString m_cxString;
+	};
 	
 
 	class Clang_AST
