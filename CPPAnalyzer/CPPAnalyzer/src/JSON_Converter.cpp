@@ -283,7 +283,22 @@ namespace CPPAnalyzer
 					
 					ASTObject_Member_Function* astObjectMemberFunc = dynamic_cast<ASTObject_Member_Function*>(&astObject);
 					if(astObjectMemberFunc)
+					{
 						addProperty("access", getASTObjectAccessString(astObjectMemberFunc->getAccess()), ss, indent);
+						
+
+						// only non-constructor, non-destructor member functions
+						if(kind == KIND_MEMBER_FUNCTION)
+						{
+							addProperty("isStatic", astObjectMemberFunc->isStatic(), ss, indent);
+							addProperty("isConst", astObjectMemberFunc->isConst(), ss, indent);
+						}
+
+						if(kind != KIND_CONSTRUCTOR)
+							addProperty("isVirtual", astObjectMemberFunc->isVirtual(), ss, indent);
+					}
+
+					
 					
 					// return type
 					if(kind == KIND_FUNCTION || kind == KIND_MEMBER_FUNCTION)

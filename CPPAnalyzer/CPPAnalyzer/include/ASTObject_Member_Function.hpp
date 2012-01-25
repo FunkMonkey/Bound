@@ -10,7 +10,7 @@ namespace CPPAnalyzer
 	public:
 
 		ASTObject_Member_Function(const std::string& nodeName)
-			: ASTObject_Function(nodeName), m_isVirtual(false), m_isConst(false)
+			: ASTObject_Function(nodeName), m_isVirtual(false), m_isConst(false), m_isStatic(false)
 		{
 
 		}
@@ -25,6 +25,9 @@ namespace CPPAnalyzer
 		bool isVirtual() const { return m_isVirtual; }
 		void setVirtual(bool val){ m_isVirtual = val; }
 
+		bool isStatic() const { return m_isStatic; }
+		void setStatic(bool val){ m_isStatic = val; }
+
 		bool isConst() const { return m_isConst; }
 		void setConst(bool isConst){ m_isConst = isConst; }
 
@@ -32,6 +35,7 @@ namespace CPPAnalyzer
 		ASTObjectAccess m_access;
 		bool m_isVirtual;
 		bool m_isConst;
+		bool m_isStatic;
 	};
 
 

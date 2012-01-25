@@ -178,8 +178,7 @@ namespace CPPAnalyzer
 		astObject->setReturnType(createASTType(returnType, false));
 		astObject->setReturnTypeCanonical(createASTType(returnType, true));
 		astObject->setVirtual(clang_CXXMethod_isVirtual(cursor));
-
-		// TODO: is static
+		astObject->setStatic(clang_CXXMethod_isStatic(cursor));
 
 		return astObject;
 	}

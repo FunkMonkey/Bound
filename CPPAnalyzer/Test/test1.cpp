@@ -35,6 +35,9 @@ namespace MyNamespace
 
 		void funcDecl(int i);
 		List* returningPointer();
+		
+		virtual void virtualFunc();
+		static void staticFunc();
 	};
 
 	class TestClass{};
