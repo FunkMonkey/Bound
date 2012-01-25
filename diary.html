@@ -507,7 +507,7 @@ Also see [[AdvancedOptions]]</pre>
 </div>
 <!--POST-SHADOWAREA-->
 <div id="storeArea">
-<div title="Diary" creator="Test" modifier="Test" created="201201242016" modified="201201242107" changecount="13">
+<div title="Diary Weeks 1 - 10" creator="Test" modifier="YourName" created="201201242016" modified="201201251535" changecount="14">
 <pre>!Week 3 - 9
 
 !!CPPAnalyzer
@@ -611,9 +611,68 @@ Also see [[AdvancedOptions]]</pre>
 
 * Language binding: about programming languages and what binding is, glue-code, etc.</pre>
 </div>
-<div title="MainMenu" creator="YourName" modifier="YourName" created="201201242114" changecount="1">
+<div title="DisableWikiLinksPlugin" creator="YourName" modifier="YourName" created="201201251547" modified="201201251547" tags="systemConfig excludeLists excludeSearch" changecount="2">
+<pre>// Ensure that the DisableWikiLinksPlugin is only installed once.
+if(!version.extensions.DisableWikiLinksPlugin) {
+version.extensions.DisableWikiLinksPlugin = {installed:true};
+
+if(version.major &lt; 2 || (version.major == 2 &amp;&amp; version.minor &lt; 1))
+	{alertAndThrow('DisableWikiLinksPlugin requires TiddlyWiki 2.1 or newer.');}
+
+if (config.options.chkDisableWikiLinks==undefined)
+	{config.options.chkDisableWikiLinks = false;}
+
+Tiddler.prototype.autoLinkWikiWords = function()
+{
+	if(config.options.chkDisableWikiLinks==true)
+		{return false;}
+	return !this.isTagged('systemConfig') &amp;&amp; !this.isTagged('excludeMissing');
+};
+
+} // end of 'install only once'
+
+</pre>
+</div>
+<div title="MainMenu" creator="YourName" modifier="YourName" created="201201242114" modified="201201251537" changecount="3">
 <pre>[[GettingStarted]]
-[[Diary]]</pre>
+[[Todo]]
+[[Diary Week 11]]
+[[Diary Weeks 1 - 10]]</pre>
+</div>
+<div title="Todo" creator="YourName" modifier="YourName" created="201201251542" modified="201201251559" changecount="5">
+<pre>!CPPAnalyzer
+
+* P1: Exporting enums
+* P1: Exporting templates
+* P1: Exporting virtual
+* P1: Exporting static
+* P1: Exporting const-functions
+* P2: Filtering ASTObjects via Regex
+
+!BoundGUI: Spidermonkey
+* P1: Support strings
+* P1: Support classes
+* P1: handle types
+* P1: Support properties
+* P1: Support enums
+* P1: Validation
+* P1: Restrictions &amp; compatibility
+* P2: Use types from referenced projects
+** Export type information
+* P2: overloaded functions
+* P3: Support templates
+
+!BoundGUI: User-Interface
+* P1: Interface for calling CPPAnalyzer
+** P2: filtering files
+* P1: Interface for adjusting ASTObjects and CodeGenerators
+* P1: Creating ExportTree objects
+* P1: Deleting ExportTree objects
+* P1: Renaming ExportTree objects
+
+!BoundGUI: Performance
+* P3: Incremental background-export
+* P3: Incremental background-validation</pre>
 </div>
 </div>
 <!--POST-STOREAREA-->
