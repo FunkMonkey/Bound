@@ -40,7 +40,10 @@ var CPPAnalyzer =
 		//var params = CharPtrArray([ctypes.char.array()("supertest"), ctypes.char.array()("D:\\Data\\Projekte\\Bound\\src\\CPPAnalyzer\\Test\\test1.cpp")]);
 		var result = this.libCPPAnalyzer.parse_header(params.length, params);
 		
-		var ASTJSON = JSON.parse(result.contents.astTreeJSON.readString());
+		var jsonStr = result.contents.astTreeJSON.readString();
+		//log(jsonStr);
+		
+		var ASTJSON = JSON.parse(jsonStr);
 		
 		var obj = {
 			TUPath: tuPath,

@@ -221,7 +221,10 @@ namespace CPPAnalyzer
 					auto bases = astObjectStruct.getBases();
 					for(auto it = bases.begin(); it != bases.end(); ++it)
 					{
-						ss << indent << m_indent << (*it).base->getID();
+						ss << indent << m_indent << "{" << m_lineBreak;
+						ss << indent << m_indent << "\"id\": " << (*it).base->getID() << "," << m_lineBreak;
+						ss << indent << m_indent << "\"access\": \"" << getASTObjectAccessString((*it).access) << "\"" << m_lineBreak;
+						ss << indent << m_indent << "}" << m_lineBreak;
 						if(it+1 != bases.end())
 							ss << "," << m_lineBreak;
 					}

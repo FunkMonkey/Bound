@@ -42,7 +42,7 @@ namespace MyNamespace
 
 	class TestClass{};
 
-	class TestClass2 : public TestClass {};
+	class TestClass2 : private TestClass {};
 
 	typedef const List MooType;
 

@@ -28,12 +28,12 @@ var MainWindow = {
 		
 		// TODO: move somewhere else
 		CPPAnalyzer.init();
-		//var path = "D:/Data/Projekte/Bound/src/CPPAnalyzer/Test/";
-		//var cppAST = CPPAnalyzer.parse_header(path, ["supertest", path + "test1.cpp"]);
-		////var path = "D:/Data/Projekte/Bound/src/Wrapping/Spidermonkey/include/";
-		////var cppAST = CPPAnalyzer.parse_header(path, ["supertest", path + "Functions_BasicTypes.hpp"]);
-		//CPPTree.setCPPAST(cppAST);
-		//ExportTree.newExportAST(cppAST);
+		var path = "D:/Data/Projekte/Bound/src/CPPAnalyzer/Test/";
+		var cppAST = CPPAnalyzer.parse_header(path, ["supertest", path + "test1.cpp"]);
+		//var path = "D:/Data/Projekte/Bound/src/Wrapping/Spidermonkey/include/";
+		//var cppAST = CPPAnalyzer.parse_header(path, ["supertest", path + "Functions_BasicTypes.hpp"]);
+		CPPTree.setCPPAST(cppAST);
+		ExportTree.newExportAST(cppAST);
 		
 	},
 };

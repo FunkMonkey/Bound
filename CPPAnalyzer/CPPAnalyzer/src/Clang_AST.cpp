@@ -52,8 +52,6 @@ namespace CPPAnalyzer
 		if(file)
 		{
 			location.fileName = CXStringToStdStringAndFree(clang_getFileName(file));
-
-			std::cout << "LOCATION: " << location.fileName << std::endl;
 		}
 
 		// TODO: etc
@@ -270,8 +268,24 @@ namespace CPPAnalyzer
 
 		ASTObject_Struct* parentStruct = dynamic_cast<ASTObject_Struct*>(astParent);
 		if(parentStruct)
-			parentStruct->addBase(static_cast<ASTObject_Struct*>(baseObject), ACCESS_PUBLIC);
+		{
+			
+
+			enum CX_CXXAccessSpecifier access = clang_getCXXAccessSpecifier(cursor);
+
+			ASTObjectAccess astAccess;
+
+			switch (access) {
+				case CX_CXXPublic:    astAccess = ACCESS_PUBLIC; break;
+				case CX_CXXProtected: astAccess = ACCESS_PROTECTED; break;
+				case CX_CXXPrivate:   astAccess = ACCESS_PRIVATE; break;
+				default: break; // TODO: error
+			}
+
+			parentStruct->addBase(static_cast<ASTObject_Struct*>(baseObject), astAccess);
+		}
 		// TODO: else throw exception
+
 	}
 
 	ASTObject* Clang_AST::getTypeDeclaration(CXCursor cursor, bool canonical)
@@ -430,6 +444,8 @@ namespace CPPAnalyzer
 			// changing the access
 			case CXCursor_CXXAccessSpecifier:
 			{
+				std::cout << "ACCESS" << "\n";
+
 				enum CX_CXXAccessSpecifier access = clang_getCXXAccessSpecifier(cursor);
 
 				switch (access) {

@@ -137,7 +137,7 @@ CPP_AST.prototype = {
 			   this.astObjectsByUSR[jsonObject.USR] = astObject;
 			   
 			   for(var i = 0; i < jsonObject.bases.length; ++i)
-				   astObject.addBase(this.astObjectsByID[jsonObject.bases[i]], ASTObject.ACCESS_PUBLIC);
+				   astObject.addBase(this.astObjectsByID[jsonObject.bases[i].id], ASTObject.getAccessFromString(jsonObject.bases[i].access));
 			   
 			   break;
 		   
@@ -147,7 +147,7 @@ CPP_AST.prototype = {
 			   this.astObjectsByUSR[jsonObject.USR] = astObject;
 			   
 			   for(var i = 0; i < jsonObject.bases.length; ++i)
-				   astObject.addBase(this.astObjectsByID[jsonObject.bases[i]], ASTObject.ACCESS_PUBLIC);
+				   astObject.addBase(this.astObjectsByID[jsonObject.bases[i].id], ASTObject.getAccessFromString(jsonObject.bases[i].access));
 			   
 			   break;
 		   
