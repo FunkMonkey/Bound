@@ -44,7 +44,7 @@ DAMAGE.
 <!--}}}-->
 
 <!--PRE-HEAD-END-->
-<title> My TiddlyWiki - a reusable non-linear personal web notebook </title>
+<title> Bound -  </title>
 <style id="styleArea" type="text/css">
 #saveTest {display:none;}
 #messageArea {display:none;}
@@ -507,6 +507,73 @@ Also see [[AdvancedOptions]]</pre>
 </div>
 <!--POST-SHADOWAREA-->
 <div id="storeArea">
+<div title="Agenda" creator="YourName" modifier="YourName" created="201201251624" changecount="1">
+<pre>1. Theorie-Teil
+1.1 Zu bearbeitende Themen
+1.1.1 Language-Binding
+
+  - Was sind Skriptsprachen und warum erweitert man z. B. C++ durch diese?
+  - Wie funktioniert Language-Binding (Wrapping, Glue-Code)
+  - Welche Systeme / Methoden / Tools gibt es schon um Language-Binding zu vereinfachen / automatisieren (COM, Corba, Mozilla XPCOM + IDL, SWIG)
+  - Warum wird ein eigenes Tool entwickelt? (Notwendigkeit, Vorteile, Goals- und Non-Goals, etc.)
+  - Wie soll die Automatisierung grob erfolgen? -&gt; Übergang zu Static Analysis
+  
+1.1.2 Static Analysis
+
+ - Was ist Static Analysis?
+ - Wie soll Static Analysis innerhalb des Projektes genutzt werden?
+ -- -&gt; Erhebung von Typ- und Member-Informationen zur weiteren Verarbeitung
+ - Welche anderen Möglichkeiten gibt es die notwendigen Informationen zu erhalten und warum werden diese nicht genutzt? (Header-Parser, GCC-XML)
+ - Welche Static Analysis Tools gibt es, warum kommen bzw. kommen sie nicht für die Erfüllung der Aufgabe in Frage
+ - Begründung der Auswahl und Beschreibung des/der Systeme: (steht selbst für mich noch nicht fest)
+ -- Dehydra (GCC-Plugin), *Linux only*
+ -- Clang (LLVM-Compiler)
+ - Wie erfüllt das gewählte System die Aufgabe?
+ 
+1.1.3 Abbildung von C++ auf verschiedene Skriptsprachen
+
+ - welche Sprachkonstrukte von C++ kann man auf andere Sprachen abbilden? 
+ -- Klassen, Interfaces, virtuelle Methoden, Polymorphie, statische Methoden, Templates
+ - Wie sieht es aus mit Sprachkonstrukten, die in C++ nicht existieren bzw. kompliziert sind?
+ -- Properties? Umwandlung von Gettern und settern? Funktoren, Funktionspointer
+ -- Übergang von klassen-basierter Vererbung (C++) zu Prototyp-basierter Vererbung (JS)
+ 
+1.1.4 C++-Meta-Data zur Unterstützung der Auswahl (Intents) (optional)
+
+ - kann der User schon im C++-Code Empfehlungen für die Art des Wrappings hinterlegen?
+ - Wie? Makros? C++-Attribute?
+ 
+1.1.5 Weitere Nutzungsmöglichkeiten eines solchen Systems? Meta-Data-Editor?
+ 
+2. Praxis-Teil
+
+ - Grobes Konzept: GUI-Applikation, die StaticAnalysis-Tool für C++ aufruft, welches Informationen (Typen und Member) in Datei speichert, die dann von GUI-Applikation gelesen wird
+ 
+ - Welches Tool: Dehydra, libClang oder beides?
+ -- Dehydra unter Windows mit VM und NodeJS?
+ -- &quot;Cehydra&quot;: eigene libClang-basierte C++-Applikation mit JS als Skriptsprache (Dehydra-kompatibel)? JS-Anbindung am Ende selbst über die entwickelte Applikation?
+ -- Format der Informations-Datei:
+ --- allgemein genug  als dass auch eine andere Sprache (z. B. C#) als Input-Sprache genutzt werden kann?
+ 
+ - unterstützte Sprachen für Output: Javascript, Python, SWIG-Header
+
+ - Verbindung von C++-Informationen und gewünschten Skript-Objekten
+ -- 1:1-Abbildung (mit Auswahl)?
+ -- beliebiger Aufbau in Skriptsprache (Skript-Objekt-Tree) mit durch User gesetzter Verbindung zu C++?
+ 
+ - Wrapping von Klassen und einzelnen Objekten (u. A. Frage der Anbindung des Output)
+ - Wrapping von 3rd-Party-Code? Std, etc...
+ 
+ - Aufbau einer Projekt-Datei
+ - Wie stark anpassbar? Wie weit kann der User selbst eingreifen und Code hinzufügen?
+ 
+ - Beispiel-Projekte
+  
+ - Unterstützung von Intents?</pre>
+</div>
+<div title="Diary Week 11" creator="YourName" modifier="YourName" created="201201251605" modified="201201251605" changecount="2">
+<pre>25.01.2010 - 31.01.2012</pre>
+</div>
 <div title="Diary Weeks 1 - 10" creator="Test" modifier="YourName" created="201201242016" modified="201201251535" changecount="14">
 <pre>!Week 3 - 9
 
@@ -633,13 +700,27 @@ Tiddler.prototype.autoLinkWikiWords = function()
 
 </pre>
 </div>
-<div title="MainMenu" creator="YourName" modifier="YourName" created="201201242114" modified="201201251537" changecount="3">
+<div title="GettingStarted" creator="YourName" modifier="YourName" created="201201251623" changecount="1">
+<pre>To get started with this blank [[TiddlyWiki]], you'll need to modify the following tiddlers:
+* [[SiteTitle]] &amp; [[SiteSubtitle]]: The title and subtitle of the site, as shown above (after saving, they will also appear in the browser title bar)
+* [[MainMenu]]: The menu (usually on the left)
+* [[DefaultTiddlers]]: Contains the names of the tiddlers that you want to appear when the TiddlyWiki is opened
+You'll also need to enter your username for signing your edits: &lt;&lt;option txtUserName&gt;&gt;</pre>
+</div>
+<div title="MainMenu" creator="YourName" modifier="YourName" created="201201242114" modified="201201251624" changecount="4">
 <pre>[[GettingStarted]]
 [[Todo]]
+[[Agenda]]
 [[Diary Week 11]]
 [[Diary Weeks 1 - 10]]</pre>
 </div>
-<div title="Todo" creator="YourName" modifier="YourName" created="201201251542" modified="201201251604" changecount="8">
+<div title="SiteSubtitle" creator="YourName" modifier="YourName" created="201201251623" changecount="1">
+<pre></pre>
+</div>
+<div title="SiteTitle" creator="YourName" modifier="YourName" created="201201251622" changecount="1">
+<pre>Bound</pre>
+</div>
+<div title="Todo" creator="YourName" modifier="YourName" created="201201251542" modified="201201251646" changecount="12">
 <pre>!CPPAnalyzer
 
 * ''P1: Exporting enums''
@@ -672,7 +753,60 @@ Tiddler.prototype.autoLinkWikiWords = function()
 
 !BoundGUI: Performance
 * P3: Incremental background-export
-* P3: Incremental background-validation</pre>
+* P3: Incremental background-validation
+
+!Thesis
+# Theory
+## Language binding
+*** SWIG
+*** Why own tool? What are the current systems missing? (necessity, advantages, goals, non-goals)
+*** How will automation happen? Next chapter: static analysis ...
+## Statical analysis
+*** What is Static Analysis?
+*** How will static analysis be used in the project (getting type, file and member-information)
+*** Other ways of getting the information - why are those not used? (Header-Parser, GCC-XML)
+*** existing static analysis tools? Why are they not used?
+**** Dehydra (GCC-Plugin), Linux only
+**** Clang (LLVM-Compiler)
+*** Explain decision for static analysis tool
+*** How does the system fulfill the task?
+## Task for the thesis
+## Mapping C++ to scripting languages
+*** which language constructs can be ported to other languages
+*** Classes, Interfaces, virtual methods, polymorphism, static methods, Templates
+*** What about language constructs that do not exist in C++ or are complicated?
+**** Properties? Getters and setters? Functors, function pointers
+**** class-based-inheritence (C++) to prototype-based-inheritence (JS)
+## Other uses
+*** Meta-Data-editor
+*** Unit Testing boiler code generator
+# Practical
+
+
+Practical:
+-----------
+
+- boiler code for unit testing
+
+CPPAnalyzer
+-----------
+- AST Objects
+- visitChildren
+- Logic for access
+- function parameter problem
+- JSON conversion
+
+BoundGUI
+---------
+- Tree
+- calling CPPAnalyzer using js-ctypes (conversion) --&gt; JSON
+- transforming JSON to AST-Tree
+- templating using jSmart
+- templates in JSON for additional data
+   - problem with escaping \n and \t
+   - includes
+   - custom functions (die auch auf alles zugreifen können, z.b. log) -&gt; fungieren genauso als return-values!
+- export AST and code-generators for contexts</pre>
 </div>
 </div>
 <!--POST-STOREAREA-->
