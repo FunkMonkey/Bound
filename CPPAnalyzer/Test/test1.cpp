@@ -38,6 +38,7 @@ namespace MyNamespace
 		
 		virtual void virtualFunc();
 		static void staticFunc();
+		static int staticDataMember;
 	};
 
 	class TestClass{};

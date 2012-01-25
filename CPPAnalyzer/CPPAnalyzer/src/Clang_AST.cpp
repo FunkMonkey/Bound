@@ -469,6 +469,20 @@ namespace CPPAnalyzer
 				astObject = addField(cursor, astParent);
 				break;
 			}
+
+			case CXCursor_VarDecl:
+			{
+				if(astParent && (astParent->getKind() == KIND_STRUCT || astParent->getKind() == KIND_CLASS))
+				{
+					astObject = addField(cursor, astParent);
+					static_cast<ASTObject_Field*>(astObject)->setStatic(true);
+				}
+				else
+				{
+					// TODO: global variables
+				}
+				break;
+			}
 			
 			// parameters
 			case CXCursor_ParmDecl: 

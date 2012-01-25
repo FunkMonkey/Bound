@@ -255,6 +255,7 @@ namespace CPPAnalyzer
 
 					// access
 					addProperty("access", getASTObjectAccessString(astObjectField.getAccess()), ss, indent);
+					addProperty("isStatic", astObjectField.isStatic(), ss, indent);
 					addLine("\"type\": ", ss, indent);
 					convertToJSON(*astObjectField.getType(), ss, depth+2);
 					ss << "," << m_lineBreak;

@@ -162,7 +162,7 @@ CPP_AST.prototype = {
 		   case "Field":
 			   type = this._addASTTypeFromJSON(jsonObject.type);
 			   typeCanonical = this._addASTTypeFromJSON(jsonObject.typeCanonical);
-			   astObject = new CPP_ASTObject_Field(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical, ASTObject.getAccessFromString(jsonObject.access), false);
+			   astObject = new CPP_ASTObject_Field(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical, ASTObject.getAccessFromString(jsonObject.access), jsonObject.isStatic);
 			   this.astObjectsByID[jsonObject.id] = astObject;
 			   this.astObjectsByUSR[jsonObject.USR] = astObject;
 			   break;
