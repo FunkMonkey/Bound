@@ -72,6 +72,9 @@
     <ClInclude Include="include\JSON_Converter.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\ASTObject_Enum.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ASTObject.cpp">

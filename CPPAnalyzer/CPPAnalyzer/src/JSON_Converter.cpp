@@ -12,6 +12,7 @@
 #include "ASTObject_Constructor.hpp"
 #include "ASTObject_Destructor.hpp"
 #include "ASTObject_Typedef.hpp"
+#include "ASTObject_Enum.hpp"
 
 #include "ASTType.hpp"
 
@@ -352,6 +353,7 @@ namespace CPPAnalyzer
 
 					break;
 				}
+			
 
 			default: return false;
 		}

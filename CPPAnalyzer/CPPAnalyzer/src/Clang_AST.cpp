@@ -11,6 +11,7 @@
 #include "ASTObject_Constructor.hpp"
 #include "ASTObject_Destructor.hpp"
 #include "ASTObject_Typedef.hpp"
+#include "ASTObject_Enum.hpp"
 
 #include <iostream>
 
@@ -261,6 +262,35 @@ namespace CPPAnalyzer
 		return astObject;
 	}
 
+	ASTObject_Enum* Clang_AST::addEnum(CXCursor cursor, ASTObject* astParent)
+	{
+		// Common properties
+		SelfDisposingCXString displayName(clang_getCursorSpelling(cursor));
+		SelfDisposingCXString USR(clang_getCursorUSR(cursor));
+
+		ASTObject_Enum* astObject = new ASTObject_Enum(displayName.c_str());
+		astParent->addChild(astObject);	
+		astObject->setUSR(USR.c_str());
+
+		return astObject;
+	}
+
+	ASTObject_EnumConstant* Clang_AST::addEnumConstant(CXCursor cursor, ASTObject* astParent)
+	{
+		// Common properties
+		SelfDisposingCXString displayName(clang_getCursorSpelling(cursor));
+		SelfDisposingCXString USR(clang_getCursorUSR(cursor));
+
+		ASTObject_EnumConstant* astObject = new ASTObject_EnumConstant(displayName.c_str());
+		astParent->addChild(astObject);	
+		astObject->setUSR(USR.c_str());
+
+		// EnumConstant properties
+		astObject->setValue(clang_getEnumConstantDeclValue(cursor));
+
+		return astObject;
+	}
+
 	void Clang_AST::addBase(CXCursor cursor, ASTObject* astParent)
 	{
 		ASTObject* baseObject = getTypeDeclaration(cursor, true);
@@ -501,6 +531,19 @@ namespace CPPAnalyzer
 			case CXCursor_FunctionDecl:
 			{
 				astObject = addFunction(cursor, astParent);
+				break;
+			}
+
+			// ENUMS
+			case CXCursor_EnumDecl:
+			{
+				astObject = addEnum(cursor, astParent);
+				break;
+			}
+
+			case CXCursor_EnumConstantDecl:
+			{
+				astObject = addEnumConstant(cursor, astParent);
 				break;
 			}
 			

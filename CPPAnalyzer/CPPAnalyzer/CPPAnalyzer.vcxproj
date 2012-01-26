@@ -84,6 +84,7 @@
     <ClInclude Include="include\ASTObject_Class.hpp" />
     <ClInclude Include="include\ASTObject_Constructor.hpp" />
     <ClInclude Include="include\ASTObject_Destructor.hpp" />
+    <ClInclude Include="include\ASTObject_Enum.hpp" />
     <ClInclude Include="include\ASTObject_Field.hpp" />
     <ClInclude Include="include\ASTObject_Function.hpp" />
     <ClInclude Include="include\ASTObject_Member_Function.hpp" />

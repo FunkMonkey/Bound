@@ -11,6 +11,12 @@ namespace MyNamespace
 
 	}
 	
+	enum ENUM2
+	{
+		E2VAL1,
+		E2VAL2,
+		E2VAL3
+	}
 
 
 	int SOMETHING = 3;

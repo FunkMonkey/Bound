@@ -17,7 +17,10 @@ namespace CPPAnalyzer
 		KIND_MEMBER_FUNCTION,
 		KIND_PARAMETER,
 		KIND_CONSTRUCTOR,
-		KIND_DESTRUCTOR
+		KIND_DESTRUCTOR,
+		KIND_ENUM,
+		KIND_ENUMCONSTANT,
+		KIND_UNION
 	};
 
 	enum ASTObjectAccess{
@@ -53,7 +56,10 @@ namespace CPPAnalyzer
 			case KIND_MEMBER_FUNCTION: return "MemberFunction";
 			case KIND_PARAMETER: return "Parameter";
 			case KIND_CONSTRUCTOR: return "Constructor";
-			case KIND_DESTRUCTOR: return "Destructor";	
+			case KIND_DESTRUCTOR: return "Destructor";
+			case KIND_ENUM: return "Enum";	
+			case KIND_ENUMCONSTANT: return "EnumConstant";	
+			case KIND_UNION: return "Union";	
 		}
 
 		return "Invalid";

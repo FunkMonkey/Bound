@@ -19,6 +19,8 @@ namespace CPPAnalyzer
 	class ASTObject_Variable_Decl;
 	class ASTObject_Constructor;
 	class ASTObject_Destructor;
+	class ASTObject_Enum;
+	class ASTObject_EnumConstant;
 
 	class ASTObject_Field;
 
@@ -70,6 +72,9 @@ namespace CPPAnalyzer
 			ASTObject_Constructor* addConstructor(CXCursor cursor, ASTObject* astParent);
 			ASTObject_Destructor* addDestructor(CXCursor cursor, ASTObject* astParent);
 			ASTObject_Typedef* addTypedef(CXCursor cursor, ASTObject* astParent);
+			ASTObject_Enum* addEnum(CXCursor cursor, ASTObject* astParent);
+			ASTObject_EnumConstant* addEnumConstant(CXCursor cursor, ASTObject* astParent);
+
 			void addBase(CXCursor cursor, ASTObject* astParent);
 
 			ASTType* createASTTypeFromCursor(CXCursor cursor, bool canonical = false);
