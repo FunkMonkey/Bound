@@ -44,8 +44,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\Dependencies\clang\include;$(ProjectDir)include;$(SolutionDir)..\..\Dependencies\stdint\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>LIBRARY_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)..\..\Dependencies\clang\include;$(SolutionDir)..\..\Dependencies\stdint\include;$(SolutionDir)..\..\Dependencies\jsoncpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>LIBRARY_EXPORTS;JSON_IS_AMALGAMATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -53,7 +53,7 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>libclang.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libclang.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)..\..\Dependencies\clang\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TargetMachine>MachineX86</TargetMachine>
@@ -63,15 +63,15 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\Dependencies\clang\include;$(ProjectDir)include;$(SolutionDir)..\..\Dependencies\stdint\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>LIBRARY_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)..\..\Dependencies\clang\include;$(SolutionDir)..\..\Dependencies\stdint\include;$(SolutionDir)..\..\Dependencies\jsoncpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>LIBRARY_EXPORTS;JSON_IS_AMALGAMATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>libclang.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libclang.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)..\..\Dependencies\clang\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OptimizeReferences>true</OptimizeReferences>
@@ -106,6 +106,7 @@
     <ClCompile Include="src\ASTObject_Struct.cpp" />
     <ClCompile Include="src\Clang_AST.cpp" />
     <ClCompile Include="src\Clang_JSON_lib.cpp" />
+    <ClCompile Include="src\jsoncpp.cpp" />
     <ClCompile Include="src\JSON_Converter.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

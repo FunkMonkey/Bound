@@ -2,6 +2,8 @@
 
 #include "Clang_AST.hpp"
 
+#include <json/json.h>
+
 #include "ASTObject_Namespace.hpp"
 #include "ASTObject_Struct.hpp"
 #include "ASTObject_Class.hpp"
@@ -21,256 +23,437 @@
 
 namespace CPPAnalyzer
 {
-	void JSON_Converter::convertAllChildrenToJSON(ASTObject& astObject, std::stringstream& ss, int depth)
+	//void JSON_Converter::convertAllChildrenToJSON(ASTObject& astObject, std::stringstream& ss, int depth)
+	//{
+	//	auto& children = astObject.getChildren();
+	//	auto it = children.begin();
+	//	auto end = children.end();
+
+	//	for(; it!= end; ++it)
+	//	{
+	//		bool added = convertToJSON(*(*it), ss, depth+2);
+	//		if(it+1 != end && added)
+	//			ss << "," << m_lineBreak;
+	//	}
+	//	ss << m_lineBreak;
+	//}
+
+	//void JSON_Converter::addProperty(const std::string& propName, const std::string& value, std::stringstream& ss, const std::string& indent, bool isLast)
+	//{
+	//	addProperty(propName, value.c_str(), ss, indent, isLast);
+	//}
+
+	//void JSON_Converter::addProperty(const std::string& propName, const char* value, std::stringstream& ss, const std::string& indent, bool isLast)
+	//{
+	//	ss << indent << '"' << propName << "\": \"" << value << "\"";
+	//	if(!isLast)
+	//		ss << ",";
+	//		
+	//	ss << m_lineBreak;
+	//}
+
+	//void JSON_Converter::addProperty(const std::string& propName, unsigned int value, std::stringstream& ss, const std::string& indent, bool isLast)
+	//{
+	//	ss << indent << '"' << propName << "\": " << value;
+	//	if(!isLast)
+	//		ss << ",";
+
+	//	ss << m_lineBreak;
+	//}
+
+	//void JSON_Converter::addProperty(const std::string& propName, float value, std::stringstream& ss, const std::string& indent, bool isLast)
+	//{
+	//	ss << indent << '"' << propName << "\": " << value;
+	//	if(!isLast)
+	//		ss << ",";
+
+	//	ss << m_lineBreak;
+	//}
+
+	//void JSON_Converter::addProperty(const std::string& propName, bool value, std::stringstream& ss, const std::string& indent, bool isLast)
+	//{
+	//	ss << indent << '"' << propName << "\": " << ((value) ? "true" : "false");
+	//	if(!isLast)
+	//		ss << ",";
+
+	//	ss << m_lineBreak;
+	//}
+
+	//void JSON_Converter::addLine(const std::string& line, std::stringstream& ss, const std::string& indent)
+	//{
+	//	ss << indent << line << m_lineBreak;
+	//}
+
+	//void JSON_Converter::convertToJSON(ASTType& type, std::stringstream& ss, int depth)
+	//{
+	//	// TEMP indent, TODO: performance
+	//	std::string indent_min;
+	//	for(int i = 0; i < depth; ++i)
+	//		indent_min += m_indent;
+
+	//	std::string indent = indent_min + m_indent;
+
+	//	// --------------------
+	//	addLine("{", ss, indent_min);
+	//	addProperty("kind", type.getKind(), ss, indent);
+	//	addProperty("isConst", type.isConst(), ss, indent, !(type.getDeclaration() || type.getPointsTo()));
+
+	//	if((type.getKind() == "Record" || type.getKind() == "Typedef") && type.getDeclaration())
+	//	{
+	//		addProperty("declaration", type.getDeclaration()->getID(), ss, indent, true);
+	//	}
+	//	else if((type.getKind() == "Pointer" || type.getKind() == "LValueReference") && type.getPointsTo())
+	//	{
+	//		ss << indent << "\"pointsTo\":" << m_lineBreak;
+	//		convertToJSON(*type.getPointsTo(), ss, depth +2);
+	//		ss << m_lineBreak;
+	//	}
+
+	//	ss << indent_min << "}";
+	//}
+
+	//void JSON_Converter::addCommonProps(ASTObject& astObject, std::stringstream& ss, std::string& indent)
+	//{
+	//	addProperty("name", astObject.getNodeName(), ss, indent);
+	//	addProperty("kind", getASTObjectKind(astObject.getKind()), ss, indent);
+	//	addProperty("id", astObject.getID(), ss, indent);
+	//	addProperty("isDefinition", astObject.isDefinition(), ss, indent);
+	//	// TODO: filename escape backslash
+	//	if(astObject.isDefinition())
+	//	{
+	//		ss << indent << m_indent << "\"definition\": {" << m_lineBreak;
+	//		ss << indent << m_indent << m_indent << "\"fileName\": \"" << astObject.getDefinitionSource().fileName << "\"" << m_lineBreak;
+
+	//		ss << indent << m_indent << "},";
+	//		ss << m_lineBreak;
+	//	}
+	//	else
+	//	{
+	//		addLine("\"declarations\": [", ss, indent);
+
+	//		auto& declarations = astObject.getDeclarationsSource();
+	//		for(auto it = declarations.begin(); it != declarations.end(); ++it)
+	//		{
+	//			ss << indent << m_indent << "{" << m_lineBreak;
+	//			ss << indent << m_indent << m_indent << "\"fileName\": \"" << (*it).fileName << "\"" << m_lineBreak;
+
+	//			ss << indent << m_indent << "}";
+	//			if(it+1 != declarations.end())
+	//				ss << ",";
+
+	//			ss << m_lineBreak;
+	//		}
+
+	//		addLine("],", ss, indent);
+	//	}
+
+	//}
+
+	//bool JSON_Converter::convertToJSON(ASTObject& astObject, std::stringstream& ss, int depth)
+	//{
+	//	// TEMP indent, TODO: performance
+	//	std::string indent_min;
+	//	for(int i = 0; i < depth; ++i)
+	//		indent_min += m_indent;
+
+	//	std::string indent = indent_min + m_indent;
+
+	//	ASTObjectKind kind = astObject.getKind();
+	//	switch(kind)
+	//	{
+	//		case KIND_NAMESPACE:
+	//			{
+	//				addLine("{", ss, indent_min);
+
+	//				// common props
+	//				addCommonProps(astObject, ss, indent);
+
+	//				// adding children
+	//				addLine("\"children\": [", ss, indent);
+	//				convertAllChildrenToJSON(astObject, ss, depth);
+	//				addLine("],", ss, indent);
+
+	//				// USR
+	//				addProperty("USR", astObject.getUSR(), ss, indent, true);
+
+	//				// end of object
+	//				ss << indent_min <<  "}";
+
+	//				break;
+	//			}
+	//		
+	//		case KIND_TYPEDEF:
+	//			{
+	//				ASTObject_Typedef& astObjectTypedef = static_cast<ASTObject_Typedef&>(astObject);
+
+	//				addLine("{", ss, indent_min);
+
+	//				// common props
+	//				addCommonProps(astObject, ss, indent);
+
+	//				// access
+	//				addLine("\"type\": ", ss, indent);
+	//				convertToJSON(*astObjectTypedef.getType(), ss, depth+2);
+	//				ss << "," << m_lineBreak;
+
+	//				addLine("\"typeCanonical\": ", ss, indent);
+	//				convertToJSON(*astObjectTypedef.getTypeCanonical(), ss, depth+2);
+	//				ss << "," << m_lineBreak;
+
+	//				// USR
+	//				addProperty("USR", astObject.getUSR(), ss, indent, true);
+
+	//				// end of object
+	//				ss << indent_min <<  "}";
+
+	//				break;
+	//			}
+	//		case KIND_STRUCT:
+	//		case KIND_CLASS:
+	//			{
+	//				auto astObjectStruct = static_cast<ASTObject_Struct&>(astObject);
+
+	//				addLine("{", ss, indent_min);
+
+	//				// common props
+	//				addCommonProps(astObject, ss, indent);
+	//				
+	//				// adding bases
+	//				addLine("\"bases\": [", ss, indent);
+
+	//				auto bases = astObjectStruct.getBases();
+	//				for(auto it = bases.begin(); it != bases.end(); ++it)
+	//				{
+	//					ss << indent << m_indent << "{" << m_lineBreak;
+	//					ss << indent << m_indent << "\"id\": " << (*it).base->getID() << "," << m_lineBreak;
+	//					ss << indent << m_indent << "\"access\": \"" << getASTObjectAccessString((*it).access) << "\"" << m_lineBreak;
+	//					ss << indent << m_indent << "}" << m_lineBreak;
+	//					if(it+1 != bases.end())
+	//						ss << "," << m_lineBreak;
+	//				}
+
+	//				addLine("],", ss, indent);
+	//				
+	//				// adding children
+	//				addLine("\"children\": [", ss, indent);
+	//				convertAllChildrenToJSON(astObject, ss, depth);
+	//				addLine("],", ss, indent);
+
+	//				// USR
+	//				addProperty("USR", astObject.getUSR(), ss, indent, true);
+
+	//				// end of object
+	//				ss << indent_min <<  "}";
+
+	//				break;
+	//			}
+	//		case KIND_FIELD:
+	//			{
+	//				ASTObject_Field& astObjectField = static_cast<ASTObject_Field&>(astObject);
+
+	//				addLine("{", ss, indent_min);
+
+	//				// common props
+	//				addCommonProps(astObject, ss, indent);
+
+	//				// access
+	//				addProperty("access", getASTObjectAccessString(astObjectField.getAccess()), ss, indent);
+	//				addProperty("isStatic", astObjectField.isStatic(), ss, indent);
+	//				addLine("\"type\": ", ss, indent);
+	//				convertToJSON(*astObjectField.getType(), ss, depth+2);
+	//				ss << "," << m_lineBreak;
+
+	//				addLine("\"typeCanonical\": ", ss, indent);
+	//				convertToJSON(*astObjectField.getTypeCanonical(), ss, depth+2);
+	//				ss << "," << m_lineBreak;
+
+	//				// USR
+	//				addProperty("USR", astObject.getUSR(), ss, indent, true);
+
+
+	//				// end of object
+	//				ss << indent_min <<  "}";
+
+	//				break;
+	//			}
+	//		case KIND_FUNCTION:
+	//		case KIND_MEMBER_FUNCTION:
+	//		case KIND_CONSTRUCTOR:
+	//		case KIND_DESTRUCTOR:
+	//			{
+	//				ASTObject_Function& astObjectFunc = static_cast<ASTObject_Function&>(astObject);
+
+	//				addLine("{", ss, indent_min);
+
+	//				// common props
+	//				addCommonProps(astObject, ss, indent);
+	//				
+	//				ASTObject_Member_Function* astObjectMemberFunc = dynamic_cast<ASTObject_Member_Function*>(&astObject);
+	//				if(astObjectMemberFunc)
+	//				{
+	//					addProperty("access", getASTObjectAccessString(astObjectMemberFunc->getAccess()), ss, indent);
+	//					
+
+	//					// only non-constructor, non-destructor member functions
+	//					if(kind == KIND_MEMBER_FUNCTION)
+	//					{
+	//						addProperty("isStatic", astObjectMemberFunc->isStatic(), ss, indent);
+	//						addProperty("isConst", astObjectMemberFunc->isConst(), ss, indent);
+	//					}
+
+	//					if(kind != KIND_CONSTRUCTOR)
+	//						addProperty("isVirtual", astObjectMemberFunc->isVirtual(), ss, indent);
+	//				}
+
+	//				
+	//				
+	//				// return type
+	//				if(kind == KIND_FUNCTION || kind == KIND_MEMBER_FUNCTION)
+	//				{
+	//					addLine("\"returnType\": ", ss, indent);
+	//					convertToJSON(*astObjectFunc.getReturnType(), ss, depth+2);
+	//					ss << "," << m_lineBreak;
+	//					addLine("\"returnTypeCanonical\": ", ss, indent);
+	//					convertToJSON(*astObjectFunc.getReturnTypeCanonical(), ss, depth+2);
+	//					ss << "," << m_lineBreak;
+	//				}
+
+	//				// parameters
+	//				if(kind != KIND_DESTRUCTOR)
+	//				{
+	//					addLine("\"parameters\": [", ss, indent);
+
+	//					auto& parameters = astObjectFunc.getParameters();
+	//					for(auto it = parameters.begin(); it != parameters.end(); ++it)
+	//					{
+	//						ss << indent << m_indent << "{" << m_lineBreak;
+	//						ss << indent << m_indent << m_indent << "\"name\": \"" << (*it)->getNodeName() << "\"," << m_lineBreak;
+
+	//						addLine("\"type\": ", ss, indent + m_indent + m_indent);
+	//						convertToJSON(*(*it)->getType(), ss, depth+4);
+	//						ss << "," << m_lineBreak;
+
+	//						addLine("\"typeCanonical\": ", ss, indent + m_indent + m_indent);
+	//						convertToJSON(*(*it)->getTypeCanonical(), ss, depth+4);
+	//						ss << m_lineBreak;
+
+	//						ss << indent << m_indent << "}";
+	//						if(it+1 != parameters.end())
+	//							ss << ",";
+
+	//						ss << m_lineBreak;
+	//					}
+
+	//					addLine("],", ss, indent);
+	//				}
+
+	//				// USR
+	//				addProperty("USR", astObject.getUSR(), ss, indent, true);
+
+	//				// end of object
+	//				ss << indent_min <<  "}";
+
+	//				break;
+	//			}
+	//		
+
+	//		default: return false;
+	//	}
+
+	//	return true;
+	//}
+
+	// TODO: performance
+	Json::Value convertASTTypeToJSON(ASTType& type)
 	{
-		auto& children = astObject.getChildren();
-		auto it = children.begin();
-		auto end = children.end();
-
-		for(; it!= end; ++it)
-		{
-			bool added = convertToJSON(*(*it), ss, depth+2);
-			if(it+1 != end && added)
-				ss << "," << m_lineBreak;
-		}
-		ss << m_lineBreak;
-	}
-
-	void JSON_Converter::addProperty(const std::string& propName, const std::string& value, std::stringstream& ss, const std::string& indent, bool isLast)
-	{
-		addProperty(propName, value.c_str(), ss, indent, isLast);
-	}
-
-	void JSON_Converter::addProperty(const std::string& propName, const char* value, std::stringstream& ss, const std::string& indent, bool isLast)
-	{
-		ss << indent << '"' << propName << "\": \"" << value << "\"";
-		if(!isLast)
-			ss << ",";
-			
-		ss << m_lineBreak;
-	}
-
-	void JSON_Converter::addProperty(const std::string& propName, unsigned int value, std::stringstream& ss, const std::string& indent, bool isLast)
-	{
-		ss << indent << '"' << propName << "\": " << value;
-		if(!isLast)
-			ss << ",";
-
-		ss << m_lineBreak;
-	}
-
-	void JSON_Converter::addProperty(const std::string& propName, float value, std::stringstream& ss, const std::string& indent, bool isLast)
-	{
-		ss << indent << '"' << propName << "\": " << value;
-		if(!isLast)
-			ss << ",";
-
-		ss << m_lineBreak;
-	}
-
-	void JSON_Converter::addProperty(const std::string& propName, bool value, std::stringstream& ss, const std::string& indent, bool isLast)
-	{
-		ss << indent << '"' << propName << "\": " << ((value) ? "true" : "false");
-		if(!isLast)
-			ss << ",";
-
-		ss << m_lineBreak;
-	}
-
-	void JSON_Converter::addLine(const std::string& line, std::stringstream& ss, const std::string& indent)
-	{
-		ss << indent << line << m_lineBreak;
-	}
-
-	void JSON_Converter::convertToJSON(ASTType& type, std::stringstream& ss, int depth)
-	{
-		// TEMP indent, TODO: performance
-		std::string indent_min;
-		for(int i = 0; i < depth; ++i)
-			indent_min += m_indent;
-
-		std::string indent = indent_min + m_indent;
-
-		// --------------------
-		addLine("{", ss, indent_min);
-		addProperty("kind", type.getKind(), ss, indent);
-		addProperty("isConst", type.isConst(), ss, indent, !(type.getDeclaration() || type.getPointsTo()));
+		Json::Value objJSON;
+		objJSON["kind"]    = type.getKind();
+		objJSON["isConst"] = type.isConst();
 
 		if((type.getKind() == "Record" || type.getKind() == "Typedef") && type.getDeclaration())
 		{
-			addProperty("declaration", type.getDeclaration()->getID(), ss, indent, true);
+			objJSON["declaration"] = type.getDeclaration()->getID();
 		}
 		else if((type.getKind() == "Pointer" || type.getKind() == "LValueReference") && type.getPointsTo())
 		{
-			ss << indent << "\"pointsTo\":" << m_lineBreak;
-			convertToJSON(*type.getPointsTo(), ss, depth +2);
-			ss << m_lineBreak;
+			objJSON["pointsTo"] = convertASTTypeToJSON(*type.getPointsTo());
 		}
 
-		ss << indent_min << "}";
+		return objJSON;
 	}
 
-	void JSON_Converter::addCommonProps(ASTObject& astObject, std::stringstream& ss, std::string& indent)
+	// TODO: performance
+	Json::Value convertASTObjectToJSON(ASTObject& astObject)
 	{
-		addProperty("name", astObject.getNodeName(), ss, indent);
-		addProperty("kind", getASTObjectKind(astObject.getKind()), ss, indent);
-		addProperty("id", astObject.getID(), ss, indent);
-		addProperty("isDefinition", astObject.isDefinition(), ss, indent);
-		// TODO: filename escape backslash
-		if(astObject.isDefinition())
-		{
-			ss << indent << m_indent << "\"definition\": {" << m_lineBreak;
-			ss << indent << m_indent << m_indent << "\"fileName\": \"" << astObject.getDefinitionSource().fileName << "\"" << m_lineBreak;
-
-			ss << indent << m_indent << "},";
-			ss << m_lineBreak;
-		}
-		else
-		{
-			addLine("\"declarations\": [", ss, indent);
-
-			auto& declarations = astObject.getDeclarationsSource();
-			for(auto it = declarations.begin(); it != declarations.end(); ++it)
-			{
-				ss << indent << m_indent << "{" << m_lineBreak;
-				ss << indent << m_indent << m_indent << "\"fileName\": \"" << (*it).fileName << "\"" << m_lineBreak;
-
-				ss << indent << m_indent << "}";
-				if(it+1 != declarations.end())
-					ss << ",";
-
-				ss << m_lineBreak;
-			}
-
-			addLine("],", ss, indent);
-		}
-
-	}
-
-	bool JSON_Converter::convertToJSON(ASTObject& astObject, std::stringstream& ss, int depth)
-	{
-		// TEMP indent, TODO: performance
-		std::string indent_min;
-		for(int i = 0; i < depth; ++i)
-			indent_min += m_indent;
-
-		std::string indent = indent_min + m_indent;
-
 		ASTObjectKind kind = astObject.getKind();
+		
+		Json::Value objJSON;
+
+		objJSON["name"] = astObject.getNodeName();
+		objJSON["USR"]  = astObject.getUSR();
+		if(kind != KIND_PARAMETER)
+		{
+			objJSON["id"]   = astObject.getID();
+			objJSON["kind"] = getASTObjectKind(astObject.getKind());
+		}
+		
 		switch(kind)
 		{
 			case KIND_NAMESPACE:
 				{
-					addLine("{", ss, indent_min);
-
-					// common props
-					addCommonProps(astObject, ss, indent);
-
 					// adding children
-					addLine("\"children\": [", ss, indent);
-					convertAllChildrenToJSON(astObject, ss, depth);
-					addLine("],", ss, indent);
+					auto& childrenJSON = objJSON["children"] = Json::Value(Json::arrayValue);
+					auto& children = astObject.getChildren();
 
-					// USR
-					addProperty("USR", astObject.getUSR(), ss, indent, true);
-
-					// end of object
-					ss << indent_min <<  "}";
+					for(auto it = children.begin(), end = children.end(); it!= end; ++it)
+						childrenJSON.append(convertASTObjectToJSON(**it));
 
 					break;
 				}
 			
 			case KIND_TYPEDEF:
 				{
-					ASTObject_Typedef& astObjectTypedef = static_cast<ASTObject_Typedef&>(astObject);
+					auto& astObjectTypedef = static_cast<ASTObject_Typedef&>(astObject);
 
-					addLine("{", ss, indent_min);
-
-					// common props
-					addCommonProps(astObject, ss, indent);
-
-					// access
-					addLine("\"type\": ", ss, indent);
-					convertToJSON(*astObjectTypedef.getType(), ss, depth+2);
-					ss << "," << m_lineBreak;
-
-					addLine("\"typeCanonical\": ", ss, indent);
-					convertToJSON(*astObjectTypedef.getTypeCanonical(), ss, depth+2);
-					ss << "," << m_lineBreak;
-
-					// USR
-					addProperty("USR", astObject.getUSR(), ss, indent, true);
-
-					// end of object
-					ss << indent_min <<  "}";
+					// type
+					objJSON["type"]          = convertASTTypeToJSON(*astObjectTypedef.getType());
+					objJSON["typeCanonical"] = convertASTTypeToJSON(*astObjectTypedef.getTypeCanonical());
 
 					break;
 				}
 			case KIND_STRUCT:
 			case KIND_CLASS:
 				{
-					auto astObjectStruct = static_cast<ASTObject_Struct&>(astObject);
+					auto& astObjectStruct = static_cast<ASTObject_Struct&>(astObject);
 
-					addLine("{", ss, indent_min);
-
-					// common props
-					addCommonProps(astObject, ss, indent);
-					
 					// adding bases
-					addLine("\"bases\": [", ss, indent);
-
-					auto bases = astObjectStruct.getBases();
-					for(auto it = bases.begin(); it != bases.end(); ++it)
+					auto& basesJSON = objJSON["bases"] = Json::Value(Json::arrayValue);
+					auto& bases = astObjectStruct.getBases();
+					for(auto it = bases.begin(), end = bases.end(); it != end; ++it)
 					{
-						ss << indent << m_indent << "{" << m_lineBreak;
-						ss << indent << m_indent << "\"id\": " << (*it).base->getID() << "," << m_lineBreak;
-						ss << indent << m_indent << "\"access\": \"" << getASTObjectAccessString((*it).access) << "\"" << m_lineBreak;
-						ss << indent << m_indent << "}" << m_lineBreak;
-						if(it+1 != bases.end())
-							ss << "," << m_lineBreak;
+						auto& baseJSON = basesJSON.append(Json::objectValue);
+						baseJSON["id"]     = (*it).base->getID();
+						baseJSON["access"] = getASTObjectAccessString((*it).access);
 					}
 
-					addLine("],", ss, indent);
-					
 					// adding children
-					addLine("\"children\": [", ss, indent);
-					convertAllChildrenToJSON(astObject, ss, depth);
-					addLine("],", ss, indent);
+					auto& childrenJSON = objJSON["children"] = Json::Value(Json::arrayValue);
+					auto& children = astObject.getChildren();
 
-					// USR
-					addProperty("USR", astObject.getUSR(), ss, indent, true);
-
-					// end of object
-					ss << indent_min <<  "}";
+					for(auto it = children.begin(), end = children.end(); it!= end; ++it)
+						childrenJSON.append(convertASTObjectToJSON(**it));
 
 					break;
 				}
 			case KIND_FIELD:
 				{
-					ASTObject_Field& astObjectField = static_cast<ASTObject_Field&>(astObject);
+					auto& astObjectField = static_cast<ASTObject_Field&>(astObject);
 
-					addLine("{", ss, indent_min);
-
-					// common props
-					addCommonProps(astObject, ss, indent);
-
-					// access
-					addProperty("access", getASTObjectAccessString(astObjectField.getAccess()), ss, indent);
-					addProperty("isStatic", astObjectField.isStatic(), ss, indent);
-					addLine("\"type\": ", ss, indent);
-					convertToJSON(*astObjectField.getType(), ss, depth+2);
-					ss << "," << m_lineBreak;
-
-					addLine("\"typeCanonical\": ", ss, indent);
-					convertToJSON(*astObjectField.getTypeCanonical(), ss, depth+2);
-					ss << "," << m_lineBreak;
-
-					// USR
-					addProperty("USR", astObject.getUSR(), ss, indent, true);
-
-
-					// end of object
-					ss << indent_min <<  "}";
+					// props
+					objJSON["access"]   = getASTObjectAccessString(astObjectField.getAccess());
+					objJSON["isStatic"] = astObjectField.isStatic();
+					objJSON["type"]          = convertASTTypeToJSON(*astObjectField.getType());
+					objJSON["typeCanonical"] = convertASTTypeToJSON(*astObjectField.getTypeCanonical());
 
 					break;
 				}
@@ -279,95 +462,84 @@ namespace CPPAnalyzer
 			case KIND_CONSTRUCTOR:
 			case KIND_DESTRUCTOR:
 				{
-					ASTObject_Function& astObjectFunc = static_cast<ASTObject_Function&>(astObject);
+					auto& astObjectFunc = static_cast<ASTObject_Function&>(astObject);
 
-					addLine("{", ss, indent_min);
-
-					// common props
-					addCommonProps(astObject, ss, indent);
-					
-					ASTObject_Member_Function* astObjectMemberFunc = dynamic_cast<ASTObject_Member_Function*>(&astObject);
+					// moak ... don't like that very much
+					auto astObjectMemberFunc = dynamic_cast<ASTObject_Member_Function*>(&astObject);
 					if(astObjectMemberFunc)
 					{
-						addProperty("access", getASTObjectAccessString(astObjectMemberFunc->getAccess()), ss, indent);
-						
+						objJSON["access"]   = getASTObjectAccessString(astObjectMemberFunc->getAccess());
 
 						// only non-constructor, non-destructor member functions
 						if(kind == KIND_MEMBER_FUNCTION)
 						{
-							addProperty("isStatic", astObjectMemberFunc->isStatic(), ss, indent);
-							addProperty("isConst", astObjectMemberFunc->isConst(), ss, indent);
+							objJSON["isStatic"] = astObjectMemberFunc->isStatic();
+							objJSON["isConst"]  = astObjectMemberFunc->isConst();
 						}
 
 						if(kind != KIND_CONSTRUCTOR)
-							addProperty("isVirtual", astObjectMemberFunc->isVirtual(), ss, indent);
+							objJSON["isVirtual"]  = astObjectMemberFunc->isVirtual();
 					}
-
-					
 					
 					// return type
 					if(kind == KIND_FUNCTION || kind == KIND_MEMBER_FUNCTION)
 					{
-						addLine("\"returnType\": ", ss, indent);
-						convertToJSON(*astObjectFunc.getReturnType(), ss, depth+2);
-						ss << "," << m_lineBreak;
-						addLine("\"returnTypeCanonical\": ", ss, indent);
-						convertToJSON(*astObjectFunc.getReturnTypeCanonical(), ss, depth+2);
-						ss << "," << m_lineBreak;
+						objJSON["returnType"]          = convertASTTypeToJSON(*astObjectFunc.getReturnType());
+						objJSON["returnTypeCanonical"] = convertASTTypeToJSON(*astObjectFunc.getReturnTypeCanonical());
 					}
 
 					// parameters
 					if(kind != KIND_DESTRUCTOR)
 					{
-						addLine("\"parameters\": [", ss, indent);
-
+						auto& parametersJSON = objJSON["parameters"] = Json::Value(Json::arrayValue);
 						auto& parameters = astObjectFunc.getParameters();
-						for(auto it = parameters.begin(); it != parameters.end(); ++it)
-						{
-							ss << indent << m_indent << "{" << m_lineBreak;
-							ss << indent << m_indent << m_indent << "\"name\": \"" << (*it)->getNodeName() << "\"," << m_lineBreak;
-
-							addLine("\"type\": ", ss, indent + m_indent + m_indent);
-							convertToJSON(*(*it)->getType(), ss, depth+4);
-							ss << "," << m_lineBreak;
-
-							addLine("\"typeCanonical\": ", ss, indent + m_indent + m_indent);
-							convertToJSON(*(*it)->getTypeCanonical(), ss, depth+4);
-							ss << m_lineBreak;
-
-							ss << indent << m_indent << "}";
-							if(it+1 != parameters.end())
-								ss << ",";
-
-							ss << m_lineBreak;
-						}
-
-						addLine("],", ss, indent);
+						for(auto it = parameters.begin(), end = parameters.end(); it != end; ++it)
+							parametersJSON.append(convertASTObjectToJSON(**it));
 					}
-
-					// USR
-					addProperty("USR", astObject.getUSR(), ss, indent, true);
-
-					// end of object
-					ss << indent_min <<  "}";
 
 					break;
 				}
-			
+			case KIND_PARAMETER:
+				{
+					auto& astObjectParam = static_cast<ASTObject_Parameter&>(astObject);
 
-			default: return false;
+					//paramJSON["name"]          = (*it)->getNodeName();
+					objJSON["type"]          = convertASTTypeToJSON(*astObjectParam.getType());
+					objJSON["typeCanonical"] = convertASTTypeToJSON(*astObjectParam.getTypeCanonical());
+
+					break;
+				}
+
+			case KIND_ENUM:
+				{
+					// children
+					auto& childrenJSON = objJSON["children"] = Json::Value(Json::arrayValue);
+					auto& children = astObject.getChildren();
+
+					for(auto it = children.begin(), end = children.end(); it!= end; ++it)
+						childrenJSON.append(convertASTObjectToJSON(**it));
+
+					break;
+				}
+			case KIND_ENUMCONSTANT:
+				{
+					auto& astObjectEnumConstant = static_cast<ASTObject_EnumConstant&>(astObject);
+					
+					objJSON["value"] = astObjectEnumConstant.getValue();
+				}
 		}
 
-		return true;
+		return objJSON;
 	}
 
 	void JSON_Converter::convertToJSON(std::string& str)
 	{
-		std::stringstream ss(str);
-		
-		convertToJSON(*(m_ast->getRootASTObject()), ss, 0);
+		Json::Value root = convertASTObjectToJSON(*(m_ast->getRootASTObject()));
 
-		str = ss.str();
+		Json::StyledWriter writer;
+		str = writer.write( root );
+
+		//std::cout << str << std::endl;
 	}
 
 }

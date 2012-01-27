@@ -48,6 +48,9 @@ ASTObject.KIND_MEMBER_FUNCTION = 8;
 ASTObject.KIND_PARAMETER       = 9;
 ASTObject.KIND_CONSTRUCTOR     = 10;
 ASTObject.KIND_DESTRUCTOR      = 11;
+ASTObject.KIND_ENUM            = 12;
+ASTObject.KIND_ENUMCONSTANT    = 13;
+ASTObject.KIND_UNION           = 14;
 
 ASTObject.getKindAsString = function getKindAsString(kind)
 {

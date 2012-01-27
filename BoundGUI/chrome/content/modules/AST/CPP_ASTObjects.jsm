@@ -12,7 +12,9 @@ var EXPORTED_SYMBOLS = ["CPP_AST",
 						"CPP_ASTObject_Function",
 						"CPP_ASTObject_Member_Function",
 						"CPP_ASTObject_Constructor",
-						"CPP_ASTObject_Destructor"];
+						"CPP_ASTObject_Destructor",
+						"CPP_ASTObject_Enum",
+						"CPP_ASTObject_EnumConstant"];
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
@@ -223,7 +225,19 @@ CPP_AST.prototype = {
 			   astObject = new CPP_ASTObject_Destructor(parent, jsonObject.name, jsonObject.id, jsonObject.USR, ASTObject.getAccessFromString(jsonObject.access), false);
 			   this.astObjectsByID[jsonObject.id] = astObject;
 			   this.astObjectsByUSR[jsonObject.USR] = astObject;
-			   break;	
+			   break;
+				
+			case "Enum":
+			   astObject = new CPP_ASTObject_Enum(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
+			   this.astObjectsByID[jsonObject.id] = astObject;
+			   this.astObjectsByUSR[jsonObject.USR] = astObject;
+			   break;
+			
+			case "EnumConstant":
+			   astObject = new CPP_ASTObject_EnumConstant(parent, jsonObject.name, jsonObject.id, jsonObject.USR, jsonObject.value);
+			   this.astObjectsByID[jsonObject.id] = astObject;
+			   this.astObjectsByUSR[jsonObject.USR] = astObject;
+			   break;
 	   }
 	   
 		if(astObject)
@@ -660,4 +674,46 @@ CPP_ASTObject_Destructor.prototype = {
 };
 
 Extension.inherit(CPP_ASTObject_Destructor, CPP_ASTObject_Member_Function);
+
+//======================================================================================
+
+/**
+ * CPP_ASTObject_Enum
+ *
+ * @constructor
+ * @this {CPP_ASTObject_Enum}
+ */
+function CPP_ASTObject_Enum(parent, name, id, usr)
+{
+	CPP_ASTObject.call(this, parent, name, id, usr);
+};
+
+CPP_ASTObject_Enum.prototype = {
+	constructor: CPP_ASTObject_Enum,
+	kind: ASTObject.KIND_ENUM
+};
+
+Extension.inherit(CPP_ASTObject_Enum, CPP_ASTObject);
+
+//======================================================================================
+
+/**
+ * CPP_ASTObject_EnumConstant
+ *
+ * @constructor
+ * @this {CPP_ASTObject_EnumConstant}
+ */
+function CPP_ASTObject_EnumConstant(parent, name, id, usr, value)
+{
+	CPP_ASTObject.call(this, parent, name, id, usr);
+	
+	this.value = value;
+};
+
+CPP_ASTObject_EnumConstant.prototype = {
+	constructor: CPP_ASTObject_EnumConstant,
+	kind: ASTObject.KIND_ENUMCONSTANT
+};
+
+Extension.inherit(CPP_ASTObject_EnumConstant, CPP_ASTObject);
 

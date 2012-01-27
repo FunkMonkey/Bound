@@ -95,5 +95,8 @@
     <ClCompile Include="src\JSON_Converter.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\jsoncpp.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
