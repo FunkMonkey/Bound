@@ -8,6 +8,10 @@ Components.utils.import("chrome://bound/content/modules/CPPAnalyzer.jsm");
 
 Components.utils.import("chrome://bound/content/modules/log.jsm");
 
+// TEMP
+Components.utils.import("chrome://bound/content/modules/UI/Widgets/ObjectExplorer.jsm");
+Components.utils.import("chrome://bound/content/modules/MetaDataHandler.jsm");
+
 var MainWindow = {
 	
 	/**
@@ -37,6 +41,21 @@ var MainWindow = {
 		
 		CPPTree.setCPPAST(cppAST);
 		ExportTree.newExportAST(cppAST);
+		
+		// Property explorer
+		/* @type ObjectExplorer */
+		this.PropertyExplorer = this.$document.getElementById("propertyExplorer");
+		createObjectExplorer(this.PropertyExplorer);
+		
+		var testObject = {
+			member: "test",
+			other: "fool",
+			number: 3434,
+			bool: true,
+			obj: {},
+			otherobj: null};
+		var dataHandler = new MetaDataHandler(testObject);
+		this.PropertyExplorer.setDataHandler(dataHandler);
 		
 	},
 };

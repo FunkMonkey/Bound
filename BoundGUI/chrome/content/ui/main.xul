@@ -38,6 +38,7 @@
 				<tabpanels id="resultTabPanels" flex="1">
 				</tabpanels>
 			</tabbox>
+			<vbox id="propertyExplorer" width="200" />
 		</hbox>
 	</vbox>
 </window>
