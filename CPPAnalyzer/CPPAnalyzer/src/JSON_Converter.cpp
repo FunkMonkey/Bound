@@ -393,8 +393,25 @@ namespace CPPAnalyzer
 		objJSON["USR"]  = astObject.getUSR();
 		if(kind != KIND_PARAMETER)
 		{
-			objJSON["id"]   = astObject.getID();
-			objJSON["kind"] = getASTObjectKind(astObject.getKind());
+			objJSON["id"]           = astObject.getID();
+			objJSON["kind"]         = getASTObjectKind(astObject.getKind());
+			objJSON["isDefinition"] = astObject.isDefinition();
+
+			if(astObject.isDefinition())
+			{
+				auto& definitionJSON = objJSON["definition"] = Json::Value(Json::objectValue);
+				definitionJSON["fileName"] = astObject.getDefinitionSource().fileName;
+			}
+			else
+			{
+				auto& declarationsJSON = objJSON["declarations"] = Json::Value(Json::arrayValue);
+				auto& declarations = astObject.getDeclarationsSource();
+				for(auto it = declarations.begin(), end = declarations.end(); it != end; ++it)
+				{
+					auto& declJSON = declarationsJSON.append(Json::objectValue);
+					declJSON["fileName"] = (*it).fileName;
+				}
+			}
 		}
 		
 		switch(kind)

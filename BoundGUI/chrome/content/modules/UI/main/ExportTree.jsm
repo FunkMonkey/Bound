@@ -1,6 +1,7 @@
 var EXPORTED_SYMBOLS = ["ExportTree"];
 
 Components.utils.import("chrome://bound/content/modules/DOMTree.jsm");
+Components.utils.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm");
 Components.utils.import("chrome://bound/content/modules/AST/Export_ASTObjects.jsm");
 Components.utils.import("chrome://bound/content/modules/CodeGeneratorPlugins/CPP_Spidermonkey.jsm");
 

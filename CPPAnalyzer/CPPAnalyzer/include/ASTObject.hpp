@@ -63,7 +63,9 @@ namespace CPPAnalyzer
 
 		std::vector<ASTObject*>& getChildren(){ return m_children; }
 		const std::vector<ASTObject*>& getChildren() const { return m_children; }
-		void addChild(ASTObject* child){ child->setParent(this); m_children.push_back(child); }
+		void addChild(ASTObject* child){ 
+			child->setParent(this); 
+			m_children.push_back(child); }
 
 		// TODO: removeChild
 

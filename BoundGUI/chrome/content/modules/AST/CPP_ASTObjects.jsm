@@ -189,7 +189,7 @@ CPP_AST.prototype = {
 		   case "MemberFunction":
 			   type = this._addASTTypeFromJSON(jsonObject.returnType);
 			   typeCanonical = this._addASTTypeFromJSON(jsonObject.returnTypeCanonical);
-			   astObject = new CPP_ASTObject_Member_Function(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical, ASTObject.getAccessFromString(jsonObject.access), false, false, false);
+			   astObject = new CPP_ASTObject_Member_Function(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical, ASTObject.getAccessFromString(jsonObject.access), jsonObject.isStatic, jsonObject.isVirtual, false);
 			   this.astObjectsByID[jsonObject.id] = astObject;
 			   this.astObjectsByUSR[jsonObject.USR] = astObject;
 			   
@@ -242,16 +242,14 @@ CPP_AST.prototype = {
 	   
 		if(astObject)
 		{
+			
 			astObject.isDefinition = jsonObject.isDefinition;
 			if(jsonObject.isDefinition)
-			{
 				astObject.definition = jsonObject.definition;
-			}
-			else
-			{
-				for(var i = 0, len = jsonObject.declarations; i < len; ++i)
+			
+			if(jsonObject.declarations)
+				for(var i = 0, len = jsonObject.declarations.length; i < len; ++i)
 					astObject.declarations.push(jsonObject.declarations[i]);
-			}
 		}
 	   
 	   if(jsonObject.children)

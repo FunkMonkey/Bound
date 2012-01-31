@@ -58,9 +58,11 @@ Plugin_CPP_Spidermonkey.prototype = {
 		var codegen;
 		switch(kind)
 		{
-			case "Function": codegen = CodeGenerator_Function; break;
+			case "Function":       codegen = CodeGenerator_Function; break;
 			case "MemberFunction": codegen = CodeGenerator_Function; break;
-			case "Namespace": codegen = CodeGenerator_Object; break;
+			case "Namespace":
+			case "Class":
+			case "Struct":         codegen = CodeGenerator_Object; break;
 			default: return null;
 		}
 		
@@ -136,6 +138,23 @@ Plugin_CPP_Spidermonkey.prototype = {
 };
 
 CodeGeneratorPluginManager.registerPlugin(Plugin_CPP_Spidermonkey.prototype.context, Plugin_CPP_Spidermonkey);
+
+/**
+ * Returns a template and adds it to the used templates array
+ * 
+ * @param   {String}   templateName    Name of the template to get
+ * @param   {Array}    usedTemplates   Array of used templates
+ * 
+ * @returns {jSmart}   Template
+ */
+function getAndUseTemplate(templateName, usedTemplates)
+{
+	var template = TemplateManager.getTemplate(templateName);
+	usedTemplates.push(template);
+	
+	return template;
+}
+
 
 /**
  * Code generator for functions and member functions
@@ -275,9 +294,7 @@ CodeGenerator_Function.prototype = {
 		for(var i = 0; i < usedTemplates.length; ++i)
 		{
 			if(usedTemplates[i].userdata.includes)
-			{
 				includeFiles.push.apply(includeFiles, usedTemplates[i].userdata.includes);
-			}
 		}
 		
 		var location = (astFunc.isDefinition == true) ? astFunc.definition : astFunc.declarations[0];
@@ -285,12 +302,11 @@ CodeGenerator_Function.prototype = {
 		if(location)
 		{
 			var fixedPath = location.fileName.replace(astFunc.AST.TUPath, "");
-			//log("path: " + fixedPath)
 			includeFiles.push('#include "{$CPP_TU_DIR}' + fixedPath + '"');
 		}
 		
 		return {  isFunction: true,
-				  isStatic: true,
+				  isStatic: astFunc.isStatic,
 				  numParams: astFunc.parameters.length,
 		  		  wrapper_function_code: tFunction.fetch(data),
 				  wrapper_function_name: data.wrapper_funcName,
@@ -355,6 +371,9 @@ function CodeGenerator_Object(plugin)
 
 CodeGenerator_Object.isCompatible = Plugin_CPP_Spidermonkey.prototype._isCompatible;
 
+
+
+
 CodeGenerator_Object.prototype = {
 	constructor: CodeGenerator_Object,
 	context: Plugin_CPP_Spidermonkey.prototype.context,
@@ -366,7 +385,10 @@ CodeGenerator_Object.prototype = {
 	 */
 	generate: function generate()
 	{
+		var usedTemplates = [];
+		
 		var scopeObj = this.exportObject;
+		var sourceObj = this.exportObject.sourceObject;
 		
 		var isInline = (scopeObj.children.length === 0) && (scopeObj.parent !== null);
 		var nameChain = this.getNameChain();
@@ -414,20 +436,43 @@ CodeGenerator_Object.prototype = {
 			}
 		}
 		
+		var tHPPTemplate = null;
+		var tCPPTemplate = null;
+		
+		if(sourceObj.kind === ASTObject.KIND_STRUCT || sourceObj.kind === ASTObject.KIND_CLASS)
+		{
+			// ------ classes only ------
+			tHPPTemplate = getAndUseTemplate("CPP_Spidermonkey/hpp_scope_content_class", usedTemplates);
+			tCPPTemplate = getAndUseTemplate("CPP_Spidermonkey/cpp_scope_content_class", usedTemplates);
+			var fullName = sourceObj.cppLongName;
+		}
+		else
+		{
+			// ------ namespaces only ------
+			tHPPTemplate = getAndUseTemplate("CPP_Spidermonkey/hpp_scope_content_init", usedTemplates);
+			tCPPTemplate = getAndUseTemplate("CPP_Spidermonkey/cpp_scope_content_object", usedTemplates);
+		}
+		
+		for(var i = 0; i < usedTemplates.length; ++i)
+		{
+			if(usedTemplates[i].userdata.includes)
+				cppIncludes.push.apply(cppIncludes, usedTemplates[i].userdata.includes);
+		}
 		cppIncludes = eliminateDuplicates(cppIncludes);
 		
 		// ------ hpp ------
 		
-		var hpp_scope_definition = TemplateManager.fetch("CPP_Spidermonkey/hpp_scope_content_init", { codeGen: this,
-																									  childScopes: childScopes,
-																									  nameChain: nameChain});
+		var hpp_scope_definition = tHPPTemplate.fetch({ codeGen: this,
+														childScopes: childScopes,
+														nameChain: nameChain});
 		// ------ cpp ------
 		
-		var cpp_scope_definition = TemplateManager.fetch("CPP_Spidermonkey/cpp_scope_content_object", { codeGen: this,
-																										childScopes: childScopes,
-																										childFunctions: childFunctions,
-																										nameChain: nameChain,
-																										newObjectName: (scopeObj.parent == null) ? null : scopeObj.name});
+		var cpp_scope_definition = tCPPTemplate.fetch({ codeGen: this,
+														childScopes: childScopes,
+														childFunctions: childFunctions,
+														nameChain: nameChain,
+														fullName: fullName,
+														newObjectName: (scopeObj.parent == null) ? null : scopeObj.name});	
 		// ------ result ------
 		if(isInline)
 		{

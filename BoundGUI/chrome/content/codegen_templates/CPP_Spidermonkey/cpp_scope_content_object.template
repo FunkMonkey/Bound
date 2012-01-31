@@ -21,7 +21,7 @@ namespace {$namespaceName}
 		if(!newObj)
 			return false;
 			
-{/if}{if functionsDefineCode}		if(!JS_DefineFunctions(cx, {$defScope}, functionsDefs))
+{/if}{if $functionsDefineCode}		if(!JS_DefineFunctions(cx, {$defScope}, functionsDefs))
 			return false;
 			
 {/if}{if $initCalls}{$initCalls|indent:2:'\\t'}

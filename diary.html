@@ -571,8 +571,27 @@ Also see [[AdvancedOptions]]</pre>
   
  - Unterstützung von Intents?</pre>
 </div>
-<div title="Diary Week 11" creator="YourName" modifier="YourName" created="201201251605" modified="201201272030" changecount="10">
+<div title="Diary Week 11" creator="YourName" modifier="YourName" created="201201251605" modified="201201311508" changecount="14">
 <pre>25.01.2010 - 31.01.2012
+
+!31.01
+!!CPPAnalyzer
+* P1: Support classes
+** Problems with obj-file output-dir
+
+!30.01
+!!Thesis
+* reading Secure Programming with static analysis tools
+* reading Taras Gleks Dehydra paper
+
+!!CPPAnalyzer
+* trying to support templates, problems with types because unexposed ...
+* beginning to support function pointers
+
+!28.01
+!!Thesis
+* Searching papers and books about static analysis
+* doing some research on SWIG
 
 !27.01
 !!CPPAnalyzer
@@ -742,11 +761,12 @@ You'll also need to enter your username for signing your edits: &lt;&lt;option t
 <div title="SiteTitle" creator="YourName" modifier="YourName" created="201201251622" changecount="1">
 <pre>Bound</pre>
 </div>
-<div title="Todo" creator="YourName" modifier="YourName" created="201201251542" modified="201201272030" changecount="16">
+<div title="Todo" creator="YourName" modifier="YourName" created="201201251542" modified="201201311507" changecount="24">
 <pre>!CPPAnalyzer
 
 * --P1: Exporting enums--
 * ''P1: Exporting templates''
+* ''P1: Exporting function pointers''
 * --P1: Exporting virtual--
 * --P1: Exporting static functions--
 * --P1: Exporting static fields--
@@ -755,7 +775,8 @@ You'll also need to enter your username for signing your edits: &lt;&lt;option t
 
 !BoundGUI: Spidermonkey
 * ''P1: Support strings''
-* ''P1: Support classes''
+* --P1: Support classes--
+** ''P1: Support ownership''
 * ''P1: handle types''
 * ''P1: Support properties''
 * ''P1: Support enums''
@@ -782,16 +803,18 @@ You'll also need to enter your username for signing your edits: &lt;&lt;option t
 !Thesis
 # Theory
 ## Language binding
-*** SWIG
+*** SWIG: advantages over swig: no need for interface-files (may not need in swig either)
 *** Why own tool? What are the current systems missing? (necessity, advantages, goals, non-goals)
 *** How will automation happen? Next chapter: static analysis ...
-## Statical analysis
+## Static analysis
 *** What is Static Analysis?
+*** Examples: DXR, IDE
 *** How will static analysis be used in the project (getting type, file and member-information)
 *** Other ways of getting the information - why are those not used? (Header-Parser, GCC-XML)
 *** existing static analysis tools? Why are they not used?
 **** Dehydra (GCC-Plugin), Linux only
 **** Clang (LLVM-Compiler)
+***** What is LLVM?
 *** Explain decision for static analysis tool
 *** How does the system fulfill the task?
 ## Task for the thesis

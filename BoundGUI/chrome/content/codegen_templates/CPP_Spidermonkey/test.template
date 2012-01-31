@@ -1,8 +1,0 @@
-{
-
-"description":"",
-	
-"templateCode":
-"void {$funcName}(int x);"
-
-}

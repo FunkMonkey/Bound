@@ -64,7 +64,7 @@ namespace CPPAnalyzer
 
 			ASTObject_Namespace* addNamespace(CXCursor cursor, ASTObject* astParent);
 			ASTObject_Struct* addStruct(CXCursor cursor, ASTObject* astParent);
-			ASTObject_Class* addClass(CXCursor cursor, ASTObject* astParent);
+			ASTObject_Class* addClass(CXCursor cursor, ASTObject* astParent, bool isTemplate);
 			ASTObject_Field* addField(CXCursor cursor, ASTObject* astParent);
 			ASTObject_Function* addFunction(CXCursor cursor, ASTObject* astParent);
 			ASTObject_Member_Function* addMemberFunction(CXCursor cursor, ASTObject* astParent);

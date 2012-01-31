@@ -109,7 +109,7 @@ namespace CPPAnalyzer
 	}
 
 
-	ASTObject_Class* Clang_AST::addClass(CXCursor cursor, ASTObject* astParent)
+	ASTObject_Class* Clang_AST::addClass(CXCursor cursor, ASTObject* astParent, bool isTemplate)
 	{
 		// Common properties
 		SelfDisposingCXString displayName(clang_getCursorSpelling(cursor));
@@ -118,6 +118,13 @@ namespace CPPAnalyzer
 		ASTObject_Class* astObject = new ASTObject_Class(displayName.c_str());
 		astParent->addChild(astObject);
 		astObject->setUSR(USR.c_str());
+
+		astObject->setTemplate(isTemplate);
+		if(isTemplate)
+		{
+			SelfDisposingCXString cursorSpelling(clang_getCursorSpelling(cursor));
+			astObject->setTemplateName(cursorSpelling.c_str());
+		}
 
 		return astObject;
 	}
@@ -388,6 +395,9 @@ namespace CPPAnalyzer
 		std::string usr_string(usr.c_str());
 
 		// check for multiple declarations
+		auto kindSpellingC = std::string(kindSpelling.c_str());
+		auto displayNameC = std::string(displayName.c_str());
+		auto cursorSpellingC = std::string(cursorSpelling.c_str());
 
 		
 		// TODO: use clang_getCanonicalCursor
@@ -449,7 +459,30 @@ namespace CPPAnalyzer
 
 			case CXCursor_ClassDecl:
 			{
-				astObject = addClass(cursor, astParent);
+				CXCursor templateCursor = clang_getSpecializedCursorTemplate(cursor);
+
+				if(!clang_Cursor_isNull(templateCursor))
+				{
+					int x = 3;
+				}
+
+				astObject = addClass(cursor, astParent, false);
+				break;
+			}
+
+			case CXCursor_ClassTemplate:
+			{
+				// clang_getTemplateCursorKind
+				// clang_getSpecializedCursorTemplate
+
+				astObject = addClass(cursor, astParent, true);
+
+				break;
+			}
+
+			case CXCursor_TemplateTypeParameter:
+			{
+				std::cout << "TemplateParam: " << kindSpelling.c_str() << " " << displayName.c_str() << "\n";
 				break;
 			}
 
@@ -510,6 +543,11 @@ namespace CPPAnalyzer
 				else
 				{
 					// TODO: global variables
+
+					// TODO: function pointers
+					CXType type = clang_getCursorType(cursor);
+					CXType pointee = clang_getPointeeType(type);
+					int xsdf = 34;
 				}
 				break;
 			}
@@ -519,10 +557,11 @@ namespace CPPAnalyzer
 			{
 				// fix: parameters for multiple declarations
 				// TODO: put somewhere else
+				// TODO: 
 				CXType funcType = clang_getCursorType(parent);
 				int numArgs = clang_getNumArgTypes(funcType);
 
-				if(static_cast<ASTObject_Function*>(astParent)->getParameters().size() < numArgs)
+				if(astParent && static_cast<ASTObject_Function*>(astParent)->getParameters().size() < numArgs)
 					astObject = addParameter(cursor, astParent);
 				break;
 			}
@@ -544,6 +583,15 @@ namespace CPPAnalyzer
 			case CXCursor_EnumConstantDecl:
 			{
 				astObject = addEnumConstant(cursor, astParent);
+				break;
+			}
+
+			case CXCursor_TypeRef:
+			{
+				std::cout << "UNHANDLED: " << kindSpelling.c_str() << " " << displayName.c_str() << "\n";
+
+				CXCursor refCursor = clang_getCursorReferenced(cursor);
+
 				break;
 			}
 			

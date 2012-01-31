@@ -54,6 +54,9 @@
     <ClInclude Include="wrap_autogen\include\wrap_Test.hpp">
       <Filter>wrap_autogen\include</Filter>
     </ClInclude>
+    <ClInclude Include="wrap_autogen\include\wrap_Test\SimpleClass.hpp">
+      <Filter>wrap_autogen\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="wrap_example\src\Functions_BasicTypes_wrap.cpp">
@@ -78,6 +81,9 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="wrap_autogen\src\wrap_Test.cpp">
+      <Filter>wrap_autogen\src</Filter>
+    </ClCompile>
+    <ClCompile Include="wrap_autogen\src\wrap_Test\SimpleClass.cpp">
       <Filter>wrap_autogen\src</Filter>
     </ClCompile>
   </ItemGroup>

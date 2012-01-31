@@ -43,6 +43,7 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(SolutionDir)../../../Dependencies/xulrunner/include;$(ProjectDir)include;$(SolutionDir)SpidermonkeyWrapper/include;$(ProjectDir)wrap_example/include;$(ProjectDir)wrap_autogen/include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions) XP_WIN</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)/%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -74,6 +75,7 @@
     <ClInclude Include="include\SimpleClass.hpp" />
     <ClInclude Include="include\test.hpp" />
     <ClInclude Include="wrap_autogen\include\wrap_Test.hpp" />
+    <ClInclude Include="wrap_autogen\include\wrap_Test\SimpleClass.hpp" />
     <ClInclude Include="wrap_example\include\Functions_BasicTypes_wrap.hpp" />
     <ClInclude Include="wrap_example\include\Functions_Strings_wrap.hpp" />
     <ClInclude Include="wrap_example\include\SimpleClass_wrap.hpp" />
@@ -84,6 +86,7 @@
     <ClCompile Include="src\SimpleClass.cpp" />
     <ClCompile Include="src\test.cpp" />
     <ClCompile Include="wrap_autogen\src\wrap_Test.cpp" />
+    <ClCompile Include="wrap_autogen\src\wrap_Test\SimpleClass.cpp" />
     <ClCompile Include="wrap_example\src\Functions_BasicTypes_wrap.cpp" />
     <ClCompile Include="wrap_example\src\Functions_Strings_wrap.cpp" />
     <ClCompile Include="wrap_example\src\SimpleClass_wrap.cpp" />
