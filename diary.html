@@ -765,7 +765,7 @@ You'll also need to enter your username for signing your edits: &lt;&lt;option t
 <div title="SiteTitle" creator="YourName" modifier="YourName" created="201201251622" changecount="1">
 <pre>Bound</pre>
 </div>
-<div title="Todo" creator="YourName" modifier="YourName" created="201201251542" modified="201201311512" changecount="26">
+<div title="Todo" creator="YourName" modifier="YourName" created="201201251542" modified="201202011431" changecount="29">
 <pre>!CPPAnalyzer
 
 * --P1: Exporting enums--
@@ -817,6 +817,8 @@ You'll also need to enter your username for signing your edits: &lt;&lt;option t
 *** How will static analysis be used in the project (getting type, file and member-information)
 *** Other ways of getting the information - why are those not used? (Header-Parser, GCC-XML)
 *** existing static analysis tools? Why are they not used?
+**** rule-based static analysis tools
+***** new tool needs to use output of the analysis (AST), not bug reports
 **** Dehydra (GCC-Plugin), Linux only
 **** Clang (LLVM-Compiler)
 ***** What is LLVM?
@@ -833,6 +835,7 @@ You'll also need to enter your username for signing your edits: &lt;&lt;option t
 *** Meta-Data-editor
 *** Unit Testing boiler code generator
 # Practical
+** simpliefied AST up to function / parameter level
 
 
 Practical:
