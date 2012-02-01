@@ -14,12 +14,15 @@ Components.utils.import("chrome://bound/content/modules/UI/Widgets/ObjectExplore
 function ObjectExplorer()
 {
 	this._dataHandler = null;
+	this.constructorObjectExplorer = ObjectExplorer;
+	
+	this.classList.add("object-explorer");
 	
 	this.$grid    = DOMHelper.createDOMNodeOn(this, "grid");
 	
 	this.$columns = DOMHelper.createDOMNodeOn(this.$grid, "columns");
 	this.$column1 = DOMHelper.createDOMNodeOn(this.$columns, "column");
-	this.$column2 = DOMHelper.createDOMNodeOn(this.$columns, "column");
+	this.$column2 = DOMHelper.createDOMNodeOn(this.$columns, "column", {flex: "1"});
 	
 	this.$rows    = DOMHelper.createDOMNodeOn(this.$grid, "rows");
 	
@@ -36,29 +39,86 @@ ObjectExplorer.prototype = {
 	{
 		this._dataHandler = dataHandler;
 		
-		this.createProperties();
+		this.appendProperties(dataHandler);
 	},
 	
 	/**
 	 * Creates all the properties, removes the old ones
 	 */
-	createProperties: function createProperties()
+	appendProperties: function appendProperties(dataHandler)
 	{
-		this.removeAllProperties();
+		//this.removeAllProperties();
+		this.insertPropertiesAfter(dataHandler, null);
 		
-		var props = this._dataHandler.getProperties();
+	},
+	
+	/**
+	 * Inserts the properties after the given row
+	 * 
+	 * @param   {DataHandler}   dataHandler   DataHandler for the properties to insert
+	 * @param   {element}       $rowBefore    Row after which the properties should be inserted
+	 */
+	insertPropertiesAfter: function insertPropertiesAfter(dataHandler, $rowBefore)
+	{
+		// TODO: after custom content
+		
+		var props = dataHandler.getProperties();
 		
 		for(var i=0, len = props.length; i < len; ++i)
 		{
-			var $row = DOMHelper.createDOMNodeOn(this.$rows, "row");
-			DOMHelper.createDOMNodeOn($row, "label", {value: props[i].name});
-			
 			var propFactory = ObjectExplorerPropertyManager.getPropertyFactory(props[i].type);
-			var $column2 = propFactory(this.ownerDocument, this._dataHandler, props[i].name)
-			$row.appendChild($column2);
-			$column2.refresh();
+			
+			var $row = null;
+			
+			if(propFactory.createContainer)
+				var $row = DOMHelper.createDOMNodeOnAfter(this.$rows, "vbox", $rowBefore);
+			else
+			{
+				var $row = DOMHelper.createDOMNodeOnAfter(this.$rows, "row", $rowBefore);
+				DOMHelper.createDOMNodeOn($row, "label", {value: props[i].name});
+			}
+			
+			$row.objectExplorer = this;
+			$row.dataHandler = dataHandler;
+			$row.propName = props[i].name;
+			$row.propData = props[i];
+			
+			propFactory($row)
+			
+			$row.refresh();
 		}
 	},
+	
+	/**
+	 * Adds a standard label for the first column of the row
+	 * 
+	 * @param   {element}   $row    Row with now children
+	 * @param   {String}    value   Value of the label
+	 * 
+	 * @returns {element}   Label element
+	 */
+	_addStandardLabel: function _addStandardLabel($row, value)
+	{
+		return DOMHelper.createDOMNodeOn($row, "label", {value: value});
+	},
+	
+	/**
+	 * Adds a group label for the first column of the row
+	 * 
+	 * @param   {element}   $row    Row with now children
+	 * @param   {String}    value   Value of the label
+	 * 
+	 * @returns {element}   Label element
+	 */
+	_addGroupLabel: function _addGroupLabel($row, value)
+	{
+		var $result = DOMHelper.createDOMNodeOn($row, "hbox");
+		$result.$label = DOMHelper.createDOMNodeOn($result, "label", {value: value});
+		
+		return $result;
+	}, 
+	
+	
 	
 	/**
 	 * Removes all properties
@@ -85,6 +145,8 @@ function createObjectExplorer(element)
 	
 	return element;
 }
+
+ObjectExplorer.create = createObjectExplorer;
 
 
 /**

@@ -22,6 +22,30 @@ var DOMHelper = {
 		return node;
 	},
 	
+	createDOMNodeOnAfter: function createDOMNodeOnAfter(parent, nodeName, after, attributes, members)
+	{
+		var node = parent.ownerDocument.createElement(nodeName);
+		
+		if(attributes)
+		{
+			for(attrName in attributes)
+				node.setAttribute(attrName, attributes[attrName]);
+		}
+		
+		if(!after)
+			parent.appendChild(node);
+		else
+			parent.insertBefore(node, after.nextSibling);
+		
+		if(members)
+		{
+			for(memberName in members)
+				node[memberName] = members[memberName];
+		}
+		
+		return node;
+	},
+	
 	setAttributes: function setAttributes(node, attributes)
 	{
 		if(attributes)

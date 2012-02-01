@@ -28,7 +28,11 @@ MetaDataHandler.prototype = {
 		{
 			if(this.sourceObject.hasOwnProperty(propName))
 			{
-				var prop = { name: propName, type: typeof(this.sourceObject[propName])}
+				var p = this.sourceObject[propName];
+				var type = typeof(p);
+				if(type === "object" && p)
+					type = "Array";
+				var prop = { name: propName, type: type}
 				props.push(prop);
 			}
 		}
@@ -57,5 +61,18 @@ MetaDataHandler.prototype = {
 	getPropertyValue: function getPropertyValue(propertyName)
 	{
 		return this.sourceObject[propertyName];
+	},
+	
+	/**
+	 * Returns the DataHandler for the given property (may be needed for arrays / child objects)
+	 * 
+	 * @param   {String}   propertyName   Name of the property
+	 * 
+	 * @returns {DataHandler}   DataHandler for the property
+	 */
+	getPropertyDataHandler: function getPropertyDataHandler(propertyName)
+	{
+		return new MetaDataHandler(this.sourceObject[propertyName]);
 	}, 
+	
 };

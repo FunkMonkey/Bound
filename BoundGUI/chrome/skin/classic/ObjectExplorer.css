@@ -1,0 +1,15 @@
+﻿.object-explorer[inner]
+{
+	padding-left: 4px;
+}
+
+.object-explorer-property-array-title
+{
+	background-color: -moz-buttondefault;
+	color: #fff;
+}
+
+.object-explorer-property-array-title[open]
+{
+	background-color: -moz-dialog; 
+}

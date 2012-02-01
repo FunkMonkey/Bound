@@ -3,6 +3,7 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://bound/skin/main.css" type="text/css"?>
 <?xml-stylesheet href="chrome://bound/skin/DOMTree.css" type="text/css"?>
+<?xml-stylesheet href="chrome://bound/skin/ObjectExplorer.css" type="text/css"?>
 
 <window id="main" title="My App" width="300" height="300" persist="screenX screenY width height" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
@@ -38,7 +39,7 @@
 				<tabpanels id="resultTabPanels" flex="1">
 				</tabpanels>
 			</tabbox>
-			<vbox id="propertyExplorer" width="200" />
+			<vbox id="propertyExplorer" width="220" />
 		</hbox>
 	</vbox>
 </window>

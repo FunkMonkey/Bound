@@ -1,6 +1,9 @@
 
 var EXPORTED_SYMBOLS = ["ObjectExplorerPropertyManager"];
 
+Components.utils.import("chrome://bound/content/modules/log.jsm");
+Components.utils.import("chrome://bound/content/modules/DOMHelper.jsm");
+
 var ObjectExplorerPropertyManager = {
 	
 	_propFactories: {},
@@ -46,29 +49,23 @@ function PropertyFactory(document, dataHandler, memberName)
 //======================================================================================//
 // PropertyFactoryString
 //======================================================================================//
-function PropertyFactoryString(document, dataHandler, propName)
+function PropertyFactoryString($row)
 {
-	var domNode = document.createElement("textbox");
-	domNode.setAttribute("flex", "1");
+	$row.refresh = PropertyFactoryString.refresh;
+	$row.save = PropertyFactoryString.save;
 	
-	domNode.dataHandler = dataHandler;
-	domNode.propName = propName;
-	domNode.refresh = PropertyFactoryString.refresh;
-	domNode.save = PropertyFactoryString.save;
-	
-	domNode.addEventListener("change", domNode.save.bind(domNode), true);
-	
-	return domNode;
+	var $domNode = DOMHelper.createDOMNodeOn($row, "textbox", {flex: "1"});
+	$domNode.addEventListener("change", $row.save.bind($row), true);
 }
 
 PropertyFactoryString.refresh = function refresh()
 {
-	this.value = this.dataHandler.getPropertyValue(this.propName);
+	this.childNodes[1].value = this.dataHandler.getPropertyValue(this.propName);
 }
 
 PropertyFactoryString.save = function save()
 {
-	this.dataHandler.setPropertyValue(this.propName, this.value);
+	this.dataHandler.setPropertyValue(this.propName, this.childNodes[1].value);
 	this.refresh();
 }
 
@@ -77,28 +74,23 @@ ObjectExplorerPropertyManager.registerPropertyFactory("string", PropertyFactoryS
 //======================================================================================//
 // PropertyFactoryBoolean
 //======================================================================================//
-function PropertyFactoryBoolean(document, dataHandler, propName)
+function PropertyFactoryBoolean($row)
 {
-	var domNode = document.createElement("checkbox");
+	$row.refresh = PropertyFactoryBoolean.refresh;
+	$row.save = PropertyFactoryBoolean.save;
 	
-	domNode.dataHandler = dataHandler;
-	domNode.propName = propName;
-	domNode.refresh = PropertyFactoryBoolean.refresh;
-	domNode.save = PropertyFactoryBoolean.save;
-	
-	domNode.addEventListener("command", domNode.save.bind(domNode), true);
-	
-	return domNode;
+	var $domNode = DOMHelper.createDOMNodeOn($row, "checkbox");
+	$domNode.addEventListener("command", $row.save.bind($row), true);
 }
 
 PropertyFactoryBoolean.refresh = function refresh()
 {
-	this.checked = this.dataHandler.getPropertyValue(this.propName);
+	this.childNodes[1].checked = this.dataHandler.getPropertyValue(this.propName);
 }
 
 PropertyFactoryBoolean.save = function save()
 {
-	this.dataHandler.setPropertyValue(this.propName, this.checked);
+	this.dataHandler.setPropertyValue(this.propName, this.childNodes[1].checked);
 	this.refresh();
 }
 
@@ -107,36 +99,30 @@ ObjectExplorerPropertyManager.registerPropertyFactory("boolean", PropertyFactory
 //======================================================================================//
 // PropertyFactoryNumber
 //======================================================================================//
-function PropertyFactoryNumber(document, dataHandler, propName, data)
+function PropertyFactoryNumber($row)
 {
-	var domNode = document.createElement("textbox");
-	
-	domNode.dataHandler = dataHandler;
-	domNode.propName = propName;
-	domNode.refresh = PropertyFactoryNumber.refresh;
-	domNode.save = PropertyFactoryNumber.save;
+	$row.refresh = PropertyFactoryNumber.refresh;
+	$row.save = PropertyFactoryNumber.save;
 	
 	var numDecimals = 2;
-	if(data && data.type && data.type === "int")
+	if($row.propData.type && $row.propData.type === "int")
 		numDecimals = 0;
 	
-	domNode.setAttribute("type", "number");
-	domNode.setAttribute("min", "-Infinity");
-	domNode.setAttribute("decimalplaces", "" + numDecimals);
+	var $domNode = DOMHelper.createDOMNodeOn($row, "textbox", { type: "number",
+															    min: "-Infinity",
+															    decimalplaces: "" + numDecimals});
 	
-	domNode.addEventListener("change", domNode.save.bind(domNode), true);
-	
-	return domNode;
+	$domNode.addEventListener("change", $row.save.bind($row), true);
 }
 
 PropertyFactoryNumber.refresh = function refresh()
 {
-	this.value = this.dataHandler.getPropertyValue(this.propName);
+	this.childNodes[1].value = this.dataHandler.getPropertyValue(this.propName);
 }
 
 PropertyFactoryNumber.save = function save()
 {
-	this.dataHandler.setPropertyValue(this.propName, Number(this.value).valueOf());
+	this.dataHandler.setPropertyValue(this.propName, Number(this.childNodes[1].value).valueOf());
 	this.refresh();
 }
 
@@ -145,21 +131,17 @@ ObjectExplorerPropertyManager.registerPropertyFactory("number", PropertyFactoryN
 //======================================================================================//
 // PropertyFactoryObject
 //======================================================================================//
-function PropertyFactoryObject(document, dataHandler, propName, data)
+function PropertyFactoryObject($row)
 {
-	var domNode = document.createElement("label");
+	$row.refresh = PropertyFactoryObject.refresh;
+	$row.save = PropertyFactoryObject.save;
 	
-	domNode.dataHandler = dataHandler;
-	domNode.propName = propName;
-	domNode.refresh = PropertyFactoryObject.refresh;
-	domNode.save = PropertyFactoryObject.save;
-	
-	return domNode;
+	var $domNode = DOMHelper.createDOMNodeOn($row, "label");
 }
 
 PropertyFactoryObject.refresh = function refresh()
 {
-	this.value = (this.dataHandler.getPropertyValue(this.propName) == null) ? "null" : "object";
+	this.childNodes[1].value = (this.dataHandler.getPropertyValue(this.propName) == null) ? "null" : "object";
 }
 
 PropertyFactoryObject.save = function save()
@@ -169,3 +151,72 @@ PropertyFactoryObject.save = function save()
 }
 
 ObjectExplorerPropertyManager.registerPropertyFactory("object", PropertyFactoryObject);
+
+//======================================================================================//
+// PropertyFactoryArray
+//======================================================================================//
+function PropertyFactoryArray($row)
+{
+	$row.refresh = PropertyFactoryArray.refresh;
+	$row.save = PropertyFactoryArray.save;
+	$row._onGroupToggle = PropertyFactoryArray._onGroupToggle;
+	
+	this._childrenAdded = false;
+	this.isOpen = false;
+	
+	this.$title = DOMHelper.createDOMNodeOn($row, "hbox", {value: $row.propName});
+	DOMHelper.createDOMNodeOn(this.$title, "label", {value: $row.propName});
+	this.$title.classList.add("object-explorer-property-array-title");
+	this.$title.addEventListener("click", $row._onGroupToggle.bind($row), true);
+	
+	
+	//var domNode = DOMHelper.createDOMNodeOn($row, "label");
+	
+	
+	
+}
+
+PropertyFactoryArray.createContainer = true;
+
+PropertyFactoryArray.refresh = function refresh()
+{
+	//this.value = (this.dataHandler.getPropertyValue(this.propName) == null) ? "null" : "object";
+}
+
+PropertyFactoryArray.save = function save()
+{
+	//this.dataHandler.setPropertyValue(this.propName, this.value);
+	this.refresh();
+}
+
+PropertyFactoryArray._onGroupToggle = function()
+{
+	if(this._childrenAdded)
+	{
+		if(this.isOpen)
+		{
+			this.$subObjectExplorer.style.display = "none";
+			this.$title.removeAttribute("open");
+		}
+		else
+		{
+			this.$subObjectExplorer.style.display = "-moz-box";
+			this.$title.setAttribute("open", "true");
+		}
+		
+		this.isOpen = !this.isOpen;
+	}
+	else
+	{
+		this.$subObjectExplorer = DOMHelper.createDOMNodeOn(this, "vbox");
+		this.objectExplorer.constructorObjectExplorer.create(this.$subObjectExplorer);
+		this.$subObjectExplorer.setAttribute("inner", "true");
+		
+		this.$subObjectExplorer.setDataHandler(this.dataHandler.getPropertyDataHandler(this.propName));
+		//this.objectExplorer.insertPropertiesAfter(this.dataHandler.getPropertyDataHandler(this.propName), this);
+		this._childrenAdded = true;
+		this.isOpen = true;
+	}
+}
+
+ObjectExplorerPropertyManager.registerPropertyFactory("Array", PropertyFactoryArray);

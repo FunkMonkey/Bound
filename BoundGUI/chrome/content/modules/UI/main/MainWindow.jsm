@@ -52,7 +52,7 @@ var MainWindow = {
 			other: "fool",
 			number: 3434,
 			bool: true,
-			obj: {},
+			obj: { sub1: "fool", sub2: "msfdsf"},
 			otherobj: null};
 		var dataHandler = new MetaDataHandler(testObject);
 		this.PropertyExplorer.setDataHandler(dataHandler);
