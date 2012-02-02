@@ -3,14 +3,11 @@ var EXPORTED_SYMBOLS = ["MainWindow"];
 Components.utils.import("chrome://bound/content/modules/UI/main/CPPTree.jsm");
 Components.utils.import("chrome://bound/content/modules/UI/main/ExportTree.jsm");
 Components.utils.import("chrome://bound/content/modules/UI/main/ResultTabbox.jsm");
+Components.utils.import("chrome://bound/content/modules/UI/main/PropertyExplorer.jsm");
 
 Components.utils.import("chrome://bound/content/modules/CPPAnalyzer.jsm");
 
 Components.utils.import("chrome://bound/content/modules/log.jsm");
-
-// TEMP
-Components.utils.import("chrome://bound/content/modules/UI/Widgets/ObjectExplorer.jsm");
-Components.utils.import("chrome://bound/content/modules/MetaDataHandler.jsm");
 
 var MainWindow = {
 	
@@ -25,8 +22,9 @@ var MainWindow = {
 		this.$document = mainWindow.document;
 		
 		this.CPPTree = CPPTree;
-		this.ExporTree = ExportTree;
+		this.ExportTree = ExportTree;
 		this.ResultTabbox = ResultTabbox;
+		this.PropertyExplorer = initPropertyExplorer(this);
 		
 		CPPTree.init(this);
 		ExportTree.init(this);
@@ -41,21 +39,5 @@ var MainWindow = {
 		
 		CPPTree.setCPPAST(cppAST);
 		ExportTree.newExportAST(cppAST);
-		
-		// Property explorer
-		/* @type ObjectExplorer */
-		this.PropertyExplorer = this.$document.getElementById("propertyExplorer");
-		createObjectExplorer(this.PropertyExplorer);
-		
-		var testObject = {
-			member: "test",
-			other: "fool",
-			number: 3434,
-			bool: true,
-			obj: { sub1: "fool", sub2: "msfdsf"},
-			otherobj: null};
-		var dataHandler = new MetaDataHandler(testObject);
-		this.PropertyExplorer.setDataHandler(dataHandler);
-		
 	},
 };

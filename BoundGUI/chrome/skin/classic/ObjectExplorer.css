@@ -1,17 +1,33 @@
 ﻿.object-explorer[inner]
 {
-	padding-left: 4px;
+	/*padding-left: 6px;*/
 }
 
 .object-explorer-property-array-title
 {
+	-moz-box-align: center;
 	background-color: -moz-dialog;
 	color: #000;
 }
 
-.object-explorer-property-array-title[open]
+.object-explorer-property-array-content
 {
-	
-	background-color: -moz-buttondefault;
-	color: #fff;
+	margin-left: 6px;
+	border-top: 1px solid #000;
+}
+
+.object-explorer-property-array-title > image
+{
+	padding-left: 4px;
+	list-style-image: url("chrome://global/skin/arrow/arrow-rit.gif");
+}
+
+.object-explorer-property-array[open] > .object-explorer-property-array-title
+{
+	font-weight: bold;
+}
+
+.object-explorer-property-array[open] > .object-explorer-property-array-title > image
+{
+	list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif");
 }

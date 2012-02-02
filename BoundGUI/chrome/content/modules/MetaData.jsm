@@ -1,4 +1,6 @@
-var EXPORTED_SYMBOLS = ["MetaData"];
+var EXPORTED_SYMBOLS = ["MetaData", "MetaDataAggregate", "MetaDataInfo"];
+
+Components.utils.import("chrome://bound/content/modules/log.jsm");
 
 /**
  * 
@@ -8,7 +10,7 @@ var EXPORTED_SYMBOLS = ["MetaData"];
  */
 function MetaDataInfo()
 {
-	this.propertyData = {};
+	this.propertyData = Object.create(null);
 }
 
 MetaDataInfo.prototype = {
@@ -31,6 +33,8 @@ MetaDataInfo.prototype = {
 		{
 			this.propertyData[propertyNameOrMap] = propertyData;
 		}
+		
+		return this;
 	}, 
 	
 };
@@ -69,6 +73,21 @@ var MetaData = {
 		object._metaData = metaData;
 	},
 	
+	/**
+	 * Checks if the given object has metadata
+	 * 
+	 * @param   {Object}   object   Object to check
+	 * 
+	 * @returns {boolean}   True if it has metadata, otherwise false
+	 */
+	hasMetaData: function hasMetaData(object)
+	{
+		if(typeof object === "object" && object && ("_metaData" in object))
+			return true;
+		else
+			return false;
+	}, 
+	
 };
 
 function MetaDataAggregate(obj)
@@ -84,7 +103,7 @@ MetaDataAggregate.prototype = {
 	constructor: MetaDataAggregate,
 	
 	/**
-	 * Collects all _metaData objects in the prototype chain
+	 * Collects all _metaData objects in the prototype chain, this first
 	 */
 	collectMetaDataObjects: function collectMetaDataObjects()
 	{
@@ -100,7 +119,33 @@ MetaDataAggregate.prototype = {
 			
 			currObj = Object.getPrototypeOf(currObj);
 		}
-	}, 	
+	},
+	
+	/**
+	 * Collects all properties
+	 * 
+	 * @returns {Object}   Object with all properties
+	 */
+	collectMetaDataProperties: function collectMetaDataProperties()
+	{
+		if(this._properties)
+			return this._properties;
+		
+		this._properties = Object.create(null);
+		for(var i = 0, len = this.metaDataObjects.length; i < len; ++i)
+		{
+			var metaDataObjProps = this.metaDataObjects[i].propertyData;
+			
+			for(propName in metaDataObjProps)
+			{
+				if(!this._properties[propName])
+					this._properties[propName] = metaDataObjProps[propName];
+			}
+		}
+		
+		return this._properties;
+	}, 
+	
 
 	/**
 	 * Returns the meta-data according to the given name
@@ -111,14 +156,18 @@ MetaDataAggregate.prototype = {
 	 */
 	getPropertyData: function getPropertyData(propertyName)
 	{
-		for(var i=0, len = this.metaDataObjects.length; i < len; ++i)
+		if(this._properties)
+			return (this._properties[propertyName] == null) ? null : this._properties[propertyName];
+		else
 		{
-			var data = this.metaDataObjects[i][propertyName];
-			if(data)
-				return data;
+			for(var i=0, len = this.metaDataObjects.length; i < len; ++i)
+			{
+				var data = this.metaDataObjects[i][propertyName];
+				if(data)
+					return data;
+			}
+			return null;
 		}
-		
-		return null;
 	}, 
 	
 	
@@ -127,7 +176,9 @@ MetaDataAggregate.prototype = {
 	 */
 	getPropertyType: function getPropertyType(propertyName)
 	{
-		if(!(propertyName in this.propertys) || !this.propertys[propertyName].type)
+		var prop = this.getPropertyData(propertyName);
+		
+		if(!prop || !prop.type)
 		{
 			var val = this.obj[propertyName];
 			
@@ -139,7 +190,7 @@ MetaDataAggregate.prototype = {
 				return "number";
 			else if(typeof(val) === "object") // if it is an object, that has no given type, then we'll try some stuff
 			{
-				if(!val)
+				if(!val || ! val.constructor)
 					throw "Could not get propertytype!";
 				else
 					return val.constructor.name;
@@ -149,7 +200,7 @@ MetaDataAggregate.prototype = {
 		}
 		else
 		{
-			return this.propertys[propertyName].type;
+			return prop.type;
 		}
 	}
 };

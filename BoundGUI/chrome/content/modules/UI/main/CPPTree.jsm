@@ -1,7 +1,9 @@
 var EXPORTED_SYMBOLS = ["CPPTree"];
 
+Components.utils.import("chrome://bound/content/modules/log.jsm");
 Components.utils.import("chrome://bound/content/modules/DOMTree.jsm");
 Components.utils.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm");
+Components.utils.import("chrome://bound/content/modules/MetaDataHandler.jsm");
 
 var MainWindow = null;
 var document = null;
@@ -20,8 +22,24 @@ var CPPTree = {
 		
 		this.cppAST = null;
 		
-		this.$cppASTTree = new DOMTree(document, document.getElementById("cppTree"), dataCB);
+		this.$cppASTTree = DOMTree.createOn(document.getElementById("cppTree"), dataCB);
+		this.$cppASTTree.addEventListener("select", this._onSelect.bind(this));
 	},
+	
+	/**
+	 * Called when selection in the tree changed
+	 * 
+	 * @param   {event}   event   Description
+	 */
+	_onSelect: function _onSelect(event)
+	{
+		if(this.$cppASTTree.selection.length > 0)
+		{
+			var handler = new MetaDataHandler(this.$cppASTTree.selection[0].data)
+			MainWindow.PropertyExplorer.setDataHandler(handler);
+		}
+	}, 
+	
 	
 	astNodeToTreeNode: function astNodeToTreeNode(astNode, domParent, treeView)
 	{

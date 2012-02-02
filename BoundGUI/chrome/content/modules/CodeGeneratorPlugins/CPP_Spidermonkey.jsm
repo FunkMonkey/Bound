@@ -8,6 +8,8 @@ Components.utils.import("chrome://bound/content/modules/AST/CPP_ASTObjects.jsm")
 Components.utils.import("chrome://bound/content/modules/TemplateManager.jsm");
 Components.utils.import("chrome://bound/content/modules/CodeGeneratorPlugins/CodeGeneratorPluginManager.jsm");
 
+Components.utils.import("chrome://bound/content/modules/MetaData.jsm");
+
 /**
  * 
  *
@@ -367,6 +369,8 @@ function CodeGenerator_Object(plugin)
 {
 	this.plugin = plugin;
 	this.exportObject = null;
+	
+	this.hppTemplate = "You fool!";
 }
 
 CodeGenerator_Object.isCompatible = Plugin_CPP_Spidermonkey.prototype._isCompatible;
@@ -539,6 +543,9 @@ CodeGenerator_Object.prototype = {
 	},
 	
 };
+
+MetaData.initMetaDataOn(CodeGenerator_Object.prototype)
+   .addPropertyData("hppTemplate", {viewable: true})
 
 /**
  * Creates the code generator from the given save object

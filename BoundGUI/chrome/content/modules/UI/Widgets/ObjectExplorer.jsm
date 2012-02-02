@@ -47,7 +47,7 @@ ObjectExplorer.prototype = {
 	 */
 	appendProperties: function appendProperties(dataHandler)
 	{
-		//this.removeAllProperties();
+		this.removeAllProperties();
 		this.insertPropertiesAfter(dataHandler, null);
 		
 	},

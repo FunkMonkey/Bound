@@ -1,5 +1,6 @@
 var EXPORTED_SYMBOLS = ["ASTObject", "ASTOverloadContainer"];
 
+Components.utils.import("chrome://bound/content/modules/MetaData.jsm");
 
 //======================================================================================
 
@@ -141,8 +142,6 @@ ASTObject.prototype = {
 	{
 		throw "No Reference Identifier given!";
 	}, 
-	
-	
 };
 
 Object.defineProperties(ASTObject.prototype, {
@@ -150,6 +149,9 @@ Object.defineProperties(ASTObject.prototype, {
 				get: function getParent(){ return this._parent; },
 				set: function setParent(val){ this._parent = val }}
 });
+
+MetaData.initMetaDataOn(ASTObject.prototype)
+     .addPropertyData("name", { viewable: true});
 
 /**
  * 

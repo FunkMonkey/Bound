@@ -164,12 +164,14 @@ function PropertyFactoryArray($row)
 	$row._childrenAdded = false;
 	$row.isOpen = false;
 	
+	$row.classList.add("object-explorer-property-array");
 	
 	$row.$title = DOMHelper.createDOMNodeOn($row, "hbox", {value: $row.propName});
-	DOMHelper.createDOMNodeOn($row.$title, "label", {value: $row.propName});
+	$row.$title.$twisty = DOMHelper.createDOMNodeOn($row.$title, "image");
+	$row.$title.$label  = DOMHelper.createDOMNodeOn($row.$title, "label", {value: $row.propName});
+	
 	$row.$title.classList.add("object-explorer-property-array-title");
 	$row.$title.addEventListener("click", $row._onGroupToggle.bind($row), true);
-	//var domNode = DOMHelper.createDOMNodeOn($row, "label");
 }
 
 PropertyFactoryArray.createContainer = true;
@@ -189,7 +191,7 @@ PropertyFactoryArray._onGroupToggle = function()
 {
 	if(!this._childrenAdded)
 	{
-		this.$subObjectExplorer = DOMHelper.createDOMNodeOn(this, "vbox");
+		this.$subObjectExplorer = DOMHelper.createDOMNodeOn(this, "vbox", {"class": "object-explorer-property-array-content"});
 		this.objectExplorer.constructorObjectExplorer.create(this.$subObjectExplorer);
 		this.$subObjectExplorer.setAttribute("inner", "true");
 		
@@ -201,15 +203,16 @@ PropertyFactoryArray._onGroupToggle = function()
 	if(this.isOpen)
 	{
 		this.$subObjectExplorer.style.display = "none";
-		this.$title.removeAttribute("open");
+		this.removeAttribute("open");
 	}
 	else
 	{
 		this.$subObjectExplorer.style.display = "-moz-box";
-		this.$title.setAttribute("open", "true");
+		this.setAttribute("open", "true");
 	}
 	
 	this.isOpen = !this.isOpen;
 }
 
 ObjectExplorerPropertyManager.registerPropertyFactory("Array", PropertyFactoryArray);
+ObjectExplorerPropertyManager.registerPropertyFactory("KeyValueMap", PropertyFactoryArray);

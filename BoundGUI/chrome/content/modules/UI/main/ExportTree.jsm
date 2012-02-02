@@ -7,6 +7,9 @@ Components.utils.import("chrome://bound/content/modules/CodeGeneratorPlugins/CPP
 
 Components.utils.import("chrome://bound/content/modules/Bound.jsm");
 
+Components.utils.import("chrome://bound/content/modules/log.jsm");
+Components.utils.import("chrome://bound/content/modules/MetaDataHandler.jsm");
+
 var MainWindow = null;
 var document = null;
 
@@ -30,7 +33,24 @@ var ExportTree = {
 		this.$exportTree.addEventListener("drop", onDrop.bind(this));
 		this.$exportTree.addEventListener("click", exportTree_onClick.bind(this));
 		
-		this.$exportASTTree = new DOMTree(document, this.$exportTree, dataCB.bind(this));
+		this.$exportASTTree = DOMTree.createOn(this.$exportTree, dataCB.bind(this));
+		this.$exportASTTree.addEventListener("select", this._onSelect.bind(this));
+		log("trying")
+	},
+	
+	/**
+	 * Called when selection in the tree changed
+	 * 
+	 * @param   {event}   event   Description
+	 */
+	_onSelect: function _onSelect(event)
+	{
+		log("select")
+		if(this.$exportASTTree.selection.length > 0)
+		{
+			var handler = new MetaDataHandler(this.$exportASTTree.selection[0].data)
+			MainWindow.PropertyExplorer.setDataHandler(handler);
+		}
 	},
 	
 	/**
@@ -103,7 +123,7 @@ function onDrop(event)
 	var data = event.dataTransfer.mozGetDataAt("application/x-tree-data", 0).data;
 	
 	var $parentNode = null;
-	if(event.target !== this.$exportASTTree.box)
+	if(event.target !== this.$exportASTTree)
 	{
 		var $parentNode = event.target.parentNode;
 		while(!$parentNode.isRow)

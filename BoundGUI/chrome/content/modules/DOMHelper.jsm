@@ -1,17 +1,16 @@
 let EXPORTED_SYMBOLS = ["DOMHelper"];
 
 var DOMHelper = {
-	createDOMNodeOn: function createDOMNodeOn(parent, nodeName, attributes, members)
+	
+	createDOMNode: function createDOMNode(document, nodeName, attributes, members)
 	{
-		var node = parent.ownerDocument.createElement(nodeName);
+		var node = document.createElement(nodeName);
 		
 		if(attributes)
 		{
 			for(attrName in attributes)
 				node.setAttribute(attrName, attributes[attrName]);
 		}
-		
-		parent.appendChild(node);
 		
 		if(members)
 		{
@@ -22,26 +21,22 @@ var DOMHelper = {
 		return node;
 	},
 	
+	createDOMNodeOn: function createDOMNodeOn(parent, nodeName, attributes, members)
+	{
+		var node = this.createDOMNode(parent.ownerDocument, nodeName, attributes, members);
+		parent.appendChild(node);
+		
+		return node;
+	},
+	
 	createDOMNodeOnAfter: function createDOMNodeOnAfter(parent, nodeName, after, attributes, members)
 	{
-		var node = parent.ownerDocument.createElement(nodeName);
-		
-		if(attributes)
-		{
-			for(attrName in attributes)
-				node.setAttribute(attrName, attributes[attrName]);
-		}
+		var node = this.createDOMNode(parent.ownerDocument, nodeName, attributes, members);
 		
 		if(!after)
 			parent.appendChild(node);
 		else
 			parent.insertBefore(node, after.nextSibling);
-		
-		if(members)
-		{
-			for(memberName in members)
-				node[memberName] = members[memberName];
-		}
 		
 		return node;
 	},

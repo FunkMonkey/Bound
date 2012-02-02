@@ -3,7 +3,9 @@ var EXPORTED_SYMBOLS = ["DOMTree"];
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 const Cu = Components.utils;
-Cu.import("chrome://bound/content/modules/log.jsm");
+Components.utils.import("chrome://bound/content/modules/log.jsm");
+Components.utils.import("chrome://bound/content/modules/Extension.jsm");
+Components.utils.import("chrome://bound/content/modules/DOMHelper.jsm");
 
 function TreeRow()
 {	
@@ -15,22 +17,29 @@ function TreeRow()
 	this.level = 0;
 }
 
-function DOMTree(document, vbox, dataCB)
+// TODO: create on vbox as this!
+// TODO: use DOMHelper
+function DOMTree(dataCB)
 {
-	this.document = document;	// TODO: use document from vbox
-	this.box = vbox;
-	this.box.isDOMTree = true;
-	
-	this.box.classList.add("dom-tree");
-	
+	this.isDOMTree = true;
+	this.classList.add("dom-tree");
 	this.dataCB = dataCB;
 	
 	this.selection = [];
+	this._suppressSelectEvent = false;
+}
+
+DOMTree.createOn = function(element, dataCB)
+{
+	Extension.borrow(element, DOMTree.prototype);
+	DOMTree.call(element, dataCB);
+	
+	return element;
 }
 
 DOMTree.prototype =
 {
-	constructor: DOMTree,
+	//constructor: DOMTree,
 	
 	/**
 	 * Called when clicking the dropmarker
@@ -68,7 +77,6 @@ DOMTree.prototype =
 		var row = event.currentTarget.parentNode;
 		var tree = row.tree;
 		
-		
 		// TODO: exclude twisty
 		// TODO: different keys
 		
@@ -81,14 +89,14 @@ DOMTree.prototype =
 				var firstSelected = tree.selection[0];
 				tree.clearSelection();
 				
-				if(firstSelected.parentRow !== row.parentRow)
+				if(firstSelected.$parentRow !== row.$parentRow)
 				{
 					tree.addToSelection(firstSelected);
 					tree.addToSelection(row);
 				}
 				else
 				{
-					var nodeContainer = (row.parentRow == null) ? tree.box : row.parentRow.container;
+					var nodeContainer = (row.$parentRow == null) ? tree : row.$parentRow.container;
 					var add = false;
 					for(var i = 0; i < nodeContainer.childNodes.length; ++i)
 					{
@@ -111,7 +119,11 @@ DOMTree.prototype =
 			}
 		}
 		else if(!event.ctrlKey)
-			tree.clearSelection();
+		{
+			tree._suppressSelectEvent = true;
+				tree.clearSelection();
+			tree._suppressSelectEvent = false;
+		}
 			
 		tree.addToSelection(row);
 	},
@@ -149,8 +161,6 @@ DOMTree.prototype =
 			event.dataTransfer.mozSetDataAt("application/x-tree-data", data, 0);
 			event.dataTransfer.setDragImage(event.currentTarget, 0, 0);
 		}
-		
-		
 	}, 
 	
 	
@@ -168,6 +178,8 @@ DOMTree.prototype =
 		this.selection.push(row);
 		
 		row.setAttribute("selected", "");
+		
+		this._fireSelectEvent(null);
 	},
 	
 	/**
@@ -183,6 +195,7 @@ DOMTree.prototype =
 			{
 				this.selection.splice(i, 1);
 				row.removeAttribute("selected");
+				this._fireSelectEvent(null);
 				return;
 			}
 		}
@@ -193,10 +206,15 @@ DOMTree.prototype =
 	 */
 	clearSelection: function clearSelection()
 	{
+		var lengthBefore = this.selection.length;
+		
 		for(var i = 0; i < this.selection.length; ++i)
 			this.selection[i].removeAttribute("selected");
 		
 		this.selection.length = 0;
+		
+		if(lengthBefore > 0)
+			this._fireSelectEvent(null);
 	},
 	
 	/**
@@ -206,80 +224,97 @@ DOMTree.prototype =
 	 */
 	select: function select(row)
 	{
-		this.clearSelection();
+		this._suppressSelectEvent = true;
+			this.clearSelection();
+		this._suppressSelectEvent = false;
+		
 		this.addToSelection(row);
+	},
+	
+	/**
+	 * Fires the select event
+	 * 
+	 * @param   {Object}   [data]   (optional) Data to be passed to the event
+	 */
+	_fireSelectEvent: function _fireSelectEvent(data)
+	{
+		if(!this._suppressSelectEvent)
+		{
+			var event = this.ownerDocument.createEvent("CustomEvent");
+			event.initEvent("select", true, true, data);
+			this.dispatchEvent(event);
+		}
 	}, 
-	
-	
-	
-	
 	
 	/**
 	 * Creates a row for the tree
 	 * 
-	 * @param   {Element}       parent        Parent node
+	 * @param   {Element}       $parent       Parent node
 	 * @param   {boolean}       isContainer   Does it have a 
 	 * @param   {Object}        data          Private data
 	 * 
 	 * @returns {Element}    newly created element
 	 */
-	createRow: function createTreeRow(parent, isContainer, data)
+	createRow: function createTreeRow($parent, isContainer, data)
 	{
-		var row = this.document.createElement("vbox");
-		row.classList.add("dom-tree-row");
-		row.isRow = true;
-		row.tree = this;
+		var self = this;
 		
-		row.data = data;
+		var $row = DOMHelper.createDOMNode(this.ownerDocument, "vbox", {"class": "dom-tree-row"}, {isRow: true, tree: self, data: data});
+		//row.classList.add("dom-tree-row");
+		//row.isRow = true;
+		//row.tree = this;
+		//
+		//row.data = data;
 		
-		row.toggleCollapse = this._rowToggleCollapse;
+		$row.toggleCollapse = this._rowToggleCollapse;
 		
 		// content of the row
-		var rowContent = this.document.createElement("hbox");
-		rowContent.classList.add("dom-tree-row-content");
-		rowContent.addEventListener("click", this._onRowContentClicked);
-		rowContent.addEventListener("dragstart", this._onRowContentDragStart);
+		var $rowContent = DOMHelper.createDOMNodeOn($row, "hbox", {"class" : "dom-tree-row-content"});
+		//rowContent.classList.add("dom-tree-row-content");
+		$rowContent.addEventListener("click", this._onRowContentClicked);
+		$rowContent.addEventListener("dragstart", this._onRowContentDragStart);
 		
-		row.appendChild(rowContent);
+		//row.appendChild(rowContent);
 		
 		// twisty
-		var twisty = this.document.createElement("box");
-		twisty.appendChild(this.document.createElement("image"));
-		twisty.classList.add("dom-tree-row-twisty");
-		twisty.addEventListener("click", this._onToggleCollapse, true);
-		rowContent.appendChild(twisty);
+		var $twisty = DOMHelper.createDOMNodeOn($rowContent, "box", {"class" : "dom-tree-row-twisty"});
+		DOMHelper.createDOMNodeOn($twisty, "image");
+		//twisty.appendChild(this.document.createElement("image"));
+		//twisty.classList.add("dom-tree-row-twisty");
+		$twisty.addEventListener("click", this._onToggleCollapse, true);
+		//rowContent.appendChild(twisty);
 		
 		// image
-		var labelImage = this.document.createElement("box");
-		labelImage.appendChild(this.document.createElement("image"));
-		labelImage.classList.add("dom-tree-row-label-image");
-		rowContent.appendChild(labelImage);
-		var rowAttr = this.dataCB("attributes", data, row);
+		var $labelImage = DOMHelper.createDOMNodeOn($rowContent, "box", {"class" : "dom-tree-row-label-image"});
+		DOMHelper.createDOMNodeOn($labelImage, "image");
+		//labelImage.appendChild(this.document.createElement("image"));
+		//labelImage.classList.add("dom-tree-row-label-image");
+		//rowContent.appendChild(labelImage);
 		
-		if(rowAttr)		
-			for(var attr in rowAttr)
-				row.setAttribute(attr, rowAttr[attr]);
+		var rowAttr = this.dataCB("attributes", data, $row);
+		if(rowAttr)
+			DOMHelper.setAttributes($row, rowAttr)
 		
 		// label
-		var label = this.document.createElement("label");
-		label.classList.add("dom-tree-row-label");
-		label.setAttribute("value", this.dataCB("label", data, row));
-		rowContent.appendChild(label);
+		var $label = DOMHelper.createDOMNodeOn($rowContent, "label", {"class" : "dom-tree-row-label", value: self.dataCB("label", data, $row)});
+		//label.classList.add("dom-tree-row-label");
+		//label.setAttribute("value", this.dataCB("label", data, row));
+		//rowContent.appendChild(label);
 		
-		if(parent)
+		if($parent)
 		{
-			row.parentRow = parent;
-			row.level = parent.level + 1;
+			$row.$parentRow = $parent;
+			$row.level = $parent.level + 1;
 		}
 		else
 		{
-			row.parentRow = null;
-			row.level = 0;
+			$row.$parentRow = null;
+			$row.level = 0;
 		}
 		
-		this._makeContainer(row, isContainer);
+		this._makeContainer($row, isContainer);
 		
-		return row;
+		return $row;
 	},
 	
 	/**
@@ -288,24 +323,24 @@ DOMTree.prototype =
 	 * @param   {DOMElement}   row           The row
 	 * @param   {boolean}      isContainer   
 	 */
-	_makeContainer: function _makeContainer(row, isContainer)
+	_makeContainer: function _makeContainer($row, isContainer)
 	{
-		if(isContainer)
+		if(isContainer)	// TODO: make main-box a container too
 		{
-			row.isContainer = true;
-			row.isContainerOpen = false;
+			$row.isContainer = true;
+			$row.isContainerOpen = false;
 			
-			var containerBox = this.document.createElement("vbox");
-			containerBox.classList.add("dom-tree-container");
-			row.appendChild(containerBox);
-			row.container = containerBox;
+			var $containerBox = DOMHelper.createDOMNodeOn($row, "vbox", {"class": "dom-tree-container"});
+			//containerBox.classList.add("dom-tree-container");
+			//$row.appendChild(containerBox);
+			$row.container = $containerBox;
 			
-			row.setAttribute("isContainer", "true");
+			$row.setAttribute("isContainer", "true");
 		}
 		else
 		{
-			row.isContainer = false;
-			row.isContainerOpen = false;
+			$row.isContainer = false;
+			$row.isContainerOpen = false;
 		}
 	}, 
 	
@@ -324,7 +359,7 @@ DOMTree.prototype =
 		var row = this.createRow(parent, isContainer, data);
 		
 		if(!parent)
-			this.box.appendChild(row);
+			this.appendChild(row);
 		else
 		{
 			if(!parent.isContainer)
@@ -343,8 +378,8 @@ DOMTree.prototype =
 	{
 		this.clearSelection();
 		
-		while(this.box.firstChild)
-			this.box.removeChild(this.box.firstChild);
+		while(this.firstChild)
+			this.removeChild(this.firstChild);
 		
 	}, 
 	

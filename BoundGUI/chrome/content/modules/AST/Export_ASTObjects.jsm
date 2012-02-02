@@ -9,6 +9,7 @@ Cu.import("chrome://bound/content/modules/Extension.jsm");
 Cu.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm");
 
 Components.utils.import("chrome://bound/content/modules/CodeGeneratorPlugins/CodeGeneratorPluginManager.jsm");
+Components.utils.import("chrome://bound/content/modules/MetaData.jsm");
 
 Cu.import("chrome://bound/content/modules/log.jsm");
 
@@ -233,4 +234,7 @@ Export_ASTObject.createFromSaveObject = function createFromSaveObject(saveObject
 }
 
 Extension.inherit(Export_ASTObject, ASTObject);
+
+MetaData.initMetaDataOn(Export_ASTObject.prototype)
+     .addPropertyData("codeGenerators", { type: "KeyValueMap", viewable: true});
 
