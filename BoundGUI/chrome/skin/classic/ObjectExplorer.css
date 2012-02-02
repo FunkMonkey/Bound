@@ -5,11 +5,13 @@
 
 .object-explorer-property-array-title
 {
-	background-color: -moz-buttondefault;
-	color: #fff;
+	background-color: -moz-dialog;
+	color: #000;
 }
 
 .object-explorer-property-array-title[open]
 {
-	background-color: -moz-dialog; 
+	
+	background-color: -moz-buttondefault;
+	color: #fff;
 }

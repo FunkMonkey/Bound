@@ -161,19 +161,15 @@ function PropertyFactoryArray($row)
 	$row.save = PropertyFactoryArray.save;
 	$row._onGroupToggle = PropertyFactoryArray._onGroupToggle;
 	
-	this._childrenAdded = false;
-	this.isOpen = false;
-	
-	this.$title = DOMHelper.createDOMNodeOn($row, "hbox", {value: $row.propName});
-	DOMHelper.createDOMNodeOn(this.$title, "label", {value: $row.propName});
-	this.$title.classList.add("object-explorer-property-array-title");
-	this.$title.addEventListener("click", $row._onGroupToggle.bind($row), true);
+	$row._childrenAdded = false;
+	$row.isOpen = false;
 	
 	
+	$row.$title = DOMHelper.createDOMNodeOn($row, "hbox", {value: $row.propName});
+	DOMHelper.createDOMNodeOn($row.$title, "label", {value: $row.propName});
+	$row.$title.classList.add("object-explorer-property-array-title");
+	$row.$title.addEventListener("click", $row._onGroupToggle.bind($row), true);
 	//var domNode = DOMHelper.createDOMNodeOn($row, "label");
-	
-	
-	
 }
 
 PropertyFactoryArray.createContainer = true;
@@ -191,22 +187,7 @@ PropertyFactoryArray.save = function save()
 
 PropertyFactoryArray._onGroupToggle = function()
 {
-	if(this._childrenAdded)
-	{
-		if(this.isOpen)
-		{
-			this.$subObjectExplorer.style.display = "none";
-			this.$title.removeAttribute("open");
-		}
-		else
-		{
-			this.$subObjectExplorer.style.display = "-moz-box";
-			this.$title.setAttribute("open", "true");
-		}
-		
-		this.isOpen = !this.isOpen;
-	}
-	else
+	if(!this._childrenAdded)
 	{
 		this.$subObjectExplorer = DOMHelper.createDOMNodeOn(this, "vbox");
 		this.objectExplorer.constructorObjectExplorer.create(this.$subObjectExplorer);
@@ -215,8 +196,20 @@ PropertyFactoryArray._onGroupToggle = function()
 		this.$subObjectExplorer.setDataHandler(this.dataHandler.getPropertyDataHandler(this.propName));
 		//this.objectExplorer.insertPropertiesAfter(this.dataHandler.getPropertyDataHandler(this.propName), this);
 		this._childrenAdded = true;
-		this.isOpen = true;
 	}
+	
+	if(this.isOpen)
+	{
+		this.$subObjectExplorer.style.display = "none";
+		this.$title.removeAttribute("open");
+	}
+	else
+	{
+		this.$subObjectExplorer.style.display = "-moz-box";
+		this.$title.setAttribute("open", "true");
+	}
+	
+	this.isOpen = !this.isOpen;
 }
 
 ObjectExplorerPropertyManager.registerPropertyFactory("Array", PropertyFactoryArray);
