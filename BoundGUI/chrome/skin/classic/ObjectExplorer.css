@@ -3,31 +3,58 @@
 	/*padding-left: 6px;*/
 }
 
-.object-explorer-property-array-title
+/* ==================================================
+   Row
+   ================================================== */
+
+.object-explorer-row
+{
+	-moz-box-align: center;
+}
+
+.object-explorer-row[readOnly] > label
+{
+	color: #888;
+}
+
+/* ==================================================
+   String
+   ================================================== */
+
+.object-explorer-row[readOnly] > textbox
+{
+	color: #888;
+}
+
+/* ==================================================
+   Array
+   ================================================== */
+.objexp-prop-array-title
 {
 	-moz-box-align: center;
 	background-color: -moz-dialog;
 	color: #000;
 }
 
-.object-explorer-property-array-content
+.objexp-prop-array-content
 {
 	margin-left: 6px;
 	border-top: 1px solid #000;
 }
 
-.object-explorer-property-array-title > image
+.objexp-prop-array-title > image
 {
 	padding-left: 4px;
 	list-style-image: url("chrome://global/skin/arrow/arrow-rit.gif");
 }
 
-.object-explorer-property-array[open] > .object-explorer-property-array-title
+.objexp-prop-array[open] > .objexp-prop-array-title
 {
 	font-weight: bold;
 }
 
-.object-explorer-property-array[open] > .object-explorer-property-array-title > image
+.objexp-prop-array[open] > .objexp-prop-array-title > image
 {
 	list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif");
 }
+

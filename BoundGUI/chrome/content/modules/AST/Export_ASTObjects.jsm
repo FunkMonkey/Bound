@@ -127,6 +127,20 @@ function Export_ASTObject(parent, name, sourceObject)
 Export_ASTObject.prototype = {
 	constructor: Export_ASTObject,
 	
+	/**
+	 * Renames the given child
+	 * 
+	 * @param   {ASTObject}   child            Child to rename
+	 * @param   {String}      newName          New name of the child
+	 */
+	_renameChild: function _renameChild(child, newName)
+	{
+		if(newName == "")
+			throw "Cannot give Export_ASTObject an empty name!"
+		
+		ASTObject.prototype._renameChild.call(this, child, newName);
+	},
+	
 	// TEMPORARY
 	get kind(){ return (this.sourceObject == null) ? ASTObject.KIND_INVALID : this.sourceObject.kind; },
 	
@@ -236,5 +250,5 @@ Export_ASTObject.createFromSaveObject = function createFromSaveObject(saveObject
 Extension.inherit(Export_ASTObject, ASTObject);
 
 MetaData.initMetaDataOn(Export_ASTObject.prototype)
-     .addPropertyData("codeGenerators", { type: "KeyValueMap", viewable: true});
+     .addPropertyData("codeGenerators", { type: "KeyValueMap", viewable: true})
 

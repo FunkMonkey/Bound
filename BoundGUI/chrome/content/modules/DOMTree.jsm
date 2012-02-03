@@ -244,7 +244,12 @@ DOMTree.prototype =
 			event.initEvent("select", true, true, data);
 			this.dispatchEvent(event);
 		}
-	}, 
+	},
+	
+	_rowInvalidate: function invalidate()
+	{
+		this.$label.value = this.tree.dataCB("label", this.data, this);
+	},
 	
 	/**
 	 * Creates a row for the tree
@@ -259,47 +264,32 @@ DOMTree.prototype =
 	{
 		var self = this;
 		
+		// TODO: put in DOMTreeRow
 		var $row = DOMHelper.createDOMNode(this.ownerDocument, "vbox", {"class": "dom-tree-row"}, {isRow: true, tree: self, data: data});
-		//row.classList.add("dom-tree-row");
-		//row.isRow = true;
-		//row.tree = this;
-		//
-		//row.data = data;
 		
 		$row.toggleCollapse = this._rowToggleCollapse;
+		$row.invalidate = this._rowInvalidate;
 		
 		// content of the row
 		var $rowContent = DOMHelper.createDOMNodeOn($row, "hbox", {"class" : "dom-tree-row-content"});
-		//rowContent.classList.add("dom-tree-row-content");
 		$rowContent.addEventListener("click", this._onRowContentClicked);
 		$rowContent.addEventListener("dragstart", this._onRowContentDragStart);
-		
-		//row.appendChild(rowContent);
 		
 		// twisty
 		var $twisty = DOMHelper.createDOMNodeOn($rowContent, "box", {"class" : "dom-tree-row-twisty"});
 		DOMHelper.createDOMNodeOn($twisty, "image");
-		//twisty.appendChild(this.document.createElement("image"));
-		//twisty.classList.add("dom-tree-row-twisty");
 		$twisty.addEventListener("click", this._onToggleCollapse, true);
-		//rowContent.appendChild(twisty);
 		
 		// image
 		var $labelImage = DOMHelper.createDOMNodeOn($rowContent, "box", {"class" : "dom-tree-row-label-image"});
 		DOMHelper.createDOMNodeOn($labelImage, "image");
-		//labelImage.appendChild(this.document.createElement("image"));
-		//labelImage.classList.add("dom-tree-row-label-image");
-		//rowContent.appendChild(labelImage);
 		
 		var rowAttr = this.dataCB("attributes", data, $row);
 		if(rowAttr)
 			DOMHelper.setAttributes($row, rowAttr)
 		
 		// label
-		var $label = DOMHelper.createDOMNodeOn($rowContent, "label", {"class" : "dom-tree-row-label", value: self.dataCB("label", data, $row)});
-		//label.classList.add("dom-tree-row-label");
-		//label.setAttribute("value", this.dataCB("label", data, row));
-		//rowContent.appendChild(label);
+		$row.$label = DOMHelper.createDOMNodeOn($rowContent, "label", {"class" : "dom-tree-row-label", value: self.dataCB("label", data, $row)});
 		
 		if($parent)
 		{

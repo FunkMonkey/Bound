@@ -3,15 +3,19 @@ let EXPORTED_SYMBOLS = ["MetaDataHandler"];
 Components.utils.import("chrome://bound/content/modules/log.jsm");
 Components.utils.import("chrome://bound/content/modules/MetaData.jsm");
 
+Components.utils.import("resource://gre/modules/Services.jsm");
+
 /**
  * 
  *
  * @constructor
  * @this {MetaDataHandler}
  */
-function MetaDataHandler(sourceObject)
+function MetaDataHandler(sourceObject, window, readOnly) // TODO: remove window and just replace handleException!
 {
 	this.sourceObject = sourceObject;
+	this.window = window;
+	this.readOnly = (readOnly == true)? true : false;
 	
 	this.props = [];
 	
@@ -35,10 +39,12 @@ function MetaDataHandler(sourceObject)
 				var prop = {
 					name: propName,
 					type: type,
-					data: self.metaDataProps[propName]
+					metadata: self.metaDataProps[propName],
+					readOnly : readOnly
 				}
 				this.props.push(prop);
 			}
+			
 		}
 	}
 	else
@@ -48,24 +54,13 @@ function MetaDataHandler(sourceObject)
 			if(!sourceObject.hasOwnProperty(propName))
 				continue;
 			
-			var prop = null;
-			
 			// does it have meta-data?
 			var sourceProp = sourceObject[propName];
-			if(sourceProp && MetaData.hasMetaData(sourceProp))
-			{
-				prop = {
+			var prop = {
 					name: propName,
-					type: "KeyValueMap"
+					type: (sourceProp && MetaData.hasMetaData(sourceProp)) ? "KeyValueMap" : typeof(sourceProp),
+					readOnly : readOnly
 				}
-			}
-			else
-			{
-				prop = {
-					name: propName,
-					type: typeof(sourceProp)
-				}
-			}
 			
 			this.props.push(prop);
 		}
@@ -119,7 +114,25 @@ MetaDataHandler.prototype = {
 	 */
 	getPropertyDataHandler: function getPropertyDataHandler(propertyName)
 	{
-		return new MetaDataHandler(this.sourceObject[propertyName]);
+		return new MetaDataHandler(this.sourceObject[propertyName], this.window, this.readOnly);
+	},
+	
+	/**
+	 * Handles exceptions for the given property
+	 * 
+	 * @param   {String}      propertyName   Name of the property
+	 * @param   {Exception}   e              Caught exception
+	 *
+	 * @returns {boolean}   True if exception has been handled, false if it should be rethrown
+	 */
+	handleException: function handleException(propertyName, e)
+	{
+		if(typeof e == "string")
+			Services.prompt.alert(this.window, "Exception: " + e, e);
+		else
+			Services.prompt.alert(this.window, "Exception: " + e.name, e.message);
+		return true;
 	}, 
+	
 	
 };

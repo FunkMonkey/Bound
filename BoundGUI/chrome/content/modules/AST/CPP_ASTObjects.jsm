@@ -286,6 +286,8 @@ CPP_ASTObject.prototype = {
 	source: "C++",
 	language: "C++",
 	
+	_allowOverloadedChildren: true,
+	
 	/**
 	 * Called when the parent was changed
 	 */

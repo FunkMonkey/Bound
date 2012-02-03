@@ -29,3 +29,6 @@ pref("extensions.getMoreExtensionsURL", "chrome://mozapps/locale/extensions/exte
 pref("extensions.getMoreThemesURL", "chrome://mozapps/locale/extensions/extensions.properties");
 
 pref("extensions.getAddons.cache.enabled", false); // TODO: remove
+
+// XULRUNNER needs this
+pref("accessibility.typeaheadfind.flashBar", 0); 

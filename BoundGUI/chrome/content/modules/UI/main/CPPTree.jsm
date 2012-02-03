@@ -35,7 +35,7 @@ var CPPTree = {
 	{
 		if(this.$cppASTTree.selection.length > 0)
 		{
-			var handler = new MetaDataHandler(this.$cppASTTree.selection[0].data)
+			var handler = new MetaDataHandler(this.$cppASTTree.selection[0].data, MainWindow.$window, true);
 			MainWindow.PropertyExplorer.setDataHandler(handler);
 		}
 	}, 

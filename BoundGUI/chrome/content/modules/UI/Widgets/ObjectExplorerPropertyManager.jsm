@@ -54,8 +54,16 @@ function PropertyFactoryString($row)
 	$row.refresh = PropertyFactoryString.refresh;
 	$row.save = PropertyFactoryString.save;
 	
-	var $domNode = DOMHelper.createDOMNodeOn($row, "textbox", {flex: "1"});
-	$domNode.addEventListener("change", $row.save.bind($row), true);
+	$row.classList.add("objexp-prop-string");
+	
+	$row.$textbox = DOMHelper.createDOMNodeOn($row, "textbox", {flex: "1"});
+	if(!$row.propData.readOnly)
+		$row.$textbox.addEventListener("change", $row.save.bind($row), true);
+	else
+	{
+		$row.setAttribute("readOnly", "true");
+		$row.$textbox.readOnly = true;
+	}
 }
 
 PropertyFactoryString.refresh = function refresh()
@@ -65,7 +73,14 @@ PropertyFactoryString.refresh = function refresh()
 
 PropertyFactoryString.save = function save()
 {
-	this.dataHandler.setPropertyValue(this.propName, this.childNodes[1].value);
+	try{
+		this.dataHandler.setPropertyValue(this.propName, this.childNodes[1].value);
+	}
+	catch(e)
+	{
+		if(!this.dataHandler.handleException(this.propName, e))
+			throw e;
+	}
 	this.refresh();
 }
 
@@ -78,6 +93,8 @@ function PropertyFactoryBoolean($row)
 {
 	$row.refresh = PropertyFactoryBoolean.refresh;
 	$row.save = PropertyFactoryBoolean.save;
+	
+	$row.classList.add("objexp-prop-boolean");
 	
 	var $domNode = DOMHelper.createDOMNodeOn($row, "checkbox");
 	$domNode.addEventListener("command", $row.save.bind($row), true);
@@ -103,6 +120,8 @@ function PropertyFactoryNumber($row)
 {
 	$row.refresh = PropertyFactoryNumber.refresh;
 	$row.save = PropertyFactoryNumber.save;
+	
+	$row.classList.add("objexp-prop-number");
 	
 	var numDecimals = 2;
 	if($row.propData.type && $row.propData.type === "int")
@@ -136,6 +155,8 @@ function PropertyFactoryObject($row)
 	$row.refresh = PropertyFactoryObject.refresh;
 	$row.save = PropertyFactoryObject.save;
 	
+	$row.classList.add("objexp-prop-object");
+	
 	var $domNode = DOMHelper.createDOMNodeOn($row, "label");
 }
 
@@ -164,13 +185,13 @@ function PropertyFactoryArray($row)
 	$row._childrenAdded = false;
 	$row.isOpen = false;
 	
-	$row.classList.add("object-explorer-property-array");
+	$row.classList.add("objexp-prop-array");
 	
 	$row.$title = DOMHelper.createDOMNodeOn($row, "hbox", {value: $row.propName});
 	$row.$title.$twisty = DOMHelper.createDOMNodeOn($row.$title, "image");
 	$row.$title.$label  = DOMHelper.createDOMNodeOn($row.$title, "label", {value: $row.propName});
 	
-	$row.$title.classList.add("object-explorer-property-array-title");
+	$row.$title.classList.add("objexp-prop-array-title");
 	$row.$title.addEventListener("click", $row._onGroupToggle.bind($row), true);
 }
 
@@ -191,7 +212,7 @@ PropertyFactoryArray._onGroupToggle = function()
 {
 	if(!this._childrenAdded)
 	{
-		this.$subObjectExplorer = DOMHelper.createDOMNodeOn(this, "vbox", {"class": "object-explorer-property-array-content"});
+		this.$subObjectExplorer = DOMHelper.createDOMNodeOn(this, "vbox", {"class": "objexp-prop-array-content"});
 		this.objectExplorer.constructorObjectExplorer.create(this.$subObjectExplorer);
 		this.$subObjectExplorer.setAttribute("inner", "true");
 		

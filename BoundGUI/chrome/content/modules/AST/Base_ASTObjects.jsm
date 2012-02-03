@@ -12,7 +12,7 @@ Components.utils.import("chrome://bound/content/modules/MetaData.jsm");
  */
 function ASTObject(parent, name)
 {
-	this.name = name;
+	this._name = name;
 	this._parent = null;
 	this.parent = (parent == null) ? null : parent;
 	
@@ -87,16 +87,87 @@ ASTObject.prototype = {
 			return this.parent.AST;
 	},
 	
+	get name(){ return this._name; },
+	set name(value){
+		if(this.parent)
+			this.parent._renameChild(this, value);
+		else
+			this._name = value;
+	},
+	
+	_allowOverloadedChildren: false,
+	
+	/**
+	 * Renames the given child
+	 * 
+	 * @param   {ASTObject}   child            Child to rename
+	 * @param   {String}      newName          New name of the child
+	 */
+	_renameChild: function _renameChild(child, newName)
+	{
+		if(child._name === newName)
+			return;
+		
+		if(this._allowOverloadedChildren)
+		{
+			var beforeObj = this._childrenMap[child._name];
+			if(beforeObj instanceof ASTOverloadContainer)
+			{
+				beforeObj.removeOverload(child);
+				if(beforeObj.overloads.length === 0)
+					delete this._childrenMap[child._name];
+				
+			}
+			else
+			{
+				delete this._childrenMap[child._name];
+			}
+			
+			child._name = newName;
+			
+			if(!this._childrenMap[child.name])
+			{
+				this._childrenMap[child.name] = child;
+			}
+			else
+			{
+				var obj = this._childrenMap[child.name];
+				if(obj instanceof ASTOverloadContainer)
+				{
+					obj.addOverload(child);
+				}
+				else
+				{
+					var overloadContainer = new ASTOverloadContainer();
+					
+					overloadContainer.addOverload(obj);
+					overloadContainer.addOverload(child);
+					this._childrenMap[child.name] = overloadContainer;
+				}
+			}
+		}
+		else
+		{
+			if(this._childrenMap[newName])
+				throw "Child with given name already exists!";
+			
+			delete this._childrenMap[child._name];
+			child._name = newName;
+			this._childrenMap[child._name] = child;
+		}
+	}, 
+	
+	
 	/**
 	 * Adds a child to the object, does overload resolution
 	 * 
-	 * @param   {ASTObject}   child   Child to add
+	 * @param   {ASTObject}   child            Child to add
 	 */
 	addChild: function addChild(child)
 	{
-		this.children.push(child);
-		if(child.name !== "")
+		if(this._allowOverloadedChildren)
 		{
+			this.children.push(child);
 			if(!this._childrenMap[child.name])
 				this._childrenMap[child.name] = child;
 			else
@@ -114,10 +185,18 @@ ASTObject.prototype = {
 					overloadContainer.addOverload(child);
 					this._childrenMap[child.name] = overloadContainer;
 				}
-				
-				
 			}
 		}
+		else
+		{
+			if(this._childrenMap[child.name])
+				throw "Child with given name already exists!";
+			
+			this.children.push(child);
+			this._childrenMap[child.name] = child;
+		}
+		
+		
 	},
 	
 	/**
@@ -192,7 +271,28 @@ ASTOverloadContainer.prototype = {
 	{
 		this.overloads.push(overload);
 		overload.overloadContainer = this;
+	},
+	
+	/**
+	 * Removes the given overload
+	 * 
+	 * @param   {ASTObject}   overload   Description
+	 */
+	removeOverload: function removeOverload(overload)
+	{
+		for(var i = 0, len = this.overloads.length; i < len; ++i)
+		{
+			if(this.overloads[i] === overload)
+			{
+				this.overloads.splice(i, 1);
+				overload.overloadContainer = null;
+				return;
+			}
+		}
+		
+		throw "ASTObject did not exist in ASTOverloadContainer"
 	}, 
+	
 	
 	
 };

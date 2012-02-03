@@ -10,6 +10,8 @@ Components.utils.import("chrome://bound/content/modules/Bound.jsm");
 Components.utils.import("chrome://bound/content/modules/log.jsm");
 Components.utils.import("chrome://bound/content/modules/MetaDataHandler.jsm");
 
+Components.utils.import("chrome://bound/content/modules/ForwardProxy.jsm");
+
 var MainWindow = null;
 var document = null;
 
@@ -35,8 +37,16 @@ var ExportTree = {
 		
 		this.$exportASTTree = DOMTree.createOn(this.$exportTree, dataCB.bind(this));
 		this.$exportASTTree.addEventListener("select", this._onSelect.bind(this));
-		log("trying")
 	},
+	
+	_proxySet: function _proxySet(receiver, name, val) {
+		
+		this.obj[name] = val;
+		if(name === "name")
+			this.obj._exportTreeRow.invalidate();
+			
+		return true;
+	}, // bad behavior when set fails in non-strict mode  
 	
 	/**
 	 * Called when selection in the tree changed
@@ -45,10 +55,12 @@ var ExportTree = {
 	 */
 	_onSelect: function _onSelect(event)
 	{
-		log("select")
 		if(this.$exportASTTree.selection.length > 0)
 		{
-			var handler = new MetaDataHandler(this.$exportASTTree.selection[0].data)
+			var proxyHandler = new ForwardProxyHandler(this.$exportASTTree.selection[0].data);
+			proxyHandler.set = this._proxySet;
+			var proxy = Proxy.create(proxyHandler, Object.getPrototypeOf(proxyHandler.obj));
+			var handler = new MetaDataHandler(proxy, MainWindow.$window);
 			MainWindow.PropertyExplorer.setDataHandler(handler);
 		}
 	},
@@ -78,7 +90,8 @@ var ExportTree = {
 	
 	astNodeToTreeNode: function astNodeToTreeNode(astNode, domParent, treeView)
 	{
-		var row = treeView.createAndAppendRow(domParent, astNode.children.length !== 0, astNode);	
+		var row = treeView.createAndAppendRow(domParent, astNode.children.length !== 0, astNode);
+		astNode._exportTreeRow = row;
 		
 		for(var childName in astNode._childrenMap)
 		{
@@ -153,6 +166,7 @@ function onDrop(event)
 			exportParent.addChild(exportASTObject);
 			exportASTObject.addCodeGenerator(new codeGenConstructor(plugin));
 			var $newRow = this.$exportASTTree.createAndAppendRow($parentNode, false, exportASTObject);
+			exportASTObject._exportTreeRow = $newRow;
 			this.$exportASTTree.select($newRow);
 			
 			MainWindow.ResultTabbox.displayCodeGenResult(exportASTObject);

@@ -74,7 +74,7 @@ ObjectExplorer.prototype = {
 				var $row = DOMHelper.createDOMNodeOnAfter(this.$rows, "vbox", $rowBefore);
 			else
 			{
-				var $row = DOMHelper.createDOMNodeOnAfter(this.$rows, "row", $rowBefore);
+				var $row = DOMHelper.createDOMNodeOnAfter(this.$rows, "row", $rowBefore, {"class" : "object-explorer-row"});
 				DOMHelper.createDOMNodeOn($row, "label", {value: props[i].name});
 			}
 			
@@ -88,37 +88,6 @@ ObjectExplorer.prototype = {
 			$row.refresh();
 		}
 	},
-	
-	/**
-	 * Adds a standard label for the first column of the row
-	 * 
-	 * @param   {element}   $row    Row with now children
-	 * @param   {String}    value   Value of the label
-	 * 
-	 * @returns {element}   Label element
-	 */
-	_addStandardLabel: function _addStandardLabel($row, value)
-	{
-		return DOMHelper.createDOMNodeOn($row, "label", {value: value});
-	},
-	
-	/**
-	 * Adds a group label for the first column of the row
-	 * 
-	 * @param   {element}   $row    Row with now children
-	 * @param   {String}    value   Value of the label
-	 * 
-	 * @returns {element}   Label element
-	 */
-	_addGroupLabel: function _addGroupLabel($row, value)
-	{
-		var $result = DOMHelper.createDOMNodeOn($row, "hbox");
-		$result.$label = DOMHelper.createDOMNodeOn($result, "label", {value: value});
-		
-		return $result;
-	}, 
-	
-	
 	
 	/**
 	 * Removes all properties
