@@ -1243,10 +1243,13 @@ Symbolic Analysis
 Symbolic analysis is a static analysis method for reasoning about program values
 that may not be constant.</pre>
 </div>
-<div title="Notes from Literature" creator="YourName" modifier="Andre" created="201202040958" modified="201202041323" changecount="3">
+<div title="Notes from Literature" creator="YourName" modifier="Andre" created="201202040958" modified="201202041423" changecount="5">
 <pre>[[Notes from Web]]
 [[Notes from Secure Programming With Static Analysis Tools]]
-[[Notes from A Survey of Static Program Analysis Techniques]]</pre>
+[[Notes from A Survey of Static Program Analysis Techniques]]
+[[Notes from other Static Analysis Papers]]
+
+[[Notes on Static Analysis]]</pre>
 </div>
 <div title="Notes from Secure Programming With Static Analysis Tools" creator="Andre" modifier="Andre" created="201202041050" modified="201202041116" changecount="7">
 <pre>xviii
@@ -1719,15 +1722,63 @@ semantics of the program at hand.
 
 </pre>
 </div>
-<div title="Notes from Web" creator="Andre" modifier="Andre" created="201202041031" modified="201202041323" changecount="3">
-<pre>''[[http://www.keyvan.ms/introduction-to-static-analysis]]''
+<div title="Notes from Web" creator="Andre" modifier="Andre" created="201202041031" modified="201202041425" changecount="6">
+<pre>![[http://www.keyvan.ms/introduction-to-static-analysis]]
+
 Static code analysis is the set of techniques and formal methods based on mathematical structures (specifically set and lattice theory) to analyze the behavior of the programming code and extract certain properties that hold based on the structure of the code.
 
 Although developed mainly by the Programming Languages and Compilers community for compile-time optimizations, Static Analysis is applied in various fields of Computer Science including Software Engineering and Software Security. In Software Engineering almost all the bug detection tools use static analyses in order to detect the potential bugs in the codes, and these are all done by applying different types of analyses developed in Static Analysis. Some well-known examples of static analysis tools are FxCop and StyleCop for .NET, and FinBugs and Soot for Java.
 
 As you may have noticed, roughly speaking, Static Analysis is the way to prove the correctness of programming code and this is opposed to the very common misbeliefs among developers ''that unit testing proves their code''.
 
-Some main highlights of these approaches are ''Data Flow Analysis, Constraint Based Analysis, Abstract Interpretation, and Type and Effect Systems'' while there are some lesser common approaches such as Denotational Based Analysis and Projection Analysis that can be considered as subsets of the first four approaches. However, Data Flow Analysis and Abstract Interpretation, especially the latter one, seem to have been of more interest among researchers.</pre>
+Some main highlights of these approaches are ''Data Flow Analysis, Constraint Based Analysis, Abstract Interpretation, and Type and Effect Systems'' while there are some lesser common approaches such as Denotational Based Analysis and Projection Analysis that can be considered as subsets of the first four approaches. However, Data Flow Analysis and Abstract Interpretation, especially the latter one, seem to have been of more interest among researchers.
+
+[[http://www.coverity.com/products/static-analysis.html]]
+helps developers find hard-to-spot, yet potentially crash-causing defects early in the software development life-cycle, reducing the cost, time, and risk of software errors.
+
+''Interprocedural Analysis''
+Many errors can only be found by crossing function boundaries. This analysis technique looks at all of the functions in context to find the defect, goes to an infinite number of levels deep to tell you where the problem is, and shows you the exact location in the code that was analyzed to provide evidence of the problem.
+
+''concurrency issues''
+
+</pre>
+</div>
+<div title="Notes from other Static Analysis Papers" creator="Andre" modifier="Andre" created="201202041424" modified="201202041425" changecount="2">
+<pre>!Using Static Analysis to Find Bugs
+
+1
+
+software quality is important, but often imperfect in practice. We can use many
+techniques to try to improve quality, including testing, code review, and formal
+specification. Static-analysis tools evaluate software in the abstract, without
+running the software or considering a specific input. Rather than trying
+to prove that the code fulfills its specification, such tools look for violations of reasonable
+or recommended programming practice. Thus, they look for places in which code
+might dereference a null pointer or overflow an array. Static-analysis tools might also
+flag an issue such as a comparison that can’t possibly
+be true. Although the comparison won’t cause
+a failure or exception, its existence suggests that it
+might have resulted from a coding error, leading to
+incorrect program behavior.
+Some tools also flag or enforce programming
+style issues, such as naming conventions or the use
+of curly braces in conditionals and looping structures.
+The lint program for C programs1 is generally
+considered the first widely used static-analysis
+tool for defect detection,
+
+security vulnerabilities, such as buffer overflows,
+format string vulnerabilities, SQL injection,
+and cross-site scripting.
+
+3
+Rather than use a
+pattern language to describe bugs (as PMD9 and
+Metal10 do)</pre>
+</div>
+<div title="Notes on Static Analysis" creator="Andre" modifier="Andre" created="201202041413" changecount="1">
+<pre>* lint
+* infinite recursion</pre>
 </div>
 <div title="QuickEditPackage" modifier="ELSDesignStudios" created="200801120200" modified="200902211423" tags="package story QuickEditPackage" server.type="file" server.host="http://www.tiddlytools.com/#QuickEditToolbar" server.page.revision="200902211423">
 <pre>This package provides a toolbar of interactive 'power tools' that you can use while editing a tiddler to quickly insert TiddlyWiki tiddler links, images, macros, etc. or common formatting sequences directly into tiddler content, as well as perform other functions (such as find/replace, sort, split, convert, etc.) that can be used to modify the current tiddler's source content in a variety of ways.
@@ -2160,7 +2211,7 @@ onclick=&quot;var p=Popup.create(this); if (!p) return false; p.className+=' sti
 <div title="StyleSheet" creator="Andre" modifier="Andre" created="201202041223" server.type="file" server.host="http://www.tiddlytools.com/#QuickEditToolbar" changecount="1">
 <pre>[[StyleSheetShortcuts]]</pre>
 </div>
-<div title="StyleSheetColors" creator="Andre" modifier="Andre" created="201202041331" modified="201202041337" changecount="7">
+<div title="StyleSheetColors" creator="Andre" modifier="Andre" created="201202041331" modified="201202041338" changecount="9">
 <pre>/*{{{*/
 body {background:[[ColorPalette::Background]]; color:[[ColorPalette::Foreground]];}
 
@@ -2241,7 +2292,7 @@ h2,h3 {border-bottom:1px solid [[ColorPalette::TertiaryLight]];}
 
 .shadow .title {color:[[ColorPalette::TertiaryDark]];}
 
-.title {color:[[ColorPalette::PrimaryMid]]; text-decoration: underline; }
+.title {color:[[ColorPalette::PrimaryMid]]; text-decoration: underline; font-size: 1.7em; }
 .subtitle {color:[[ColorPalette::TertiaryDark]];}
 
 .toolbar {color:[[ColorPalette::PrimaryMid]];}
@@ -2470,7 +2521,7 @@ table.listView th, table.listView td, table.listView tr {padding:0 3px 0 3px;}
 /*}}}*/
 </pre>
 </div>
-<div title="Todo" creator="YourName" modifier="Andre" created="201201251542" modified="201202041202" changecount="31">
+<div title="Todo" creator="YourName" modifier="Andre" created="201201251542" modified="201202041344" changecount="33">
 <pre>!CPPAnalyzer
 
 * --P1: Exporting enums--
@@ -2523,6 +2574,7 @@ table.listView th, table.listView td, table.listView tr {padding:0 3px 0 3px;}
 *** Other ways of getting the information - why are those not used? (Header-Parser, GCC-XML)
 *** existing static analysis tools? Why are they not used?
 **** rule-based static analysis tools
+**** Lint, other examples: Coverty pvs-studio, pc-lint, findbugs
 ***** new tool needs to use output of the analysis (AST), not bug reports
 **** Dehydra (GCC-Plugin), Linux only
 **** Clang (LLVM-Compiler)
