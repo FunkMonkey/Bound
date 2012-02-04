@@ -36,10 +36,10 @@ var MainWindow = {
 		
 		// TODO: move somewhere else
 		CPPAnalyzer.init();
-		//var path = "D:/Data/Projekte/Bound/src/CPPAnalyzer/Test/";
-		//var cppAST = CPPAnalyzer.parse_header(path, ["supertest", path + "test1.cpp"]);
-		var path = "D:/Data/Projekte/Bound/src/Wrapping/Spidermonkey/WrappingTest/include/";
-		var cppAST = CPPAnalyzer.parse_header(path, ["supertest", path + "SimpleClass.hpp"]);
+		var path = "D:/Data/Projekte/Bound/src/CPPAnalyzer/Test/";
+		var cppAST = CPPAnalyzer.parse_header(path, ["supertest", path + "test1.cpp"]);
+		//var path = "D:/Data/Projekte/Bound/src/Wrapping/Spidermonkey/WrappingTest/include/";
+		//var cppAST = CPPAnalyzer.parse_header(path, ["supertest", path + "SimpleClass.hpp"]);
 		
 		CPPTree.setCPPAST(cppAST);
 		ExportTree.newExportAST(cppAST);

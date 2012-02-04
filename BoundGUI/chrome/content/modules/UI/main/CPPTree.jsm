@@ -33,10 +33,24 @@ var CPPTree = {
 	 */
 	_onSelect: function _onSelect(event)
 	{
-		if(this.$cppASTTree.selection.length > 0)
-		{
-			var handler = new MetaDataHandler(this.$cppASTTree.selection[0].data, MainWindow.$window, true);
-			MainWindow.PropertyExplorer.setDataHandler(handler);
+		try{
+			var selection = this.$cppASTTree.selection;
+			if(selection.length > 0)
+			{
+				var data = selection[0].data;
+				if(selection.length > 1)
+				{
+					data = {};
+					for(var i = 0, len = selection.length; i < len; ++i)
+						data[i + ": " + selection[i].data.name] = selection[i].data;
+				}
+				
+				
+				var handler = new MetaDataHandler(data, MainWindow.$window, true);
+				MainWindow.PropertyExplorer.setDataHandler(handler);
+			}
+		} catch(e){
+			log(e);
 		}
 	}, 
 	

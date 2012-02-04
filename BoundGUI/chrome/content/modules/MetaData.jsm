@@ -2,6 +2,9 @@ var EXPORTED_SYMBOLS = ["MetaData", "MetaDataAggregate", "MetaDataInfo"];
 
 Components.utils.import("chrome://bound/content/modules/log.jsm");
 
+
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+
 /**
  * 
  *
@@ -51,7 +54,7 @@ var MetaData = {
 	 */
 	initMetaDataOn: function initMetaDataOn(object, propertyData)
 	{
-		if(object.hasOwnProperty("_metaData"))
+		if(hasOwnProperty.call(object, "_metaData"))
 			return object._metaData;
 		
 		object._metaData = new MetaDataInfo();
@@ -86,7 +89,47 @@ var MetaData = {
 			return true;
 		else
 			return false;
+	},
+	
+	/**
+	 * Checks if the given object has *OWN* metadata
+	 * 
+	 * @param   {Object}   object   Object to check
+	 * 
+	 * @returns {boolean}   True if it has metadata, otherwise false
+	 */
+	hasOwnMetaData: function hasOwnMetaData(object)
+	{
+		if(typeof object === "object" && object && (hasOwnProperty.call(object, "_metaData")))
+			return true;
+		else
+			return false;
+	},
+	
+	/**
+	 * Returns the metaDataAggregate for the given object; null if it does not have metaData
+	 * 
+	 * @param   {Object}   obj   Object to get MetaDataAggregate for
+	 * 
+	 * @returns {MetaDataAggregate}   MetaDataAggregate
+	 */
+	getMetaDataAggregate: function getMetaDataAggregate(obj)
+	{
+		if(this.hasMetaData(obj))
+		{
+			// loads cached aggregate
+			if(hasOwnProperty.call(obj, "_metaDataAggr"))
+				return obj._metaDataAggr;
+			
+			// ... or create a new one
+			var aggr = new MetaDataAggregate(obj);
+			obj._metaDataAggr = aggr;
+			return aggr;
+		}
+		else
+			return null;
 	}, 
+	
 	
 };
 
@@ -112,7 +155,7 @@ MetaDataAggregate.prototype = {
 		var currObj = this.obj;
 		while(currObj)
 		{
-			if(currObj.hasOwnProperty("_metaData"))
+			if(hasOwnProperty.call(currObj, "_metaData"))
 			{
 				this.metaDataObjects.push(currObj._metaData);
 			}
@@ -174,9 +217,10 @@ MetaDataAggregate.prototype = {
 	/*
 	 *
 	 */
-	getPropertyType: function getPropertyType(propertyName)
+	getPropertyType: function getPropertyType(propertyName, prop)
 	{
-		var prop = this.getPropertyData(propertyName);
+		if(!prop)
+			prop = this.getPropertyData(propertyName);
 		
 		if(!prop || !prop.type)
 		{
@@ -191,7 +235,9 @@ MetaDataAggregate.prototype = {
 			else if(typeof(val) === "object") // if it is an object, that has no given type, then we'll try some stuff
 			{
 				if(!val || ! val.constructor)
-					throw "Could not get propertytype!";
+				{
+					return (val === null) ? "null" : "undefined";
+				}
 				else
 					return val.constructor.name;
 			}

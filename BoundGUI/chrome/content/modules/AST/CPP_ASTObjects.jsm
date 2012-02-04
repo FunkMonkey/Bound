@@ -24,6 +24,8 @@ Cu.import("chrome://bound/content/modules/log.jsm");
 Cu.import("chrome://bound/content/modules/Extension.jsm");
 Cu.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm");
 
+Components.utils.import("chrome://bound/content/modules/MetaData.jsm");
+
 //======================================================================================
 
 /**
@@ -261,6 +263,9 @@ CPP_AST.prototype = {
 	   return astObject;
 	}
 }
+
+MetaData.initMetaDataOn(CPP_AST.prototype)
+   .addPropertyData("TUPath", {view: {}})
 	
 //======================================================================================
 
@@ -315,6 +320,12 @@ Object.defineProperties(CPP_ASTObject.prototype, {
 				get: function getParent(){ return this._parent; },
 				set: function setParent(val){ this._parent = val; this._onParentChanged(); }}
 });
+
+MetaData.initMetaDataOn(CPP_ASTObject.prototype)
+   .addPropertyData("USR",          {view: {}})
+   .addPropertyData("isDefinition", {view: {}})
+   //.addPropertyData("definition",   {view: {}})
+   //.addPropertyData("declarations", {view: {}})
 
 Extension.inherit(CPP_ASTObject, ASTObject);
 
@@ -388,6 +399,12 @@ CPP_ASTType.prototype = {
 	
 };
 
+MetaData.initMetaDataOn(CPP_ASTType.prototype)
+   .addPropertyData("kind",          {view: {}})
+   .addPropertyData("declaration",   {view: {}})
+   .addPropertyData("pointsTo",      {view: {}})
+   .addPropertyData("isConst",       {view: {}})
+
 
 
 //======================================================================================
@@ -412,6 +429,22 @@ CPP_ASTObject_Namespace.prototype = {
 Extension.inherit(CPP_ASTObject_Namespace, CPP_ASTObject);
 
 //======================================================================================
+
+/**
+ * 
+ *
+ * @constructor
+ * @this {CPP_Base}
+ */
+function CPP_Base(baseObject, access)
+{
+	this.base = baseObject;
+	this.access = access;
+}
+
+MetaData.initMetaDataOn(CPP_Base.prototype)
+   .addPropertyData("base",          {view: {}})
+   .addPropertyData("access",        {view: {}})
 
 /**
  * CPP_ASTObject_Struct
@@ -439,12 +472,15 @@ CPP_ASTObject_Struct.prototype = {
 	 */
 	addBase: function addBase(baseObject, access)
 	{
-		this.bases.push({base: baseObject, access: access});
+		this.bases.push(new CPP_Base(baseObject, access));
 	}, 
 	
 };
 
 Extension.inherit(CPP_ASTObject_Struct, CPP_ASTObject);
+
+MetaData.initMetaDataOn(CPP_ASTObject_Struct.prototype)
+   .addPropertyData("bases",          {view: {}})
 
 //======================================================================================
 
@@ -488,6 +524,10 @@ CPP_ASTObject_Typedef.prototype = {
 
 Extension.inherit(CPP_ASTObject_Typedef, CPP_ASTObject);
 
+MetaData.initMetaDataOn(CPP_ASTObject_Typedef.prototype)
+   .addPropertyData("type",          {view: {}})
+   .addPropertyData("typeCanonical", {view: {}})
+
 //======================================================================================
 
 /**
@@ -510,6 +550,10 @@ CPP_ASTObject_Var_Decl.prototype = {
 
 Extension.inherit(CPP_ASTObject_Var_Decl, CPP_ASTObject);
 
+MetaData.initMetaDataOn(CPP_ASTObject_Var_Decl.prototype)
+   .addPropertyData("type",          {view: {}})
+   .addPropertyData("typeCanonical", {view: {}})
+
 //======================================================================================
 
 /**
@@ -531,6 +575,10 @@ CPP_ASTObject_Field.prototype = {
 };
 
 Extension.inherit(CPP_ASTObject_Field, CPP_ASTObject_Var_Decl);
+
+MetaData.initMetaDataOn(CPP_ASTObject_Field.prototype)
+   .addPropertyData("access",          {view: {}})
+   .addPropertyData("isStatic",        {view: {}})
 
 //======================================================================================
 
@@ -611,6 +659,10 @@ CPP_ASTObject_Function.prototype = {
 
 Extension.inherit(CPP_ASTObject_Function, CPP_ASTObject);
 
+MetaData.initMetaDataOn(CPP_ASTObject_Function.prototype)
+   .addPropertyData("returnType",          {view: {}})
+   .addPropertyData("returnTypeCanonical", {view: {}})
+
 //======================================================================================
 
 /**
@@ -634,6 +686,10 @@ CPP_ASTObject_Member_Function.prototype = {
 };
 
 Extension.inherit(CPP_ASTObject_Member_Function, CPP_ASTObject_Function);
+
+MetaData.initMetaDataOn(CPP_ASTObject_Member_Function.prototype)
+   .addPropertyData("access",          {view: {}})
+   .addPropertyData("isStatic",        {view: {}})
 
 //======================================================================================
 
@@ -716,4 +772,7 @@ CPP_ASTObject_EnumConstant.prototype = {
 };
 
 Extension.inherit(CPP_ASTObject_EnumConstant, CPP_ASTObject);
+
+MetaData.initMetaDataOn(CPP_ASTObject_EnumConstant.prototype)
+   .addPropertyData("value",          {view: {}})
 

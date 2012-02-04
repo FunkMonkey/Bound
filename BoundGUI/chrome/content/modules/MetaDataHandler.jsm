@@ -28,16 +28,17 @@ function MetaDataHandler(sourceObject, window, readOnly) // TODO: remove window 
 		
 		for(var propName in sourceObject)
 		{
-			if(this.metaDataProps[propName])
+			var metaDataProp = this.metaDataProps[propName];
+			if(metaDataProp && metaDataProp.view)
 			{
 				var type = "";
 				if(this.metaDataProps[propName].type)
 					type = this.metaDataProps[propName].type;
 				else
 					type = (MetaData.hasMetaData(sourceObject[propName]) == true) ? "KeyValueMap" : metaDataAggr.getPropertyType(propName);
-				
 				var prop = {
 					name: propName,
+					labelName: ("name" in metaDataProp.view) ? metaDataProp.view.name : propName,
 					type: type,
 					metadata: self.metaDataProps[propName],
 					readOnly : readOnly

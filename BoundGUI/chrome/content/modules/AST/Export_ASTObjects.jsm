@@ -233,7 +233,7 @@ Export_ASTObject.createFromSaveObject = function createFromSaveObject(saveObject
 	for(var context in saveObject.codeGenerators)
 	{
 		var plugin = ast.getCodeGeneratorPlugin(context);
-		var codeGen = plugin.createCodeGeneratorFromSaveObject(saveObject.codeGenerators, result);
+		var codeGen = plugin.createCodeGeneratorFromSaveObject(saveObject.codeGenerators[context], result);
 		result.addCodeGenerator(codeGen);
 	}
 	
@@ -250,5 +250,5 @@ Export_ASTObject.createFromSaveObject = function createFromSaveObject(saveObject
 Extension.inherit(Export_ASTObject, ASTObject);
 
 MetaData.initMetaDataOn(Export_ASTObject.prototype)
-     .addPropertyData("codeGenerators", { type: "KeyValueMap", viewable: true})
+     .addPropertyData("codeGenerators", { type: "KeyValueMap", view: {}})
 

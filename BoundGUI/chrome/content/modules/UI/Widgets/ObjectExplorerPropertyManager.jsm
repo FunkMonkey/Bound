@@ -180,6 +180,8 @@ PropertyFactoryObject.save = function save()
 }
 
 ObjectExplorerPropertyManager.registerPropertyFactory("object", PropertyFactoryObject);
+ObjectExplorerPropertyManager.registerPropertyFactory("null", PropertyFactoryObject);
+ObjectExplorerPropertyManager.registerPropertyFactory("undefined", PropertyFactoryObject);
 
 //======================================================================================//
 // PropertyFactoryArray

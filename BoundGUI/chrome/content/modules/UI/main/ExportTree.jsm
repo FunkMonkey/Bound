@@ -11,6 +11,7 @@ Components.utils.import("chrome://bound/content/modules/log.jsm");
 Components.utils.import("chrome://bound/content/modules/MetaDataHandler.jsm");
 
 Components.utils.import("chrome://bound/content/modules/ForwardProxy.jsm");
+Components.utils.import("resource://gre/modules/Services.jsm");
 
 var MainWindow = null;
 var document = null;
@@ -159,45 +160,55 @@ var ExportTree = {
 
 function onDrop(event)
 {
-	var data = event.dataTransfer.mozGetDataAt("application/x-tree-data", 0).data;
-	
-	var $parentNode = null;
-	if(event.target !== this.$exportASTTree)
+	try
 	{
-		var $parentNode = event.target.parentNode;
-		while(!$parentNode.isRow)
-			$parentNode = $parentNode.parentNode;
-	}
-	
-	var exportParent = ($parentNode == null) ? this.exportAST.root : $parentNode.data;
-	
-	var plugin = exportParent.AST.getCodeGeneratorPlugin(Bound.currentContext);
-	if(!plugin)
-		return;
-	
-	//var exportParentCodeGen = exportParent.getCodeGenerator(Bound.currentContext);
-	
-	//if(!exportParentCodeGen)
-	//	return;
-	
-	for(var i = 0; i < data.length; ++i)
-	{
-		var codeGenConstructor = plugin.getCodeGeneratorByASTObject(data[i], exportParent);
+		var data = event.dataTransfer.mozGetDataAt("application/x-tree-data", 0).data;
 		
-		if(codeGenConstructor)
+		var $parentNode = null;
+		if(event.target !== this.$exportASTTree)
 		{
-			var exportASTObject = new Export_ASTObject(exportParent, data[i].name, data[i]);
-			exportParent.addChild(exportASTObject);
-			exportASTObject.addCodeGenerator(new codeGenConstructor(plugin));
-			var $newRow = this.$exportASTTree.createAndAppendRow($parentNode, false, exportASTObject);
-			exportASTObject._exportTreeRow = $newRow;
-			this.$exportASTTree.select($newRow);
-			
-			MainWindow.ResultTabbox.displayCodeGenResult(exportASTObject);
-			
-			if($parentNode && !$parentNode.isContainerOpen)
-				$parentNode.toggleCollapse();
+			var $parentNode = event.target.parentNode;
+			while(!$parentNode.isRow)
+				$parentNode = $parentNode.parentNode;
 		}
+		
+		var exportParent = ($parentNode == null) ? this.exportAST.root : $parentNode.data;
+		
+		var plugin = exportParent.AST.getCodeGeneratorPlugin(Bound.currentContext);
+		if(!plugin)
+			throw "No plugin for context: " + Bound.currentContext;
+		
+		//var exportParentCodeGen = exportParent.getCodeGenerator(Bound.currentContext);
+		
+		//if(!exportParentCodeGen)
+		//	return;
+		
+		for(var i = 0; i < data.length; ++i)
+		{
+			var codeGenConstructor = plugin.getCodeGeneratorByASTObject(data[i], exportParent);
+			
+			if(codeGenConstructor)
+			{
+				var exportASTObject = new Export_ASTObject(exportParent, data[i].name, data[i]);
+				exportParent.addChild(exportASTObject);
+				exportASTObject.addCodeGenerator(new codeGenConstructor(plugin));
+				var $newRow = this.$exportASTTree.createAndAppendRow($parentNode, false, exportASTObject);
+				exportASTObject._exportTreeRow = $newRow;
+				this.$exportASTTree.select($newRow);
+				
+				MainWindow.ResultTabbox.displayCodeGenResult(exportASTObject);
+				
+				if($parentNode && !$parentNode.isContainerOpen)
+					$parentNode.toggleCollapse();
+			}
+		}
+	
+	} catch(e) {
+		if(typeof e == "string")
+			Services.prompt.alert(this.window, "Exception: " + e, e);
+		else
+			Services.prompt.alert(this.window, "Exception: " + e.name, e.message);
+		return true;
 	}
 }
 

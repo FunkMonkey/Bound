@@ -255,6 +255,8 @@ ASTObject.prototype = {
 		return ASTObject.getKindAsString((kind == null) ? this.kind : kind);
 	},
 	
+	get kindAsString(){ return ASTObject.getKindAsString(this.kind); },
+	
 	/**
 	 * Returns a unique identifier that can be used to reference this AST_Object f. ex. when loading
 	 * 
@@ -273,7 +275,8 @@ Object.defineProperties(ASTObject.prototype, {
 });
 
 MetaData.initMetaDataOn(ASTObject.prototype)
-     .addPropertyData("name", { viewable: true});
+     .addPropertyData("name",         { view: {}})
+     .addPropertyData("kindAsString", { view: { name: "kind"}})
 
 /**
  * 
@@ -335,7 +338,7 @@ ASTOverloadContainer.prototype = {
 		
 		throw "ASTObject did not exist in ASTOverloadContainer"
 	}, 
-	
-	
-	
 };
+
+MetaData.initMetaDataOn(ASTOverloadContainer.prototype)
+     .addPropertyData("overloads", { type: "KeyValueMap",  view: {}});

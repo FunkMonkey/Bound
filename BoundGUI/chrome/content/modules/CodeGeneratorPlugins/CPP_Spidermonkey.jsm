@@ -9,6 +9,7 @@ Components.utils.import("chrome://bound/content/modules/TemplateManager.jsm");
 Components.utils.import("chrome://bound/content/modules/CodeGeneratorPlugins/CodeGeneratorPluginManager.jsm");
 
 Components.utils.import("chrome://bound/content/modules/MetaData.jsm");
+Components.utils.import("chrome://bound/content/modules/LoadSaveFromMetaData.jsm");
 
 /**
  * 
@@ -370,7 +371,7 @@ function CodeGenerator_Object(plugin)
 	this.plugin = plugin;
 	this.exportObject = null;
 	
-	this.hppTemplate = "You fool!";
+	this.hppTemplate = "You fool made it!";
 }
 
 CodeGenerator_Object.isCompatible = Plugin_CPP_Spidermonkey.prototype._isCompatible;
@@ -539,13 +540,15 @@ CodeGenerator_Object.prototype = {
 	 */
 	toSaveObject: function toSaveObject()
 	{
-		return {};
+		var result = {};
+		LoadSaveFromMetaData.saveTo(result, this);
+		return result;
 	},
 	
 };
 
 MetaData.initMetaDataOn(CodeGenerator_Object.prototype)
-   .addPropertyData("hppTemplate", {viewable: true})
+   .addPropertyData("hppTemplate", {view: {}, load_save: {}})
 
 /**
  * Creates the code generator from the given save object
@@ -559,6 +562,7 @@ MetaData.initMetaDataOn(CodeGenerator_Object.prototype)
 CodeGenerator_Object.createFromSaveObject =  function createFromSaveObject(saveObj, plugin, exportASTObj)
 {
 	var result = new CodeGenerator_Object(plugin);
+	LoadSaveFromMetaData.loadFrom(result, saveObj);
 	return result;
 }
 
