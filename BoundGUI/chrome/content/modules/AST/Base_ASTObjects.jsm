@@ -200,6 +200,49 @@ ASTObject.prototype = {
 	},
 	
 	/**
+	 * Removes the child
+	 * 
+	 * @param   {ASTObject}   child   Child to remove
+	 */
+	removeChild: function removeChild(child)
+	{
+		if(child.parent !== this)
+			return;
+		
+		// removing from the children-Array
+		for(var i = 0, len = this.children.length; i < len; ++i)
+		{
+			if(this.children[i] === child)
+			{
+				this.children.splice(i, 1);
+				break;
+			}
+		}
+		
+		// removing from the _childrenMap
+		if(this._allowOverloadedChildren)
+		{
+			var beforeObj = this._childrenMap[child._name];
+			if(beforeObj instanceof ASTOverloadContainer)
+			{
+				beforeObj.removeOverload(child);
+				if(beforeObj.overloads.length === 0)
+					delete this._childrenMap[child._name];
+				
+			}
+			else
+			{
+				delete this._childrenMap[child._name];
+			}
+		}
+		else
+		{
+			delete this._childrenMap[child._name];
+		}
+	}, 
+	
+	
+	/**
 	 * Returns the kind as a string
 	 *   - uses own kind or the kind specified
 	 * 

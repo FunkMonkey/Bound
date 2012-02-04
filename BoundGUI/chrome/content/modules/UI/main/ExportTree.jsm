@@ -37,6 +37,7 @@ var ExportTree = {
 		
 		this.$exportASTTree = DOMTree.createOn(this.$exportTree, dataCB.bind(this));
 		this.$exportASTTree.addEventListener("select", this._onSelect.bind(this));
+		this.$exportASTTree.addEventListener("keypress", this._onKeyUp.bind(this))
 	},
 	
 	_proxySet: function _proxySet(receiver, name, val) {
@@ -51,10 +52,11 @@ var ExportTree = {
 	/**
 	 * Called when selection in the tree changed
 	 * 
-	 * @param   {event}   event   Description
+	 * @param   {event}   event   Event
 	 */
 	_onSelect: function _onSelect(event)
 	{
+		this.$exportASTTree.focus();
 		if(this.$exportASTTree.selection.length > 0)
 		{
 			var proxyHandler = new ForwardProxyHandler(this.$exportASTTree.selection[0].data);
@@ -64,6 +66,30 @@ var ExportTree = {
 			MainWindow.PropertyExplorer.setDataHandler(handler);
 		}
 	},
+	
+	/**
+	 * Called when a key goes up
+	 * 
+	 * @param   {event}   event   Event
+	 */
+	_onKeyUp: function _onKeyUp(event)
+	{
+		var selection = this.$exportASTTree.selection;
+		if(selection.length > 0)
+		{
+			if(event.keyCode == 46)
+			{
+				for(var i = 0, len = selection.length; i < len; ++i)
+				{
+					selection[i].data.parent.removeChild(selection[i].data);
+					this.$exportASTTree.removeRow(selection[i]);
+				}
+			}
+			MainWindow.PropertyExplorer.setDataHandler(null);
+		}
+	},
+	
+	
 	
 	/**
 	 * Creates a new export AST based on the given C++ AST
@@ -153,8 +179,6 @@ function onDrop(event)
 	
 	//if(!exportParentCodeGen)
 	//	return;
-	
-	
 	
 	for(var i = 0; i < data.length; ++i)
 	{

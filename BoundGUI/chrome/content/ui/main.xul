@@ -30,7 +30,7 @@
 	<vbox  flex="1">
 		<hbox  flex="1">
 			<vbox id="cppTree" width="200"  />
-			<vbox id="exportTree" width="200" />
+			<vbox id="exportTree" width="200" tabindex="7" />
 			<tabbox id="resultTabbox" flex="1">
 				<arrowscrollbox allowevents="true" class="tabbrowser-arrowscrollbox" orient="horizontal">
 					<tabs id="resultTabs">

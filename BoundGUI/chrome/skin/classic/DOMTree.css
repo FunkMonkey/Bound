@@ -5,6 +5,8 @@
 	overflow: auto;
 	margin: 2px 4px;
     padding: 2px 2px 3px;
+	
+	-moz-user-focus: normal;
 }
 
 .dom-tree-container

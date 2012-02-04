@@ -362,6 +362,23 @@ DOMTree.prototype =
 	},
 	
 	/**
+	 * Removes the given row from the tree
+	 * 
+	 * @param   {DOMTreeRow}   $row   Remove
+	 */
+	removeRow: function removeRow($row)
+	{
+		if($row.tree !== this)
+			return;
+		
+		if(!$row.$parentRow)
+			this.removeChild($row);
+		else
+			$row.$parentRow.container.removeChild($row);
+	}, 
+	
+	
+	/**
 	 * Removes all rows
 	 */
 	removeAllRows: function removeAllRows()

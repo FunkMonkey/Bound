@@ -39,7 +39,10 @@ ObjectExplorer.prototype = {
 	{
 		this._dataHandler = dataHandler;
 		
-		this.appendProperties(dataHandler);
+		if(!dataHandler)
+			this.removeAllProperties();
+		else
+			this.appendProperties(dataHandler);
 	},
 	
 	/**
