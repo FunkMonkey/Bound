@@ -1155,6 +1155,199 @@ You'll also need to enter your username for signing your edits: &lt;&lt;option t
 <pre>[[Notes from Web]]
 [[Notes from Secure Programming With Static Analysis Tools]]</pre>
 </div>
+<div title="Notes from Secure Programming With Static Analysis Tools" creator="Andre" modifier="Andre" created="201202041050" modified="201202041059" changecount="3">
+<pre>xviii
+The biggest problem in computer security today is that most systems
+aren’t constructed with security in mind.
+
+xix
+At the code level, the focus is
+on implementation bugs, especially those that static analysis tools that scan
+source code for common vulnerabilities can discover.
+
+xxii ff
+Challenger
+They knew
+anomalous behavior had taken place in the past, but they used the fact that
+no disaster had occurred yet as a reason to believe that no disaster would
+ever occur.
+
+Use static analysis
+tools to identify coding errors before they can be exploited
+
+3 ff
+This book focuses on finding mistakes that manifest themselves in source
+code
+
+The term static analysis refers to any process for assessing code without
+executing it. Static analysis is powerful because it allows for the quick consid-eration of many possibilities. A static analysis tool can explore a large num-ber of “what if” scenarios without having to go through all the computations
+necessary to execute the code for all the scenarios. Static analysis is particu-larly well suited to security because many security problems occur in corner
+cases and hard-to-reach states that can be difficult to exercise by actually run-ning the code. Good static analysis tools provide a fast way to get a consis-tent and detailed evaluation of a body of code.
+
+4
+The term defensive programming often comes up in introductory program-ming courses. Although it is increasingly given a security connotation, his-torically it has referred only to the practice of coding with the mindset that
+errors are inevitable and that, sooner or later, something will go wrong and
+lead to unexpected conditions within the program. Kernighan and Plauger
+call it “writing the program so it can cope with small disasters”
+
+6
+In considering the range of things that might go wrong with a piece of
+code, programmers tend to stick with their experience: The program might
+crash, it might loop forever, or it might simply fail to produce the desired
+result. All of these failure modes are important, but preventing them does
+not lead to software that stands up to attack.
+
+9
+By far the most
+widely used approach to bug finding is dynamic testing, which involves 
+running the software and comparing its output against an expected result.
+Advocates of extreme programming want to see a lot of small tests (unit
+tests) written by the programmer even before the code is written. Large 
+software organizations have big groups of dedicated QA engineers who are
+responsible for nothing other than writing tests, running tests, and evaluat-ing test results.
+
+Functionality testing works well for making sure that typi-cal users with typical needs will be happy, but it just won’t work for finding
+security defects that aren’t related to security features. Most software test-ing is aimed at comparing the implementation to the requirements, and this
+approach is inadequate for finding security problems.
+
+This works well for testing software functionality, even security func-tionality, but it will miss many security problems because security problems
+are often not violations of the requirements.
+
+10
+''picture''
+Testing to make sure that the implementation includes the features described
+in the specification will miss many security problems
+
+12
+''picture''
+Treating the cause: Focusing on security early, with activities centered on the
+way the software is built.
+
+13
+Gary McGraw estimates that roughly half of the mistakes that lead to
+security problems are implementation oversights, omissions, or misunder-standings 
+
+A static analysis
+tool can make the code review process faster and more fruitful by hypothe-sizing a set of potential problems for consideration during a code review.
+
+If a review of the design indicates that the program requires special privi-leges to run, the code review can look for ways in which those special privi-leges might be abused or misappropriated.
+
+14
+A generic defect is a problem that can occur in almost any program
+written in the given language. A buffer overflow is an excellent example of
+a generic defect for C and C++ programs: A buffer overflow represents a
+security problem in almost any context, and many of the functions and
+code constructs that can lead to a buffer overflow are the same, regardless
+of the purpose of the program. (Chapters 6, &quot;Buffer Overflow&quot; and 7,
+“Bride of Buffer Overflow,” discuss buffer overflow defects in detail.)
+Finding context-specific defects, on the other hand, requires a specific
+knowledge about the semantics of the program at hand. Imagine a program
+that handles credit card numbers.
+
+21
+A clean run doesn’t guarantee that
+your code is perfect; it merely indicates that it is free of certain kinds of
+common problems.
+
+22
+Static analysis tools apply checks thoroughly and consistently, without
+any of the bias that a programmer might have about which pieces of
+code are “interesting” from a security perspective or which pieces of
+code are easy to exercise through dynamic testing.
+
+By examining the code itself, static analysis tools can often point to the
+root cause of a security problem, not just one of its symptoms.
+
+Static analysis can find errors early in development, even before the pro-gram is run for the first time. Finding an error early not only reduces the
+cost of fixing the error, but the quick feedback cycle can help guide a
+programmer’s work: A programmer has the opportunity to correct mis-takes he or she wasn’t previously aware could even happen. The attack
+scenarios and information about code constructs used by a static analy-sis tool act as a means of knowledge transfer.
+
+23
+The most common complaint leveled against static analysis tools that
+target security is that they produce too much noise. Specifically, they pro-duce too many false positives, also known as false alarms. In this context, a
+false positive is a problem reported in a program when no problem actually
+exists. A large number of false positives can cause real difficulties. Not only
+does wading through a long list of false positives feel a little like serving
+latrine duty, but a programmer who has to look through a long list of false
+positives might overlook important results that are buried in the list.
+False positives are certainly undesirable, but from a security perspective,
+false negatives are much worse. With a false negative, a problem exists in the
+program, but the tool does not report it. The penalty for a false positive is the
+amount of time wasted while reviewing the result. The penalty for a false
+negative is far greater. Not only do you pay the price associated with having
+a vulnerability in your code, but you live with a false sense of security stem-ming from the fact that the tool made it appear that everything was okay.
+
+balance a tool
+
+The
+penalty for overlooked security bugs is high, so security tools usually pro-duce more false positives to minimize false negatives.
+For a static analysis tool to catch a defect, the defect must be visible in the
+code. This might seem like an obvious point, but it is important to under-stand that architectural risk analysis is a necessary compliment to static
+analysis.
+
+24
+Static analysis is used more widely than many people realize, partially
+because there are many kinds of static analysis tools, each with different
+goals.
+
+Type Checking
+
+By catching errors at compile time, type checking prevents run-time errors.
+
+25
+
+Style Checking
+
+Pure style checkers
+enforce rules related to whitespace, naming, deprecated functions, com-menting, program structure, and the like.
+
+27
+Program understanding tools help users make sense of a large codebase
+
+Simple examples include “find all
+uses of this method” and “find the declaration of this global variable.”
+More advanced analysis can support automatic program-refactoring fea-tures, such as renaming variables or splitting a single function into multiple
+functions
+
+32
+Bug Finding
+
+The purpose of a bug finding tool is not to complain about formatting
+issues, like a style checker, nor is it to perform a complete and exhaustive
+comparison of the program against a specification, as a program verification
+tool would. Instead, a bug finder simply points out places where the pro-gram will behave in a way that the programmer did not intend. Most bug
+finders are easy to use because they come prestocked with a set of “bug
+idioms” (rules) that describe patterns in code that often indicate bugs.
+Example 2.9 demonstrates one such idiom, known as double-checked
+locking. 
+
+33
+Security Review
+Security-focused static analysis tools use many of the same techniques found
+in other tools, but their more focused goal (identifying security problems)
+means that they apply these techniques differently
+
+35
+Turing posed the halting problem
+
+In 1953, Henry Rice posed what has come to be known as Rice’s theorem.
+The implication of Rice’s theorem is that static analysis cannot perfectly
+determine any nontrivial property of a general program. 
+
+36
+• The ability of the tool to make sense of the program being analyzed
+• The trade-offs the tool makes between precision and scalability
+
+37
+• The set of errors that the tool checks for 
+• The lengths to which the tool’s creators go to in order to make the tool
+easy to use</pre>
+</div>
+<div title="Notes from Web" creator="Andre" modifier="Andre" created="201202041031" changecount="1">
+<pre>[[http://www.keyvan.ms/introduction-to-static-analysis]]
+Static code analysis is the set of techniques and formal methods based on mathematical structures (specifically set and lattice theory) to analyze the behavior of the programming code and extract certain properties that hold based on the structure of the code.</pre>
+</div>
 <div title="SiteSubtitle" creator="YourName" modifier="YourName" created="201201251623" changecount="1">
 <pre></pre>
 </div>
