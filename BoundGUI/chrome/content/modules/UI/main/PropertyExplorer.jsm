@@ -28,7 +28,7 @@ function initPropertyExplorer(mainWindowModule)
 		bool: true,
 		obj: { sub1: "fool", sub2: "msfdsf"},
 		otherobj: null};
-	var dataHandler = new MetaDataHandler(testObject);
+	var dataHandler = new MetaDataHandler(testObject, null,  true);
 	
 	$propertyExplorer.setDataHandler(dataHandler);
 	

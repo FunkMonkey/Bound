@@ -75,8 +75,13 @@ ObjectExplorer.prototype = {
 			else
 			{
 				var $row = DOMHelper.createDOMNodeOnAfter(this.$rows, "row", $rowBefore, {"class" : "object-explorer-row"});
-				DOMHelper.createDOMNodeOn($row, "label", {value: props[i].name});
+				$row.$label = DOMHelper.createDOMNodeOn($row, "label", {value: props[i].name});
+				if(props[i].readOnly)
+					$row.$label.disabled = true;
 			}
+			
+			if(props[i].readOnly)
+				$row.setAttribute("readOnly", "true");
 			
 			$row.objectExplorer = this;
 			$row.dataHandler = dataHandler;

@@ -57,13 +57,10 @@ function PropertyFactoryString($row)
 	$row.classList.add("objexp-prop-string");
 	
 	$row.$textbox = DOMHelper.createDOMNodeOn($row, "textbox", {flex: "1"});
-	if(!$row.propData.readOnly)
-		$row.$textbox.addEventListener("change", $row.save.bind($row), true);
-	else
-	{
-		$row.setAttribute("readOnly", "true");
+	if($row.propData.readOnly)
 		$row.$textbox.readOnly = true;
-	}
+	else
+		$row.$textbox.addEventListener("change", $row.save.bind($row), true);
 }
 
 PropertyFactoryString.refresh = function refresh()
@@ -96,8 +93,13 @@ function PropertyFactoryBoolean($row)
 	
 	$row.classList.add("objexp-prop-boolean");
 	
-	var $domNode = DOMHelper.createDOMNodeOn($row, "checkbox");
-	$domNode.addEventListener("command", $row.save.bind($row), true);
+	$row.$checkbox = DOMHelper.createDOMNodeOn($row, "checkbox");
+	
+	if($row.propData.readOnly)
+		$row.$checkbox.disabled = true;
+	else
+		$row.$checkbox.addEventListener("command", $row.save.bind($row), true);
+	
 }
 
 PropertyFactoryBoolean.refresh = function refresh()
@@ -127,11 +129,14 @@ function PropertyFactoryNumber($row)
 	if($row.propData.type && $row.propData.type === "int")
 		numDecimals = 0;
 	
-	var $domNode = DOMHelper.createDOMNodeOn($row, "textbox", { type: "number",
+	$row.$textbox = DOMHelper.createDOMNodeOn($row, "textbox", { type: "number",
 															    min: "-Infinity",
 															    decimalplaces: "" + numDecimals});
 	
-	$domNode.addEventListener("change", $row.save.bind($row), true);
+	if($row.propData.readOnly)
+		$row.$textbox.readOnly = true;
+	else
+		$row.$textbox.addEventListener("change", $row.save.bind($row), true);
 }
 
 PropertyFactoryNumber.refresh = function refresh()
@@ -157,7 +162,10 @@ function PropertyFactoryObject($row)
 	
 	$row.classList.add("objexp-prop-object");
 	
-	var $domNode = DOMHelper.createDOMNodeOn($row, "label");
+	$row.$resultLabel = DOMHelper.createDOMNodeOn($row, "label");
+	
+	if($row.propData.readOnly)
+		$row.$resultLabel.disabled = true;
 }
 
 PropertyFactoryObject.refresh = function refresh()
