@@ -1155,7 +1155,7 @@ You'll also need to enter your username for signing your edits: &lt;&lt;option t
 <pre>[[Notes from Web]]
 [[Notes from Secure Programming With Static Analysis Tools]]</pre>
 </div>
-<div title="Notes from Secure Programming With Static Analysis Tools" creator="Andre" modifier="Andre" created="201202041050" modified="201202041112" changecount="6">
+<div title="Notes from Secure Programming With Static Analysis Tools" creator="Andre" modifier="Andre" created="201202041050" modified="201202041116" changecount="7">
 <pre>xviii
 The biggest problem in computer security today is that most systems
 aren’t constructed with security in mind.
@@ -1550,7 +1550,81 @@ can simply appear just before the function declaration.
 
 Languages such as Java and C# have a special syntax for annotations.
 For languages that do not have an annotation syntax, annotations usually
-take the form of specially formatted comments</pre>
+take the form of specially formatted comments
+
+100
+Microsoft has its own version of source annotation: the Microsoft Stan-dard Annotation Language (SAL). 
+Another approach to rule writing is to expose the static analysis engine’s
+data structures and algorithms programmatically. 
+
+101
+ Users
+wrote scripts that took a long time to execute because they did not under-stand the computational complexity of the underlying operations they were
+invoking, and they were not particularly happy with the interface because
+they were being asked not only to specify the results they wanted to see,
+
+105
+Reporting Results
+Most of the academic research effort invested in static analysis tools is spent
+devising clever new approaches to identifying defects
+
+113 ff
+Major challenges for a static analysis tool include choosing an appropriate
+representation for the program being analyzed (building a model) that makes
+good trade-offs between precision and scalability, and choosing algorithms
+capable of finding the target set of defects. Essential static analysis problems
+often involve some of the same techniques as compiler optimization prob-lems, including tracking dataflow and control flow. Tracking tainted data
+through a program is particularly relevant to identifying security defects
+because so many security problems are a result of trusting untrustworthy
+input.
+Good static analysis tools are rule driven. 
+
+Rules also define the security properties that the tool will check against.
+
+117
+Input Validation and
+Representation
+
+172
+It’s easy to say “Don’t trust input,” but it takes real effort to determine 
+all the implicit ways a program might be putting unwarranted faith in
+some aspect of its input.
+
+235
+An integer overflow occurs when an integral
+value is increased or decreased beyond its capacity
+
+266
+Checking Return Values in C
+
+275
+Some exceptions shouldn’t be caught. Use static analysis to look for places that catch
+exceptions such as NullPointerException, OutOfMemoryError, or StackOverflowError.
+
+278
+Preventing Resource Leaks
+
+290
+Static Analysis: Hunt for Debug Code
+
+421
+Privileged Programs
+
+542
+A static analysis tool can com-pare a large body of code against an extensive list of possible problems.
+Tools are more malleable than languages or programming frameworks, so
+the list of problems they identify can change faster than languages or frame-works. The problems they identify can also change depending on the type of
+code being analyzed or the needs of the person running the analysis. 
+
+543
+There
+is considerable power in the ability to customize a tool to check against the
+semantics of the program at hand.
+
+
+
+
+</pre>
 </div>
 <div title="Notes from Web" creator="Andre" modifier="Andre" created="201202041031" changecount="1">
 <pre>[[http://www.keyvan.ms/introduction-to-static-analysis]]
