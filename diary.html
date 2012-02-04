@@ -1155,7 +1155,7 @@ You'll also need to enter your username for signing your edits: &lt;&lt;option t
 <pre>[[Notes from Web]]
 [[Notes from Secure Programming With Static Analysis Tools]]</pre>
 </div>
-<div title="Notes from Secure Programming With Static Analysis Tools" creator="Andre" modifier="Andre" created="201202041050" modified="201202041059" changecount="3">
+<div title="Notes from Secure Programming With Static Analysis Tools" creator="Andre" modifier="Andre" created="201202041050" modified="201202041112" changecount="6">
 <pre>xviii
 The biggest problem in computer security today is that most systems
 aren’t constructed with security in mind.
@@ -1342,7 +1342,215 @@ determine any nontrivial property of a general program.
 37
 • The set of errors that the tool checks for 
 • The lengths to which the tool’s creators go to in order to make the tool
-easy to use</pre>
+easy to use
+
+After the code is parsed, a static analysis tool must understand the
+effects of library or system calls invoked by the program being analyzed.
+This requires the tool to include a model for the behavior of library and sys-tem functions. Characterizing all the relevant libraries for any widely used
+programming language involves understanding thousands of functions and
+methods. The quality of the tool’s program model—and therefore the qual-ity of its analysis results—is directly related to the quality of its library char-acterizations.
+
+38
+Most static analysis
+tools sacrifice some amount of precision to achieve better scalability
+
+40
+Static analysis tools must be armed with the right set of defects to search for.
+What the “right set” consists of depends entirely upon the purpose of the
+software being analyzed. Clients fail differently than servers. Operating sys-tems fail differently than desktop applications. The makers of a static analy-sis tool must somehow take this context into account. 
+
+Even with a limited purview, the most valuable things to search for are
+often specific to the particular piece of software being evaluated. Finding
+these defects requires the tool to be extensible; users must be able to add their
+own custom rules.
+
+42
+Analyzing the Source vs. Analyzing Compiled Code
+
+45
+All static analysis tools produce at least some false positives or some
+false negatives, but most produce both. For security purposes, false nega-tives are more troublesome than false positives, although too many false
+positives can lead a reviewer to overlook true positives.
+Practical challenges for static analysis tools include the following:
+• Making sense of the program (building an accurate program model)
+• Making good trade-offs between precision, depth, and scalability
+• Looking for the right set of defects
+• Presenting easy-to-understand results and errors
+• Integrating easily with the build system and integrated development
+environments
+
+50
+Run static analysis tools with the goals of the review in mind. To get started,
+you need to gather the target code, configure the tool to report the kinds of
+problems that pose the greatest risks, and disable checks that aren’t relevant.
+
+69
+When used as part of code review, static analysis
+tools can help codify best practices, catch common mistakes, and generally
+make the security process more efficient and consistent.
+
+71
+They all accept code, build a model that represents the program, analyze
+that model in combination with a body of security knowledge, and finish 
+by presenting their results back to the user. 
+
+72
+Building a Model
+
+The first thing a static analysis tool needs to do is transform the code to be
+analyzed into a program model, a set of data structures that represent the
+code. As you would expect, the model a tool creates is closely linked to the
+kind of analysis it performs, but generally static analysis tools borrow a 
+lot from the compiler world.
+
+Lexical Analysis
+Tools that operate on source code begin by transforming the code into a
+series of tokens, discarding unimportant features of the program text such
+as whitespace or comments along the way. The creation of the token stream
+is called lexical analysis. 
+
+To enable useful error reporting later, tokens should
+carry at least one other kind of information with them: their position in the
+source text 
+
+73
+Parsing
+A language parser uses a context-free grammar (CFG) to match the token
+stream. The grammar consists of a set of productions that describe the sym-bols (elements) in the language.
+
+The parser performs a derivation by matching the token stream against
+the production rules. If each symbol is connected to the symbol from which
+it was derived, a parse tree is formed.
+
+75
+ it is generally better to abstract away both the details of the grammar
+and the syntactic sugar present in the program text. A data structure that
+does these things is called an abstract syntax tree (AST). The purpose of the
+AST is to provide a standardized version of the program suitable for later
+analysis. The AST is usually built by associating tree construction code with
+the grammar’s production rules.
+
+76
+Semantic Analysis
+As the AST is being built, the tool builds a symbol table alongside it. For
+each identifier in the program, the symbol table associates the identifier with
+its type and a pointer to its declaration or definition.
+With the AST and the symbol table, the tool is now equipped to perform
+type checking. 
+
+type information is critically
+important for the analysis of an object-oriented language because the type
+of an object determines the set of methods that the object can invoke.
+
+In the compiler world, symbol resolution and type checking are referred to
+as semantic analysis because the compiler is attributing meaning to the symbols
+found in the program. 
+
+For example, they can correctly inter-pret the meaning of overloaded operators in C++ or determine that a Java
+method named doPost() is, in fact, part of an implementation of HttpServlet.
+These capabilities enable a tool to perform useful checks on the structure of
+the program. We use the term structural analysis for these kinds of checks.
+
+Depending on the type of analysis to be performed, a static analysis tool
+might perform additional transformations on the AST or might generate its
+own variety of intermediate representation suitable to its needs.
+
+77
+Tracking Control Flow
+Many static analysis algorithms (and compiler optimization techniques)
+explore the different execution paths that can take place when a function 
+is executed. To make these algorithms efficient, most tools build a control
+flow graph on top of the AST or intermediate representation. The nodes in
+a control flow graph are basic blocks: sequences of instructions that will
+always be executed starting at the first instruction and continuing to the
+last instruction, without the possibility that any instructions will be skipped.
+Edges in the control flow graph are directed and represent potential control
+flow paths between basic blocks. Back edges in a control flow graph repre-sent potential loops.
+
+78
+A call graph represents potential control flow between functions or meth-ods. 
+
+80
+Tracking Dataflow
+Dataflow analysis algorithms examine the way data move through a pro-gram. 
+
+82
+taint propagation. It requires knowing where information
+enters the program and how it moves through the program. Taint propa-gation is the key to identifying many input validation and representation
+defects. For example, a program that contains an exploitable buffer over-flow vulnerability almost always contains a dataflow path from an input
+function to a vulnerable operation.
+
+Pointer Aliasing
+Pointer alias analysis is another dataflow problem. The purpose of alias analy-sis is to understand which pointers could possibly refer to the same memory
+location.
+
+For security tools, alias analysis is important for performing taint
+propagation. 
+
+83
+The motivation for using advanced static analysis algorithms is to improve
+context sensitivity—to determine the circumstances and conditions under
+which a particular piece of code runs. Better context sensitivity enables a
+better assessment of the danger the code represents. It’s easy to point at all
+calls to strcpy() and say that they should be replaced, but it’s much harder
+to call special attention to only the calls to strcpy() that might allow an
+attacker to overflow a buffer.
+Any advanced analysis strategy consists of at least two major pieces: an
+intraprocedural analysis component for analyzing an individual function,
+and an interprocedural analysis component for analyzing interaction
+between functions.
+
+84
+If the program logic guarantees that this assertion will always succeed,
+no buffer overflow is possible.1 If there are a set of conditions under which
+the assertion might fail, the analyzer should report a potential buffer over-flow. 
+
+For the remainder of this section, we treat static analysis as an assertion-checking problem. 
+
+85
+SQL injection
+and cross-site scripting are two vulnerability
+
+Looking for exploitable buffer overflow vulnerabilities, range analysis problems
+
+ type state—variables can have a different type at each
+point in the code.
+
+or the
+freed state (entered when it is passed to the function free()). If a pro-gram gives up all references to the memory while it is in the allocated
+state, the memory is leaked. If a pointer to the memory is passed to
+free() when it is in the freed state, a double free vulnerability is present.
+
+89
+Abstract Interpretation
+Abstract interpretation is a general technique formalized by Cousot and
+Cousot for abstracting away aspects of the program that are not relevant to
+the properties of interest and then performing an interpretation
+
+96
+Rules
+The rules that define what a security tool should report are just as impor-tant, if not more important, than the analysis algorithms and heuristics that
+the tool implements. 
+
+97
+Rule Formats
+Good static analysis tools externalize the rules they check so that rules can
+be added, subtracted, or altered without having to modify the tool itself.
+The best static analysis tools externalize all the rules they check. In addition
+to adjusting the out-of-the-box behavior of a tool, an external rules inter-face enables the end user to add checks for new kinds of defects or to extend
+existing checks in ways that are specific to the semantics of the program
+being analyzed.
+
+99
+Annotations
+
+For
+example, instead of having to specify the name of a function, an annotation
+can simply appear just before the function declaration. 
+
+Languages such as Java and C# have a special syntax for annotations.
+For languages that do not have an annotation syntax, annotations usually
+take the form of specially formatted comments</pre>
 </div>
 <div title="Notes from Web" creator="Andre" modifier="Andre" created="201202041031" changecount="1">
 <pre>[[http://www.keyvan.ms/introduction-to-static-analysis]]
