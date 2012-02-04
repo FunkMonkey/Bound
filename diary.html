@@ -934,6 +934,9 @@ window.removeCookie=function(name,force)
 }
 //}}}</pre>
 </div>
+<div title="DefaultTiddlers" creator="Andre" modifier="Andre" created="201202041308" changecount="1">
+<pre>[[Todo]]</pre>
+</div>
 <div title="Diary Week 11" creator="YourName" modifier="YourName" created="201201251605" modified="201201312110" changecount="16">
 <pre>25.01.2010 - 31.01.2012
 
@@ -1170,9 +1173,80 @@ You'll also need to enter your username for signing your edits: &lt;&lt;option t
 [[Diary Week 11]]
 [[Diary Weeks 1 - 10]]</pre>
 </div>
-<div title="Notes from Literature" creator="YourName" modifier="YourName" created="201202040958" changecount="1">
+<div title="Notes from A Survey of Static Program Analysis Techniques" creator="Andre" modifier="Andre" created="201202041312" changecount="1">
+<pre>1
+Computer program analysis is the process of automatically analysing
+the bahavior of computer programs. There are two main approaches in
+progam analysis: static program analysis and dynamic program analysis.
+In static analysis the programs are not executed but are analysed by tools
+to produce useful information. Static analysis techniques range from the
+most mundane (statistics on the density of comments, for instance) to the
+more complex, semantics-based analysis techniques.
+
+The main applications of program analysis are program optimization
+and program correctness.
+
+Since there is no
+general solution to the halting problem, a total correctness assertion is not
+solvable in general.
+
+How-ever, two results of the theoretical computer science, namely the Rice’s
+theorem [3] and the undecideabillity of the Halting Problem
+[7] , show the
+limit of analysis methods. Generally precise program analysis methods are
+in exaustive need and processing time and/or memory space. Therefore
+the degree of precision must be determined application specific. Especially
+abstract interpretation offers good possibillities to handle this trade-off
+between precision and scalability.
+
+2
+''Data Flow Analysis''
+Data flow analysis is a process for collecting run-time information about data in
+programs without actually executing them. Data flow anlaysis however does not
+make use of semenatics of operators. The semantics of the program language
+syntax is, however, implicity captured in the rules of the algorithms
+
+''basic block'': A basic block B is a sequence of consecutive instructions such
+that
+1. control enters B only at its beginning;
+2. control leaves B only at its end (under normal execution); and
+3. control cannot halt or brach out of B except at its end
+
+''control flow graph'': A control flow graph is an abstract representation of
+a (procedure or) program. Each node in the graph represents a basic block.
+Directed edges are used to represent jumps in the control flow.
+
+''control flow path'': A control flow path is a path in the control flow graph
+that starts at an entry block and ends at an exit block
+
+In the first step so called gen/kill
+algorithms are used to collect the desired facts. 
+
+6
+Abstract Interpretation
+Abstract interpretation is a theory of semantics approximation. The idea of
+abstract interpretation is to create a new semantic of the programming language
+so that the semantic always terminates and the store for every program points
+contains a superset of the values that are possible in the actual semantic, for
+every possible input.
+
+Using that abstract semantics one can detect some possible semantic errors,
+like division by zero.
+
+8
+Abstract interpretation is a very powerful program analysis method. It uses
+information on the programming language’s semantic and can detect possible
+runtime errors, like division by zero or variable overflow. 
+
+9
+Symbolic Analysis
+Symbolic analysis is a static analysis method for reasoning about program values
+that may not be constant.</pre>
+</div>
+<div title="Notes from Literature" creator="YourName" modifier="Andre" created="201202040958" modified="201202041323" changecount="3">
 <pre>[[Notes from Web]]
-[[Notes from Secure Programming With Static Analysis Tools]]</pre>
+[[Notes from Secure Programming With Static Analysis Tools]]
+[[Notes from A Survey of Static Program Analysis Techniques]]</pre>
 </div>
 <div title="Notes from Secure Programming With Static Analysis Tools" creator="Andre" modifier="Andre" created="201202041050" modified="201202041116" changecount="7">
 <pre>xviii
@@ -1645,9 +1719,15 @@ semantics of the program at hand.
 
 </pre>
 </div>
-<div title="Notes from Web" creator="Andre" modifier="Andre" created="201202041031" changecount="1">
-<pre>[[http://www.keyvan.ms/introduction-to-static-analysis]]
-Static code analysis is the set of techniques and formal methods based on mathematical structures (specifically set and lattice theory) to analyze the behavior of the programming code and extract certain properties that hold based on the structure of the code.</pre>
+<div title="Notes from Web" creator="Andre" modifier="Andre" created="201202041031" modified="201202041323" changecount="3">
+<pre>''[[http://www.keyvan.ms/introduction-to-static-analysis]]''
+Static code analysis is the set of techniques and formal methods based on mathematical structures (specifically set and lattice theory) to analyze the behavior of the programming code and extract certain properties that hold based on the structure of the code.
+
+Although developed mainly by the Programming Languages and Compilers community for compile-time optimizations, Static Analysis is applied in various fields of Computer Science including Software Engineering and Software Security. In Software Engineering almost all the bug detection tools use static analyses in order to detect the potential bugs in the codes, and these are all done by applying different types of analyses developed in Static Analysis. Some well-known examples of static analysis tools are FxCop and StyleCop for .NET, and FinBugs and Soot for Java.
+
+As you may have noticed, roughly speaking, Static Analysis is the way to prove the correctness of programming code and this is opposed to the very common misbeliefs among developers ''that unit testing proves their code''.
+
+Some main highlights of these approaches are ''Data Flow Analysis, Constraint Based Analysis, Abstract Interpretation, and Type and Effect Systems'' while there are some lesser common approaches such as Denotational Based Analysis and Projection Analysis that can be considered as subsets of the first four approaches. However, Data Flow Analysis and Abstract Interpretation, especially the latter one, seem to have been of more interest among researchers.</pre>
 </div>
 <div title="QuickEditPackage" modifier="ELSDesignStudios" created="200801120200" modified="200902211423" tags="package story QuickEditPackage" server.type="file" server.host="http://www.tiddlytools.com/#QuickEditToolbar" server.page.revision="200902211423">
 <pre>This package provides a toolbar of interactive 'power tools' that you can use while editing a tiddler to quickly insert TiddlyWiki tiddler links, images, macros, etc. or common formatting sequences directly into tiddler content, as well as perform other functions (such as find/replace, sort, split, convert, etc.) that can be used to modify the current tiddler's source content in a variety of ways.
@@ -2079,6 +2159,316 @@ onclick=&quot;var p=Popup.create(this); if (!p) return false; p.className+=' sti
 </div>
 <div title="StyleSheet" creator="Andre" modifier="Andre" created="201202041223" server.type="file" server.host="http://www.tiddlytools.com/#QuickEditToolbar" changecount="1">
 <pre>[[StyleSheetShortcuts]]</pre>
+</div>
+<div title="StyleSheetColors" creator="Andre" modifier="Andre" created="201202041331" modified="201202041337" changecount="7">
+<pre>/*{{{*/
+body {background:[[ColorPalette::Background]]; color:[[ColorPalette::Foreground]];}
+
+.tiddler{border-bottom: 2px solid [[ColorPalette::PrimaryMid]]; padding-bottom: 1em;}
+
+a {color:[[ColorPalette::PrimaryMid]];}
+a:hover {background-color:[[ColorPalette::PrimaryMid]]; color:[[ColorPalette::Background]];}
+a img {border:0;}
+
+h1,h2,h3,h4,h5,h6 {color:[[ColorPalette::SecondaryDark]]; background:transparent;}
+h1 {border-bottom:2px solid [[ColorPalette::TertiaryLight]];}
+h2,h3 {border-bottom:1px solid [[ColorPalette::TertiaryLight]];}
+
+.button {color:[[ColorPalette::PrimaryDark]]; border:1px solid [[ColorPalette::Background]];}
+.button:hover {color:[[ColorPalette::PrimaryDark]]; background:[[ColorPalette::SecondaryLight]]; border-color:[[ColorPalette::SecondaryMid]];}
+.button:active {color:[[ColorPalette::Background]]; background:[[ColorPalette::SecondaryMid]]; border:1px solid [[ColorPalette::SecondaryDark]];}
+
+.header {background:[[ColorPalette::PrimaryMid]];}
+.headerShadow {color:[[ColorPalette::Foreground]];}
+.headerShadow a {font-weight:normal; color:[[ColorPalette::Foreground]];}
+.headerForeground {color:[[ColorPalette::Background]];}
+.headerForeground a {font-weight:normal; color:[[ColorPalette::PrimaryPale]];}
+
+.tabSelected {color:[[ColorPalette::PrimaryDark]];
+	background:[[ColorPalette::TertiaryPale]];
+	border-left:1px solid [[ColorPalette::TertiaryLight]];
+	border-top:1px solid [[ColorPalette::TertiaryLight]];
+	border-right:1px solid [[ColorPalette::TertiaryLight]];
+}
+.tabUnselected {color:[[ColorPalette::Background]]; background:[[ColorPalette::TertiaryMid]];}
+.tabContents {color:[[ColorPalette::PrimaryDark]]; background:[[ColorPalette::TertiaryPale]]; border:1px solid [[ColorPalette::TertiaryLight]];}
+.tabContents .button {border:0;}
+
+#sidebar {}
+#sidebarOptions input {border:1px solid [[ColorPalette::PrimaryMid]];}
+#sidebarOptions .sliderPanel {background:[[ColorPalette::PrimaryPale]];}
+#sidebarOptions .sliderPanel a {border:none;color:[[ColorPalette::PrimaryMid]];}
+#sidebarOptions .sliderPanel a:hover {color:[[ColorPalette::Background]]; background:[[ColorPalette::PrimaryMid]];}
+#sidebarOptions .sliderPanel a:active {color:[[ColorPalette::PrimaryMid]]; background:[[ColorPalette::Background]];}
+
+.wizard {background:[[ColorPalette::PrimaryPale]]; border:1px solid [[ColorPalette::PrimaryMid]];}
+.wizard h1 {color:[[ColorPalette::PrimaryDark]]; border:none;}
+.wizard h2 {color:[[ColorPalette::Foreground]]; border:none;}
+.wizardStep {background:[[ColorPalette::Background]]; color:[[ColorPalette::Foreground]];
+	border:1px solid [[ColorPalette::PrimaryMid]];}
+.wizardStep.wizardStepDone {background:[[ColorPalette::TertiaryLight]];}
+.wizardFooter {background:[[ColorPalette::PrimaryPale]];}
+.wizardFooter .status {background:[[ColorPalette::PrimaryDark]]; color:[[ColorPalette::Background]];}
+.wizard .button {color:[[ColorPalette::Foreground]]; background:[[ColorPalette::SecondaryLight]]; border: 1px solid;
+	border-color:[[ColorPalette::SecondaryPale]] [[ColorPalette::SecondaryDark]] [[ColorPalette::SecondaryDark]] [[ColorPalette::SecondaryPale]];}
+.wizard .button:hover {color:[[ColorPalette::Foreground]]; background:[[ColorPalette::Background]];}
+.wizard .button:active {color:[[ColorPalette::Background]]; background:[[ColorPalette::Foreground]]; border: 1px solid;
+	border-color:[[ColorPalette::PrimaryDark]] [[ColorPalette::PrimaryPale]] [[ColorPalette::PrimaryPale]] [[ColorPalette::PrimaryDark]];}
+
+.wizard .notChanged {background:transparent;}
+.wizard .changedLocally {background:#80ff80;}
+.wizard .changedServer {background:#8080ff;}
+.wizard .changedBoth {background:#ff8080;}
+.wizard .notFound {background:#ffff80;}
+.wizard .putToServer {background:#ff80ff;}
+.wizard .gotFromServer {background:#80ffff;}
+
+#messageArea {border:1px solid [[ColorPalette::SecondaryMid]]; background:[[ColorPalette::SecondaryLight]]; color:[[ColorPalette::Foreground]];}
+#messageArea .button {color:[[ColorPalette::PrimaryMid]]; background:[[ColorPalette::SecondaryPale]]; border:none;}
+
+.popupTiddler {background:[[ColorPalette::TertiaryPale]]; border:2px solid [[ColorPalette::TertiaryMid]];}
+
+.popup {background:[[ColorPalette::TertiaryPale]]; color:[[ColorPalette::TertiaryDark]]; border-left:1px solid [[ColorPalette::TertiaryMid]]; border-top:1px solid [[ColorPalette::TertiaryMid]]; border-right:2px solid [[ColorPalette::TertiaryDark]]; border-bottom:2px solid [[ColorPalette::TertiaryDark]];}
+.popup hr {color:[[ColorPalette::PrimaryDark]]; background:[[ColorPalette::PrimaryDark]]; border-bottom:1px;}
+.popup li.disabled {color:[[ColorPalette::TertiaryMid]];}
+.popup li a, .popup li a:visited {color:[[ColorPalette::Foreground]]; border: none;}
+.popup li a:hover {background:[[ColorPalette::SecondaryLight]]; color:[[ColorPalette::Foreground]]; border: none;}
+.popup li a:active {background:[[ColorPalette::SecondaryPale]]; color:[[ColorPalette::Foreground]]; border: none;}
+.popupHighlight {background:[[ColorPalette::Background]]; color:[[ColorPalette::Foreground]];}
+.listBreak div {border-bottom:1px solid [[ColorPalette::TertiaryDark]];}
+
+.tiddler .defaultCommand {font-weight:bold;}
+
+.shadow .title {color:[[ColorPalette::TertiaryDark]];}
+
+.title {color:[[ColorPalette::PrimaryMid]]; text-decoration: underline; }
+.subtitle {color:[[ColorPalette::TertiaryDark]];}
+
+.toolbar {color:[[ColorPalette::PrimaryMid]];}
+.toolbar a {color:[[ColorPalette::TertiaryLight]];}
+.selected .toolbar a {color:[[ColorPalette::TertiaryMid]];}
+.selected .toolbar a:hover {color:[[ColorPalette::Foreground]];}
+
+.tagging, .tagged {border:1px solid [[ColorPalette::TertiaryPale]]; background-color:[[ColorPalette::TertiaryPale]];}
+.selected .tagging, .selected .tagged {background-color:[[ColorPalette::TertiaryLight]]; border:1px solid [[ColorPalette::TertiaryMid]];}
+.tagging .listTitle, .tagged .listTitle {color:[[ColorPalette::PrimaryDark]];}
+.tagging .button, .tagged .button {border:none;}
+
+.footer {color:[[ColorPalette::TertiaryLight]];}
+.selected .footer {color:[[ColorPalette::TertiaryMid]];}
+
+.error, .errorButton {color:[[ColorPalette::Foreground]]; background:[[ColorPalette::Error]];}
+.warning {color:[[ColorPalette::Foreground]]; background:[[ColorPalette::SecondaryPale]];}
+.lowlight {background:[[ColorPalette::TertiaryLight]];}
+
+.zoomer {background:none; color:[[ColorPalette::TertiaryMid]]; border:3px solid [[ColorPalette::TertiaryMid]];}
+
+.imageLink, #displayArea .imageLink {background:transparent;}
+
+.annotation {background:[[ColorPalette::SecondaryLight]]; color:[[ColorPalette::Foreground]]; border:2px solid [[ColorPalette::SecondaryMid]];}
+
+.viewer .listTitle {list-style-type:none; margin-left:-2em;}
+.viewer .button {border:1px solid [[ColorPalette::SecondaryMid]];}
+.viewer blockquote {border-left:3px solid [[ColorPalette::TertiaryDark]];}
+
+.viewer table, table.twtable {border:2px solid [[ColorPalette::TertiaryDark]];}
+.viewer th, .viewer thead td, .twtable th, .twtable thead td {background:[[ColorPalette::SecondaryMid]]; border:1px solid [[ColorPalette::TertiaryDark]]; color:[[ColorPalette::Background]];}
+.viewer td, .viewer tr, .twtable td, .twtable tr {border:1px solid [[ColorPalette::TertiaryDark]];}
+
+.viewer pre {border:1px solid [[ColorPalette::SecondaryLight]]; background:[[ColorPalette::SecondaryPale]];}
+.viewer code {color:[[ColorPalette::SecondaryDark]];}
+.viewer hr {border:0; border-top:dashed 1px [[ColorPalette::TertiaryDark]]; color:[[ColorPalette::TertiaryDark]];}
+
+.highlight, .marked {background:[[ColorPalette::SecondaryLight]];}
+
+.editor input {border:1px solid [[ColorPalette::PrimaryMid]];}
+.editor textarea {border:1px solid [[ColorPalette::PrimaryMid]]; width:100%;}
+.editorFooter {color:[[ColorPalette::TertiaryMid]];}
+.readOnly {background:[[ColorPalette::TertiaryPale]];}
+
+#backstageArea {background:[[ColorPalette::Foreground]]; color:[[ColorPalette::TertiaryMid]];}
+#backstageArea a {background:[[ColorPalette::Foreground]]; color:[[ColorPalette::Background]]; border:none;}
+#backstageArea a:hover {background:[[ColorPalette::SecondaryLight]]; color:[[ColorPalette::Foreground]]; }
+#backstageArea a.backstageSelTab {background:[[ColorPalette::Background]]; color:[[ColorPalette::Foreground]];}
+#backstageButton a {background:none; color:[[ColorPalette::Background]]; border:none;}
+#backstageButton a:hover {background:[[ColorPalette::Foreground]]; color:[[ColorPalette::Background]]; border:none;}
+#backstagePanel {background:[[ColorPalette::Background]]; border-color: [[ColorPalette::Background]] [[ColorPalette::TertiaryDark]] [[ColorPalette::TertiaryDark]] [[ColorPalette::TertiaryDark]];}
+.backstagePanelFooter .button {border:none; color:[[ColorPalette::Background]];}
+.backstagePanelFooter .button:hover {color:[[ColorPalette::Foreground]];}
+#backstageCloak {background:[[ColorPalette::Foreground]]; opacity:0.6; filter:alpha(opacity=60);}
+/*}}}*/</pre>
+</div>
+<div title="StyleSheetLayout" creator="Andre" modifier="Andre" created="201202041329" modified="201202041330" changecount="2">
+<pre>/*{{{*/
+* html .tiddler {height:1%; }
+
+body {font-size:.75em; font-family:arial,helvetica; margin:0; padding:0;}
+
+h1,h2,h3,h4,h5,h6 {font-weight:bold; text-decoration:none;}
+h1,h2,h3 {padding-bottom:1px; margin-top:1.2em;margin-bottom:0.3em;}
+h4,h5,h6 {margin-top:1em;}
+h1 {font-size:1.35em;}
+h2 {font-size:1.25em;}
+h3 {font-size:1.1em;}
+h4 {font-size:1em;}
+h5 {font-size:.9em;}
+
+hr {height:1px;}
+
+a {text-decoration:none;}
+
+dt {font-weight:bold;}
+
+ol {list-style-type:decimal;}
+ol ol {list-style-type:lower-alpha;}
+ol ol ol {list-style-type:lower-roman;}
+ol ol ol ol {list-style-type:decimal;}
+ol ol ol ol ol {list-style-type:lower-alpha;}
+ol ol ol ol ol ol {list-style-type:lower-roman;}
+ol ol ol ol ol ol ol {list-style-type:decimal;}
+
+.txtOptionInput {width:11em;}
+
+#contentWrapper .chkOptionInput {border:0;}
+
+.externalLink {text-decoration:underline;}
+
+.indent {margin-left:3em;}
+.outdent {margin-left:3em; text-indent:-3em;}
+code.escaped {white-space:nowrap;}
+
+.tiddlyLinkExisting {font-weight:bold;}
+.tiddlyLinkNonExisting {font-style:italic;}
+
+/* the 'a' is required for IE, otherwise it renders the whole tiddler in bold */
+a.tiddlyLinkNonExisting.shadow {font-weight:bold;}
+
+#mainMenu .tiddlyLinkExisting,
+	#mainMenu .tiddlyLinkNonExisting,
+	#sidebarTabs .tiddlyLinkNonExisting {font-weight:normal; font-style:normal;}
+#sidebarTabs .tiddlyLinkExisting {font-weight:bold; font-style:normal;}
+
+.header {position:relative;}
+.header a:hover {background:transparent;}
+.headerShadow {position:relative; padding:4.5em 0 1em 1em; left:-1px; top:-1px;}
+.headerForeground {position:absolute; padding:4.5em 0 1em 1em; left:0; top:0;}
+
+.siteTitle {font-size:3em;}
+.siteSubtitle {font-size:1.2em;}
+
+#mainMenu {position:absolute; left:0; width:10em; text-align:right; line-height:1.6em; padding:1.5em 0.5em 0.5em 0.5em; font-size:1.1em;}
+
+#sidebar {position:absolute; right:3px; width:16em; font-size:.9em;}
+#sidebarOptions {padding-top:0.3em;}
+#sidebarOptions a {margin:0 0.2em; padding:0.2em 0.3em; display:block;}
+#sidebarOptions input {margin:0.4em 0.5em;}
+#sidebarOptions .sliderPanel {margin-left:1em; padding:0.5em; font-size:.85em;}
+#sidebarOptions .sliderPanel a {font-weight:bold; display:inline; padding:0;}
+#sidebarOptions .sliderPanel input {margin:0 0 0.3em 0;}
+#sidebarTabs .tabContents {width:15em; overflow:hidden;}
+
+.wizard {padding:0.1em 1em 0 2em;}
+.wizard h1 {font-size:2em; font-weight:bold; background:none; padding:0; margin:0.4em 0 0.2em;}
+.wizard h2 {font-size:1.2em; font-weight:bold; background:none; padding:0; margin:0.4em 0 0.2em;}
+.wizardStep {padding:1em 1em 1em 1em;}
+.wizard .button {margin:0.5em 0 0; font-size:1.2em;}
+.wizardFooter {padding:0.8em 0.4em 0.8em 0;}
+.wizardFooter .status {padding:0 0.4em; margin-left:1em;}
+.wizard .button {padding:0.1em 0.2em;}
+
+#messageArea {position:fixed; top:2em; right:0; margin:0.5em; padding:0.5em; z-index:2000; _position:absolute;}
+.messageToolbar {display:block; text-align:right; padding:0.2em;}
+#messageArea a {text-decoration:underline;}
+
+.tiddlerPopupButton {padding:0.2em;}
+.popupTiddler {position: absolute; z-index:300; padding:1em; margin:0;}
+
+.popup {position:absolute; z-index:300; font-size:.9em; padding:0; list-style:none; margin:0;}
+.popup .popupMessage {padding:0.4em;}
+.popup hr {display:block; height:1px; width:auto; padding:0; margin:0.2em 0;}
+.popup li.disabled {padding:0.4em;}
+.popup li a {display:block; padding:0.4em; font-weight:normal; cursor:pointer;}
+.listBreak {font-size:1px; line-height:1px;}
+.listBreak div {margin:2px 0;}
+
+.tabset {padding:1em 0 0 0.5em;}
+.tab {margin:0 0 0 0.25em; padding:2px;}
+.tabContents {padding:0.5em;}
+.tabContents ul, .tabContents ol {margin:0; padding:0;}
+.txtMainTab .tabContents li {list-style:none;}
+.tabContents li.listLink { margin-left:.75em;}
+
+#contentWrapper {display:block;}
+#splashScreen {display:none;}
+
+#displayArea {margin:1em 17em 0 14em;}
+
+.toolbar {text-align:right; font-size:.9em;}
+
+.tiddler {padding:1em 1em 0;}
+
+.missing .viewer,.missing .title {font-style:italic;}
+
+.title {font-size:1.6em; font-weight:bold;}
+
+.missing .subtitle {display:none;}
+.subtitle {font-size:1.1em;}
+
+.tiddler .button {padding:0.2em 0.4em;}
+
+.tagging {margin:0.5em 0.5em 0.5em 0; float:left; display:none;}
+.isTag .tagging {display:block;}
+.tagged {margin:0.5em; float:right;}
+.tagging, .tagged {font-size:0.9em; padding:0.25em;}
+.tagging ul, .tagged ul {list-style:none; margin:0.25em; padding:0;}
+.tagClear {clear:both;}
+
+.footer {font-size:.9em;}
+.footer li {display:inline;}
+
+.annotation {padding:0.5em; margin:0.5em;}
+
+* html .viewer pre {width:99%; padding:0 0 1em 0;}
+.viewer {line-height:1.4em; padding-top:0.5em;}
+.viewer .button {margin:0 0.25em; padding:0 0.25em;}
+.viewer blockquote {line-height:1.5em; padding-left:0.8em;margin-left:2.5em;}
+.viewer ul, .viewer ol {margin-left:0.5em; padding-left:1.5em;}
+
+.viewer table, table.twtable {border-collapse:collapse; margin:0.8em 1.0em;}
+.viewer th, .viewer td, .viewer tr,.viewer caption,.twtable th, .twtable td, .twtable tr,.twtable caption {padding:3px;}
+table.listView {font-size:0.85em; margin:0.8em 1.0em;}
+table.listView th, table.listView td, table.listView tr {padding:0 3px 0 3px;}
+
+.viewer pre {padding:0.5em; margin-left:0.5em; font-size:1.2em; line-height:1.4em; overflow:auto;}
+.viewer code {font-size:1.2em; line-height:1.4em;}
+
+.editor {font-size:1.1em;}
+.editor input, .editor textarea {display:block; width:100%; font:inherit;}
+.editorFooter {padding:0.25em 0; font-size:.9em;}
+.editorFooter .button {padding-top:0; padding-bottom:0;}
+
+.fieldsetFix {border:0; padding:0; margin:1px 0px;}
+
+.zoomer {font-size:1.1em; position:absolute; overflow:hidden;}
+.zoomer div {padding:1em;}
+
+* html #backstage {width:99%;}
+* html #backstageArea {width:99%;}
+#backstageArea {display:none; position:relative; overflow: hidden; z-index:150; padding:0.3em 0.5em;}
+#backstageToolbar {position:relative;}
+#backstageArea a {font-weight:bold; margin-left:0.5em; padding:0.3em 0.5em;}
+#backstageButton {display:none; position:absolute; z-index:175; top:0; right:0;}
+#backstageButton a {padding:0.1em 0.4em; margin:0.1em;}
+#backstage {position:relative; width:100%; z-index:50;}
+#backstagePanel {display:none; z-index:100; position:absolute; width:90%; margin-left:3em; padding:1em;}
+.backstagePanelFooter {padding-top:0.2em; float:right;}
+.backstagePanelFooter a {padding:0.2em 0.4em;}
+#backstageCloak {display:none; z-index:20; position:absolute; width:100%; height:100px;}
+
+.whenBackstage {display:none;}
+.backstageVisible .whenBackstage {display:block;}
+/*}}}*/
+</pre>
 </div>
 <div title="Todo" creator="YourName" modifier="Andre" created="201201251542" modified="201202041202" changecount="31">
 <pre>!CPPAnalyzer
