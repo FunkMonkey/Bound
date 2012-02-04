@@ -937,7 +937,7 @@ window.removeCookie=function(name,force)
 <div title="DefaultTiddlers" creator="Andre" modifier="Andre" created="201202041308" changecount="1">
 <pre>[[Todo]]</pre>
 </div>
-<div title="Diary Week 11" creator="YourName" modifier="YourName" created="201201251605" modified="201201312110" changecount="16">
+<div title="Diary Week 11" creator="YourName" modifier="Andre" created="201201251605" modified="201202041845" changecount="17">
 <pre>25.01.2010 - 31.01.2012
 
 !31.01
@@ -946,7 +946,7 @@ window.removeCookie=function(name,force)
 
 !!BoundGUI
 * MetaData.jsm
-* P1: Support classes
+* ''P1: Support classes''
 * ObjectExplorer
 
 !30.01
@@ -966,7 +966,7 @@ window.removeCookie=function(name,force)
 !27.01
 !!CPPAnalyzer
 * now uses JsonCPP for JSON export
-* P1: Exporting enums
+* ''P1: Exporting enums''
 
 
 !26.01
@@ -980,16 +980,20 @@ window.removeCookie=function(name,force)
 !25.01
 
 !!CPPAnalyzer
-* P1: Exporting virtual
-* P1: Exporting static functions
-* P1: Exporting static fields
-* P1: Exporting base class specifiers</pre>
+*'' P1: Exporting virtual''
+* ''P1: Exporting static functions''
+* ''P1: Exporting static fields''
+* ''P1: Exporting base class specifiers''</pre>
 </div>
-<div title="Diary Week 12" creator="YourName" modifier="Andre" created="201202022219" modified="201202041201" changecount="7">
+<div title="Diary Week 12" creator="YourName" modifier="Andre" created="201202022219" modified="201202041845" changecount="11">
 <pre>!04.02 (?)
 
 !!BoundGUI
 * readOnly versions for Object Explorer properties
+* removing Objects from ExportTree
+** problems with KeyEvents and focus
+* ''P1: Deleting ExportTree objects''
+
 
 !!Thesis
 * moved notes from Secure Programming to wiki
@@ -998,6 +1002,7 @@ window.removeCookie=function(name,force)
 
 !!BoundGUI:
 * renaming of ASTObjects (with and without overloading)
+** ''P1: Renaming ExportTree objects''
 * DOMTree: row invalidation
 * MetaDataHandler: handleExceptions and readOnly begun
 * ObjectExplorerProperties: readOnly for String
@@ -1012,6 +1017,7 @@ window.removeCookie=function(name,force)
 
 !!Thesis
 * more secure programming with static analysis tools
+* read other texts concerning static analysis
 
 !01.02 (4)
 !!BoundGUI
@@ -1722,7 +1728,7 @@ semantics of the program at hand.
 
 </pre>
 </div>
-<div title="Notes from Web" creator="Andre" modifier="Andre" created="201202041031" modified="201202041425" changecount="6">
+<div title="Notes from Web" creator="Andre" modifier="Andre" created="201202041031" modified="201202041843" changecount="7">
 <pre>![[http://www.keyvan.ms/introduction-to-static-analysis]]
 
 Static code analysis is the set of techniques and formal methods based on mathematical structures (specifically set and lattice theory) to analyze the behavior of the programming code and extract certain properties that hold based on the structure of the code.
@@ -1733,7 +1739,7 @@ As you may have noticed, roughly speaking, Static Analysis is the way to prove t
 
 Some main highlights of these approaches are ''Data Flow Analysis, Constraint Based Analysis, Abstract Interpretation, and Type and Effect Systems'' while there are some lesser common approaches such as Denotational Based Analysis and Projection Analysis that can be considered as subsets of the first four approaches. However, Data Flow Analysis and Abstract Interpretation, especially the latter one, seem to have been of more interest among researchers.
 
-[[http://www.coverity.com/products/static-analysis.html]]
+![[http://www.coverity.com/products/static-analysis.html]]
 helps developers find hard-to-spot, yet potentially crash-causing defects early in the software development life-cycle, reducing the cost, time, and risk of software errors.
 
 ''Interprocedural Analysis''
@@ -1741,7 +1747,15 @@ Many errors can only be found by crossing function boundaries. This analysis tec
 
 ''concurrency issues''
 
-</pre>
+!A few billion lines of code later
+
+We built our tool to find generic errors (such as memory corruption and data races) and system-specific or interface-specific violations (such as violations of function-ordering constraints). The tool, like all static bug finders, leveraged the fact that programming rules often map clearly to source code; thus static inspection can find many of their violations. For example, to check the rule &quot;acquired locks must be released,&quot; a checker would look for relevant operations (such as lock() and unlock()) and inspect the code path after flagging rule disobedience (such as lock() with no unlock() and double locking).
+
+For those who keep track of such things, checkers in the research system typically traverse program paths (flow-sensitive) in a forward direction, going across function calls (inter-procedural) while keeping track of call-site-specific information (context-sensitive) and toward the end of the effort had some of the support needed to detect when a path was infeasible (path-sensitive).
+
+As much as possible, we avoided using annotations or specifications to reduce manual labor.
+Our product did not verify the absence of errors but rather tried to find as many of them as possible. 
+We could ignore code constructs that led to high rates of false-error messages (false positives) or analysis complexity, in the extreme skipping problematic code entirely (such as assembly statements, functions, or even entire files).</pre>
 </div>
 <div title="Notes from other Static Analysis Papers" creator="Andre" modifier="Andre" created="201202041424" modified="201202041425" changecount="2">
 <pre>!Using Static Analysis to Find Bugs
@@ -2521,7 +2535,7 @@ table.listView th, table.listView td, table.listView tr {padding:0 3px 0 3px;}
 /*}}}*/
 </pre>
 </div>
-<div title="Todo" creator="YourName" modifier="Andre" created="201201251542" modified="201202041344" changecount="33">
+<div title="Todo" creator="YourName" modifier="Andre" created="201201251542" modified="201202041843" changecount="34">
 <pre>!CPPAnalyzer
 
 * --P1: Exporting enums--
@@ -2553,7 +2567,7 @@ table.listView th, table.listView td, table.listView tr {padding:0 3px 0 3px;}
 * ''P1: Interface for adjusting ASTObjects and CodeGenerators''
 ** ''P1: project name''
 * ''P1: Creating ExportTree objects''
-* ''P1: Deleting ExportTree objects''
+* --P1: Deleting ExportTree objects--
 * --P1: Renaming ExportTree objects--
 * P2: Icons for Enum and EnumConstant
 

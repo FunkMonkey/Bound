@@ -109,7 +109,60 @@ var Extension =
 		
 		// Return the newly created friend.
 		return newInstance;
-	}
+	},
+	
+	/**
+	 * Checks if the given object is an instance of the given constructor function
+	 *    uses obj._classList internally
+	 * 
+	 * @param   {Object}     obj               Object to check
+	 * @param   {Function}   constructorFunc   Constructor function
+	 *
+	 * @returns {boolean}   True if instance of, otherwise false
+	 */
+	isInstanceOf: function isInstanceOf(obj, constructorFunc)
+	{
+		if(obj instanceof constructorFunc)
+			return true;
+		
+		if(obj._classList)
+		{
+			for(var i = 0, len = obj._classList.length; i < len; ++i)
+			{
+				if(constructorFunc === obj._classList[i])
+					return true;
+			}
+		}
+		
+		return false;
+	},
+	
+	/**
+	 * Checks if the given object is an instance of the given constructor function
+	 *    uses obj._classList internally
+	 * 
+	 * @param   {Object}     obj               Object to check
+	 * @param   {Function}   constructorFunc   Constructor function
+	 *
+	 * @returns {boolean}   True if instance of, otherwise false
+	 */
+	isInstanceOfByString: function isInstanceOfByString(obj, constructorFunc)
+	{
+		if(obj instanceof constructorFunc || (obj.constructor && obj.constructor.name === constructorFunc.name))
+			return true;
+		
+		if(obj._classList)
+		{
+			for(var i = 0, len = obj._classList.length; i < len; ++i)
+			{
+				if(constructorFunc.name === obj._classList[i].name)
+					return true;
+			}
+		}
+		
+		return false;
+	},
+	
 	
 };
 
