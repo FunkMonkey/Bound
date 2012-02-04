@@ -982,8 +982,16 @@ window.removeCookie=function(name,force)
 * P1: Exporting static fields
 * P1: Exporting base class specifiers</pre>
 </div>
-<div title="Diary Week 12" creator="YourName" modifier="YourName" created="201202022219" modified="201202040944" changecount="6">
-<pre>!03.02 (4)
+<div title="Diary Week 12" creator="YourName" modifier="Andre" created="201202022219" modified="201202041201" changecount="7">
+<pre>!04.02 (?)
+
+!!BoundGUI
+* readOnly versions for Object Explorer properties
+
+!!Thesis
+* moved notes from Secure Programming to wiki
+
+!03.02 (4)
 
 !!BoundGUI:
 * renaming of ASTObjects (with and without overloading)
@@ -1135,7 +1143,18 @@ Tiddler.prototype.autoLinkWikiWords = function()
 
 </pre>
 </div>
-<div title="GettingStarted" creator="YourName" modifier="YourName" created="201201251623" modified="201202032211" changecount="2">
+<div title="EditTemplate" creator="Andre" modifier="Andre" created="201202041223" modified="201202041224" server.type="file" server.host="http://www.tiddlytools.com/#QuickEditToolbar" changecount="2">
+<pre>&lt;!--{{{--&gt;
+&lt;div class='toolbar' macro='toolbar [[ToolbarCommands::EditToolbar]]'&gt;&lt;/div&gt;
+&lt;div class='title' macro='view title'&gt;&lt;/div&gt;
+&lt;div class='editor' macro='edit title'&gt;&lt;/div&gt;
+&lt;div macro='annotations'&gt;&lt;/div&gt;
+&lt;div macro='tiddler QuickEditToolbar with: show'&gt;&lt;/div&gt;
+&lt;div class='editor' macro='edit text'&gt;&lt;/div&gt;
+&lt;div class='editor' macro='edit tags'&gt;&lt;/div&gt;&lt;div class='editorFooter'&gt;&lt;span macro='message views.editor.tagPrompt'&gt;&lt;/span&gt;&lt;span macro='tagChooser excludeLists'&gt;&lt;/span&gt;&lt;/div&gt;
+&lt;!--}}}--&gt;</pre>
+</div>
+<div title="GettingStarted" creator="YourName" modifier="Andre" created="201201251623" modified="201202041224" changecount="5">
 <pre>To get started with this blank [[TiddlyWiki]], you'll need to modify the following tiddlers:
 * [[SiteTitle]] &amp; [[SiteSubtitle]]: The title and subtitle of the site, as shown above (after saving, they will also appear in the browser title bar)
 * [[MainMenu]]: The menu (usually on the left)
@@ -1630,13 +1649,438 @@ semantics of the program at hand.
 <pre>[[http://www.keyvan.ms/introduction-to-static-analysis]]
 Static code analysis is the set of techniques and formal methods based on mathematical structures (specifically set and lattice theory) to analyze the behavior of the programming code and extract certain properties that hold based on the structure of the code.</pre>
 </div>
+<div title="QuickEditPackage" modifier="ELSDesignStudios" created="200801120200" modified="200902211423" tags="package story QuickEditPackage" server.type="file" server.host="http://www.tiddlytools.com/#QuickEditToolbar" server.page.revision="200902211423">
+<pre>This package provides a toolbar of interactive 'power tools' that you can use while editing a tiddler to quickly insert TiddlyWiki tiddler links, images, macros, etc. or common formatting sequences directly into tiddler content, as well as perform other functions (such as find/replace, sort, split, convert, etc.) that can be used to modify the current tiddler's source content in a variety of ways.
+
+&lt;&lt;tiddler QuickEditToolbar with: show&gt;&gt;
+!!!!!Installation:
+&lt;&lt;&lt;
+Individual ~QuickEdit buttons are defined in separate tiddlers (e.g., [[QuickEdit_replace]]) that have also been //transcluded// into a single toolbar definition named [[QuickEditToolbar]].  You can edit this definition to add, remove, or rearrange the toolbar buttons to best suit your needs, and then embed the [[QuickEditToolbar]] tiddler into your document's [[EditTemplate]], like this:
+{{{
+&lt;div macro='tiddler QuickEditToolbar'&gt;&lt;/div&gt;
+}}}
+Next, in order to support some of the formatting 'shortcuts' provided by the toolbar, add a reference to the shortcuts CSS class definitions in your [[StyleSheet]]:
+{{{
+[[StyleSheetShortcuts]]
+}}}
+By default, the QuickEdit toolbar is hidden until you enable it by using the ''toggleQuickEdit'' command, which you can add to the ~EditToolbar definition in [[ToolbarCommands]]:
+{{{
+|EditToolbar|... toggleQuickEdit ...|
+}}}
+You can also toggle the ~QuickEdit toolbar display via a single checkbox option that can be added to [[SideBarOptions]] (or any other desired location):
+{{{
+&lt;&lt;option chkShowQuickEdit&gt;&gt; show QuickEdit toolbar
+}}}
+Note: You can 'hard-code' the ''chkShowQuickEdit'' setting, so that the toolbar will be //initially// displayed, by creating a tiddler (e.g., ConfigTweaks), tagged with &lt;&lt;tag systemConfig&gt;&gt;, containing:
+{{{
+config.options.chkShowQuickEdit=true;
+}}}
+Alternatively, if you want the toolbar to //always// be displayed, regardless of the option setting, you can add a special keyword, ''show'', to the [[EditTemplate]] syntax, like this:
+{{{
+&lt;div macro='tiddler QuickEditToolbar with: show'&gt;&lt;/div&gt;
+}}}
+&lt;&lt;&lt;</pre>
+</div>
+<div title="QuickEditPlugin" modifier="ELSDesignStudios" created="200801120132" modified="201102141416" tags="systemConfig QuickEditPackage" server.type="file" server.host="http://www.tiddlytools.com/#QuickEditToolbar" server.page.revision="201102141416">
+<pre>/***
+|Name|QuickEditPlugin|
+|Source|http://www.TiddlyTools.com/#QuickEditPlugin|
+|Documentation|http://www.TiddlyTools.com/#QuickEditPackage|
+|Version|2.4.4|
+|Author|Eric Shulman|
+|License|http://www.TiddlyTools.com/#LegalStatements &lt;br&gt;and [[Creative Commons Attribution-ShareAlike 3.0 License|http://creativecommons.org/licenses/by-sa/3.0/]]|
+|~CoreVersion|2.1|
+|Type|plugin|
+|Description|Support functions for [[QuickEditPackage]]: utility functions, toolbar commands, stylesheets|
+!!!!!Documentation
+&gt;see [[QuickEditPackage]] for details
+!!!!!Revisions
+&lt;&lt;&lt;
+2011.02.14 2.4.4 fix OSX error: use picker.file.path
+2009.06.11 2.4.3 added keyup() function to abbreviate listbox handling for CR and ESC
+2009.05.07 2.4.2 added processed() function to abbreviate event handler code
+2008.09.07 2.4.1 added removeCookie() function for compatibility with [[CookieManagerPlugin]]
+2008.05.17 2.4.0 copied code from StickyPopupPlugin to remove dependency
+2008.05.12 2.3.0 added &quot;toggleQuickEdit&quot; command handler (replaces inline script command)
+2008.01.11 2.2.0 converted from inline script
+2007.03.29 1.0.0 initial release (as inline script)
+&lt;&lt;&lt;
+!!!!!Code
+***/
+//{{{
+version.extensions.QuickEditPlugin= {major: 2, minor: 4, revision: 4, date: new Date(2011,2,14)};
+
+// SET STYLESHEET
+setStylesheet(&quot;\
+.quickEdit a { border:2px outset ButtonFace; padding:0px 3px !important; \
+	-moz-border-radius:.5em; -webkit-border-radius:.5em; \
+	-moz-appearance:button !important; -webkit-appearance:push-button !important; \
+	background-color:ButtonFace; color:ButtonText !important;  \
+	line-height:200%; font-weight:normal; } \
+.quickEdit a:hover { border: 2px inset ButtonFace; background-color:ButtonFace; }\
+&quot;, &quot;quickEditStyles&quot;);
+
+// REMOVE COOKIE
+if (window.removeCookie===undefined) {
+	window.removeCookie=function(name) {
+		document.cookie = name+'=; expires=Thu, 01-Jan-1970 00:00:01 UTC; path=/;'; 
+	}
+}
+
+// UTILITY FUNCTIONS
+config.quickEdit = {
+	processed: function(ev) { ev=ev||window.event;
+		ev.cancelBubble=true;
+		if(ev.stopPropagation) ev.stopPropagation();
+		return false;
+	},
+	keyup: function(ev){ var k=(ev||window.event).keyCode;
+		if (k==13) this.onclick();
+		if (k==27) Popup.remove();
+	},
+	getField: function(where) {
+		var here=story.findContainingTiddler(where); if (!here) return null;
+		var e=story.getTiddlerField(here.getAttribute(&quot;tiddler&quot;),&quot;text&quot;);
+		if (e&amp;&amp;e.getAttribute(&quot;edit&quot;)==&quot;text&quot;) return e;
+		return null;
+	},
+	setSelection: function(where,newtext) {
+		var e=this.getField(where); if (!e) return false;
+		e.focus(); replaceSelection(e,newtext);
+		return false;
+	},
+	wrapSelection: function(where,before,after) {
+		var e=this.getField(where); if (!e) return false;
+		e.focus(); replaceSelection(e,before+config.quickEdit.getSelection(e)+after);
+		return false;
+	},
+	getSelection: function(e) {
+		var seltext=&quot;&quot;;
+		if (e&amp;&amp;e.setSelectionRange)
+			seltext=e.value.substr(e.selectionStart,e.selectionEnd-e.selectionStart);
+		else if (document.selection) {
+			var range = document.selection.createRange();
+			if (range.parentElement()==e) seltext=range.text
+		}
+		return seltext;
+	},
+	promptForFilename: function(msg,path,file) {
+		if(window.Components) { // moz
+			try {
+				netscape.security.PrivilegeManager.enablePrivilege('UniversalXPConnect');
+				var nsIFilePicker = window.Components.interfaces.nsIFilePicker;
+				var picker = Components.classes['@mozilla.org/filepicker;1'].createInstance(nsIFilePicker);
+				picker.init(window, msg, nsIFilePicker.modeOpen);
+				var thispath = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
+				thispath.initWithPath(path);
+				picker.displayDirectory=thispath;
+				picker.defaultExtension='jpg';
+				picker.defaultString=file;
+				picker.appendFilters(nsIFilePicker.filterAll|nsIFilePicker.filterImages);
+				if (picker.show()!=nsIFilePicker.returnCancel)
+					var result=&quot;file:///&quot;+picker.file.path.replace(/\\/g,'/');
+			}
+			catch(e) { alert('error during local file access: '+e.toString()) }
+		}
+		else { // IE
+			try { // XP only
+				var s = new ActiveXObject('UserAccounts.CommonDialog');
+				s.Filter='All files|*.*|JPG files|*.jpg|GIF files|*.gif|PNG files|*.png|';
+				s.FilterIndex=1; // default to JPG
+				s.InitialDir=path;
+				s.FileName=file;
+				if (s.showOpen()) var result=s.FileName;
+			}
+			catch(e) { var result=prompt(msg,path+file); } // fallback for non-XP IE
+		}
+		return result;
+	}
+}
+//}}}
+
+//{{{
+if (config.options.chkShowQuickEdit===undefined) config.options.chkShowQuickEdit=false;
+config.commands.toggleQuickEdit = {
+	hideReadOnly: true,
+	getText: function() { return config.options.chkShowQuickEdit?'\u221Aquickedit':'quickedit'; },
+
+	tooltip: 'show QuickEdit toolbar buttons',
+	handler: function(event,src,title) {
+		var opt='chkShowQuickEdit';
+		config.options[opt]=!config.options[opt];
+		config.macros.option.propagateOption(opt,&quot;checked&quot;, config.options[opt],&quot;input&quot;);
+		if (config.options[opt]) saveOptionCookie(opt);	else removeCookie(opt);
+		src.innerHTML=config.commands.toggleQuickEdit.getText();
+		story.forEachTiddler(function(t,e){if (story.isDirty(t)) refreshElements(e);});
+		return false;
+	}
+};
+//}}}
+
+// // COPIED FROM [[StickyPopupPlugin]] TO ELIMINATE PLUGIN DEPENDENCY
+//{{{
+if (config.options.chkStickyPopups==undefined) config.options.chkStickyPopups=false;
+Popup.stickyPopup_onDocumentClick = function(ev)
+{
+	// if click is in a sticky popup, ignore it so popup will remain visible
+	var e = ev ? ev : window.event; var target = resolveTarget(e);
+	var p=target; while (p) {
+		if (hasClass(p,&quot;popup&quot;) &amp;&amp; (hasClass(p,&quot;sticky&quot;)||config.options.chkStickyPopups)) break;
+		else p=p.parentNode;
+	}
+	if (!p) // not in sticky popup (or sticky popups disabled)... use normal click handling
+		Popup.onDocumentClick(ev);
+	return true;
+};
+try{removeEvent(document,&quot;click&quot;,Popup.onDocumentClick);}catch(e){};
+try{addEvent(document,&quot;click&quot;,Popup.stickyPopup_onDocumentClick);}catch(e){};
+//}}}</pre>
+</div>
+<div title="QuickEditToolbar" modifier="ELSDesignStudios" created="200703300455" modified="201012270545" tags="QuickEditPackage transclusion" server.type="file" server.host="http://www.tiddlytools.com/#QuickEditToolbar" server.page.revision="201012270545">
+<pre>/%
+|Name|QuickEditToolbar|
+|Source|http://www.TiddlyTools.com/#QuickEditToolbar|
+|Version|2.4.4|
+|Author|Eric Shulman|
+|License|http://www.TiddlyTools.com/#LegalStatements|
+|~CoreVersion|2.2|
+|Type|transclusion|
+|Requires|QuickEditPlugin|
+|Optional|QuickEdit_*|
+|Description|format/insert TiddlyWiki content using toolbar buttons|
+
+Usage:
+* install [[QuickEditPlugin]] (runtime support functions)
+
+* add the toolbar to [[EditTemplate]]:
+	&lt;div macro='tiddler QuickEditToolbar with: show'&gt;&lt;/div&gt;
+
+* 'show' (optional) forces the toolbar to always be displayed or,
+  omit keyword and use &lt;&lt;option chkShowQuickEdit&gt;&gt; setting
+
+* selected QuickEdit buttons can also be added individually to the
+  regular tiddler toolbar by adding references directly in [[EditTemplate]]:
+	&lt;span class='toolbar' macro='tiddler QuickEdit_...'&gt;&lt;/span&gt;
+
+* see [[QuickEditPackage]] for additional installation options
+
+%/{{hidden fine center quickEdit{
+&lt;&lt;tiddler {{ // show/hide toolbar
+	var here=story.findContainingTiddler(place); if (here) var tid=here.getAttribute('tiddler');
+	var show='$1'!='$'+'1'||config.options.chkShowQuickEdit||tid=='QuickEditToolbar'; 
+	place.style.display=show?'block':'none';
+'';}}&gt;&gt;/%
+
+TOOLBAR DEFINITION - add, remove, or re-order items as desired:
+= = = = = = = = = =
+%/&lt;&lt;tiddler QuickEdit_format&gt;&gt;/%
+%/&lt;&lt;tiddler QuickEdit_align&gt;&gt;/%
+%/&lt;&lt;tiddler QuickEdit_color&gt;&gt;/%
+%/&lt;&lt;tiddler QuickEdit_font&gt;&gt;/%
+%/&lt;&lt;tiddler QuickEdit_custom&gt;&gt;/%
+%/ &amp;nbsp;/% (SPACER)
+%/&lt;&lt;tiddler QuickEdit_replace&gt;&gt;/%
+%/&lt;&lt;tiddler QuickEdit_split&gt;&gt;/%
+%/&lt;&lt;tiddler QuickEdit_sort&gt;&gt;/%
+%/&lt;&lt;tiddler QuickEdit_convert&gt;&gt;/%
+%/ &amp;nbsp;/% (SPACER)
+%/&lt;&lt;tiddler QuickEdit_link&gt;&gt;/%
+%/&lt;&lt;tiddler QuickEdit_insert&gt;&gt;/%
+%/&lt;&lt;tiddler QuickEdit_macro&gt;&gt;/%
+%/&lt;&lt;tiddler QuickEdit_image&gt;&gt;/%
+%/}}}</pre>
+</div>
+<div title="QuickEdit_color" modifier="ELSDesignStudios" created="200801161202" modified="200906112023" tags="QuickEditPackage" server.type="file" server.host="http://www.tiddlytools.com/#QuickEditToolbar" server.page.revision="200906112023">
+<pre>/%
+|Name|QuickEdit_color|
+|Source|http://www.TiddlyTools.com/#QuickEdit_color|
+|Version|2.4.3|
+|Author|Eric Shulman|
+|License|see http://www.TiddlyTools.com/#QuickEditPlugin|
+|Type|html|
+|Requires|QuickEditPlugin|
+|Description|quickedit - text/background color|
+
+Usage: see  http://www.TiddlyTools.com/#QuickEditToolbar
+
+%/&lt;html&gt;&lt;hide linebreaks&gt;&lt;a href=&quot;javascript:;&quot; class=&quot;tiddlyLink&quot; tabindex=&quot;-1&quot; 
+title=&quot;text/background color - @@color:#RGB;background-color:#RGB;...@@&quot;
+onclick=&quot;var p=Popup.create(this,null,'popup sticky smallform'); if (!p) return false;
+ 	p.style.padding='2px';
+	function hex(d) { return '0123456789ABCDEF'.substr(d,1); }
+	var fg=createTiddlyElement(p,'select'); fg.button=this;
+	fg.style.width='12em';
+	fg.options[0]=new Option('text color...','');
+	fg.options[1]=new Option('\xa0 or enter a value','_ask');
+	fg.options[2]=new Option('\xa0 or use default color','');
+	for (var r=0;r&lt;16;r+=3) for (var g=0;g&lt;16;g+=3) for (var b=0;b&lt;16;b+=3) {
+		var label=hex(r)+hex(g)+hex(b);
+		fg.options[fg.length]=new Option(label,'#'+label);
+		fg.options[fg.length-1].style.color='#'+label;
+	}
+	fg.onchange=function(){ var val=this.value;
+		if (val=='_ask') { val=prompt('Enter a CSS color value');
+		if (!val||!val.length) return false; }
+		this.options[0].value=val; this.options[0].text=val.length?'text: '+val:'text color...';
+		var bg=this.nextSibling;
+		for (var i=3;i&lt;bg.options.length;i++) bg.options[i].style.color=val;
+		var preview=this.nextSibling.nextSibling.nextSibling;
+		var t=config.quickEdit.getSelection(config.quickEdit.getField(this.button));
+		t=t.replace(/^@@(color\:.+;)?(background-color\:.+;)?/,'').replace(/@@$/,'');
+		if (!t.length) t='~AaBbCcDdEeFfGgHhIiJj 1234567890';
+		var fg=this.value; if (fg.length) fg='color:'+fg+';';
+		var bg=this.nextSibling.value; if (bg.length) bg='background-color:'+bg+';';
+		if (fg.length||bg.length) t='@@'+fg+bg+t+'@@';
+		removeChildren(preview); wikify(t,preview);
+		this.selectedIndex=0; return false;
+	};
+	var bg=createTiddlyElement(p,'select'); bg.button=this;
+	bg.style.width='12em';
+	bg.options[0]=new Option('background color...','');
+	bg.options[1]=new Option('\xa0 or enter a value','_ask');
+	bg.options[2]=new Option('\xa0 or use default color','');
+	for (var r=0;r&lt;16;r+=3) for (var g=0;g&lt;16;g+=3) for (var b=0;b&lt;16;b+=3) {
+		var label=hex(15-r)+hex(15-g)+hex(15-b);
+		bg.options[bg.length]=new Option(label,'#'+label);
+		bg.options[bg.length-1].style.backgroundColor='#'+label;
+	}
+	bg.onchange=function(){ var val=this.value;
+		if (val=='_ask') { val=prompt('Enter a CSS color value');
+		if (!val||!val.length) return false; }
+		this.options[0].value=val;
+		this.options[0].text=val.length?'background: '+val:'background color...';
+		var fg=this.previousSibling;
+		for (var i=3;i&lt;fg.options.length;i++) fg.options[i].style.backgroundColor=val;
+		var preview=this.nextSibling.nextSibling;
+		var t=config.quickEdit.getSelection(config.quickEdit.getField(this.button));
+		t=t.replace(/^@@(color\:.+;)?(background-color\:.+;)?/,'').replace(/@@$/,'');
+		if (!t.length) t='~AaBbCcDdEeFfGgHhIiJj 1234567890';
+		var fg=this.previousSibling.value; if (fg.length) fg='color:'+fg+';';
+		var bg=this.value; if (bg.length) bg='background-color:'+bg+';';
+		if (fg.length||bg.length) t='@@'+fg+bg+t+'@@';
+		removeChildren(preview); wikify(t,preview);
+		this.selectedIndex=0; return false;
+	};
+	var b=createTiddlyElement(p,'input',null,null,null,{type:'button'}); b.button=this;
+	b.value='ok'; b.style.width='4em';
+	b.onclick=function() {
+		var fg=this.previousSibling.previousSibling.value; if (fg.length) fg='color:'+fg+';';
+		var bg=this.previousSibling.value; if (bg.length) bg='background-color:'+bg+';';
+		var t=config.quickEdit.getSelection(config.quickEdit.getField(this.button));
+		t=t.replace(/^@@(color\:.+;)?(background-color\:.+;)?/,'').replace(/@@$/,'');
+		if (fg.length||bg.length) config.quickEdit.setSelection(this.button,'@@'+fg+bg+t+'@@');
+		Popup.remove(); return false;
+	};
+	var preview=createTiddlyElement(p,'div',null,'viewer'); var s=preview.style;
+	s.border='1px solid'; s.margin='2px'; s.width='24em'; s.padding='3px'; s.MozBorderRadius='3px';
+	s.overflow='hidden'; s.textAlign='center'; s.whiteSpace='normal';
+	var t=config.quickEdit.getSelection(config.quickEdit.getField(this));
+	wikify(t.length?t:'~AaBbCcDdEeFfGgHhIiJj 1234567890',preview);
+	Popup.show();
+	event.cancelBubble=true;if(event.stopPropagation)event.stopPropagation();return false;&quot;
+&gt;color&lt;/a&gt;&lt;/html&gt;</pre>
+</div>
+<div title="QuickEdit_format" modifier="ELSDesignStudios" created="200801111625" modified="200906112024" tags="QuickEditPackage" server.type="file" server.host="http://www.tiddlytools.com/#QuickEditToolbar" server.page.revision="200906112024">
+<pre>/%
+|Name|QuickEdit_format|
+|Source|http://www.TiddlyTools.com/#QuickEdit_format|
+|Version|2.4.3|
+|Author|Eric Shulman|
+|License|see http://www.TiddlyTools.com/#QuickEditPlugin|
+|Type|html|
+|Requires|QuickEditPlugin|
+|Description|quickedit - basic text formats, headings, blockquotes, etc.|
+
+Usage: see  http://www.TiddlyTools.com/#QuickEditToolbar
+
+%/&lt;html&gt;&lt;hide linebreaks&gt;&lt;a href=&quot;javascript:;&quot; class=&quot;tiddlyLink&quot; tabindex=&quot;-1&quot; 
+title=&quot;plain text (remove ALL formatting)&quot; accesskey=&quot;P&quot; 
+onclick=&quot;var e=config.quickEdit.getField(this); if (e) e.focus(); var txt=config.quickEdit.getSelection(e);
+	config.quickEdit.setSelection(e,wikifyPlainText(txt)); return false;&quot;
+&gt;&amp;nbsp;~&amp;nbsp;&lt;/a&gt;&lt;/html&gt;/%
+
+%/&lt;html&gt;&lt;hide linebreaks&gt;&lt;a href=&quot;javascript:;&quot; class=&quot;tiddlyLink&quot; tabindex=&quot;-1&quot; 
+title=&quot;''bold''&quot; accesskey=&quot;B&quot;
+onclick=&quot;config.quickEdit.wrapSelection(this,'\x27\x27','\x27\x27'); return false;&quot;
+&gt;&amp;nbsp;B&amp;nbsp;&lt;/a&gt;&lt;/html&gt;/%
+
+%/&lt;html&gt;&lt;hide linebreaks&gt;&lt;a href=&quot;javascript:;&quot; class=&quot;tiddlyLink&quot; tabindex=&quot;-1&quot; 
+title=&quot;//italics//&quot; accesskey=&quot;I&quot; 
+onclick=&quot;config.quickEdit.wrapSelection(this,'//','//'); return false;&quot;
+&gt;&amp;nbsp;I&amp;nbsp;&lt;/a&gt;&lt;/html&gt;/%
+
+%/&lt;html&gt;&lt;hide linebreaks&gt;&lt;a href=&quot;javascript:;&quot; class=&quot;tiddlyLink&quot; tabindex=&quot;-1&quot; 
+title=&quot;__underline__&quot; accesskey=&quot;U&quot; 
+onclick=&quot;config.quickEdit.wrapSelection(this,'__','__'); return false;&quot;
+&gt;&amp;nbsp;U&amp;nbsp;&lt;/a&gt;&lt;/html&gt;/%
+
+%/&lt;html&gt;&lt;hide linebreaks&gt;&lt;a href=&quot;javascript:;&quot; class=&quot;tiddlyLink&quot; tabindex=&quot;-1&quot; 
+title=&quot;--strikethrough--&quot; accesskey=&quot;S&quot; 
+onclick=&quot;config.quickEdit.wrapSelection(this,'--','--'); return false;&quot;
+&gt;&amp;nbsp;S&amp;nbsp;&lt;/a&gt;&lt;/html&gt;/%
+
+%/ &amp;nbsp;/%  SPACER
+
+%/&lt;html&gt;&lt;hide linebreaks&gt;&lt;a href=&quot;javascript:;&quot; class=&quot;tiddlyLink&quot; tabindex=&quot;-1&quot; 
+title=&quot;format text&quot;
+onclick=&quot;var p=Popup.create(this); if (!p) return false; p.className+=' sticky smallform';
+	var s=createTiddlyElement(p,'select'); s.button=this;
+	s.options[0]=new Option('select text format...','');
+	s.options[s.length]=new Option('CSS class wrapper','{{$1{,}}},Enter a CSS classname');
+	s.options[s.length-1].title='CSS class wrapper - {{classname classname etc{...}}}';
+	s.options[s.length]=new Option('inline CSS styles','@@$1,@@,Enter CSS (attribute:value;attribute:value;...;)');
+	s.options[s.length-1].title='inline CSS styles - @@attr:value;attr:value;...@@';
+	s.options[s.length]=new Option('heading 1','\n!,\n');
+	s.options[s.length-1].title='H1 heading - !';
+	s.options[s.length]=new Option('heading 2','\n!!,\n');
+	s.options[s.length-1].title='H2 heading - !!';
+	s.options[s.length]=new Option('heading 3','\n!!!,\n');
+	s.options[s.length-1].title='H3 heading - !!!';
+	s.options[s.length]=new Option('heading 4','\n!!!!,\n');
+	s.options[s.length-1].title='H4 heading - !!!!';
+	s.options[s.length]=new Option('heading 5','\n!!!!!,\n');
+	s.options[s.length-1].title='H5 heading - !!!!!';
+	s.options[s.length]=new Option('blockquote','\n\&lt;\&lt;\&lt;\n,\n\&lt;\&lt;\&lt;\n');
+	s.options[s.length-1].title='indented blockquote - \&lt;\&lt;\&lt;';
+	s.options[s.length]=new Option('monospaced','{{{,}}}');
+	s.options[s.length-1].title='inline monospaced text - {{{...}}}';
+	s.options[s.length]=new Option('plain text','\n{{{\n,\n}}}\n');
+	s.options[s.length-1].title='multi-line monospaced text box - {{{...}}}';
+	s.options[s.length]=new Option('superscript','^^,^^');
+	s.options[s.length-1].title='^^superscript^^';
+	s.options[s.length]=new Option('subscript','~~,~~');
+	s.options[s.length-1].title='~~subscript~~';
+	s.options[s.length]=new Option('HTML','&lt;html&gt;,&lt;\x2fhtml&gt;');
+	s.options[s.length-1].title='HTML syntax - &lt;html&gt;...&lt;\x2fhtml&gt;';
+	s.options[s.length]=new Option('comment','/%,%/');
+	s.options[s.length-1].title='comment (hidden content) - /%...%/';
+	s.size=s.length;
+	s.onclick=function(){ if (!this.value.length) return;
+		var parts=this.value.split(',');
+		var prefix=parts[0]; var suffix=parts[1]; var ask=parts[2];
+		if (ask) {
+			var val=prompt(ask); if (!val) { Popup.remove(); return false; }
+			prefix=prefix.replace(/\$1/g,val); suffix=suffix.replace(/\$1/g,val);
+		}
+		config.quickEdit.wrapSelection(this.button,prefix,suffix);
+		Popup.remove(); return false;
+	};
+	s.onkeyup=config.quickEdit.keyup;
+	Popup.show();
+	s.focus();
+	return config.quickEdit.processed(event);&quot;
+&gt;format&lt;/a&gt;&lt;/html&gt;</pre>
+</div>
 <div title="SiteSubtitle" creator="YourName" modifier="YourName" created="201201251623" changecount="1">
 <pre></pre>
 </div>
 <div title="SiteTitle" creator="YourName" modifier="YourName" created="201201251622" changecount="1">
 <pre>Bound</pre>
 </div>
-<div title="Todo" creator="YourName" modifier="YourName" created="201201251542" modified="201202011431" changecount="29">
+<div title="StyleSheet" creator="Andre" modifier="Andre" created="201202041223" server.type="file" server.host="http://www.tiddlytools.com/#QuickEditToolbar" changecount="1">
+<pre>[[StyleSheetShortcuts]]</pre>
+</div>
+<div title="Todo" creator="YourName" modifier="Andre" created="201201251542" modified="201202041202" changecount="31">
 <pre>!CPPAnalyzer
 
 * --P1: Exporting enums--
@@ -1669,7 +2113,7 @@ Static code analysis is the set of techniques and formal methods based on mathem
 ** ''P1: project name''
 * ''P1: Creating ExportTree objects''
 * ''P1: Deleting ExportTree objects''
-* ''P1: Renaming ExportTree objects''
+* --P1: Renaming ExportTree objects--
 * P2: Icons for Enum and EnumConstant
 
 !BoundGUI: Performance
