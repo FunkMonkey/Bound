@@ -209,6 +209,9 @@ DOMTreeRow.create = function($tree, $parent, data)
 // TODO: use DOMHelper
 function DOMTree($this, dataCB)
 {
+	LogUtils.logStack();
+	log(dataCB)
+	
 	Extension.borrow($this, DOMTree.prototype);
 	$this.isDOMTree = true;
 	$this.classList.add("dom-tree");

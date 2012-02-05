@@ -37,6 +37,22 @@ var LogUtils = {
 		}
 		
 		log(str);
+	},
+	
+	/**
+	 * Summary
+	 *
+	 * @param   {Error}    e      Exception to log
+	 */
+	logStack: function logStack(e)
+	{
+		if(e)
+			log(e.stack)
+		else
+		{
+			try{throw new Error()}catch(e){log(e.stack)}
+		}
 	}, 
+	
 	
 }

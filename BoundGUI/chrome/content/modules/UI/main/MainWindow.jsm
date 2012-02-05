@@ -25,13 +25,11 @@ var MainWindow = {
 		this.$window = mainWindow;
 		this.$document = mainWindow.document;
 		
-		this.CPPTree = CPPTree;
-		this.ExportTree = ExportTree;
+		this.CPPTree = initCPPTree(this);
+		this.ExportTree = initExportTree(this);
 		this.ResultTabbox = ResultTabbox;
 		this.PropertyExplorer = initPropertyExplorer(this);
 		
-		CPPTree.init(this);
-		ExportTree.init(this);
 		ResultTabbox.init(this);
 		
 		// TODO: move somewhere else
@@ -41,8 +39,8 @@ var MainWindow = {
 		//var path = "D:/Data/Projekte/Bound/src/Wrapping/Spidermonkey/WrappingTest/include/";
 		//var cppAST = CPPAnalyzer.parse_header(path, ["supertest", path + "SimpleClass.hpp"]);
 		
-		CPPTree.setCPPAST(cppAST);
-		ExportTree.newExportAST(cppAST);
+		this.CPPTree.setCPPAST(cppAST);
+		this.ExportTree.newExportAST(cppAST);
 		
 		//var proxyHandler = new ForwardProxyHandler(cppAST.root.children[2]);
 		//var proxy = Proxy.create(proxyHandler, Object.getPrototypeOf(proxyHandler.obj));

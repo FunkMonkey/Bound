@@ -1,4 +1,4 @@
-var EXPORTED_SYMBOLS = ["initPropertyExplorer"];
+var EXPORTED_SYMBOLS = ["initPropertyExplorer", "getPropertyExplorer"];
 
 Components.utils.import("chrome://bound/content/modules/UI/Widgets/ObjectExplorer.jsm");
 Components.utils.import("chrome://bound/content/modules/MetaDataHandler.jsm");
@@ -34,5 +34,16 @@ function initPropertyExplorer(mainWindowModule)
 	
 	return $propertyExplorer;
 }
+
+/**
+ * Returns the PropertyExplorer
+ * 
+ * @returns {Object}   PropertyExplorer
+ */
+function getPropertyExplorer()
+{
+	return $propertyExplorer;
+}
+
 
 

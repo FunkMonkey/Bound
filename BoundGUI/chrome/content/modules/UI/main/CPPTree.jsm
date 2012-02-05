@@ -1,31 +1,37 @@
-var EXPORTED_SYMBOLS = ["CPPTree"];
+var EXPORTED_SYMBOLS = ["initCPPTree", "getCPPTree"];
 
 Components.utils.import("chrome://bound/content/modules/log.jsm");
 Components.utils.import("chrome://bound/content/modules/DOMTree.jsm");
 Components.utils.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm");
 Components.utils.import("chrome://bound/content/modules/MetaDataHandler.jsm");
+Components.utils.import("chrome://bound/content/modules/Extension.jsm");
 
 var MainWindow = null;
 var document = null;
 
-var CPPTree = {
+var $cppTree = null;
+
+/**
+ * Initializes the property explorer
+ * 
+ * @param   {Object}   mainWindowModule   JSM for the main window
+ */
+function initCPPTree(mainWindowModule)
+{
+	MainWindow = mainWindowModule;
+	document = MainWindow.$document;
 	
-	/**
-	 * Initializes the Export tree
-	 * 
-	 * @param   {Object}   mainWindowModule   JSM for the main window
-	 */
-	init: function init(mainWindowModule)
-	{
-		MainWindow = mainWindowModule;
-		document = MainWindow.$document;
-		
-		this.cppAST = null;
-		
-		this.$cppASTTree = DOMTree.createOn(document.getElementById("cppTree"), dataCB);
-		this.$cppASTTree.addEventListener("select", this._onSelect.bind(this));
-	},
+	$cppTree = document.getElementById("cppTree");
+	Extension.borrow($cppTree, CPPTreePrototype);
+	$cppTree = DOMTree.createOn($cppTree, $cppTree._dataCB);
 	
+	$cppTree.cppAST = null;
+	$cppTree.addEventListener("select", $cppTree._onSelect);
+	
+	return $cppTree;
+}
+
+var CPPTreePrototype = {
 	/**
 	 * Called when selection in the tree changed
 	 * 
@@ -34,15 +40,14 @@ var CPPTree = {
 	_onSelect: function _onSelect(event)
 	{
 		try{
-			var selection = this.$cppASTTree.selection;
-			if(selection.length > 0)
+			if(this.selection.length > 0)
 			{
-				var data = selection[0].data;
-				if(selection.length > 1)
+				var data = this.selection[0].data;
+				if(this.selection.length > 1)
 				{
 					data = {};
-					for(var i = 0, len = selection.length; i < len; ++i)
-						data[i + ": " + selection[i].data.name] = selection[i].data;
+					for(var i = 0, len = this.selection.length; i < len; ++i)
+						data[i + ": " + this.selection[i].data.name] = this.selection[i].data;
 				}
 				
 				
@@ -55,9 +60,9 @@ var CPPTree = {
 	}, 
 	
 	
-	astNodeToTreeNode: function astNodeToTreeNode(astNode, domParent, treeView)
+	astNodeToTreeNode: function astNodeToTreeNode(astNode, $parent)
 	{
-		var row = treeView.createAndAppendRow(domParent, astNode.children.length !== 0, astNode);	
+		var $row = this.createAndAppendRow($parent, astNode.children.length !== 0, astNode);	
 		
 		for(var childName in astNode._childrenMap)
 		{
@@ -66,46 +71,54 @@ var CPPTree = {
 			// handle overloads
 			if(child instanceof ASTOverloadContainer)
 			{
-				var sameNameRow = treeView.createAndAppendRow(row, true, child);
+				var $sameNameRow = this.createAndAppendRow($row, true, child);
 				
 				for(var i = 0; i < child.overloads.length; ++i)
 				{
-					this.astNodeToTreeNode(child.overloads[i], sameNameRow, treeView);
+					this.astNodeToTreeNode(child.overloads[i], $sameNameRow);
 				}
 			}
 			else
 			{
-				this.astNodeToTreeNode(child, row, treeView);
+				this.astNodeToTreeNode(child, $row);
 			}
 		}
 		
-		return row;
+		return $row;
 	},
 	
 	setCPPAST: function setCPPAST(cppAST)
 	{
 		this.cppAST = cppAST;
 		
-		this.$cppASTTree.removeAllRows();
+		this.removeAllRows();
 		
 		for(var i = 0; i < this.cppAST.root.children.length; ++i)
 		{
 			var child = this.cppAST.root.children[i];
-			this.astNodeToTreeNode(child, null, this.$cppASTTree);
+			this.astNodeToTreeNode(child, null);
 		}
-	}, 
+	},
 	
-	
-};
-
-function dataCB(type, data, row)
-{
-	switch(type)
+	_dataCB: function dataCB(type, data, row)
 	{
-		case "label":
-			return (data.overloadContainer && data.overloadName) ? data.overloadName : data.name;
-		case "attributes" : return { ast_kind: data.getKindAsString()};
+		switch(type)
+		{
+			case "label":
+				return (data.overloadContainer && data.overloadName) ? data.overloadName : data.name;
+			case "attributes" : return { ast_kind: data.getKindAsString()};
+		}
+		
+		return "";
 	}
-	
-	return "";
+}
+
+/**
+ * Returns the PropertyExplorer
+ * 
+ * @returns {Object}   PropertyExplorer
+ */
+function getCPPTree()
+{
+	return $cppTree;
 }
