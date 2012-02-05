@@ -7,54 +7,83 @@ Components.utils.import("chrome://bound/content/modules/log.jsm");
 Components.utils.import("chrome://bound/content/modules/Extension.jsm");
 Components.utils.import("chrome://bound/content/modules/DOMHelper.jsm");
 
-function TreeRow()
-{	
-	this.id = 0;
-	this.isVisible = false;
-	this.isContainer = false;
-	this.isContainerEmpty = true;
-	this.isContainerOpen = false;
-	this.level = 0;
-}
-
-// TODO: create on vbox as this!
-// TODO: use DOMHelper
-function DOMTree(dataCB)
+/**
+ * 
+ *
+ * @constructor
+ * @this {DOMTreeRow}
+ */
+function DOMTreeRow($this, $tree, $parent, data) // TODO: remove $tree and combine with parent
 {
-	this.isDOMTree = true;
-	this.classList.add("dom-tree");
-	this.dataCB = dataCB;
+	Extension.borrow($this, DOMTreeRow.prototype);
 	
-	this.selection = [];
-	this._suppressSelectEvent = false;
-}
-
-DOMTree.createOn = function(element, dataCB)
-{
-	Extension.borrow(element, DOMTree.prototype);
-	DOMTree.call(element, dataCB);
+	$this.classList.add("dom-tree-row");
+	$this.tree = $tree;
+	$this.data = data;
+	$this.isRow = true;
+	$this.isContainer = false;
+	$this.isContainerOpen = false;
 	
-	return element;
-}
-
-DOMTree.prototype =
-{
-	//constructor: DOMTree,
+	//$row.toggleCollapse = this._rowToggleCollapse;
+	//$row.invalidate = this._rowInvalidate;
 	
-	/**
-	 * Called when clicking the dropmarker
-	 * 
-	 * @param   {DOMEvent}   event   Description
-	 */
-	_onToggleCollapse: function _onToggleCollapse(event)
+	// content of the row
+	var $rowContent = DOMHelper.createDOMNodeOn($this, "hbox", {"class" : "dom-tree-row-content"});
+	$rowContent.addEventListener("click", $this._onContentClicked.bind($this));
+	$rowContent.addEventListener("dragstart", $this._onContentDragStart.bind($this));
+	
+	// twisty
+	var $twisty = DOMHelper.createDOMNodeOn($rowContent, "box", {"class" : "dom-tree-row-twisty"});
+	DOMHelper.createDOMNodeOn($twisty, "image");
+	$twisty.addEventListener("click", $this.toggleCollapse.bind($this), true);
+	
+	// image
+	var $labelImage = DOMHelper.createDOMNodeOn($rowContent, "box", {"class" : "dom-tree-row-label-image"});
+	DOMHelper.createDOMNodeOn($labelImage, "image");
+	
+	var rowAttr = $tree.dataCB("attributes", data, $this);
+	if(rowAttr)
+		DOMHelper.setAttributes($this, rowAttr)
+	
+	// label
+	$this.$label = DOMHelper.createDOMNodeOn($rowContent, "label", {"class" : "dom-tree-row-label", value: $tree.dataCB("label", data, $this)});
+	
+	if($parent)
 	{
-		event.currentTarget.parentNode.parentNode.toggleCollapse();
+		$this.$parentRow = $parent;
+		$this.level = $parent.level + 1;
+	}
+	else
+	{
+		$this.$parentRow = null;
+		$this.level = 0;
+	}
+	
+	return $this;
+}
+
+DOMTreeRow.prototype = {
+	/**
+	 * Makes a row a container / or removes that
+	 */
+	_makeContainer: function _makeContainer()
+	{
+		if(this.isContainer)
+			return;
+		
+		this.isContainer = true;
+		this.isContainerOpen = false;
+		
+		this.$container = DOMHelper.createDOMNodeOn(this, "vbox", {"class": "dom-tree-container"});
+		this.setAttribute("isContainer", "true");
 	},
+	
+	// TODO: _removeContainer
 	
 	/**
 	 * Toggles the collapse of a row
 	 */
-	_rowToggleCollapse: function _rowToggleCollapse()
+	toggleCollapse: function toggleCollapse()
 	{
 		if(this.isContainer)
 		{
@@ -72,10 +101,10 @@ DOMTree.prototype =
 	 * 
 	 * @param   {MouseEvent}   event   Description
 	 */
-	_onRowContentClicked: function _onRowContentClicked(event)
+	_onContentClicked: function _onContentClicked(event)
 	{
-		var row = event.currentTarget.parentNode;
-		var tree = row.tree;
+		//var row = event.currentTarget.parentNode;
+		var tree = this.tree;
 		
 		// TODO: exclude twisty
 		// TODO: different keys
@@ -83,20 +112,20 @@ DOMTree.prototype =
 		if(event.shiftKey)
 		{
 			if(tree.selection.length === 0)
-				tree.addToSelection(row);
+				tree.addToSelection(this);
 			else
 			{
 				var firstSelected = tree.selection[0];
 				tree.clearSelection();
 				
-				if(firstSelected.$parentRow !== row.$parentRow)
+				if(firstSelected.$parentRow !== this.$parentRow)
 				{
 					tree.addToSelection(firstSelected);
-					tree.addToSelection(row);
+					tree.addToSelection(this);
 				}
 				else
 				{
-					var nodeContainer = (row.$parentRow == null) ? tree : row.$parentRow.container;
+					var nodeContainer = (this.$parentRow == null) ? tree : this.$parentRow.$container;
 					var add = false;
 					for(var i = 0; i < nodeContainer.childNodes.length; ++i)
 					{
@@ -104,7 +133,7 @@ DOMTree.prototype =
 						if(add)
 							tree.addToSelection(child);
 							
-						if(child === firstSelected || child === row)
+						if(child === firstSelected || child === this)
 						{
 							if(add)
 								break;
@@ -125,7 +154,7 @@ DOMTree.prototype =
 			tree._suppressSelectEvent = false;
 		}
 			
-		tree.addToSelection(row);
+		tree.addToSelection(this);
 	},
 	
 	/**
@@ -133,18 +162,18 @@ DOMTree.prototype =
 	 * 
 	 * @param   {DOMEvent}   event   Row content
 	 */
-	_onRowContentDragStart: function _onRowContentDragStart(event)
+	_onContentDragStart: function _onContentDragStart(event)
 	{
 		/** @type element  */
-		var row = event.currentTarget.parentNode;
-		var tree = row.tree;
+		//var row = event.currentTarget.parentNode;
+		var tree = this.tree;
 		
 		var data = {
 			data: []
 		};
 		
 		// check if current node is in selection
-		if(row.hasAttribute("selected"))
+		if(this.hasAttribute("selected"))
 		{
 			// copy whole selection
 			
@@ -156,13 +185,59 @@ DOMTree.prototype =
 		}
 		else
 		{
-			tree.select(row);
+			tree.select(this);
 			data.data.push(event.currentTarget.parentNode.data);
 			event.dataTransfer.mozSetDataAt("application/x-tree-data", data, 0);
 			event.dataTransfer.setDragImage(event.currentTarget, 0, 0);
 		}
-	}, 
+	},
 	
+	invalidate: function invalidate()
+	{
+		this.$label.value = this.tree.dataCB("label", this.data, this);
+	},
+};
+
+DOMTreeRow.create = function($tree, $parent, data)
+{
+	var $this = DOMHelper.createDOMNode($tree.ownerDocument, "vbox");
+	DOMTreeRow($this, $tree, $parent, data);
+	return $this;
+}
+
+// TODO: create on vbox as this!
+// TODO: use DOMHelper
+function DOMTree($this, dataCB)
+{
+	Extension.borrow($this, DOMTree.prototype);
+	$this.isDOMTree = true;
+	$this.classList.add("dom-tree");
+	$this.dataCB = dataCB;
+	
+	$this.selection = [];
+	$this._suppressSelectEvent = false;
+}
+
+DOMTree.createOn = function(element, dataCB)
+{
+	DOMTree(element, dataCB);
+	
+	return element;
+}
+
+DOMTree.prototype =
+{
+	//constructor: DOMTree,
+	
+	/**
+	 * Called when clicking the dropmarker
+	 * 
+	 * @param   {DOMEvent}   event   Description
+	 */
+	//_onToggleCollapse: function _onToggleCollapse(event)
+	//{
+	//	event.currentTarget.parentNode.parentNode.toggleCollapse();
+	//},
 	
 	
 	/**
@@ -246,11 +321,6 @@ DOMTree.prototype =
 		}
 	},
 	
-	_rowInvalidate: function invalidate()
-	{
-		this.$label.value = this.tree.dataCB("label", this.data, this);
-	},
-	
 	/**
 	 * Creates a row for the tree
 	 * 
@@ -260,80 +330,14 @@ DOMTree.prototype =
 	 * 
 	 * @returns {Element}    newly created element
 	 */
-	createRow: function createTreeRow($parent, isContainer, data)
+	createRow: function createRow($parent, isContainer, data)
 	{
-		var self = this;
-		
-		// TODO: put in DOMTreeRow
-		var $row = DOMHelper.createDOMNode(this.ownerDocument, "vbox", {"class": "dom-tree-row"}, {isRow: true, tree: self, data: data});
-		
-		$row.toggleCollapse = this._rowToggleCollapse;
-		$row.invalidate = this._rowInvalidate;
-		
-		// content of the row
-		var $rowContent = DOMHelper.createDOMNodeOn($row, "hbox", {"class" : "dom-tree-row-content"});
-		$rowContent.addEventListener("click", this._onRowContentClicked);
-		$rowContent.addEventListener("dragstart", this._onRowContentDragStart);
-		
-		// twisty
-		var $twisty = DOMHelper.createDOMNodeOn($rowContent, "box", {"class" : "dom-tree-row-twisty"});
-		DOMHelper.createDOMNodeOn($twisty, "image");
-		$twisty.addEventListener("click", this._onToggleCollapse, true);
-		
-		// image
-		var $labelImage = DOMHelper.createDOMNodeOn($rowContent, "box", {"class" : "dom-tree-row-label-image"});
-		DOMHelper.createDOMNodeOn($labelImage, "image");
-		
-		var rowAttr = this.dataCB("attributes", data, $row);
-		if(rowAttr)
-			DOMHelper.setAttributes($row, rowAttr)
-		
-		// label
-		$row.$label = DOMHelper.createDOMNodeOn($rowContent, "label", {"class" : "dom-tree-row-label", value: self.dataCB("label", data, $row)});
-		
-		if($parent)
-		{
-			$row.$parentRow = $parent;
-			$row.level = $parent.level + 1;
-		}
-		else
-		{
-			$row.$parentRow = null;
-			$row.level = 0;
-		}
-		
-		this._makeContainer($row, isContainer);
-		
+		var $row = DOMTreeRow.create(this, $parent, data);
+		if(isContainer)
+			$row._makeContainer();
+			
 		return $row;
 	},
-	
-	/**
-	 * Makes a row a container / or removes that
-	 * 
-	 * @param   {DOMElement}   row           The row
-	 * @param   {boolean}      isContainer   
-	 */
-	_makeContainer: function _makeContainer($row, isContainer)
-	{
-		if(isContainer)	// TODO: make main-box a container too
-		{
-			$row.isContainer = true;
-			$row.isContainerOpen = false;
-			
-			var $containerBox = DOMHelper.createDOMNodeOn($row, "vbox", {"class": "dom-tree-container"});
-			//containerBox.classList.add("dom-tree-container");
-			//$row.appendChild(containerBox);
-			$row.container = $containerBox;
-			
-			$row.setAttribute("isContainer", "true");
-		}
-		else
-		{
-			$row.isContainer = false;
-			$row.isContainerOpen = false;
-		}
-	}, 
-	
 	
 	/**
 	 * Creates a row for the tree and appends it
@@ -355,7 +359,7 @@ DOMTree.prototype =
 			if(!parent.isContainer)
 				this._makeContainer(parent, true);
 				
-			parent.container.appendChild(row);
+			parent.$container.appendChild(row);
 		}
 			
 		return row;
