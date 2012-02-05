@@ -56,7 +56,39 @@ var ExportTreePrototype = {
 			this.obj._exportTreeRow.invalidate();
 			
 		return true;
-	}, // bad behavior when set fails in non-strict mode  
+	}, // bad behavior when set fails in non-strict mode
+	
+	/**
+	 * Handles exceptions for the given property
+	 * 
+	 * @param   {String}      propertyName   Name of the property
+	 * @param   {Exception}   e              Caught exception
+	 *
+	 * @returns {boolean}   True if exception has been handled, false if it should be rethrown
+	 */
+	_metaHandleException: function handleException(propertyName, e)
+	{
+		if(typeof e == "string")
+			Services.prompt.alert(this.window, "Exception: " + e, e);
+		else
+			Services.prompt.alert(this.window, "Exception: " + e.name, e.message);
+		return true;
+	},
+	
+	/**
+	 * Returns the DataHandler for the given property (may be needed for arrays / child objects)
+	 * 
+	 * @param   {String}   propertyName   Name of the property
+	 * 
+	 * @returns {DataHandler}   DataHandler for the property
+	 */
+	_metaGetPropertyDataHandler: function getPropertyDataHandler(propertyName)
+	{
+		var handler = MetaDataHandler.prototype.getPropertyDataHandler.call(this, propertyName);
+		handler.handleException = ExportTreePrototype._metaHandleException;
+		handler.getPropertyDataHandler = ExportTreePrototype._metaGetPropertyDataHandler;
+		return handler;
+	},
 	
 	/**
 	 * Called when selection in the tree changed
@@ -71,7 +103,9 @@ var ExportTreePrototype = {
 			var proxyHandler = new ForwardProxyHandler(this.selection[0].data);
 			proxyHandler.set = this._proxySet;
 			var proxy = Proxy.create(proxyHandler, Object.getPrototypeOf(proxyHandler.obj));
-			var handler = new MetaDataHandler(proxy, MainWindow.$window);
+			var handler = new MetaDataHandler(proxy);
+			handler.handleException = this._metaHandleException;
+			handler.getPropertyDataHandler = this._metaGetPropertyDataHandler;
 			MainWindow.PropertyExplorer.setDataHandler(handler);
 		}
 	},

@@ -33,6 +33,39 @@ function initCPPTree(mainWindowModule)
 
 var CPPTreePrototype = {
 	/**
+	 * Handles exceptions for the given property
+	 * 
+	 * @param   {String}      propertyName   Name of the property
+	 * @param   {Exception}   e              Caught exception
+	 *
+	 * @returns {boolean}   True if exception has been handled, false if it should be rethrown
+	 */
+	_metaHandleException: function handleException(propertyName, e)
+	{
+		if(typeof e == "string")
+			Services.prompt.alert(this.window, "Exception: " + e, e);
+		else
+			Services.prompt.alert(this.window, "Exception: " + e.name, e.message);
+		return true;
+	},
+	
+	/**
+	 * Returns the DataHandler for the given property (may be needed for arrays / child objects)
+	 * 
+	 * @param   {String}   propertyName   Name of the property
+	 * 
+	 * @returns {DataHandler}   DataHandler for the property
+	 */
+	_metaGetPropertyDataHandler: function getPropertyDataHandler(propertyName)
+	{
+		var handler = MetaDataHandler.prototype.getPropertyDataHandler.call(this, propertyName);
+		handler.handleException = CPPTreePrototype._metaHandleException;
+		handler.getPropertyDataHandler = CPPTreePrototype._metaGetPropertyDataHandler;
+		return handler;
+	},
+	
+	
+	/**
 	 * Called when selection in the tree changed
 	 * 
 	 * @param   {event}   event   Description
@@ -51,7 +84,9 @@ var CPPTreePrototype = {
 				}
 				
 				
-				var handler = new MetaDataHandler(data, MainWindow.$window, true);
+				var handler = new MetaDataHandler(data, true);
+				handler.handleException = this._metaHandleException;
+				handler.getPropertyDataHandler = this._metaGetPropertyDataHandler;
 				MainWindow.PropertyExplorer.setDataHandler(handler);
 			}
 		} catch(e){

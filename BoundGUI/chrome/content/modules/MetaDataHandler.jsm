@@ -11,10 +11,9 @@ Components.utils.import("resource://gre/modules/Services.jsm");
  * @constructor
  * @this {MetaDataHandler}
  */
-function MetaDataHandler(sourceObject, window, readOnly) // TODO: remove window and just replace handleException!
+function MetaDataHandler(sourceObject, readOnly)
 {
 	this.sourceObject = sourceObject;
-	this.window = window;
 	this.readOnly = (readOnly == true)? true : false;
 	
 	this.props = [];
@@ -115,7 +114,7 @@ MetaDataHandler.prototype = {
 	 */
 	getPropertyDataHandler: function getPropertyDataHandler(propertyName)
 	{
-		return new MetaDataHandler(this.sourceObject[propertyName], this.window, this.readOnly);
+		return new MetaDataHandler(this.sourceObject[propertyName], this.readOnly);
 	},
 	
 	/**
@@ -128,10 +127,6 @@ MetaDataHandler.prototype = {
 	 */
 	handleException: function handleException(propertyName, e)
 	{
-		if(typeof e == "string")
-			Services.prompt.alert(this.window, "Exception: " + e, e);
-		else
-			Services.prompt.alert(this.window, "Exception: " + e.name, e.message);
 		return true;
 	}, 
 	
