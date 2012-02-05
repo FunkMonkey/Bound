@@ -357,7 +357,7 @@ DOMTree.prototype =
 		else
 		{
 			if(!parent.isContainer)
-				this._makeContainer(parent, true);
+				parent._makeContainer();
 				
 			parent.$container.appendChild(row);
 		}
