@@ -1,7 +1,7 @@
 var EXPORTED_SYMBOLS = ["createExceptionClass"];
 
 
-Components.utils.import("chrome://bound/content/modules/Extension.jsm");
+Components.utils.import("chrome://bound/content/modules/Utils/Extension.jsm");
 
 /**
  * Creates a custom exception class that can be used to raise exceptions

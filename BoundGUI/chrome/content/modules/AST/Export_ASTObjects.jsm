@@ -5,11 +5,11 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
 const Cu = Components.utils;
 
-Cu.import("chrome://bound/content/modules/Extension.jsm");
+Cu.import("chrome://bound/content/modules/Utils/Extension.jsm");
 Cu.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm");
 
 Components.utils.import("chrome://bound/content/modules/CodeGeneratorPlugins/CodeGeneratorPluginManager.jsm");
-Components.utils.import("chrome://bound/content/modules/MetaData.jsm");
+Components.utils.import("chrome://bound/content/modules/Utils/MetaData.jsm");
 
 Cu.import("chrome://bound/content/modules/log.jsm");
 

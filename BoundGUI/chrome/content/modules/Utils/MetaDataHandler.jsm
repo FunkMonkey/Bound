@@ -1,7 +1,7 @@
 let EXPORTED_SYMBOLS = ["MetaDataHandler"];
 
 Components.utils.import("chrome://bound/content/modules/log.jsm");
-Components.utils.import("chrome://bound/content/modules/MetaData.jsm");
+Components.utils.import("chrome://bound/content/modules/Utils/MetaData.jsm");
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 

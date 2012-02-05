@@ -1,6 +1,6 @@
 var EXPORTED_SYMBOLS = ["ASTObject", "ASTOverloadContainer"];
 
-Components.utils.import("chrome://bound/content/modules/MetaData.jsm");
+Components.utils.import("chrome://bound/content/modules/Utils/MetaData.jsm");
 
 //======================================================================================
 
@@ -52,6 +52,7 @@ ASTObject.KIND_DESTRUCTOR      = 11;
 ASTObject.KIND_ENUM            = 12;
 ASTObject.KIND_ENUMCONSTANT    = 13;
 ASTObject.KIND_UNION           = 14;
+ASTObject.KIND_PROPERTY        = 15;
 
 ASTObject.getKindAsString = function getKindAsString(kind)
 {
@@ -69,6 +70,10 @@ ASTObject.getKindAsString = function getKindAsString(kind)
 		case ASTObject.KIND_PARAMETER      : return "Parameter";
 		case ASTObject.KIND_CONSTRUCTOR    : return "Constructor";
 		case ASTObject.KIND_DESTRUCTOR     : return "Destructor";
+		case ASTObject.KIND_ENUM           : return "Enum";
+		case ASTObject.KIND_ENUMCONSTANT   : return "EnumConstant";
+		case ASTObject.KIND_UNION          : return "Union";
+		case ASTObject.KIND_PROPERTY       : return "Property";
 	}
 	
 	return "Invalid";
@@ -278,6 +283,8 @@ MetaData.initMetaDataOn(ASTObject.prototype)
      .addPropertyData("name",         { view: {}})
      .addPropertyData("kindAsString", { view: { name: "kind"}})
 
+//======================================================================================
+
 /**
  * 
  *
@@ -342,3 +349,5 @@ ASTOverloadContainer.prototype = {
 
 MetaData.initMetaDataOn(ASTOverloadContainer.prototype)
      .addPropertyData("overloads", { type: "KeyValueMap",  view: {}});
+	 
+//======================================================================================

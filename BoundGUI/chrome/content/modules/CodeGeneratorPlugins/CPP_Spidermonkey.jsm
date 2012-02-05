@@ -5,11 +5,13 @@ Components.utils.import("chrome://bound/content/modules/log.jsm");
 Components.utils.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm");
 Components.utils.import("chrome://bound/content/modules/AST/CPP_ASTObjects.jsm");
 
-Components.utils.import("chrome://bound/content/modules/TemplateManager.jsm");
+Components.utils.import("chrome://bound/content/modules/Templates/TemplateManager.jsm");
 Components.utils.import("chrome://bound/content/modules/CodeGeneratorPlugins/CodeGeneratorPluginManager.jsm");
 
-Components.utils.import("chrome://bound/content/modules/MetaData.jsm");
-Components.utils.import("chrome://bound/content/modules/LoadSaveFromMetaData.jsm");
+Components.utils.import("chrome://bound/content/modules/Utils/MetaData.jsm");
+Components.utils.import("chrome://bound/content/modules/Utils/LoadSaveFromMetaData.jsm");
+
+//======================================================================================
 
 /**
  * 
@@ -66,6 +68,7 @@ Plugin_CPP_Spidermonkey.prototype = {
 			case "Namespace":
 			case "Class":
 			case "Struct":         codegen = CodeGenerator_Object; break;
+			case "Property":	   codegen = CodeGenerator_Property; break;
 			default: return null;
 		}
 		
@@ -142,6 +145,8 @@ Plugin_CPP_Spidermonkey.prototype = {
 
 CodeGeneratorPluginManager.registerPlugin(Plugin_CPP_Spidermonkey.prototype.context, Plugin_CPP_Spidermonkey);
 
+//======================================================================================
+
 /**
  * Returns a template and adds it to the used templates array
  * 
@@ -158,6 +163,7 @@ function getAndUseTemplate(templateName, usedTemplates)
 	return template;
 }
 
+//======================================================================================
 
 /**
  * Code generator for functions and member functions
@@ -328,6 +334,54 @@ CodeGenerator_Function.prototype = {
 		return {};
 	},
 };
+
+//======================================================================================
+
+/**
+ * Code generator for functions and member functions
+ *
+ * @constructor
+ * @this {CodeGenerator_Function}
+ */
+function CodeGenerator_Property(plugin)
+{
+	this.plugin = plugin;
+	this.exportObject = null;
+}
+
+CodeGenerator_Property.isCompatible = Plugin_CPP_Spidermonkey.prototype._isCompatible;
+
+CodeGenerator_Property.prototype = {
+	constructor: CodeGenerator_Property,
+	context: Plugin_CPP_Spidermonkey.prototype.context,
+	
+	get isStatic()
+	{
+		return this.exportObject.sourceObject.isStatic;
+	},
+	
+	/**
+	 * Generates wrapper code for the connected function
+	 * 
+	 * @returns {Object}   Wrapper code for the different places
+	 */
+	generate: function generate()
+	{
+		return {};
+	},
+	
+	/**
+	 * Returns the generator as a JSON compatible savable object
+	 * 
+	 * @returns {Object}   Object that contains savable data
+	 */
+	toSaveObject: function toSaveObject()
+	{
+		return {};
+	},
+};
+
+//======================================================================================
 
 /**
  * Creates the code generator from the given save object

@@ -10,8 +10,6 @@ Components.utils.import("chrome://bound/content/modules/CPPAnalyzer.jsm");
 Components.utils.import("chrome://bound/content/modules/log.jsm");
 
 // TEMP
-//Components.utils.import("chrome://bound/content/modules/MetaDataHandler.jsm");
-//Components.utils.import("chrome://bound/content/modules/ForwardProxy.jsm");
 
 var MainWindow = {
 	

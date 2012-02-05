@@ -2,7 +2,7 @@
 var EXPORTED_SYMBOLS = ["ObjectExplorerPropertyManager"];
 
 Components.utils.import("chrome://bound/content/modules/log.jsm");
-Components.utils.import("chrome://bound/content/modules/DOMHelper.jsm");
+Components.utils.import("chrome://bound/content/modules/Utils/DOMHelper.jsm");
 
 var ObjectExplorerPropertyManager = {
 	

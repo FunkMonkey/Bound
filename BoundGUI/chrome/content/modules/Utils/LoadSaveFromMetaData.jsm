@@ -1,6 +1,6 @@
 var EXPORTED_SYMBOLS = ["LoadSaveFromMetaData"];
 
-Components.utils.import("chrome://bound/content/modules/MetaData.jsm");
+Components.utils.import("chrome://bound/content/modules/Utils/MetaData.jsm");
 Components.utils.import("chrome://bound/content/modules/log.jsm");
 
 var LoadSaveFromMetaData = {

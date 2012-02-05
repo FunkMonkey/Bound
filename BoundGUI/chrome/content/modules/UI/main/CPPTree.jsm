@@ -1,10 +1,10 @@
 var EXPORTED_SYMBOLS = ["initCPPTree", "getCPPTree"];
 
 Components.utils.import("chrome://bound/content/modules/log.jsm");
-Components.utils.import("chrome://bound/content/modules/DOMTree.jsm");
+Components.utils.import("chrome://bound/content/modules/UI/Widgets/DOMTree.jsm");
 Components.utils.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm");
-Components.utils.import("chrome://bound/content/modules/MetaDataHandler.jsm");
-Components.utils.import("chrome://bound/content/modules/Extension.jsm");
+Components.utils.import("chrome://bound/content/modules/Utils/MetaDataHandler.jsm");
+Components.utils.import("chrome://bound/content/modules/Utils/Extension.jsm");
 
 var MainWindow = null;
 var document = null;

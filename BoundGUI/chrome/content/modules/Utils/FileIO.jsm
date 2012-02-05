@@ -1,7 +1,7 @@
 var EXPORTED_SYMBOLS = ["FileIO"];
 
 Components.utils.import("chrome://bound/content/modules/log.jsm");
-Components.utils.import("chrome://bound/content/modules/Extension.jsm");
+Components.utils.import("chrome://bound/content/modules/Utils/Extension.jsm");
 
 Components.utils.import("resource://gre/modules/FileUtils.jsm");
 

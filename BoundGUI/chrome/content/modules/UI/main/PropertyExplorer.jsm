@@ -1,7 +1,6 @@
 var EXPORTED_SYMBOLS = ["initPropertyExplorer", "getPropertyExplorer"];
 
 Components.utils.import("chrome://bound/content/modules/UI/Widgets/ObjectExplorer.jsm");
-Components.utils.import("chrome://bound/content/modules/MetaDataHandler.jsm");
 
 var MainWindow = null;
 var document = null;
@@ -20,17 +19,6 @@ function initPropertyExplorer(mainWindowModule)
 	
 	$propertyExplorer = document.getElementById("propertyExplorer");
 	createObjectExplorer($propertyExplorer);
-	
-	var testObject = {
-		member: "test",
-		other: "fool",
-		number: 3434,
-		bool: true,
-		obj: { sub1: "fool", sub2: "msfdsf"},
-		otherobj: null};
-	var dataHandler = new MetaDataHandler(testObject, null,  true);
-	
-	$propertyExplorer.setDataHandler(dataHandler);
 	
 	return $propertyExplorer;
 }

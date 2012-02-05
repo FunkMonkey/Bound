@@ -4,8 +4,8 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
 const Cu = Components.utils;
 Components.utils.import("chrome://bound/content/modules/log.jsm");
-Components.utils.import("chrome://bound/content/modules/Extension.jsm");
-Components.utils.import("chrome://bound/content/modules/DOMHelper.jsm");
+Components.utils.import("chrome://bound/content/modules/Utils/Extension.jsm");
+Components.utils.import("chrome://bound/content/modules/Utils/DOMHelper.jsm");
 
 /**
  * 

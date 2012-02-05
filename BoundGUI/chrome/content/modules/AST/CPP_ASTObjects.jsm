@@ -14,17 +14,18 @@ var EXPORTED_SYMBOLS = ["CPP_AST",
 						"CPP_ASTObject_Constructor",
 						"CPP_ASTObject_Destructor",
 						"CPP_ASTObject_Enum",
-						"CPP_ASTObject_EnumConstant"];
+						"CPP_ASTObject_EnumConstant",
+						"CPP_FakeASTObject_Property"];
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 const Cu = Components.utils;
 
 Cu.import("chrome://bound/content/modules/log.jsm");
-Cu.import("chrome://bound/content/modules/Extension.jsm");
+Cu.import("chrome://bound/content/modules/Utils/Extension.jsm");
 Cu.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm");
 
-Components.utils.import("chrome://bound/content/modules/MetaData.jsm");
+Components.utils.import("chrome://bound/content/modules/Utils/MetaData.jsm");
 
 //======================================================================================
 
@@ -328,6 +329,26 @@ MetaData.initMetaDataOn(CPP_ASTObject.prototype)
    //.addPropertyData("declarations", {view: {}})
 
 Extension.inherit(CPP_ASTObject, ASTObject);
+
+//======================================================================================
+
+/**
+ * 
+ *
+ * @constructor
+ * @this {CPP_FakeASTObject_Property}
+ */
+function CPP_FakeASTObject_Property()
+{
+	this.getter = null;
+	this.setter = null;
+}
+
+CPP_FakeASTObject_Property.prototype = {
+	constructor: CPP_FakeASTObject_Property,
+	kind: ASTObject.KIND_PROPERTY
+	
+};
 
 //======================================================================================
 
