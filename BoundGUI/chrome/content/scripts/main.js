@@ -6,9 +6,6 @@ Components.utils.import("chrome://bound/content/modules/log.jsm");
 Components.utils.import("chrome://bound/content/modules/Bound.jsm");
 
 Components.utils.import("chrome://bound/content/modules/UI/main/MainWindow.jsm");
-Components.utils.import("chrome://bound/content/modules/UI/main/CPPTree.jsm");
-Components.utils.import("chrome://bound/content/modules/UI/main/ExportTree.jsm");
-Components.utils.import("chrome://bound/content/modules/UI/main/ResultTabbox.jsm");
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("chrome://bound/content/modules/Utils/FileIO.jsm");
@@ -32,7 +29,7 @@ function exportFiles()
 		var dir = fp.file;
 		
 		// save the files
-		var genResult = ExportTree.exportAST.root.getCodeGenerator(Bound.currentContext).generate();
+		var genResult = MainWindow.ExportTree.exportAST.root.getCodeGenerator(Bound.currentContext).generate();
 		
 		if(!("files" in genResult))
 			return;
@@ -69,16 +66,16 @@ function saveProject()
 		var projectFileSplit = projectFile.leafName.split(".");
 		
 		// save the project
-		var projectSaveData = JSON.stringify(ExportTree.exportAST.toSaveObject());
+		var projectSaveData = JSON.stringify(MainWindow.ExportTree.exportAST.toSaveObject());
 		FileIO.writeTextFile(projectSaveData, projectFile);
 		
 		// save the CPP AST
-		if(CPPTree.cppAST._toSave)
+		if(MainWindow.CPPTree.cppAST._toSave)
 		{
 			var cppASTFile = projectFile.parent.clone();
 			cppASTFile.append(projectFileSplit[0] + "_CPP_AST.json");
 			
-			var cppASTSaveData = JSON.stringify(CPPTree.cppAST.toSaveObject());
+			var cppASTSaveData = JSON.stringify(MainWindow.CPPTree.cppAST.toSaveObject());
 			FileIO.writeTextFile(cppASTSaveData, cppASTFile);
 		}
 	}
@@ -104,12 +101,12 @@ function loadProject()
 		
 		var cppJSONStr = FileIO.readTextFile(cppASTFile);
 		var cppAST = CPP_AST.createFromSaveObject(JSON.parse(cppJSONStr));
-		CPPTree.setCPPAST(cppAST);
+		MainWindow.CPPTree.setCPPAST(cppAST);
 		
 		// load the project
 		var projectJSONStr = FileIO.readTextFile(projectFile);
-		var exportAST = Export_AST.createFromSaveObject(JSON.parse(projectJSONStr), CPPTree.cppAST);
-		ExportTree.setExportAST(exportAST);
+		var exportAST = Export_AST.createFromSaveObject(JSON.parse(projectJSONStr), MainWindow.CPPTree.cppAST);
+		MainWindow.ExportTree.setExportAST(exportAST);
 		
 		// fill the trees
 	}
