@@ -1,3 +1,5 @@
+/*global jSmart:true, Components:true,  createExceptionClass: true */
+
 var EXPORTED_SYMBOLS = ["TemplateManager", "TemplateNotFoundException"];
 
 Components.utils.import("chrome://bound/content/modules/log.jsm");

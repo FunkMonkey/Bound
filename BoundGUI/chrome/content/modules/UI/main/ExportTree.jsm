@@ -1,3 +1,6 @@
+/*global Components, Extension, DOMTree, Services, MetaDataHandler, ForwardProxyHandler, Proxy, DOMHelper */
+/*jshint latedef:false */
+
 var EXPORTED_SYMBOLS = ["initExportTree", "getExportTree"];
 
 
@@ -12,9 +15,11 @@ Components.utils.import("chrome://bound/content/modules/Bound.jsm");
 
 Components.utils.import("chrome://bound/content/modules/Utils/MetaDataHandler.jsm");
 
-Components.utils.import("chrome://bound/content/modules/Utils/ForwardProxy.jsm");
-Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("chrome://bound/content/modules/Utils/Extension.jsm");
+Components.utils.import("chrome://bound/content/modules/Utils/ForwardProxy.jsm");
+Components.utils.import("chrome://bound/content/modules/Utils/DOMHelper.jsm");
+Components.utils.import("resource://gre/modules/Services.jsm");
+
 
 var MainWindow = null;
 var document = null;
@@ -42,7 +47,9 @@ function initExportTree(mainWindowModule)
 	$exportTree.addEventListener("drop", $exportTree._onDrop);
 	$exportTree.addEventListener("click", $exportTree._onClick);
 	$exportTree.addEventListener("select", $exportTree._onSelect);
-	$exportTree.addEventListener("keypress", $exportTree._onKeyUp)
+	$exportTree.addEventListener("keypress", $exportTree._onKeyUp);
+	
+	$exportTree.$dropMenuPopup = DOMHelper.createDOMNodeOn($exportTree, "menupopup");
 	
 	return $exportTree;
 }
@@ -68,7 +75,7 @@ var ExportTreePrototype = {
 	 */
 	_metaHandleException: function handleException(propertyName, e)
 	{
-		if(typeof e == "string")
+		if(typeof e === "string")
 			Services.prompt.alert(this.window, "Exception: " + e, e);
 		else
 			Services.prompt.alert(this.window, "Exception: " + e.name, e.message);
@@ -119,7 +126,7 @@ var ExportTreePrototype = {
 	{
 		if(this.selection.length > 0)
 		{
-			if(event.keyCode == 46)
+			if(event.keyCode === 46)
 			{
 				for(var i = 0, len = this.selection.length; i < len; ++i)
 				{
@@ -217,29 +224,180 @@ var ExportTreePrototype = {
 			if(!plugin)
 				throw "No plugin for context: " + Bound.currentContext;
 			
-			//var exportParentCodeGen = exportParent.getCodeGenerator(Bound.currentContext);
+			// TODO: get functions from exportParent, exportParent.sourceObject, codegen!
+			var dropInfo = {
+				exportParent: exportParent,
+				contextPlugin: plugin,
+				$parentRow: $parentNode,
+				astObjects: data
+			}
 			
-			//if(!exportParentCodeGen)
-			//	return;
-			
-			for(var i = 0; i < data.length; ++i)
+			var menuItems = this._addDropMenuItems(dropInfo);
+			if(menuItems.length > 1)
 			{
-				var codeGenConstructor = plugin.getCodeGeneratorByASTObject(data[i], exportParent);
+				this._updateMenu(menuItems);
+				this.$dropMenuPopup.openPopup(($parentNode == null) ? this : $parentNode, ($parentNode == null) ? "overlap" : "after_start", 0, 0, true, false);
+			}
+			else if(menuItems.length !== 0)
+			{
+				menuItems[0].func();
+			}
+			
+			//for(var i = 0; i < data.length; ++i)
+			//{
+			//	var codeGenConstructor = plugin.getCodeGeneratorByASTObject(data[i], exportParent);
+			//	
+			//	if(codeGenConstructor)
+			//	{
+			//		var exportASTObject = new Export_ASTObject(exportParent, data[i].name, data[i]);
+			//		exportParent.addChild(exportASTObject);
+			//		exportASTObject.addCodeGenerator(new codeGenConstructor(plugin));
+			//		var $newRow = this.createAndAppendRow($parentNode, false, exportASTObject);
+			//		exportASTObject._exportTreeRow = $newRow;
+			//		this.select($newRow);
+			//		
+			//		MainWindow.ResultTabbox.displayCodeGenResult(exportASTObject);
+			//		
+			//		if($parentNode && !$parentNode.isContainerOpen)
+			//			$parentNode.toggleCollapse();
+			//	}
+			//}
+		
+		} catch(e) {
+			if(typeof e == "string")
+				Services.prompt.alert(this.window, "Exception: " + e, e);
+			else
+				Services.prompt.alert(this.window, "Exception: " + e.name, e.message);
+		}
+	},
+	
+	/**
+	 * Summary
+	 * 
+	 * @param   {Array}   items   Description
+	 */
+	_updateMenu: function _updateMenu(items)
+	{
+		var menu = this.$dropMenuPopup;
+		while(menu.firstChild)
+			menu.removeChild(menu.firstChild);
+			
+		for(var i = 0, len = items.length; i < len; ++i)
+		{
+			var $item = DOMHelper.createDOMNodeOn(menu, "menuitem", {label: items[i].label});
+			$item.addEventListener("command", items[i].func);
+		}
+	}, 
+	
+	
+	/**
+	 * Collects the menu items for the drop menu
+	 *
+	 * @param   {Object}  dropInfo  All relevent drop data
+	 *
+	 * @returns {Object} items
+	 */
+	_addDropMenuItems: function _addDropMenuItems(dropInfo)
+	{
+		// TODO: make this less Spidermonkey specific and everything!!!!
+		var items = [];
+		
+		if(dropInfo.exportParent.kind === ASTObject.KIND_PROPERTY)
+		{
+			if(dropInfo.astObjects.length > 1)
+				throw "Please don't drop so many items!"
+			
+			var codeGenConstructor = dropInfo.contextPlugin.getCodeGeneratorByASTObject(dropInfo.astObjects[0], dropInfo.exportParent);
+				
+			if(codeGenConstructor)
+			{
+				items.push({ label: "Use as getter function", func: this._dropMakeGetterOrSetter.bind(this, true,  dropInfo.astObjects[0], dropInfo)});
+				items.push({ label: "Use as setter function", func: this._dropMakeGetterOrSetter.bind(this, false, dropInfo.astObjects[0], dropInfo)});
+			}
+		}
+		else
+		{
+			var addFuncs = [];
+			for(var i = 0; i < dropInfo.astObjects.length; ++i)
+			{
+				var codeGenConstructor = dropInfo.contextPlugin.getCodeGeneratorByASTObject(dropInfo.astObjects[i], dropInfo.exportParent);
 				
 				if(codeGenConstructor)
-				{
-					var exportASTObject = new Export_ASTObject(exportParent, data[i].name, data[i]);
-					exportParent.addChild(exportASTObject);
-					exportASTObject.addCodeGenerator(new codeGenConstructor(plugin));
-					var $newRow = this.createAndAppendRow($parentNode, false, exportASTObject);
-					exportASTObject._exportTreeRow = $newRow;
-					this.select($newRow);
+					addFuncs.push(this._dropAddAsChild.bind(this, dropInfo.astObjects[i], dropInfo));
+			}
+			
+			if(addFuncs.length > 0)
+				items.push({ label: "Add as child", func: this._callFunctions.bind(this, addFuncs)});
+		}
+		
+		return items;
+	},
+	
+	/**
+	 * Calls all functions in the given array
+	 * 
+	 * @param   {Array}   funcArray   Array of functions
+	 */
+	_callFunctions: function _callFunctions(funcArray)
+	{
+		for(var i = 0, len = funcArray.length; i < len; ++i)
+			funcArray[i]();
+	}, 
+	
+	
+	
+	/**
+	 * Drops the given data as a child row
+	 *
+	 * @param   {CPP_ASTObject}  srcCPPASTObject  CPP_ASTObject to drop
+	 * @param   {Object}         dropInfo         All relevent drop data
+	 * 
+	 */
+	_dropAddAsChild: function _dropAddAsChild(data, dropInfo)
+	{
+		try
+		{
+			var codeGenConstructor = dropInfo.contextPlugin.getCodeGeneratorByASTObject(data, dropInfo.exportParent);
 					
-					MainWindow.ResultTabbox.displayCodeGenResult(exportASTObject);
-					
-					if($parentNode && !$parentNode.isContainerOpen)
-						$parentNode.toggleCollapse();
-				}
+			if(codeGenConstructor)
+			{
+				var exportASTObject = new Export_ASTObject(dropInfo.exportParent, data.name, data);
+				dropInfo.exportParent.addChild(exportASTObject);
+				exportASTObject.addCodeGenerator(new codeGenConstructor(dropInfo.contextPlugin));
+				var $newRow = this.createAndAppendRow(dropInfo.$parentRow, false, exportASTObject);
+				exportASTObject._exportTreeRow = $newRow;
+				this.select($newRow);
+				
+				MainWindow.ResultTabbox.displayCodeGenResult(exportASTObject);
+				
+				if(dropInfo.$parentRow && !dropInfo.$parentRow.isContainerOpen)
+					dropInfo.$parentRow.toggleCollapse();
+			}
+		} catch(e) {
+			if(typeof e == "string")
+				Services.prompt.alert(this.window, "Exception: " + e, e);
+			else
+				Services.prompt.alert(this.window, "Exception: " + e.name, e.message);
+		}
+	},
+	
+	/**
+	 * Drops the given data as a getter or setter of the given exportParent.sourceObject
+	 *
+	 * @param   {boolean}        asGetter         True for making getter, otherwise setter
+	 * @param   {CPP_ASTObject}  srcCPPASTObject  CPP_ASTObject to drop
+	 * @param   {Object}         dropInfo         All relevent drop data
+	 */
+	_dropMakeGetterOrSetter: function _dropMakeGetterOrSetter(asGetter, data, dropInfo)
+	{
+		try{
+			var sourceObj = dropInfo.exportParent.sourceObject;
+			if(sourceObj && sourceObj instanceof CPP_FakeASTObject_Property)
+			{
+				if(asGetter)
+					sourceObj.getter = data;
+				else
+					sourceObj.setter = data;
 			}
 		
 		} catch(e) {
@@ -249,6 +407,7 @@ var ExportTreePrototype = {
 				Services.prompt.alert(this.window, "Exception: " + e.name, e.message);
 		}
 	},
+	
 	
 	_checkDrag: function _checkDrag(event)
 	{

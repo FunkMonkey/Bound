@@ -1,3 +1,5 @@
+/*global Components, CPP_ASTObject, CodeGeneratorPluginManager, TemplateManager */
+
 var EXPORTED_SYMBOLS = ["Plugin_CPP_Spidermonkey"];
 
 Components.utils.import("chrome://bound/content/modules/log.jsm");
@@ -35,7 +37,7 @@ Plugin_CPP_Spidermonkey.createFromSaveObject =  function createFromSaveObject(sa
 {
 	var result = new Plugin_CPP_Spidermonkey();
 	return result;
-}, 
+};
 
 Plugin_CPP_Spidermonkey.prototype = {
 	constructor: Plugin_CPP_Spidermonkey,
@@ -619,24 +621,3 @@ CodeGenerator_Object.createFromSaveObject =  function createFromSaveObject(saveO
 	LoadSaveFromMetaData.loadFrom(result, saveObj);
 	return result;
 }
-
-//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/function");
-//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/function_define");
-//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/param_jsval_to_boolean");
-//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/param_jsval_to_int");
-//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/param_jsval_to_uint");
-//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/param_jsval_to_float");
-//
-//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/return_void");
-//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/return_boolean");
-//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/return_int");
-//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/return_float");
-//
-//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/scope_definition");
-//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/hpp_file_for_scope");
-//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/hpp_scope_content_class");
-//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/hpp_scope_content_init");
-//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/cpp_file_for_scope");
-//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/cpp_scope_content_object");
-//TemplateManager.loadTemplateFromFile("CPP_Spidermonkey/scope_init_call");
-//log();

@@ -3,3 +3,13 @@
 {
 	max-width: 12em;
 }
+
+#exportAddProperty
+{
+	list-style-image: url("chrome://bound/skin/AST/P.png");
+}
+
+#exportAddObject
+{
+	list-style-image: url("chrome://bound/skin/AST/O.png");
+}

@@ -1,20 +1,19 @@
-let EXPORTED_SYMBOLS = ["DOMHelper"];
+var EXPORTED_SYMBOLS = ["DOMHelper"];
 
 var DOMHelper = {
 	
 	createDOMNode: function createDOMNode(document, nodeName, attributes, members)
 	{
 		var node = document.createElement(nodeName);
-		
 		if(attributes)
 		{
-			for(attrName in attributes)
+			for(var attrName in attributes)
 				node.setAttribute(attrName, attributes[attrName]);
 		}
 		
 		if(members)
 		{
-			for(memberName in members)
+			for(var memberName in members)
 				node[memberName] = members[memberName];
 		}
 		
