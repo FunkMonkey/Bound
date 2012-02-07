@@ -1295,13 +1295,58 @@ Symbolic Analysis
 Symbolic analysis is a static analysis method for reasoning about program values
 that may not be constant.</pre>
 </div>
-<div title="Notes from Literature" creator="YourName" modifier="Andre" created="201202040958" modified="201202041423" changecount="5">
+<div title="Notes from Literature" creator="YourName" modifier="YourName" created="201202040958" modified="201202071256" changecount="6">
 <pre>[[Notes from Web]]
 [[Notes from Secure Programming With Static Analysis Tools]]
 [[Notes from A Survey of Static Program Analysis Techniques]]
 [[Notes from other Static Analysis Papers]]
+[[Notes from Principles of Program Analysis]]
 
 [[Notes on Static Analysis]]</pre>
+</div>
+<div title="Notes from Principles of Program Analysis" creator="YourName" modifier="YourName" created="201202071258" modified="201202071342" changecount="5">
+<pre>Flemming Nielson
+Hanne Riis Nielson
+Chris Hankin
+
+ISBN: 3-540-65410-0
+
+Buzzwords: intraprocedural analysis, interprocedural analysis
+Personal notes: returning references to discarded stack variables (local function variables)
+
+1
+Program analysis offers static compile-time techniques for predicting safe and computable approximations to the set of values or behavious arising dynamically at run-time when executing a program on a computer
+A mainapplication is to allow compilers to generate code avoiding //redundant// computations, e.g. by reusing available results or by moving loop invariant computations out of loops, or avoiding //superfluous// computations, e.g. of results known to be not needed or of results known already at compile-time. Among the more recent applications is the validation of software (...) to reduce the likelihood of malicious or unintended behaviour. Common for these applications is the need to combine information from different parts of the program.
+
+5
+Data Flow Analysis
+In //Data Flow Analysis// it is customary to think of a program as a graph: the nodes are the elementary blocks and the edges descibe how control might pass from one elementary block to another.
+Buzzwords: equational approach, constraint based appproach
+
+useful for Reaching Definitions Analysis (Reaching assignment analysis)
+
+10 Constraint Based Analysis
+The purpose of //Control Flow Analysis// is to determine information about what &quot;elementary blocks&quot; may lead to what other &quot;elementary blocks&quot;. (...) Often Control Flow Analysis is expressed as a Cosntraint Based Analysis (...)
+
+13
+Abstract Interpretation
+The theory of Abstract Interpretation is a general methodology for calcuating analyses rather than just specifying them and the nrelying on a posteriori validation.
+
+Collecting semantics
+
+17 
+Type and Effect System
+
+43
+Reaching Definitions Analysis: For each program point, which assignments may have been made and not overwritten, when program execution reaches this point along some path.
+
+82
+The Data Flow Analysis techniques that have been presented in the previous sections are called //intraprocedural analyses// because they deal with simple languages without functions or procedures. It is somewhat mroe demanding to perform// interprocedural analyses// where functions and procedures are taken into account. Complications arise when ensuring that calls and returns match one another, when dealing with parameter mechanisms ( and the aliasing that may result from call-by-reference) and when allowing procedures as parameters.
+
+104
+Shape Analysis
+(...) and an intraprocedural //Shape Analysis// that gives a //finite characterisation// of the //shapes// of these data structures.
+compiler optimization, error detection f. ex. dereferencing null-pointer</pre>
 </div>
 <div title="Notes from Secure Programming With Static Analysis Tools" creator="Andre" modifier="Andre" created="201202041050" modified="201202041116" changecount="7">
 <pre>xviii
