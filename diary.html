@@ -574,7 +574,7 @@ Also see [[AdvancedOptions]]</pre>
 <div title="Cookie Manager" creator="YourName" modifier="YourName" created="201202041007" modified="201202041020" changecount="2">
 <pre></pre>
 </div>
-<div title="CookieJar" modifier="Andre" created="201202041025" modified="201202041030" tags="systemConfig" changecount="5">
+<div title="CookieJar" modifier="YourName" created="201202041025" modified="201202072011" tags="systemConfig" changecount="6">
 <pre>/***
 &lt;&lt;tiddler CookieManager&gt;&gt;
 ***/
@@ -670,6 +670,46 @@ if (config.options.txtUserName==&quot;Andre&quot;) {
 	config.options[&quot;txtMoreTab&quot;]=&quot;moreTabAll&quot;;
 	config.options[&quot;txtTheme&quot;]=&quot;&quot;;
 	config.options[&quot;txtUserName&quot;]=&quot;Andre&quot;;
+}
+//}}}
+
+// 33 options saved on Tuesday, February 7th 2012 at 21:11:27 by YourName//
+//^^(edit/remove username check and/or individual option settings as desired)^^//
+//{{{
+if (config.options.txtUserName==&quot;YourName&quot;) {
+	config.options[&quot;chkAllowBrowserCookies&quot;]=true;
+	config.options[&quot;chkAnimate&quot;]=false;
+	config.options[&quot;chkAutoSave&quot;]=false;
+	config.options[&quot;chkBackstage&quot;]=false;
+	config.options[&quot;chkCaseSensitiveSearch&quot;]=false;
+	config.options[&quot;chkConfirmDelete&quot;]=true;
+	config.options[&quot;chkCookieManagerAddToAdvancedOptions&quot;]=true;
+	config.options[&quot;chkDisableWikiLinks&quot;]=true;
+	config.options[&quot;chkDisplayInstrumentation&quot;]=false;
+	config.options[&quot;chkForceMinorUpdate&quot;]=false;
+	config.options[&quot;chkGenerateAnRssFeed&quot;]=false;
+	config.options[&quot;chkHttpReadOnly&quot;]=true;
+	config.options[&quot;chkIncrementalSearch&quot;]=true;
+	config.options[&quot;chkInsertTabs&quot;]=false;
+	config.options[&quot;chkMonitorBrowserCookies&quot;]=true;
+	config.options[&quot;chkOpenInNewWindow&quot;]=true;
+	config.options[&quot;chkRegExpSearch&quot;]=false;
+	config.options[&quot;chkSaveBackups&quot;]=true;
+	config.options[&quot;chkSaveEmptyTemplate&quot;]=false;
+	config.options[&quot;chkShowQuickEdit&quot;]=false;
+	config.options[&quot;chkSliderOptionsPanel&quot;]=true;
+	config.options[&quot;chkStickyPopups&quot;]=false;
+	config.options[&quot;chkToggleLinks&quot;]=false;
+	config.options[&quot;chkUsePreForStorage&quot;]=true;
+	config.options[&quot;txtBackupFolder&quot;]=&quot;&quot;;
+	config.options[&quot;txtCookieJar&quot;]=&quot;CookieJar&quot;;
+	config.options[&quot;txtEditorFocus&quot;]=&quot;text&quot;;
+	config.options[&quot;txtFileSystemCharSet&quot;]=&quot;UTF-8&quot;;
+	config.options[&quot;txtMainTab&quot;]=&quot;Timeline&quot;;
+	config.options[&quot;txtMaxEditRows&quot;]=&quot;30&quot;;
+	config.options[&quot;txtMoreTab&quot;]=&quot;moreTabAll&quot;;
+	config.options[&quot;txtTheme&quot;]=&quot;&quot;;
+	config.options[&quot;txtUserName&quot;]=&quot;YourName&quot;;
 }
 //}}}
 </pre>
@@ -964,6 +1004,19 @@ window.removeCookie=function(name,force)
 <div title="DefaultTiddlers" creator="Andre" modifier="Andre" created="201202041308" changecount="1">
 <pre>[[Todo]]</pre>
 </div>
+<div title="Diary" creator="YourName" modifier="YourName" created="201202071951" changecount="1">
+<pre>[[Diary Week 20]]
+[[Diary Week 19]]
+[[Diary Week 18]]
+[[Diary Week 17]]
+[[Diary Week 16]]
+[[Diary Week 15]]
+[[Diary Week 14]]
+[[Diary Week 13]]
+[[Diary Week 12]]
+[[Diary Week 11]]
+[[Diary Weeks 1 - 10]]</pre>
+</div>
 <div title="Diary Week 11" creator="YourName" modifier="Andre" created="201201251605" modified="201202041845" changecount="17">
 <pre>25.01.2010 - 31.01.2012
 
@@ -1012,8 +1065,12 @@ window.removeCookie=function(name,force)
 * ''P1: Exporting static fields''
 * ''P1: Exporting base class specifiers''</pre>
 </div>
-<div title="Diary Week 12" creator="YourName" modifier="YourName" created="201202022219" modified="201202062057" changecount="18">
-<pre>!06.02 (2)
+<div title="Diary Week 12" creator="YourName" modifier="YourName" created="201202022219" modified="201202071949" changecount="19">
+<pre>!07.02 (2)
+* meeting with David
+* taking notes on Principles of Program analysis
+
+!06.02 (2)
 
 *trying JSHint
 
@@ -1215,14 +1272,14 @@ Tiddler.prototype.autoLinkWikiWords = function()
 * [[DefaultTiddlers]]: Contains the names of the tiddlers that you want to appear when the TiddlyWiki is opened
 You'll also need to enter your username for signing your edits: &lt;&lt;option txtUserName&gt;&gt;</pre>
 </div>
-<div title="MainMenu" creator="YourName" modifier="YourName" created="201201242114" modified="201202062059" changecount="7">
+<div title="MainMenu" creator="YourName" modifier="YourName" created="201201242114" modified="201202071950" changecount="8">
 <pre>[[GettingStarted]]
 [[Todo]]
 [[Agenda]]
 [[Notes from Literature]]
-[[Diary Week 12]]
-[[Diary Week 11]]
-[[Diary Weeks 1 - 10]]
+[[Wrapping]]
+[[Diary Week 13]]
+[[Diary]]
 [[David Meeting]]</pre>
 </div>
 <div title="Notes from A Survey of Static Program Analysis Techniques" creator="Andre" modifier="Andre" created="201202041312" changecount="1">
@@ -2724,6 +2781,34 @@ BoundGUI
    - includes
    - custom functions (die auch auf alles zugreifen können, z.b. log) -&gt; fungieren genauso als return-values!
 - export AST and code-generators for contexts</pre>
+</div>
+<div title="Wrapping" creator="YourName" modifier="YourName" created="201202071958" modified="201202072000" changecount="3">
+<pre>Topics: 
+* [[Wrapping Fundamental types]]
+* [[Wrapping Strings]]
+* [[Wrapping Arrays]]
+* [[Wrapping Classes]]
+* [[Wrapping Exceptions]]</pre>
+</div>
+<div title="Wrapping Classes" creator="YourName" modifier="YourName" created="201202071959" changecount="1">
+<pre>* [[Wrapping Classes Memory Management]]
+** Ownership
+** GarbageCollection
+* [[Wrapping Classes Inheritence]]
+** single inheritence
+** multiple inheritence
+** combined inheritence (no use of prototypical inheritence)
+* [[Wrapping Classes Caching]]
+* [[Wrapping Classes KnowledgeJS]]</pre>
+</div>
+<div title="Wrapping Classes Caching" creator="YourName" modifier="YourName" created="201202072007" changecount="1">
+<pre>* lazy members</pre>
+</div>
+<div title="Wrapping Classes KnowledgeJS" creator="YourName" modifier="YourName" created="201202072003" changecount="1">
+<pre>* A) KnowledgeJSObject inherits from JSObject and constructor will create KnowledgeJSObject and adds it to the virtual machine
+** ''impossible''
+* B) KnowledgeJSObject holds reference to JSObject*
+</pre>
 </div>
 </div>
 <!--POST-STOREAREA-->
