@@ -371,6 +371,18 @@ namespace CPPAnalyzer
 						asttype->setDeclaration(it->second);
 					break;
 				}
+			case CXType_TemplateTypeParm:
+				{
+					CXCursor typeDecl = clang_getTypeDeclaration(type);
+					SelfDisposingCXString kindSpelling(clang_getCursorKindSpelling(typeDecl.kind));
+					std::string t1 = kindSpelling.c_str();
+					SelfDisposingCXString displayName(clang_getCursorDisplayName(typeDecl));
+					std::string t2 = displayName.c_str();
+					SelfDisposingCXString cursorSpelling(clang_getCursorSpelling(typeDecl));
+					std::string t3 = cursorSpelling.c_str();
+					int i = 3;
+					break;
+				}
 		}
 
 		asttype->setConst(clang_isConstQualifiedType(type));
