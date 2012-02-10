@@ -10,7 +10,8 @@ namespace CPPAnalyzer
 	struct ASTObject_SourceLocation
 	{
 		std::string fileName;
-
+		unsigned int line;
+		unsigned int column;
 	};
 
 	class ASTObject

@@ -53,6 +53,8 @@ namespace CPPAnalyzer
 		if(file)
 		{
 			location.fileName = CXStringToStdStringAndFree(clang_getFileName(file));
+			location.line = line;
+			location.column = column;
 		}
 
 		// TODO: etc
@@ -183,8 +185,8 @@ namespace CPPAnalyzer
 		astObject->setAccess(static_cast<ASTObject_Struct*>(astParent)->getCurrentAccess());
 		astObject->setReturnType(createASTType(returnType, false));
 		astObject->setReturnTypeCanonical(createASTType(returnType, true));
-		astObject->setVirtual(clang_CXXMethod_isVirtual(cursor));
-		astObject->setStatic(clang_CXXMethod_isStatic(cursor));
+		astObject->setVirtual(clang_CXXMethod_isVirtual(cursor) != 0);
+		astObject->setStatic(clang_CXXMethod_isStatic(cursor) != 0);
 
 		return astObject;
 	}
@@ -341,6 +343,14 @@ namespace CPPAnalyzer
 	ASTType* Clang_AST::createASTTypeFromCursor(CXCursor cursor, bool canonical)
 	{
 		CXType type = clang_getCursorType(cursor);
+		if(type.kind == CXType_Unexposed)
+		{
+			auto location = getSourceLocation(cursor);
+			std::cout << location.line << ":" << location.column << ": WARNING: Found unexposed type" << std::endl;
+
+			// TEMP: just for testing
+			CXType type2 = clang_getCursorType(cursor);
+		}
 		return createASTType(type, canonical);
 	}
 
@@ -383,9 +393,21 @@ namespace CPPAnalyzer
 					int i = 3;
 					break;
 				}
+			case CXType_TemplateSpecialization:
+				{
+					CXCursor typeDecl = clang_getTypeDeclaration(type);
+					SelfDisposingCXString kindSpelling(clang_getCursorKindSpelling(typeDecl.kind));
+					std::string t1 = kindSpelling.c_str();
+					SelfDisposingCXString displayName(clang_getCursorDisplayName(typeDecl));
+					std::string t2 = displayName.c_str();
+					SelfDisposingCXString cursorSpelling(clang_getCursorSpelling(typeDecl));
+					std::string t3 = cursorSpelling.c_str();
+					int i = 3;
+					break;
+				}
 		}
 
-		asttype->setConst(clang_isConstQualifiedType(type));
+		asttype->setConst(clang_isConstQualifiedType(type) != 0);
 
 		return asttype;
 	}
@@ -475,7 +497,24 @@ namespace CPPAnalyzer
 
 				if(!clang_Cursor_isNull(templateCursor))
 				{
-					int x = 3;
+					auto location = getSourceLocation(cursor);
+					std::cout << location.line << ":" << location.column << ": CLASSDECL FROM TEMPLATE: " << kindSpelling.c_str() << " " << displayName.c_str() << "\n";
+					/*int numTemplateArgs = clang_getTemplateSpecializationArgumentListSize(cursor);
+					CXCursor arg1 = clang_getTemplateSpecializationArgument(cursor, 0);
+					CXCursor arg2 = clang_getTemplateSpecializationArgument(cursor, 1);
+					CXCursor arg3 = clang_getTemplateSpecializationArgument(cursor, 2);
+					CXCursor arg4 = clang_getTemplateSpecializationArgument(cursor, 3);
+
+					CXTemplateArgumentKind k1 = clang_getTemplateArgumentKind(arg1);
+					CXTemplateArgumentKind k2 = clang_getTemplateArgumentKind(arg2);
+					CXTemplateArgumentKind k3 = clang_getTemplateArgumentKind(arg3);
+					CXTemplateArgumentKind k4 = clang_getTemplateArgumentKind(arg4);
+
+					CXType type1 = clang_getTemplateArgumentAsType(arg1);
+					CXCursor decl2 = clang_getTemplateArgumentAsDeclaration(arg2);
+					CXCursor decl3 = clang_getTemplateArgumentAsTemplate(arg3);
+					long long val4 = clang_getTemplateArgumentAsIntegral(arg4);*/
+
 				}
 
 				astObject = addClass(cursor, astParent, false);
@@ -488,6 +527,45 @@ namespace CPPAnalyzer
 				// clang_getSpecializedCursorTemplate
 
 				astObject = addClass(cursor, astParent, true);
+
+				auto location = getSourceLocation(cursor);
+				std::cout << location.line << ":" << location.column << ": CLASSTEMPLATE: " << kindSpelling.c_str() << " " << displayName.c_str() << "\n";
+
+
+				/*int numTemplateParams = clang_getTemplateNumParameters(cursor);
+				CXCursor param1 = clang_getTemplateParameter(cursor, 0);
+				CXCursor param2 = clang_getTemplateParameter(cursor, 1);
+				CXCursor param3 = clang_getTemplateParameter(cursor, 2);
+				CXCursor param4 = clang_getTemplateParameter(cursor, 3);*/
+				break;
+			}
+
+			case CXCursor_ClassTemplatePartialSpecialization:
+			{
+				auto location = getSourceLocation(cursor);
+				std::cout << location.line << ":" << location.column << ": CLASSTEMPLATEPARTIAL: " << kindSpelling.c_str() << " " << displayName.c_str() << "\n";
+
+				/*int numTemplateParams = clang_getTemplateNumParameters(cursor);
+				CXCursor param1 = clang_getTemplateParameter(cursor, 0);
+				CXCursor param2 = clang_getTemplateParameter(cursor, 1);
+				CXCursor param3 = clang_getTemplateParameter(cursor, 2);
+				CXCursor param4 = clang_getTemplateParameter(cursor, 3);
+
+				int numTemplateArgs = clang_getTemplateSpecializationNumArguments(cursor);
+				CXCursor arg1 = clang_getTemplateSpecializationArgument(cursor, 0);
+				CXCursor arg2 = clang_getTemplateSpecializationArgument(cursor, 1);
+				CXCursor arg3 = clang_getTemplateSpecializationArgument(cursor, 2);
+				CXCursor arg4 = clang_getTemplateSpecializationArgument(cursor, 3);
+
+				CXTemplateArgumentKind k1 = clang_getTemplateArgumentKind(arg1);
+				CXTemplateArgumentKind k2 = clang_getTemplateArgumentKind(arg2);
+				CXTemplateArgumentKind k3 = clang_getTemplateArgumentKind(arg3);
+				CXTemplateArgumentKind k4 = clang_getTemplateArgumentKind(arg4);
+
+				CXType type1 = clang_getTemplateArgumentAsType(arg1);
+				CXCursor decl2 = clang_getTemplateArgumentAsExpression(arg2); 
+				CXCursor decl3 = clang_getTemplateArgumentAsTemplate(arg3);
+				long long val4 = clang_getTemplateArgumentAsIntegral(arg4);*/
 
 				break;
 			}
@@ -571,7 +649,7 @@ namespace CPPAnalyzer
 				// TODO: put somewhere else
 				// TODO: 
 				CXType funcType = clang_getCursorType(parent);
-				int numArgs = clang_getNumArgTypes(funcType);
+				unsigned numArgs = clang_getNumArgTypes(funcType);
 
 				if(astParent && static_cast<ASTObject_Function*>(astParent)->getParameters().size() < numArgs)
 					astObject = addParameter(cursor, astParent);
@@ -598,17 +676,18 @@ namespace CPPAnalyzer
 				break;
 			}
 
-			case CXCursor_TypeRef:
+			/*case CXCursor_TypeRef:
 			{
 				std::cout << "UNHANDLED: " << kindSpelling.c_str() << " " << displayName.c_str() << "\n";
 
 				CXCursor refCursor = clang_getCursorReferenced(cursor);
 
 				break;
-			}
+			}*/
 			
 			default: 
-				std::cout << "UNHANDLED: " << kindSpelling.c_str() << " " << displayName.c_str() << "\n";
+				auto location = getSourceLocation(cursor);
+				std::cout << location.line << ":" << location.column << ": UNHANDLED: " << kindSpelling.c_str() << " " << displayName.c_str() << "\n";
 				break; // shouldn't happen
 
 				// TODO templates
