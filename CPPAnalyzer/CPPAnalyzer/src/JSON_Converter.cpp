@@ -15,6 +15,8 @@
 #include "ASTObject_Destructor.hpp"
 #include "ASTObject_Typedef.hpp"
 #include "ASTObject_Enum.hpp"
+#include "ASTObject_TemplateParameter.hpp"
+#include "ASTObject_TemplateArgument.hpp"
 
 #include "ASTType.hpp"
 
@@ -23,354 +25,14 @@
 
 namespace CPPAnalyzer
 {
-	//void JSON_Converter::convertAllChildrenToJSON(ASTObject& astObject, std::stringstream& ss, int depth)
-	//{
-	//	auto& children = astObject.getChildren();
-	//	auto it = children.begin();
-	//	auto end = children.end();
-
-	//	for(; it!= end; ++it)
-	//	{
-	//		bool added = convertToJSON(*(*it), ss, depth+2);
-	//		if(it+1 != end && added)
-	//			ss << "," << m_lineBreak;
-	//	}
-	//	ss << m_lineBreak;
-	//}
-
-	//void JSON_Converter::addProperty(const std::string& propName, const std::string& value, std::stringstream& ss, const std::string& indent, bool isLast)
-	//{
-	//	addProperty(propName, value.c_str(), ss, indent, isLast);
-	//}
-
-	//void JSON_Converter::addProperty(const std::string& propName, const char* value, std::stringstream& ss, const std::string& indent, bool isLast)
-	//{
-	//	ss << indent << '"' << propName << "\": \"" << value << "\"";
-	//	if(!isLast)
-	//		ss << ",";
-	//		
-	//	ss << m_lineBreak;
-	//}
-
-	//void JSON_Converter::addProperty(const std::string& propName, unsigned int value, std::stringstream& ss, const std::string& indent, bool isLast)
-	//{
-	//	ss << indent << '"' << propName << "\": " << value;
-	//	if(!isLast)
-	//		ss << ",";
-
-	//	ss << m_lineBreak;
-	//}
-
-	//void JSON_Converter::addProperty(const std::string& propName, float value, std::stringstream& ss, const std::string& indent, bool isLast)
-	//{
-	//	ss << indent << '"' << propName << "\": " << value;
-	//	if(!isLast)
-	//		ss << ",";
-
-	//	ss << m_lineBreak;
-	//}
-
-	//void JSON_Converter::addProperty(const std::string& propName, bool value, std::stringstream& ss, const std::string& indent, bool isLast)
-	//{
-	//	ss << indent << '"' << propName << "\": " << ((value) ? "true" : "false");
-	//	if(!isLast)
-	//		ss << ",";
-
-	//	ss << m_lineBreak;
-	//}
-
-	//void JSON_Converter::addLine(const std::string& line, std::stringstream& ss, const std::string& indent)
-	//{
-	//	ss << indent << line << m_lineBreak;
-	//}
-
-	//void JSON_Converter::convertToJSON(ASTType& type, std::stringstream& ss, int depth)
-	//{
-	//	// TEMP indent, TODO: performance
-	//	std::string indent_min;
-	//	for(int i = 0; i < depth; ++i)
-	//		indent_min += m_indent;
-
-	//	std::string indent = indent_min + m_indent;
-
-	//	// --------------------
-	//	addLine("{", ss, indent_min);
-	//	addProperty("kind", type.getKind(), ss, indent);
-	//	addProperty("isConst", type.isConst(), ss, indent, !(type.getDeclaration() || type.getPointsTo()));
-
-	//	if((type.getKind() == "Record" || type.getKind() == "Typedef") && type.getDeclaration())
-	//	{
-	//		addProperty("declaration", type.getDeclaration()->getID(), ss, indent, true);
-	//	}
-	//	else if((type.getKind() == "Pointer" || type.getKind() == "LValueReference") && type.getPointsTo())
-	//	{
-	//		ss << indent << "\"pointsTo\":" << m_lineBreak;
-	//		convertToJSON(*type.getPointsTo(), ss, depth +2);
-	//		ss << m_lineBreak;
-	//	}
-
-	//	ss << indent_min << "}";
-	//}
-
-	//void JSON_Converter::addCommonProps(ASTObject& astObject, std::stringstream& ss, std::string& indent)
-	//{
-	//	addProperty("name", astObject.getNodeName(), ss, indent);
-	//	addProperty("kind", getASTObjectKind(astObject.getKind()), ss, indent);
-	//	addProperty("id", astObject.getID(), ss, indent);
-	//	addProperty("isDefinition", astObject.isDefinition(), ss, indent);
-	//	// TODO: filename escape backslash
-	//	if(astObject.isDefinition())
-	//	{
-	//		ss << indent << m_indent << "\"definition\": {" << m_lineBreak;
-	//		ss << indent << m_indent << m_indent << "\"fileName\": \"" << astObject.getDefinitionSource().fileName << "\"" << m_lineBreak;
-
-	//		ss << indent << m_indent << "},";
-	//		ss << m_lineBreak;
-	//	}
-	//	else
-	//	{
-	//		addLine("\"declarations\": [", ss, indent);
-
-	//		auto& declarations = astObject.getDeclarationsSource();
-	//		for(auto it = declarations.begin(); it != declarations.end(); ++it)
-	//		{
-	//			ss << indent << m_indent << "{" << m_lineBreak;
-	//			ss << indent << m_indent << m_indent << "\"fileName\": \"" << (*it).fileName << "\"" << m_lineBreak;
-
-	//			ss << indent << m_indent << "}";
-	//			if(it+1 != declarations.end())
-	//				ss << ",";
-
-	//			ss << m_lineBreak;
-	//		}
-
-	//		addLine("],", ss, indent);
-	//	}
-
-	//}
-
-	//bool JSON_Converter::convertToJSON(ASTObject& astObject, std::stringstream& ss, int depth)
-	//{
-	//	// TEMP indent, TODO: performance
-	//	std::string indent_min;
-	//	for(int i = 0; i < depth; ++i)
-	//		indent_min += m_indent;
-
-	//	std::string indent = indent_min + m_indent;
-
-	//	ASTObjectKind kind = astObject.getKind();
-	//	switch(kind)
-	//	{
-	//		case KIND_NAMESPACE:
-	//			{
-	//				addLine("{", ss, indent_min);
-
-	//				// common props
-	//				addCommonProps(astObject, ss, indent);
-
-	//				// adding children
-	//				addLine("\"children\": [", ss, indent);
-	//				convertAllChildrenToJSON(astObject, ss, depth);
-	//				addLine("],", ss, indent);
-
-	//				// USR
-	//				addProperty("USR", astObject.getUSR(), ss, indent, true);
-
-	//				// end of object
-	//				ss << indent_min <<  "}";
-
-	//				break;
-	//			}
-	//		
-	//		case KIND_TYPEDEF:
-	//			{
-	//				ASTObject_Typedef& astObjectTypedef = static_cast<ASTObject_Typedef&>(astObject);
-
-	//				addLine("{", ss, indent_min);
-
-	//				// common props
-	//				addCommonProps(astObject, ss, indent);
-
-	//				// access
-	//				addLine("\"type\": ", ss, indent);
-	//				convertToJSON(*astObjectTypedef.getType(), ss, depth+2);
-	//				ss << "," << m_lineBreak;
-
-	//				addLine("\"typeCanonical\": ", ss, indent);
-	//				convertToJSON(*astObjectTypedef.getTypeCanonical(), ss, depth+2);
-	//				ss << "," << m_lineBreak;
-
-	//				// USR
-	//				addProperty("USR", astObject.getUSR(), ss, indent, true);
-
-	//				// end of object
-	//				ss << indent_min <<  "}";
-
-	//				break;
-	//			}
-	//		case KIND_STRUCT:
-	//		case KIND_CLASS:
-	//			{
-	//				auto astObjectStruct = static_cast<ASTObject_Struct&>(astObject);
-
-	//				addLine("{", ss, indent_min);
-
-	//				// common props
-	//				addCommonProps(astObject, ss, indent);
-	//				
-	//				// adding bases
-	//				addLine("\"bases\": [", ss, indent);
-
-	//				auto bases = astObjectStruct.getBases();
-	//				for(auto it = bases.begin(); it != bases.end(); ++it)
-	//				{
-	//					ss << indent << m_indent << "{" << m_lineBreak;
-	//					ss << indent << m_indent << "\"id\": " << (*it).base->getID() << "," << m_lineBreak;
-	//					ss << indent << m_indent << "\"access\": \"" << getASTObjectAccessString((*it).access) << "\"" << m_lineBreak;
-	//					ss << indent << m_indent << "}" << m_lineBreak;
-	//					if(it+1 != bases.end())
-	//						ss << "," << m_lineBreak;
-	//				}
-
-	//				addLine("],", ss, indent);
-	//				
-	//				// adding children
-	//				addLine("\"children\": [", ss, indent);
-	//				convertAllChildrenToJSON(astObject, ss, depth);
-	//				addLine("],", ss, indent);
-
-	//				// USR
-	//				addProperty("USR", astObject.getUSR(), ss, indent, true);
-
-	//				// end of object
-	//				ss << indent_min <<  "}";
-
-	//				break;
-	//			}
-	//		case KIND_FIELD:
-	//			{
-	//				ASTObject_Field& astObjectField = static_cast<ASTObject_Field&>(astObject);
-
-	//				addLine("{", ss, indent_min);
-
-	//				// common props
-	//				addCommonProps(astObject, ss, indent);
-
-	//				// access
-	//				addProperty("access", getASTObjectAccessString(astObjectField.getAccess()), ss, indent);
-	//				addProperty("isStatic", astObjectField.isStatic(), ss, indent);
-	//				addLine("\"type\": ", ss, indent);
-	//				convertToJSON(*astObjectField.getType(), ss, depth+2);
-	//				ss << "," << m_lineBreak;
-
-	//				addLine("\"typeCanonical\": ", ss, indent);
-	//				convertToJSON(*astObjectField.getTypeCanonical(), ss, depth+2);
-	//				ss << "," << m_lineBreak;
-
-	//				// USR
-	//				addProperty("USR", astObject.getUSR(), ss, indent, true);
-
-
-	//				// end of object
-	//				ss << indent_min <<  "}";
-
-	//				break;
-	//			}
-	//		case KIND_FUNCTION:
-	//		case KIND_MEMBER_FUNCTION:
-	//		case KIND_CONSTRUCTOR:
-	//		case KIND_DESTRUCTOR:
-	//			{
-	//				ASTObject_Function& astObjectFunc = static_cast<ASTObject_Function&>(astObject);
-
-	//				addLine("{", ss, indent_min);
-
-	//				// common props
-	//				addCommonProps(astObject, ss, indent);
-	//				
-	//				ASTObject_Member_Function* astObjectMemberFunc = dynamic_cast<ASTObject_Member_Function*>(&astObject);
-	//				if(astObjectMemberFunc)
-	//				{
-	//					addProperty("access", getASTObjectAccessString(astObjectMemberFunc->getAccess()), ss, indent);
-	//					
-
-	//					// only non-constructor, non-destructor member functions
-	//					if(kind == KIND_MEMBER_FUNCTION)
-	//					{
-	//						addProperty("isStatic", astObjectMemberFunc->isStatic(), ss, indent);
-	//						addProperty("isConst", astObjectMemberFunc->isConst(), ss, indent);
-	//					}
-
-	//					if(kind != KIND_CONSTRUCTOR)
-	//						addProperty("isVirtual", astObjectMemberFunc->isVirtual(), ss, indent);
-	//				}
-
-	//				
-	//				
-	//				// return type
-	//				if(kind == KIND_FUNCTION || kind == KIND_MEMBER_FUNCTION)
-	//				{
-	//					addLine("\"returnType\": ", ss, indent);
-	//					convertToJSON(*astObjectFunc.getReturnType(), ss, depth+2);
-	//					ss << "," << m_lineBreak;
-	//					addLine("\"returnTypeCanonical\": ", ss, indent);
-	//					convertToJSON(*astObjectFunc.getReturnTypeCanonical(), ss, depth+2);
-	//					ss << "," << m_lineBreak;
-	//				}
-
-	//				// parameters
-	//				if(kind != KIND_DESTRUCTOR)
-	//				{
-	//					addLine("\"parameters\": [", ss, indent);
-
-	//					auto& parameters = astObjectFunc.getParameters();
-	//					for(auto it = parameters.begin(); it != parameters.end(); ++it)
-	//					{
-	//						ss << indent << m_indent << "{" << m_lineBreak;
-	//						ss << indent << m_indent << m_indent << "\"name\": \"" << (*it)->getNodeName() << "\"," << m_lineBreak;
-
-	//						addLine("\"type\": ", ss, indent + m_indent + m_indent);
-	//						convertToJSON(*(*it)->getType(), ss, depth+4);
-	//						ss << "," << m_lineBreak;
-
-	//						addLine("\"typeCanonical\": ", ss, indent + m_indent + m_indent);
-	//						convertToJSON(*(*it)->getTypeCanonical(), ss, depth+4);
-	//						ss << m_lineBreak;
-
-	//						ss << indent << m_indent << "}";
-	//						if(it+1 != parameters.end())
-	//							ss << ",";
-
-	//						ss << m_lineBreak;
-	//					}
-
-	//					addLine("],", ss, indent);
-	//				}
-
-	//				// USR
-	//				addProperty("USR", astObject.getUSR(), ss, indent, true);
-
-	//				// end of object
-	//				ss << indent_min <<  "}";
-
-	//				break;
-	//			}
-	//		
-
-	//		default: return false;
-	//	}
-
-	//	return true;
-	//}
-
 	// TODO: performance
-	Json::Value convertASTTypeToJSON(ASTType& type)
+	Json::Value JSON_Converter::convertASTTypeToJSON(ASTType& type)
 	{
 		Json::Value objJSON;
 		objJSON["kind"]    = type.getKind();
 		objJSON["isConst"] = type.isConst();
 
-		if((type.getKind() == "Record" || type.getKind() == "Typedef") && type.getDeclaration())
+		if((type.getKind() == "Record" || type.getKind() == "Typedef" || type.getKind() == "TemplateTypeParm" || type.getKind() == "TemplateSpecialization") && type.getDeclaration())
 		{
 			objJSON["declaration"] = type.getDeclaration()->getID();
 		}
@@ -382,35 +44,97 @@ namespace CPPAnalyzer
 		return objJSON;
 	}
 
+	void JSON_Converter::addTemplateInfo(ASTObjectHelper_Template& templateInfo, Json::Value& objJSON, int options)
+	{
+		auto templateKind = templateInfo.getKind();
+		objJSON["templateKind"] = getTemplateKindSpelling(templateKind);
+
+		if(templateKind == TEMPLATE_KIND_TEMPLATE || templateKind == TEMPLATE_KIND_PARTIAL_SPECIALIZATION)
+		{
+			auto& templateParamsJSON = objJSON["templateParameters"] = Json::Value(Json::arrayValue);
+			for(auto it = templateInfo.getParameters().begin(), end = templateInfo.getParameters().end(); it!= end; ++it)
+				templateParamsJSON.append(convertASTObjectToJSON(**it));
+		}
+
+		if(templateKind == TEMPLATE_KIND_SPECIALIZATION || templateKind == TEMPLATE_KIND_PARTIAL_SPECIALIZATION)
+		{
+			auto& templateArgsJSON = objJSON["templateArguments"] = Json::Value(Json::arrayValue);
+			for(auto it = templateInfo.getArguments().begin(), end = templateInfo.getArguments().end(); it!= end; ++it)
+				templateArgsJSON.append(convertASTObjectToJSON(**it));
+		}
+
+		// TODO: reference to template declaration
+	}
+
 	// TODO: performance
-	Json::Value convertASTObjectToJSON(ASTObject& astObject)
+	Json::Value JSON_Converter::convertASTObjectToJSON(ASTObject& astObject, int options_)
 	{
 		ASTObjectKind kind = astObject.getKind();
+
+		int options = options_;
+		switch(kind)
+		{
+			case KIND_NAMESPACE:        options = options & ~ADD_ISDEFINITION & ~ADD_DEFINITION & ~ADD_DECLARATIONS; break;
+			case KIND_TYPEDEF:          break;
+			case KIND_STRUCT:           break;
+			case KIND_CLASS:            break;
+			case KIND_VARIABLE_DECL:    break;
+			case KIND_FIELD:            break;
+			case KIND_FUNCTION:         break;
+			case KIND_MEMBER_FUNCTION:  break;
+			case KIND_PARAMETER:        options = options & ~ADD_ISDEFINITION & ~ADD_DEFINITION & ~ADD_DECLARATIONS; break;
+			case KIND_CONSTRUCTOR:      break;
+			case KIND_DESTRUCTOR:       break;
+			case KIND_ENUM:             break;
+			case KIND_ENUMCONSTANT:     break;
+			case KIND_UNION:            break;
+			case KIND_TEMPLATE_TYPE_PARAMETER:			    
+			case KIND_TEMPLATE_NON_TYPE_PARAMETER:		    
+			case KIND_TEMPLATE_TEMPLATE_PARAMETER:		    options = options & ~ADD_ISDEFINITION & ~ADD_DEFINITION & ~ADD_DECLARATIONS & ~ADD_DISPLAYNAME & ~ADD_USR; break;
+			case KIND_TEMPLATE_NULL_ARGUMENT:			    
+			case KIND_TEMPLATE_TYPE_ARGUMENT:               
+			case KIND_TEMPLATE_DECLARATION_ARGUMENT:        
+			case KIND_TEMPLATE_INTEGRAL_ARGUMENT:           
+			case KIND_TEMPLATE_TEMPLATE_ARGUMENT:           
+			case KIND_TEMPLATE_TEMPLATE_EXPANSION_ARGUMENT: 
+			case KIND_TEMPLATE_EXPRESSION_ARGUMENT:         
+			case KIND_TEMPLATE_PACK_ARGUMENT:               options = options & ~ADD_ISDEFINITION & ~ADD_DEFINITION & ~ADD_DECLARATIONS & ~ADD_ID &~ADD_NAME & ~ADD_DISPLAYNAME & ~ADD_USR; break;
+		}
 		
 		Json::Value objJSON;
 
-		objJSON["name"] = astObject.getNodeName();
-		objJSON["USR"]  = astObject.getUSR();
-		if(kind != KIND_PARAMETER)
-		{
-			objJSON["id"]           = astObject.getID();
-			objJSON["kind"]         = getASTObjectKind(astObject.getKind());
-			objJSON["isDefinition"] = astObject.isDefinition();
+		if(options & ADD_NAME)
+			objJSON["name"] = astObject.getNodeName();
 
-			if(astObject.isDefinition())
+		if(options & ADD_DISPLAYNAME)
+			objJSON["displayname"] = astObject.getDisplayName();
+
+		if(options & ADD_USR)
+			objJSON["USR"]  = astObject.getUSR();
+
+		if(options & ADD_ID)
+			objJSON["id"]           = astObject.getID();
+
+		if(options & ADD_KIND)
+			objJSON["kind"]         = getASTObjectKind(astObject.getKind());
+
+		if(options & ADD_ISDEFINITION)
+		objJSON["isDefinition"] = astObject.isDefinition();
+
+		if(options & ADD_DEFINITION)
+		{
+			auto& definitionJSON = objJSON["definition"] = Json::Value(Json::objectValue);
+			definitionJSON["fileName"] = astObject.getDefinitionSource().fileName;
+		}
+		
+		if(options & ADD_DECLARATIONS)
+		{
+			auto& declarationsJSON = objJSON["declarations"] = Json::Value(Json::arrayValue);
+			auto& declarations = astObject.getDeclarationsSource();
+			for(auto it = declarations.begin(), end = declarations.end(); it != end; ++it)
 			{
-				auto& definitionJSON = objJSON["definition"] = Json::Value(Json::objectValue);
-				definitionJSON["fileName"] = astObject.getDefinitionSource().fileName;
-			}
-			else
-			{
-				auto& declarationsJSON = objJSON["declarations"] = Json::Value(Json::arrayValue);
-				auto& declarations = astObject.getDeclarationsSource();
-				for(auto it = declarations.begin(), end = declarations.end(); it != end; ++it)
-				{
-					auto& declJSON = declarationsJSON.append(Json::objectValue);
-					declJSON["fileName"] = (*it).fileName;
-				}
+				auto& declJSON = declarationsJSON.append(Json::objectValue);
+				declJSON["fileName"] = (*it).fileName;
 			}
 		}
 		
@@ -458,7 +182,69 @@ namespace CPPAnalyzer
 					auto& children = astObject.getChildren();
 
 					for(auto it = children.begin(), end = children.end(); it!= end; ++it)
-						childrenJSON.append(convertASTObjectToJSON(**it));
+					{
+						switch((*it)->getKind())
+						{
+							case KIND_NAMESPACE:
+							case KIND_TYPEDEF:
+							case KIND_STRUCT:
+							case KIND_CLASS:
+							case KIND_VARIABLE_DECL:
+							case KIND_FIELD:
+							case KIND_FUNCTION:
+							case KIND_MEMBER_FUNCTION:
+							case KIND_PARAMETER:
+							case KIND_CONSTRUCTOR:
+							case KIND_DESTRUCTOR:
+							case KIND_ENUM:
+							case KIND_ENUMCONSTANT:
+							case KIND_UNION:
+								childrenJSON.append(convertASTObjectToJSON(**it));
+								break;
+							default:
+								break;
+						}
+					}
+
+					// template info
+					auto& templateInfo = astObjectStruct.getTemplateInfo();
+					addTemplateInfo(templateInfo, objJSON, options);
+
+					break;
+				}
+
+			case KIND_TEMPLATE_TYPE_ARGUMENT:
+				{
+					auto& astObjectTemplArg = static_cast<ASTObject_TemplateTypeArgument&>(astObject);
+					objJSON["type"] = convertASTTypeToJSON(*astObjectTemplArg.getType());
+					objJSON["typeCanonical"] = convertASTTypeToJSON(*astObjectTemplArg.getTypeCanonical());
+					break;
+				}
+			case KIND_TEMPLATE_DECLARATION_ARGUMENT:
+				{
+					auto& astObjectTemplArg = static_cast<ASTObject_TemplateDeclarationArgument&>(astObject);
+					objJSON["declaration"] = (astObjectTemplArg.getDeclaration() == NULL) ? -1 : astObjectTemplArg.getDeclaration()->getID();
+					break;
+				}
+			case KIND_TEMPLATE_INTEGRAL_ARGUMENT:
+				{
+					auto& astObjectTemplArg = static_cast<ASTObject_TemplateIntegralArgument&>(astObject);
+					objJSON["integral"] = astObjectTemplArg.getIntegral();
+					break;
+				}
+			case KIND_TEMPLATE_TEMPLATE_ARGUMENT:
+				{
+					auto& astObjectTemplArg = static_cast<ASTObject_TemplateTemplateArgument&>(astObject);
+					objJSON["declaration"] = (astObjectTemplArg.getTemplate() == NULL) ? -1 : astObjectTemplArg.getTemplate()->getID();
+					break;
+				}
+			case KIND_VARIABLE_DECL:
+				{
+					auto& astObjectVar = static_cast<ASTObject_Variable_Decl&>(astObject);
+
+					// props
+					objJSON["type"]          = convertASTTypeToJSON(*astObjectVar.getType());
+					objJSON["typeCanonical"] = convertASTTypeToJSON(*astObjectVar.getTypeCanonical());
 
 					break;
 				}
@@ -513,6 +299,10 @@ namespace CPPAnalyzer
 						for(auto it = parameters.begin(), end = parameters.end(); it != end; ++it)
 							parametersJSON.append(convertASTObjectToJSON(**it));
 					}
+
+					// template info
+					auto& templateInfo = astObjectFunc.getTemplateInfo();
+					addTemplateInfo(templateInfo, objJSON, options);
 
 					break;
 				}

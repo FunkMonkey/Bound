@@ -76,7 +76,7 @@ using namespace CPPAnalyzer;
 			parserInfo->astTreeJSON[json.size()] = '\0';
 
 			
-			//std::cout << json.c_str();
+			std::cout << json.c_str();
 
 
 			// dispose unit

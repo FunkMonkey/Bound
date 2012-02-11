@@ -38,6 +38,9 @@ namespace CPPAnalyzer
 		const std::string& getUSR() const { return m_usr; }
 		void setUSR(const std::string& usr) { m_usr = usr; }
 
+		const std::string& getDisplayName() const { return m_displayName; }
+		void setDisplayName(const std::string& val) { m_displayName = val; }
+
 		const std::string& getNodeName() const { return m_nodeName; }
 		const std::string& getLongName() const { return m_longName; }
 		const std::string& getKindName() const { return m_longName; }
@@ -90,6 +93,7 @@ namespace CPPAnalyzer
 		static unsigned count;
 		unsigned m_id;
 		std::string m_nodeName;
+		std::string m_displayName;
 		std::string m_usr;
 		std::string m_longName;
 

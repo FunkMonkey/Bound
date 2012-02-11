@@ -20,7 +20,18 @@ namespace CPPAnalyzer
 		KIND_DESTRUCTOR,
 		KIND_ENUM,
 		KIND_ENUMCONSTANT,
-		KIND_UNION
+		KIND_UNION,
+		KIND_TEMPLATE_TYPE_PARAMETER,
+		KIND_TEMPLATE_NON_TYPE_PARAMETER,
+		KIND_TEMPLATE_TEMPLATE_PARAMETER,
+		KIND_TEMPLATE_NULL_ARGUMENT,
+		KIND_TEMPLATE_TYPE_ARGUMENT,
+		KIND_TEMPLATE_DECLARATION_ARGUMENT,
+		KIND_TEMPLATE_INTEGRAL_ARGUMENT,
+		KIND_TEMPLATE_TEMPLATE_ARGUMENT,
+		KIND_TEMPLATE_TEMPLATE_EXPANSION_ARGUMENT,
+		KIND_TEMPLATE_EXPRESSION_ARGUMENT,
+		KIND_TEMPLATE_PACK_ARGUMENT
 	};
 
 	enum ASTObjectAccess{
@@ -30,6 +41,7 @@ namespace CPPAnalyzer
 			ACCESS_PUBLIC
 		};
 
+	// TODO: rename
 	static const char* getASTObjectAccessString(ASTObjectAccess access)
 	{
 		switch(access)
@@ -39,6 +51,26 @@ namespace CPPAnalyzer
 			case ACCESS_PUBLIC: return "public";
 		}
 		return "invalid";
+	}
+
+	enum ASTObjectTemplateKind
+	{
+		TEMPLATE_KIND_NON_TEMPLATE,
+		TEMPLATE_KIND_TEMPLATE,
+		TEMPLATE_KIND_PARTIAL_SPECIALIZATION,
+		TEMPLATE_KIND_SPECIALIZATION
+	};
+
+	static const char* getTemplateKindSpelling(ASTObjectTemplateKind kind)
+	{
+		switch(kind)
+		{
+			case TEMPLATE_KIND_NON_TEMPLATE: return "NonTemplate";
+			case TEMPLATE_KIND_TEMPLATE: return "Template";
+			case TEMPLATE_KIND_PARTIAL_SPECIALIZATION: return "PartialSpecialization";
+			case TEMPLATE_KIND_SPECIALIZATION: return "Specialization";
+		}
+		return "Invalid";
 	}
 
 	// TODO: rename
@@ -59,7 +91,18 @@ namespace CPPAnalyzer
 			case KIND_DESTRUCTOR: return "Destructor";
 			case KIND_ENUM: return "Enum";	
 			case KIND_ENUMCONSTANT: return "EnumConstant";	
-			case KIND_UNION: return "Union";	
+			case KIND_UNION: return "Union";
+			case KIND_TEMPLATE_TYPE_PARAMETER: return "TemplateTypeParameter";
+			case KIND_TEMPLATE_NON_TYPE_PARAMETER: return "TemplateNonTypeParameter";
+			case KIND_TEMPLATE_TEMPLATE_PARAMETER: return "TemplateTemplateParameter";
+			case KIND_TEMPLATE_NULL_ARGUMENT: return "TemplateNullArgument";
+			case KIND_TEMPLATE_TYPE_ARGUMENT: return "TemplateTypeArgument";
+			case KIND_TEMPLATE_DECLARATION_ARGUMENT: return "TemplateDeclarationArgument";
+			case KIND_TEMPLATE_INTEGRAL_ARGUMENT: return "TemplateIntegralArgument";
+			case KIND_TEMPLATE_TEMPLATE_ARGUMENT: return "TemplateTemplateArgument";
+			case KIND_TEMPLATE_TEMPLATE_EXPANSION_ARGUMENT: return "TemplateTemplateExpansionArgument";
+			case KIND_TEMPLATE_EXPRESSION_ARGUMENT: return "TemplateExpressionArgument";
+			case KIND_TEMPLATE_PACK_ARGUMENT: return "TemplatePackArgument";
 		}
 
 		return "Invalid";

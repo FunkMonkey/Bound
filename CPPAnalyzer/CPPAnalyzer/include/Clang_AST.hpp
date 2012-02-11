@@ -5,6 +5,8 @@
 #include <map>
 #include <string>
 
+#include "ASTObjectKinds.hpp"
+
 namespace CPPAnalyzer
 {
 	class ASTType;
@@ -21,8 +23,22 @@ namespace CPPAnalyzer
 	class ASTObject_Destructor;
 	class ASTObject_Enum;
 	class ASTObject_EnumConstant;
-
 	class ASTObject_Field;
+
+	class ASTObject_TemplateTypeParameter;
+	class ASTObject_TemplateNonTypeParameter;
+	class ASTObject_TemplateTemplateParameter;
+
+	class ASTObject_TemplateNullArgument;
+	class ASTObject_TemplateTypeArgument;
+	class ASTObject_TemplateDeclarationArgument;
+	class ASTObject_TemplateIntegralArgument;
+	class ASTObject_TemplateTemplateArgument;
+	class ASTObject_TemplateTemplateExpansionArgument;
+	class ASTObject_TemplateExpressionArgument;
+	class ASTObject_TemplatePackArgument;
+
+	class ASTObjectHelper_Template;
 
 	struct CXCursor_less
 	{
@@ -62,23 +78,38 @@ namespace CPPAnalyzer
 			Clang_AST(CXCursor translationUnit);
 			CXChildVisitResult visitCursor(CXCursor cursor, CXCursor parent, CXClientData client_data);
 
+			ASTObject* getASTObjectFromCursor(CXCursor cursor);
+			void registerASTObject(CXCursor cursor, ASTObject* astObject);
+			void setTemplateInformation(ASTObjectHelper_Template& templateInfo, CXCursor cursor, ASTObject* astParent);
+
 			ASTObject_Namespace* addNamespace(CXCursor cursor, ASTObject* astParent);
-			ASTObject_Struct* addStruct(CXCursor cursor, ASTObject* astParent);
-			ASTObject_Class* addClass(CXCursor cursor, ASTObject* astParent, bool isTemplate);
+			ASTObject_Variable_Decl* addVariableDecl(CXCursor cursor, ASTObject* astParent);
+			ASTObject_Struct* addStruct(CXCursor cursor, ASTObject* astParent, ASTObjectTemplateKind templateKind);
+			ASTObject_Class* addClass(CXCursor cursor, ASTObject* astParent, ASTObjectTemplateKind templateKind);
 			ASTObject_Field* addField(CXCursor cursor, ASTObject* astParent);
-			ASTObject_Function* addFunction(CXCursor cursor, ASTObject* astParent);
-			ASTObject_Member_Function* addMemberFunction(CXCursor cursor, ASTObject* astParent);
+			ASTObject_Function* addFunction(CXCursor cursor, ASTObject* astParent, ASTObjectTemplateKind templateKind);
+			ASTObject_Member_Function* addMemberFunction(CXCursor cursor, ASTObject* astParent, ASTObjectTemplateKind templateKind);
 			ASTObject_Parameter* addParameter(CXCursor cursor, ASTObject* astParent);
-			ASTObject_Constructor* addConstructor(CXCursor cursor, ASTObject* astParent);
-			ASTObject_Destructor* addDestructor(CXCursor cursor, ASTObject* astParent);
+			ASTObject_Constructor* addConstructor(CXCursor cursor, ASTObject* astParent, ASTObjectTemplateKind templateKind);
+			ASTObject_Destructor* addDestructor(CXCursor cursor, ASTObject* astParent, ASTObjectTemplateKind templateKind);
 			ASTObject_Typedef* addTypedef(CXCursor cursor, ASTObject* astParent);
 			ASTObject_Enum* addEnum(CXCursor cursor, ASTObject* astParent);
 			ASTObject_EnumConstant* addEnumConstant(CXCursor cursor, ASTObject* astParent);
 
+			ASTObject_TemplateTypeParameter* addTemplateTypeParameter(CXCursor cursor, ASTObject* astParent);
+			ASTObject_TemplateNonTypeParameter* addTemplateNonTypeParameter(CXCursor cursor, ASTObject* astParent);
+			ASTObject_TemplateTemplateParameter* addTemplateTemplateParameter(CXCursor cursor, ASTObject* astParent);
+
+			ASTObject_TemplateTypeArgument* addTemplateTypeArgument(CXCursor cursor, ASTObject* astParent);
+			ASTObject_TemplateDeclarationArgument* addTemplateDeclarationArgument(CXCursor cursor, ASTObject* astParent);
+			ASTObject_TemplateIntegralArgument* addTemplateIntegralArgument(CXCursor cursor, ASTObject* astParent);
+			ASTObject_TemplateTemplateArgument* addTemplateTemplateArgument(CXCursor cursor, ASTObject* astParent);
+			ASTObject_TemplateExpressionArgument* addTemplateExpressionArgument(CXCursor cursor, ASTObject* astParent);
+
 			void addBase(CXCursor cursor, ASTObject* astParent);
 
-			ASTType* createASTTypeFromCursor(CXCursor cursor, bool canonical = false);
-			ASTType* createASTType(CXType type, bool canonical = false);
+			ASTType* createASTTypeFromCursor(CXCursor cursor, bool canonical, ASTObject_Namespace* templateScope);
+			ASTType* createASTType(CXType type, bool canonical, ASTObject_Namespace* templateScope);
 			ASTObject* getTypeDeclaration(CXCursor cursor, bool canonical);
 
 			void printTreeNode(ASTObject* node, int depth) const;

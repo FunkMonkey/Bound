@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "ASTObject.hpp"
+#include "ASTObjectHelper_Template.hpp"
 
 namespace CPPAnalyzer
 {
@@ -34,12 +35,19 @@ namespace CPPAnalyzer
 
 		// TODO: get parameters, removeParam
 
+		ASTObjectHelper_Template& getTemplateInfo(){ return m_templateInfo; }
+		const ASTObjectHelper_Template& getTemplateInfo() const { return m_templateInfo; }
+		void setTemplateInfo(const ASTObjectHelper_Template& val) { m_templateInfo = val; }
+
 	protected:
 		ASTType* m_returnType;
 		ASTType* m_returnTypeCanon;
 
 		std::vector<ASTObject_Parameter*> m_parameters;
 		// TODO: function-type
+
+		ASTObjectHelper_Template m_templateInfo;
+		
 	};
 
 

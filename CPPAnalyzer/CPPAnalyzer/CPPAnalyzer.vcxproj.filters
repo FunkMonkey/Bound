@@ -66,6 +66,15 @@
     <ClInclude Include="include\ASTObject_Enum.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\ASTObjectHelper_Template.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ASTObject_TemplateParameter.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ASTObject_TemplateArgument.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ASTObject.cpp">

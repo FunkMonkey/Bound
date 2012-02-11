@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "ASTObject.hpp"
+#include "ASTObjectHelper_Template.hpp"
 
 namespace CPPAnalyzer
 {
@@ -22,9 +23,8 @@ namespace CPPAnalyzer
 	{
 	public:
 		
-
 		ASTObject_Struct(const std::string& nodeName)
-			: ASTObject(nodeName), m_destructor(NULL), m_currAccess(ACCESS_PUBLIC), m_isTemplate(false)
+			: ASTObject(nodeName), m_destructor(NULL), m_currAccess(ACCESS_PUBLIC)
 		{
 
 		}
@@ -40,11 +40,8 @@ namespace CPPAnalyzer
 		void addBase(ASTObject_Struct* base, ASTObjectAccess access);
 		const std::vector<AST_BaseStruct>& getBases() const { return m_bases; };
 
-		bool isTemplate() const {return m_isTemplate;}
-		void setTemplate(bool val){m_isTemplate = val;}
-
-		const std::string& getTemplateName() const { return m_templateName; }
-		void setTemplateName(const std::string& name){ m_templateName = name; }
+		ASTObjectHelper_Template& getTemplateInfo(){ return m_templateInfo; }
+		const ASTObjectHelper_Template& getTemplateInfo() const { return m_templateInfo; }
 
 	protected:
 
@@ -53,9 +50,7 @@ namespace CPPAnalyzer
 		std::vector<ASTObject_Member_Function*> m_functions;
 		ASTObjectAccess m_currAccess;
 		std::vector<AST_BaseStruct> m_bases;
-
-		bool m_isTemplate;
-		std::string m_templateName;
+		ASTObjectHelper_Template m_templateInfo;
 	};
 
 

@@ -81,6 +81,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\ASTObject.hpp" />
+    <ClInclude Include="include\ASTObjectHelper_Template.hpp" />
     <ClInclude Include="include\ASTObject_Class.hpp" />
     <ClInclude Include="include\ASTObject_Constructor.hpp" />
     <ClInclude Include="include\ASTObject_Destructor.hpp" />
@@ -91,6 +92,8 @@
     <ClInclude Include="include\ASTObject_Namespace.hpp" />
     <ClInclude Include="include\ASTObject_Parameter.hpp" />
     <ClInclude Include="include\ASTObject_Struct.hpp" />
+    <ClInclude Include="include\ASTObject_TemplateArgument.hpp" />
+    <ClInclude Include="include\ASTObject_TemplateParameter.hpp" />
     <ClInclude Include="include\ASTObject_Typedef.hpp" />
     <ClInclude Include="include\ASTObject_Variable_Decl.hpp" />
     <ClInclude Include="include\ASTObjectKinds.hpp" />

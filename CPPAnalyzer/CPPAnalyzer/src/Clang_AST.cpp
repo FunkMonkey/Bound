@@ -12,8 +12,11 @@
 #include "ASTObject_Destructor.hpp"
 #include "ASTObject_Typedef.hpp"
 #include "ASTObject_Enum.hpp"
+#include "ASTObject_TemplateArgument.hpp"
+#include "ASTObject_TemplateParameter.hpp"
 
 #include <iostream>
+#include <assert.h>
 
 using std::string;
 using std::vector;
@@ -84,50 +87,274 @@ namespace CPPAnalyzer
 		//m_usrASTObjects.insert(std::pair<CXCursor, ASTObject*>(m_rootCursor, m_rootASTObject));
 	}
 
+
+	ASTObject* Clang_AST::getASTObjectFromCursor(CXCursor cursor)
+	{
+		auto canonicalCursor = clang_getCanonicalCursor(cursor);
+		auto itCanonicalCursor = m_canonicalASTObjects.find(canonicalCursor);
+		
+		return (itCanonicalCursor == m_canonicalASTObjects.end()) ? NULL : itCanonicalCursor->second;
+	}
+
+
+	void Clang_AST::registerASTObject(CXCursor cursor, ASTObject* astObject)
+	{
+		assert(getASTObjectFromCursor(cursor) == NULL && "Cursor has already been registered");
+
+		m_astObjects.insert(std::pair<CXCursor, ASTObject*>(cursor, astObject));
+		m_canonicalASTObjects.insert(std::pair<CXCursor, ASTObject*>(clang_getCanonicalCursor(cursor), astObject));
+	}
+
+	void setStandardProperties(CXCursor cursor, ASTObject* astObject)
+	{
+		SelfDisposingCXString USR(clang_getCursorUSR(cursor));
+		astObject->setUSR(USR.c_str());
+
+		SelfDisposingCXString fullName(clang_getCursorDisplayName(cursor));
+		astObject->setDisplayName(fullName.c_str());
+
+		auto location = getSourceLocation(cursor);
+
+		if(clang_isCursorDefinition(cursor))
+			astObject->setDefinition(location);
+		else if(clang_isDeclaration(cursor.kind))
+			astObject->addDeclaration(location);
+	}
+
+	// returns the next namespace or astObject if it is itself a namespace
+	ASTObject_Namespace* getParentNamespace(ASTObject* astObject)
+	{
+		//ASTObject_Namespace* ns = NULL;
+		while(astObject->getKind() != KIND_NAMESPACE)
+			astObject = astObject->getParent();
+
+		return static_cast<ASTObject_Namespace*>(astObject);
+	}
+
 	ASTObject_Namespace* Clang_AST::addNamespace(CXCursor cursor, ASTObject* astParent)
 	{
 		// Common properties
-		SelfDisposingCXString displayName(clang_getCursorSpelling(cursor));
-		SelfDisposingCXString USR(clang_getCursorUSR(cursor));
+		SelfDisposingCXString nodeName(clang_getCursorSpelling(cursor));
 
-		ASTObject_Namespace* astObject = new ASTObject_Namespace(displayName.c_str());
+		ASTObject_Namespace* astObject = new ASTObject_Namespace(nodeName.c_str());
+		setStandardProperties(cursor, astObject);
 		astParent->addChild(astObject);
-		astObject->setUSR(USR.c_str());
 		
+		registerASTObject(cursor, astObject);
 		return astObject;
 	}
 
-	ASTObject_Struct* Clang_AST::addStruct(CXCursor cursor, ASTObject* astParent)
+	ASTObject_Struct* Clang_AST::addStruct(CXCursor cursor, ASTObject* astParent, ASTObjectTemplateKind templateKind)
 	{
 		// Common properties
-		SelfDisposingCXString displayName(clang_getCursorSpelling(cursor));
-		SelfDisposingCXString USR(clang_getCursorUSR(cursor));
+		SelfDisposingCXString nodeName(clang_getCursorSpelling(cursor));
 
-		ASTObject_Struct* astObject = new ASTObject_Struct(displayName.c_str());
+		ASTObject_Struct* astObject = new ASTObject_Struct(nodeName.c_str());
+		setStandardProperties(cursor, astObject);
 		astParent->addChild(astObject);
-		astObject->setUSR(USR.c_str());
+
+		// template properties
+		auto& templateInfo = astObject->getTemplateInfo();
+		templateInfo.setKind(templateKind);
+		setTemplateInformation(templateInfo, cursor, astObject);
 		
+		registerASTObject(cursor, astObject);
 		return astObject;
 	}
 
-
-	ASTObject_Class* Clang_AST::addClass(CXCursor cursor, ASTObject* astParent, bool isTemplate)
+	void Clang_AST::setTemplateInformation(ASTObjectHelper_Template& templateInfo, CXCursor cursor, ASTObject* astObject)
 	{
-		// Common properties
-		SelfDisposingCXString displayName(clang_getCursorSpelling(cursor));
-		SelfDisposingCXString USR(clang_getCursorUSR(cursor));
-
-		ASTObject_Class* astObject = new ASTObject_Class(displayName.c_str());
-		astParent->addChild(astObject);
-		astObject->setUSR(USR.c_str());
-
-		astObject->setTemplate(isTemplate);
-		if(isTemplate)
+		ASTObjectTemplateKind templateKind = templateInfo.getKind();
+		if(templateKind == TEMPLATE_KIND_TEMPLATE || templateKind == TEMPLATE_KIND_PARTIAL_SPECIALIZATION)
 		{
-			SelfDisposingCXString cursorSpelling(clang_getCursorSpelling(cursor));
-			astObject->setTemplateName(cursorSpelling.c_str());
+			// setting parameters
+			unsigned numParams = clang_getTemplateNumParameters(cursor);
+
+			assert(numParams != UINT_MAX);
+
+			for(unsigned i = 0; i < numParams; ++i)
+			{
+				CXCursor paramCursor = clang_getTemplateParameter(cursor, i);
+				ASTObject_TemplateParameter* paramASTObject = static_cast<ASTObject_TemplateParameter*>(getASTObjectFromCursor(paramCursor));
+				if(!paramASTObject)
+				{
+					SelfDisposingCXString nodeName(clang_getCursorSpelling(paramCursor));
+					switch(paramCursor.kind)
+					{
+						case CXCursor_TemplateTypeParameter: paramASTObject = addTemplateTypeParameter(paramCursor, astObject);  break;
+						case CXCursor_NonTypeTemplateParameter: paramASTObject = addTemplateNonTypeParameter(paramCursor, astObject);  break;
+						case CXCursor_TemplateTemplateParameter: paramASTObject = addTemplateTemplateParameter(paramCursor, astObject);  break;
+					}
+
+				}
+					
+				assert(paramASTObject != NULL);
+
+				templateInfo.addParameter(paramASTObject);
+			}
+
 		}
 
+		if(templateKind == TEMPLATE_KIND_SPECIALIZATION || templateKind == TEMPLATE_KIND_PARTIAL_SPECIALIZATION)
+		{
+			// setting arguments
+			unsigned numArgs = clang_getTemplateSpecializationNumArguments(cursor);
+			assert(numArgs != UINT_MAX);
+
+			for(unsigned i = 0; i < numArgs; ++i)
+			{
+				CXCursor argCursor = clang_getTemplateSpecializationArgument(cursor, i);
+				ASTObject_TemplateArgument* argASTObject = static_cast<ASTObject_TemplateArgument*>(getASTObjectFromCursor(argCursor));
+				if(!argASTObject)
+				{
+					SelfDisposingCXString nodeName(clang_getCursorSpelling(argCursor));
+					switch(argCursor.kind)
+					{
+						case CXCursor_TemplateTypeArgument: argASTObject = addTemplateTypeArgument(argCursor, astObject); break;
+						case CXCursor_TemplateDeclarationArgument: argASTObject = addTemplateDeclarationArgument(argCursor, astObject); break;
+						case CXCursor_TemplateIntegralArgument: argASTObject = addTemplateIntegralArgument(argCursor, astObject); break;
+						case CXCursor_TemplateTemplateArgument: argASTObject = addTemplateTemplateArgument(argCursor, astObject); break;
+						case CXCursor_TemplateExpressionArgument: argASTObject = addTemplateExpressionArgument(argCursor, astObject); break;
+					}
+
+				}
+					
+				assert(argASTObject != NULL);
+
+				templateInfo.addArgument(argASTObject);
+			}
+		}
+	}
+
+
+	ASTObject_Class* Clang_AST::addClass(CXCursor cursor, ASTObject* astParent, ASTObjectTemplateKind templateKind)
+	{
+		// Common properties
+		SelfDisposingCXString nodeName(clang_getCursorSpelling(cursor));
+
+		ASTObject_Class* astObject = new ASTObject_Class(nodeName.c_str());
+		setStandardProperties(cursor, astObject);
+		astParent->addChild(astObject);
+
+		// template properties
+		auto& templateInfo = astObject->getTemplateInfo();
+		templateInfo.setKind(templateKind);
+		setTemplateInformation(templateInfo, cursor, astObject);
+
+		registerASTObject(cursor, astObject);
+		return astObject;
+	}
+
+	ASTObject_TemplateTypeParameter* Clang_AST::addTemplateTypeParameter(CXCursor cursor, ASTObject* astParent)
+	{
+		SelfDisposingCXString nodeName(clang_getCursorSpelling(cursor));
+
+		ASTObject_TemplateTypeParameter* astObject = new ASTObject_TemplateTypeParameter(nodeName.c_str());
+		setStandardProperties(cursor, astObject);
+		astParent->addChild(astObject);
+
+		registerASTObject(cursor, astObject);
+		return astObject;
+	}
+
+	ASTObject_TemplateNonTypeParameter* Clang_AST::addTemplateNonTypeParameter(CXCursor cursor, ASTObject* astParent)
+	{
+		SelfDisposingCXString nodeName(clang_getCursorSpelling(cursor));
+
+		ASTObject_TemplateNonTypeParameter* astObject = new ASTObject_TemplateNonTypeParameter(nodeName.c_str());
+		setStandardProperties(cursor, astObject);
+		astParent->addChild(astObject);
+
+		registerASTObject(cursor, astObject);
+		return astObject;
+	}
+
+	ASTObject_TemplateTemplateParameter* Clang_AST::addTemplateTemplateParameter(CXCursor cursor, ASTObject* astParent)
+	{
+		SelfDisposingCXString nodeName(clang_getCursorSpelling(cursor));
+
+		ASTObject_TemplateTemplateParameter* astObject = new ASTObject_TemplateTemplateParameter(nodeName.c_str());
+		setStandardProperties(cursor, astObject);
+		astParent->addChild(astObject);
+
+		registerASTObject(cursor, astObject);
+		return astObject;
+	}
+
+	ASTObject_TemplateTypeArgument* Clang_AST::addTemplateTypeArgument(CXCursor cursor, ASTObject* astParent)
+	{
+		SelfDisposingCXString nodeName(clang_getCursorSpelling(cursor));
+
+		ASTObject_TemplateTypeArgument* astObject = new ASTObject_TemplateTypeArgument(nodeName.c_str());
+		setStandardProperties(cursor, astObject);
+		astParent->addChild(astObject);
+
+		ASTObject_Namespace* parentNS = getParentNamespace(astObject);
+
+		astObject->setType(createASTType(clang_getTemplateArgumentValueAsType(cursor), false, parentNS));
+		astObject->setTypeCanonical(createASTType(clang_getTemplateArgumentValueAsType(cursor), true, parentNS));
+
+		registerASTObject(cursor, astObject);
+		return astObject;
+	}
+
+	ASTObject_TemplateDeclarationArgument* Clang_AST::addTemplateDeclarationArgument(CXCursor cursor, ASTObject* astParent)
+	{
+		SelfDisposingCXString nodeName(clang_getCursorSpelling(cursor));
+
+		ASTObject_TemplateDeclarationArgument* astObject = new ASTObject_TemplateDeclarationArgument(nodeName.c_str());
+		setStandardProperties(cursor, astObject);
+		astParent->addChild(astObject);
+
+		ASTObject* decl = getASTObjectFromCursor(clang_getTemplateArgumentValueAsDeclaration(cursor));
+		assert(decl != NULL);
+
+		astObject->setDeclaration(decl);
+
+		registerASTObject(cursor, astObject);
+		return astObject;
+	}
+
+	ASTObject_TemplateIntegralArgument* Clang_AST::addTemplateIntegralArgument(CXCursor cursor, ASTObject* astParent)
+	{
+		SelfDisposingCXString nodeName(clang_getCursorSpelling(cursor));
+
+		ASTObject_TemplateIntegralArgument* astObject = new ASTObject_TemplateIntegralArgument(nodeName.c_str());
+		setStandardProperties(cursor, astObject);
+		astParent->addChild(astObject);
+
+		astObject->setIntegral(clang_getTemplateArgumentValueAsIntegral(cursor));
+
+		registerASTObject(cursor, astObject);
+		return astObject;
+	}
+
+	ASTObject_TemplateTemplateArgument* Clang_AST::addTemplateTemplateArgument(CXCursor cursor, ASTObject* astParent)
+	{
+		SelfDisposingCXString nodeName(clang_getCursorSpelling(cursor));
+
+		ASTObject_TemplateTemplateArgument* astObject = new ASTObject_TemplateTemplateArgument(nodeName.c_str());
+		setStandardProperties(cursor, astObject);
+		astParent->addChild(astObject);
+
+		ASTObject* decl = getASTObjectFromCursor(clang_getTemplateArgumentValueAsTemplate(cursor));
+		assert(decl != NULL);
+
+		astObject->setTemplate(decl);
+
+		registerASTObject(cursor, astObject);
+		return astObject;
+	}
+
+	ASTObject_TemplateExpressionArgument* Clang_AST::addTemplateExpressionArgument(CXCursor cursor, ASTObject* astParent)
+	{
+		SelfDisposingCXString nodeName(clang_getCursorSpelling(cursor));
+
+		ASTObject_TemplateExpressionArgument* astObject = new ASTObject_TemplateExpressionArgument(nodeName.c_str());
+		setStandardProperties(cursor, astObject);
+		astParent->addChild(astObject);
+
+		registerASTObject(cursor, astObject);
 		return astObject;
 	}
 
@@ -135,88 +362,111 @@ namespace CPPAnalyzer
 	ASTObject_Field* Clang_AST::addField(CXCursor cursor, ASTObject* astParent)
 	{
 		// Common properties
-		SelfDisposingCXString displayName(clang_getCursorSpelling(cursor));
-		SelfDisposingCXString USR(clang_getCursorUSR(cursor));
+		SelfDisposingCXString nodeName(clang_getCursorSpelling(cursor));
 
-		ASTObject_Field* astObject = new ASTObject_Field(displayName.c_str());
+		ASTObject_Field* astObject = new ASTObject_Field(nodeName.c_str());
+		setStandardProperties(cursor, astObject);
 		astParent->addChild(astObject);
-		astObject->setUSR(USR.c_str());
 
 		// Field properties
+		ASTObject_Namespace* parentNS = getParentNamespace(astObject);
+
 		astObject->setAccess(static_cast<ASTObject_Struct*>(astParent)->getCurrentAccess());
-		astObject->setType(createASTTypeFromCursor(cursor, false));
-		astObject->setTypeCanonical(createASTTypeFromCursor(cursor, true));
+		astObject->setType(createASTTypeFromCursor(cursor, false, parentNS));
+		astObject->setTypeCanonical(createASTTypeFromCursor(cursor, true, parentNS));
 		
+		registerASTObject(cursor, astObject);
 		return astObject;
 	}
 
-	ASTObject_Function* Clang_AST::addFunction(CXCursor cursor, ASTObject* astParent)
+	ASTObject_Function* Clang_AST::addFunction(CXCursor cursor, ASTObject* astParent, ASTObjectTemplateKind templateKind)
 	{
 		// Common properties
-		SelfDisposingCXString displayName(clang_getCursorSpelling(cursor));
-		SelfDisposingCXString USR(clang_getCursorUSR(cursor));
+		SelfDisposingCXString nodeName(clang_getCursorSpelling(cursor));
 
-		ASTObject_Function* astObject = new ASTObject_Function(displayName.c_str());
+		ASTObject_Function* astObject = new ASTObject_Function(nodeName.c_str());
+		setStandardProperties(cursor, astObject);
 		astParent->addChild(astObject);
-		astObject->setUSR(USR.c_str());
+
+		// template properties
+		auto& templateInfo = astObject->getTemplateInfo();
+		templateInfo.setKind(templateKind);
+		setTemplateInformation(templateInfo, cursor, astObject);
 
 		// Function properties
+		ASTObject_Namespace* parentNS = getParentNamespace(astObject);
 		CXType returnType = clang_getCursorResultType(cursor);
-		astObject->setReturnType(createASTType(returnType, false));
-		astObject->setReturnTypeCanonical(createASTType(returnType, true));
+		astObject->setReturnType(createASTType(returnType, false, parentNS));
+		astObject->setReturnTypeCanonical(createASTType(returnType, true, parentNS));
 
+		registerASTObject(cursor, astObject);
 		return astObject;
 	}
 
-	ASTObject_Member_Function* Clang_AST::addMemberFunction(CXCursor cursor, ASTObject* astParent)
+	ASTObject_Member_Function* Clang_AST::addMemberFunction(CXCursor cursor, ASTObject* astParent, ASTObjectTemplateKind templateKind)
 	{
 		// Common properties
-		SelfDisposingCXString displayName(clang_getCursorSpelling(cursor));
-		SelfDisposingCXString USR(clang_getCursorUSR(cursor));
+		SelfDisposingCXString nodeName(clang_getCursorSpelling(cursor));
 
-		ASTObject_Member_Function* astObject = new ASTObject_Member_Function(displayName.c_str());
+		ASTObject_Member_Function* astObject = new ASTObject_Member_Function(nodeName.c_str());
+		setStandardProperties(cursor, astObject);
 		astParent->addChild(astObject);	
-		astObject->setUSR(USR.c_str());
+
+		// template properties
+		auto& templateInfo = astObject->getTemplateInfo();
+		templateInfo.setKind(templateKind);
+		setTemplateInformation(templateInfo, cursor, astObject);
 
 		// Member function properties
 		CXType returnType = clang_getCursorResultType(cursor);
 
 		// TODO: check if parent is struct or class
+		ASTObject_Namespace* parentNS = getParentNamespace(astObject);
 		astObject->setAccess(static_cast<ASTObject_Struct*>(astParent)->getCurrentAccess());
-		astObject->setReturnType(createASTType(returnType, false));
-		astObject->setReturnTypeCanonical(createASTType(returnType, true));
+		astObject->setReturnType(createASTType(returnType, false, parentNS));
+		astObject->setReturnTypeCanonical(createASTType(returnType, true, parentNS));
 		astObject->setVirtual(clang_CXXMethod_isVirtual(cursor) != 0);
 		astObject->setStatic(clang_CXXMethod_isStatic(cursor) != 0);
 
+		registerASTObject(cursor, astObject);
 		return astObject;
 	}
 
-	ASTObject_Constructor* Clang_AST::addConstructor(CXCursor cursor, ASTObject* astParent)
+	ASTObject_Constructor* Clang_AST::addConstructor(CXCursor cursor, ASTObject* astParent, ASTObjectTemplateKind templateKind)
 	{
 		// Common properties
-		SelfDisposingCXString displayName(clang_getCursorSpelling(cursor));
-		SelfDisposingCXString USR(clang_getCursorUSR(cursor));
+		SelfDisposingCXString nodeName(clang_getCursorSpelling(cursor));
 
-		ASTObject_Constructor* astObject = new ASTObject_Constructor(displayName.c_str());
-		astObject->setUSR(USR.c_str());
-		
+		ASTObject_Constructor* astObject = new ASTObject_Constructor(nodeName.c_str());
+		setStandardProperties(cursor, astObject);	
+
+		// template properties
+		auto& templateInfo = astObject->getTemplateInfo();
+		templateInfo.setKind(templateKind);
+		setTemplateInformation(templateInfo, cursor, astObject);
+
 		// Constructor properties
 		// TODO: check if parent is struct or class, throw exception
 		ASTObject_Struct* parentStruct = static_cast<ASTObject_Struct*>(astParent);
 		astObject->setAccess(parentStruct->getCurrentAccess());
 		parentStruct->addConstructor(astObject);
 		
+		registerASTObject(cursor, astObject);
 		return astObject;
 	}
 
-	ASTObject_Destructor* Clang_AST::addDestructor(CXCursor cursor, ASTObject* astParent)
+	ASTObject_Destructor* Clang_AST::addDestructor(CXCursor cursor, ASTObject* astParent, ASTObjectTemplateKind templateKind)
 	{
 		// Common properties
-		SelfDisposingCXString displayName(clang_getCursorSpelling(cursor));
-		SelfDisposingCXString USR(clang_getCursorUSR(cursor));
+		SelfDisposingCXString nodeName(clang_getCursorSpelling(cursor));
 
-		ASTObject_Destructor* astObject = new ASTObject_Destructor(displayName.c_str());
-		astObject->setUSR(USR.c_str());
+		ASTObject_Destructor* astObject = new ASTObject_Destructor(nodeName.c_str());
+		setStandardProperties(cursor, astObject);
+
+		// template properties
+		auto& templateInfo = astObject->getTemplateInfo();
+		templateInfo.setKind(templateKind);
+		setTemplateInformation(templateInfo, cursor, astObject);
 		
 		// Destructor properties
 		// TODO: check if parent is struct or class, throw exception
@@ -224,6 +474,7 @@ namespace CPPAnalyzer
 		astObject->setAccess(parentStruct->getCurrentAccess());
 		parentStruct->setDestructor(astObject);
 
+		registerASTObject(cursor, astObject);
 		return astObject;
 	}
 
@@ -231,15 +482,15 @@ namespace CPPAnalyzer
 	ASTObject_Parameter* Clang_AST::addParameter(CXCursor cursor, ASTObject* astParent)
 	{
 		// Common properties
-		SelfDisposingCXString displayName(clang_getCursorSpelling(cursor));
-		SelfDisposingCXString USR(clang_getCursorUSR(cursor));
+		SelfDisposingCXString nodeName(clang_getCursorSpelling(cursor));
 
-		ASTObject_Parameter* astObject = new ASTObject_Parameter(displayName.c_str());
-		astObject->setUSR(USR.c_str());
-		
+		ASTObject_Parameter* astObject = new ASTObject_Parameter(nodeName.c_str());
+		setStandardProperties(cursor, astObject);
+
 		// Parameter properties
-		astObject->setType(createASTTypeFromCursor(cursor, false));
-		astObject->setTypeCanonical(createASTTypeFromCursor(cursor, true));
+		ASTObject_Namespace* parentNS = getParentNamespace(astParent);
+		astObject->setType(createASTTypeFromCursor(cursor, false, parentNS));
+		astObject->setTypeCanonical(createASTTypeFromCursor(cursor, true, parentNS));
 
 		ASTObject_Function* parentFunc = dynamic_cast<ASTObject_Function*>(astParent);
 		if(parentFunc)
@@ -247,56 +498,76 @@ namespace CPPAnalyzer
 
 		// TODO: else throw exception
 
+		registerASTObject(cursor, astObject);
+		return astObject;
+	}
+
+	ASTObject_Variable_Decl* Clang_AST::addVariableDecl(CXCursor cursor, ASTObject* astParent)
+	{
+		// Common properties
+		SelfDisposingCXString nodeName(clang_getCursorSpelling(cursor));
+
+		ASTObject_Variable_Decl* astObject = new ASTObject_Variable_Decl(nodeName.c_str());
+		setStandardProperties(cursor, astObject);
+		astParent->addChild(astObject);
+
+		// Variable properties
+		ASTObject_Namespace* parentNS = getParentNamespace(astObject);
+		astObject->setType(createASTTypeFromCursor(cursor, false, parentNS));
+		astObject->setTypeCanonical(createASTTypeFromCursor(cursor, true, parentNS));
+
+		registerASTObject(cursor, astObject);
 		return astObject;
 	}
 
 	ASTObject_Typedef* Clang_AST::addTypedef(CXCursor cursor, ASTObject* astParent)
 	{
 		// Common properties
-		SelfDisposingCXString displayName(clang_getCursorSpelling(cursor));
-		SelfDisposingCXString USR(clang_getCursorUSR(cursor));
+		SelfDisposingCXString nodeName(clang_getCursorSpelling(cursor));
 
-		ASTObject_Typedef* astObject = new ASTObject_Typedef(displayName.c_str());
+		ASTObject_Typedef* astObject = new ASTObject_Typedef(nodeName.c_str());
+		setStandardProperties(cursor, astObject);
 		astParent->addChild(astObject);	
-		astObject->setUSR(USR.c_str());
 
 		// Typedef properties
 		CXType type = clang_getTypedefDeclUnderlyingType(cursor);
 		
-		astObject->setType(createASTType(type, false));
-		astObject->setTypeCanonical(createASTType(type, true));
+		ASTObject_Namespace* parentNS = getParentNamespace(astObject);
+		astObject->setType(createASTType(type, false, parentNS));
+		astObject->setTypeCanonical(createASTType(type, true, parentNS));
 
 		// TODO: else throw exception
 
+		registerASTObject(cursor, astObject);
 		return astObject;
 	}
 
 	ASTObject_Enum* Clang_AST::addEnum(CXCursor cursor, ASTObject* astParent)
 	{
 		// Common properties
-		SelfDisposingCXString displayName(clang_getCursorSpelling(cursor));
-		SelfDisposingCXString USR(clang_getCursorUSR(cursor));
+		SelfDisposingCXString nodeName(clang_getCursorSpelling(cursor));
 
-		ASTObject_Enum* astObject = new ASTObject_Enum(displayName.c_str());
+		ASTObject_Enum* astObject = new ASTObject_Enum(nodeName.c_str());
+		setStandardProperties(cursor, astObject);
 		astParent->addChild(astObject);	
-		astObject->setUSR(USR.c_str());
 
+		registerASTObject(cursor, astObject);
 		return astObject;
 	}
 
 	ASTObject_EnumConstant* Clang_AST::addEnumConstant(CXCursor cursor, ASTObject* astParent)
 	{
 		// Common properties
-		SelfDisposingCXString displayName(clang_getCursorSpelling(cursor));
-		SelfDisposingCXString USR(clang_getCursorUSR(cursor));
+		SelfDisposingCXString nodeName(clang_getCursorSpelling(cursor));
 
-		ASTObject_EnumConstant* astObject = new ASTObject_EnumConstant(displayName.c_str());
+		ASTObject_EnumConstant* astObject = new ASTObject_EnumConstant(nodeName.c_str());
+		setStandardProperties(cursor, astObject);
 		astParent->addChild(astObject);	
-		astObject->setUSR(USR.c_str());
 
 		// EnumConstant properties
 		astObject->setValue(clang_getEnumConstantDeclValue(cursor));
 
+		registerASTObject(cursor, astObject);
 		return astObject;
 	}
 
@@ -340,7 +611,7 @@ namespace CPPAnalyzer
 		return NULL;
 	}
 
-	ASTType* Clang_AST::createASTTypeFromCursor(CXCursor cursor, bool canonical)
+	ASTType* Clang_AST::createASTTypeFromCursor(CXCursor cursor, bool canonical, ASTObject_Namespace* templateScope)
 	{
 		CXType type = clang_getCursorType(cursor);
 		if(type.kind == CXType_Unexposed)
@@ -351,13 +622,16 @@ namespace CPPAnalyzer
 			// TEMP: just for testing
 			CXType type2 = clang_getCursorType(cursor);
 		}
-		return createASTType(type, canonical);
+		return createASTType(type, canonical, templateScope);
 	}
 
-	ASTType* Clang_AST::createASTType(CXType inputType, bool canonical)
+	ASTType* Clang_AST::createASTType(CXType inputType, bool canonical, ASTObject_Namespace* templateScope)
 	{
+		// TODO: fix canonical types for CXType_TemplateTypeParm and CXType_TemplateSpecialization
+		bool isBuggyType = inputType.kind == CXType_TemplateTypeParm || inputType.kind == CXType_TemplateSpecialization;
+
 		// do we use the canonical type or not?
-		CXType type = (canonical) ? clang_getCanonicalType(inputType): inputType;
+		CXType type = (canonical && !isBuggyType) ? clang_getCanonicalType(inputType): inputType;
 
 		SelfDisposingCXString kind(clang_getTypeKindSpelling(type.kind));
 
@@ -368,7 +642,7 @@ namespace CPPAnalyzer
 			case CXType_Pointer:
 			case CXType_LValueReference:
 				{
-					ASTType* pointsTo = createASTType(clang_getPointeeType(type)); 
+					ASTType* pointsTo = createASTType(clang_getPointeeType(type), false, templateScope); 
 					asttype->setPointsTo(pointsTo);
 					break;
 				}
@@ -376,33 +650,47 @@ namespace CPPAnalyzer
 			case CXType_Typedef:
 				{
 					CXCursor typeDecl = clang_getTypeDeclaration(type);
-					CXCursorASTObjectMap::iterator it = m_astObjects.find(typeDecl);
-					if(it != m_astObjects.end())
-						asttype->setDeclaration(it->second);
+					auto astDecl = getASTObjectFromCursor(typeDecl);
+
+					assert(astDecl != NULL);
+
+					asttype->setDeclaration(astDecl);
 					break;
 				}
 			case CXType_TemplateTypeParm:
-				{
-					CXCursor typeDecl = clang_getTypeDeclaration(type);
-					SelfDisposingCXString kindSpelling(clang_getCursorKindSpelling(typeDecl.kind));
-					std::string t1 = kindSpelling.c_str();
-					SelfDisposingCXString displayName(clang_getCursorDisplayName(typeDecl));
-					std::string t2 = displayName.c_str();
-					SelfDisposingCXString cursorSpelling(clang_getCursorSpelling(typeDecl));
-					std::string t3 = cursorSpelling.c_str();
-					int i = 3;
-					break;
-				}
 			case CXType_TemplateSpecialization:
 				{
 					CXCursor typeDecl = clang_getTypeDeclaration(type);
-					SelfDisposingCXString kindSpelling(clang_getCursorKindSpelling(typeDecl.kind));
-					std::string t1 = kindSpelling.c_str();
-					SelfDisposingCXString displayName(clang_getCursorDisplayName(typeDecl));
-					std::string t2 = displayName.c_str();
-					SelfDisposingCXString cursorSpelling(clang_getCursorSpelling(typeDecl));
-					std::string t3 = cursorSpelling.c_str();
-					int i = 3;
+					if(typeDecl.kind != CXCursor_NoDeclFound)
+					{
+						auto astDecl = getASTObjectFromCursor(typeDecl);
+
+						if(!astDecl)
+						{
+							switch(typeDecl.kind)
+							{
+								case CXCursor_ClassDecl:
+									astDecl = addClass(typeDecl, templateScope, TEMPLATE_KIND_SPECIALIZATION);
+									break;
+								case CXCursor_FunctionDecl:
+									astDecl = addFunction(typeDecl, templateScope, TEMPLATE_KIND_SPECIALIZATION);
+									break;
+								case CXCursor_CXXMethod:
+									astDecl = addMemberFunction(typeDecl, templateScope, TEMPLATE_KIND_SPECIALIZATION);
+									break;
+								case CXCursor_Constructor:
+									astDecl = addConstructor(typeDecl, templateScope, TEMPLATE_KIND_SPECIALIZATION);
+									break;
+								case CXCursor_Destructor:
+									astDecl = addDestructor(typeDecl, templateScope, TEMPLATE_KIND_SPECIALIZATION);
+									break;
+							}
+						}
+
+						//assert(astDecl != NULL);
+
+						asttype->setDeclaration(astDecl);
+					}
 					break;
 				}
 		}
@@ -487,7 +775,13 @@ namespace CPPAnalyzer
 
 			case CXCursor_StructDecl:
 			{
-				astObject = addStruct(cursor, astParent);
+				CXCursor templateCursor = clang_getSpecializedCursorTemplate(cursor);
+
+				if(!clang_Cursor_isNull(templateCursor))
+					astObject = addStruct(cursor, astParent, TEMPLATE_KIND_SPECIALIZATION);
+				else
+					astObject = addStruct(cursor, astParent, TEMPLATE_KIND_NON_TEMPLATE);
+
 				break;
 			}
 
@@ -496,28 +790,10 @@ namespace CPPAnalyzer
 				CXCursor templateCursor = clang_getSpecializedCursorTemplate(cursor);
 
 				if(!clang_Cursor_isNull(templateCursor))
-				{
-					auto location = getSourceLocation(cursor);
-					std::cout << location.line << ":" << location.column << ": CLASSDECL FROM TEMPLATE: " << kindSpelling.c_str() << " " << displayName.c_str() << "\n";
-					/*int numTemplateArgs = clang_getTemplateSpecializationArgumentListSize(cursor);
-					CXCursor arg1 = clang_getTemplateSpecializationArgument(cursor, 0);
-					CXCursor arg2 = clang_getTemplateSpecializationArgument(cursor, 1);
-					CXCursor arg3 = clang_getTemplateSpecializationArgument(cursor, 2);
-					CXCursor arg4 = clang_getTemplateSpecializationArgument(cursor, 3);
-
-					CXTemplateArgumentKind k1 = clang_getTemplateArgumentKind(arg1);
-					CXTemplateArgumentKind k2 = clang_getTemplateArgumentKind(arg2);
-					CXTemplateArgumentKind k3 = clang_getTemplateArgumentKind(arg3);
-					CXTemplateArgumentKind k4 = clang_getTemplateArgumentKind(arg4);
-
-					CXType type1 = clang_getTemplateArgumentAsType(arg1);
-					CXCursor decl2 = clang_getTemplateArgumentAsDeclaration(arg2);
-					CXCursor decl3 = clang_getTemplateArgumentAsTemplate(arg3);
-					long long val4 = clang_getTemplateArgumentAsIntegral(arg4);*/
-
-				}
-
-				astObject = addClass(cursor, astParent, false);
+					astObject = addClass(cursor, astParent, TEMPLATE_KIND_SPECIALIZATION);
+				else
+					astObject = addClass(cursor, astParent, TEMPLATE_KIND_NON_TEMPLATE);
+				
 				break;
 			}
 
@@ -526,17 +802,11 @@ namespace CPPAnalyzer
 				// clang_getTemplateCursorKind
 				// clang_getSpecializedCursorTemplate
 
-				astObject = addClass(cursor, astParent, true);
+				astObject = addClass(cursor, astParent, TEMPLATE_KIND_TEMPLATE);
 
 				auto location = getSourceLocation(cursor);
 				std::cout << location.line << ":" << location.column << ": CLASSTEMPLATE: " << kindSpelling.c_str() << " " << displayName.c_str() << "\n";
 
-
-				/*int numTemplateParams = clang_getTemplateNumParameters(cursor);
-				CXCursor param1 = clang_getTemplateParameter(cursor, 0);
-				CXCursor param2 = clang_getTemplateParameter(cursor, 1);
-				CXCursor param3 = clang_getTemplateParameter(cursor, 2);
-				CXCursor param4 = clang_getTemplateParameter(cursor, 3);*/
 				break;
 			}
 
@@ -545,46 +815,50 @@ namespace CPPAnalyzer
 				auto location = getSourceLocation(cursor);
 				std::cout << location.line << ":" << location.column << ": CLASSTEMPLATEPARTIAL: " << kindSpelling.c_str() << " " << displayName.c_str() << "\n";
 
-				/*int numTemplateParams = clang_getTemplateNumParameters(cursor);
-				CXCursor param1 = clang_getTemplateParameter(cursor, 0);
-				CXCursor param2 = clang_getTemplateParameter(cursor, 1);
-				CXCursor param3 = clang_getTemplateParameter(cursor, 2);
-				CXCursor param4 = clang_getTemplateParameter(cursor, 3);
-
-				int numTemplateArgs = clang_getTemplateSpecializationNumArguments(cursor);
-				CXCursor arg1 = clang_getTemplateSpecializationArgument(cursor, 0);
-				CXCursor arg2 = clang_getTemplateSpecializationArgument(cursor, 1);
-				CXCursor arg3 = clang_getTemplateSpecializationArgument(cursor, 2);
-				CXCursor arg4 = clang_getTemplateSpecializationArgument(cursor, 3);
-
-				CXTemplateArgumentKind k1 = clang_getTemplateArgumentKind(arg1);
-				CXTemplateArgumentKind k2 = clang_getTemplateArgumentKind(arg2);
-				CXTemplateArgumentKind k3 = clang_getTemplateArgumentKind(arg3);
-				CXTemplateArgumentKind k4 = clang_getTemplateArgumentKind(arg4);
-
-				CXType type1 = clang_getTemplateArgumentAsType(arg1);
-				CXCursor decl2 = clang_getTemplateArgumentAsExpression(arg2); 
-				CXCursor decl3 = clang_getTemplateArgumentAsTemplate(arg3);
-				long long val4 = clang_getTemplateArgumentAsIntegral(arg4);*/
+				astObject = addClass(cursor, astParent, TEMPLATE_KIND_PARTIAL_SPECIALIZATION);
 
 				break;
 			}
 
 			case CXCursor_TemplateTypeParameter:
 			{
-				std::cout << "TemplateParam: " << kindSpelling.c_str() << " " << displayName.c_str() << "\n";
+				astObject = addTemplateTypeParameter(cursor, astParent);
+				break;
+			}
+
+			case CXCursor_NonTypeTemplateParameter:
+			{
+				astObject = addTemplateNonTypeParameter(cursor, astParent);
+				break;
+			}
+
+			case CXCursor_TemplateTemplateParameter:
+			{
+				astObject = addTemplateTemplateParameter(cursor, astParent);
 				break;
 			}
 
 			case CXCursor_Constructor:
 			{
-				astObject = addConstructor(cursor, astParent);
+				CXCursor templateCursor = clang_getSpecializedCursorTemplate(cursor);
+
+				if(!clang_Cursor_isNull(templateCursor))
+					astObject = addConstructor(cursor, astParent, TEMPLATE_KIND_SPECIALIZATION);
+				else
+					astObject = addConstructor(cursor, astParent, TEMPLATE_KIND_NON_TEMPLATE);
+
 				break;
 			}
 
 			case CXCursor_Destructor:
 			{
-				astObject = addDestructor(cursor, astParent);
+				CXCursor templateCursor = clang_getSpecializedCursorTemplate(cursor);
+
+				if(!clang_Cursor_isNull(templateCursor))
+					astObject = addDestructor(cursor, astParent, TEMPLATE_KIND_SPECIALIZATION);
+				else
+					astObject = addDestructor(cursor, astParent, TEMPLATE_KIND_NON_TEMPLATE);
+
 				break;
 			}
 
@@ -610,12 +884,37 @@ namespace CPPAnalyzer
 
 				break;
 			}
+			
+			case CXCursor_FunctionTemplate:
+			{
+				clang_getTemplateNumParameters(cursor);
+				astObject = addFunction(cursor, astParent, TEMPLATE_KIND_TEMPLATE);
+				break;
+			}
 
 			case CXCursor_CXXMethod:
 			{
-				astObject = addMemberFunction(cursor, astParent);
+				CXCursor templateCursor = clang_getSpecializedCursorTemplate(cursor);
+
+				if(!clang_Cursor_isNull(templateCursor))
+					astObject = addMemberFunction(cursor, astParent, TEMPLATE_KIND_SPECIALIZATION);
+				else
+					astObject = addMemberFunction(cursor, astParent, TEMPLATE_KIND_NON_TEMPLATE);
+
 				break;
 			}
+
+			case CXCursor_FunctionDecl:
+				{
+					CXCursor templateCursor = clang_getSpecializedCursorTemplate(cursor);
+
+					if(!clang_Cursor_isNull(templateCursor))
+						astObject = addFunction(cursor, astParent, TEMPLATE_KIND_SPECIALIZATION);
+					else
+						astObject = addFunction(cursor, astParent, TEMPLATE_KIND_NON_TEMPLATE);
+
+					break;
+				}
 
 			case CXCursor_FieldDecl:
 			{
@@ -630,14 +929,13 @@ namespace CPPAnalyzer
 					astObject = addField(cursor, astParent);
 					static_cast<ASTObject_Field*>(astObject)->setStatic(true);
 				}
-				else
+				else if(astParent && astParent->getKind() == KIND_NAMESPACE)
 				{
 					// TODO: global variables
 
 					// TODO: function pointers
-					CXType type = clang_getCursorType(cursor);
-					CXType pointee = clang_getPointeeType(type);
-					int xsdf = 34;
+					
+					astObject = addVariableDecl(cursor, astParent);
 				}
 				break;
 			}
@@ -656,12 +954,7 @@ namespace CPPAnalyzer
 				break;
 			}
 
-			// functions
-			case CXCursor_FunctionDecl:
-			{
-				astObject = addFunction(cursor, astParent);
-				break;
-			}
+			
 
 			// ENUMS
 			case CXCursor_EnumDecl:
@@ -693,24 +986,24 @@ namespace CPPAnalyzer
 				// TODO templates
 		}
 		
-		if(astObject)
-		{
-			m_astObjects.insert(std::pair<CXCursor, ASTObject*>(cursor, astObject));
-			
-			//if(usr_string != "")
-			//	m_usrASTObjects.insert(std::pair<std::string, ASTObject*>(usr_string, astObject));
+		//if(astObject)
+		//{
+		//	m_astObjects.insert(std::pair<CXCursor, ASTObject*>(cursor, astObject));
+		//	
+		//	//if(usr_string != "")
+		//	//	m_usrASTObjects.insert(std::pair<std::string, ASTObject*>(usr_string, astObject));
 
-			auto location = getSourceLocation(cursor);
+		//	//auto location = getSourceLocation(cursor);
 
-			if(clang_isCursorDefinition(cursor))
-				astObject->setDefinition(location);
-			else
-				astObject->addDeclaration(location);
+		//	//if(clang_isCursorDefinition(cursor))
+		//	//	astObject->setDefinition(location);
+		//	//else
+		//	//	astObject->addDeclaration(location);
 
-			m_canonicalASTObjects.insert(std::pair<CXCursor, ASTObject*>(canonicalCursor, astObject));
+		//	m_canonicalASTObjects.insert(std::pair<CXCursor, ASTObject*>(canonicalCursor, astObject));
 
-			//std::cout << getASTObjectKind(astObject->getKind()).c_str() << " " << astObject->getNodeName().c_str() << "\n";
-		}
+		//	//std::cout << getASTObjectKind(astObject->getKind()).c_str() << " " << astObject->getNodeName().c_str() << "\n";
+		//}
 		
 		return CXChildVisit_Recurse;
 	}
@@ -742,8 +1035,6 @@ namespace CPPAnalyzer
 	{
 		printTreeNode(m_rootASTObject, 0);
 	}
-
-
 
 }
 
