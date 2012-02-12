@@ -84,14 +84,14 @@ namespace CPPAnalyzer
 
 			ASTObject_Namespace* addNamespace(CXCursor cursor, ASTObject* astParent);
 			ASTObject_Variable_Decl* addVariableDecl(CXCursor cursor, ASTObject* astParent);
-			ASTObject_Struct* addStruct(CXCursor cursor, ASTObject* astParent, ASTObjectTemplateKind templateKind);
-			ASTObject_Class* addClass(CXCursor cursor, ASTObject* astParent, ASTObjectTemplateKind templateKind);
+			ASTObject_Struct* addStruct(CXCursor cursor, ASTObject* astParent);
+			ASTObject_Class* addClass(CXCursor cursor, ASTObject* astParent);
 			ASTObject_Field* addField(CXCursor cursor, ASTObject* astParent);
-			ASTObject_Function* addFunction(CXCursor cursor, ASTObject* astParent, ASTObjectTemplateKind templateKind);
-			ASTObject_Member_Function* addMemberFunction(CXCursor cursor, ASTObject* astParent, ASTObjectTemplateKind templateKind);
+			ASTObject_Function* addFunction(CXCursor cursor, ASTObject* astParent);
+			ASTObject_Member_Function* addMemberFunction(CXCursor cursor, ASTObject* astParent);
 			ASTObject_Parameter* addParameter(CXCursor cursor, ASTObject* astParent);
-			ASTObject_Constructor* addConstructor(CXCursor cursor, ASTObject* astParent, ASTObjectTemplateKind templateKind);
-			ASTObject_Destructor* addDestructor(CXCursor cursor, ASTObject* astParent, ASTObjectTemplateKind templateKind);
+			ASTObject_Constructor* addConstructor(CXCursor cursor, ASTObject* astParent);
+			ASTObject_Destructor* addDestructor(CXCursor cursor, ASTObject* astParent);
 			ASTObject_Typedef* addTypedef(CXCursor cursor, ASTObject* astParent);
 			ASTObject_Enum* addEnum(CXCursor cursor, ASTObject* astParent);
 			ASTObject_EnumConstant* addEnumConstant(CXCursor cursor, ASTObject* astParent);
@@ -123,7 +123,6 @@ namespace CPPAnalyzer
 			CXCursor m_rootCursor;
 			CXCursorASTObjectMap m_astObjects;	// TODO: merge
 			CXCursorASTObjectMap m_canonicalASTObjects;
-			std::map<std::string, ASTObject*> m_usrASTObjects;
 	};
 }
 

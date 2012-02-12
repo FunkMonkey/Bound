@@ -14,7 +14,7 @@ namespace CPPAnalyzer
 	public:
 
 		ASTObjectHelper_Template()
-			:m_kind(TEMPLATE_KIND_NON_TEMPLATE)
+			:m_kind(TEMPLATE_KIND_NON_TEMPLATE), m_templateDecl(nullptr)
 		{
 
 		}
@@ -28,12 +28,16 @@ namespace CPPAnalyzer
 		const std::vector<ASTObject_TemplateArgument*>& getArguments() const { return m_arguments; }
 		void addArgument(ASTObject_TemplateArgument* param){ m_arguments.push_back(param); }
 
+		ASTObject* getTemplateDeclaration() const { return m_templateDecl; }
+		void setTemplateDeclaration(ASTObject* templDecl){ m_templateDecl = templDecl; }
+
 
 	protected:
 
 		ASTObjectTemplateKind m_kind;
 		std::vector<ASTObject_TemplateParameter*> m_parameters;
 		std::vector<ASTObject_TemplateArgument*> m_arguments;
+		ASTObject* m_templateDecl;
 		
 
 	};

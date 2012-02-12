@@ -3,6 +3,7 @@
 #include "Clang_AST.hpp"
 
 #include <json/json.h>
+#include <assert.h>
 
 #include "ASTObject_Namespace.hpp"
 #include "ASTObject_Struct.hpp"
@@ -35,6 +36,7 @@ namespace CPPAnalyzer
 		if((type.getKind() == "Record" || type.getKind() == "Typedef" || type.getKind() == "TemplateTypeParm" || type.getKind() == "TemplateSpecialization") && type.getDeclaration())
 		{
 			objJSON["declaration"] = type.getDeclaration()->getID();
+			addASTObjectToReferencedList(*type.getDeclaration());
 		}
 		else if((type.getKind() == "Pointer" || type.getKind() == "LValueReference") && type.getPointsTo())
 		{
@@ -58,6 +60,8 @@ namespace CPPAnalyzer
 
 		if(templateKind == TEMPLATE_KIND_SPECIALIZATION || templateKind == TEMPLATE_KIND_PARTIAL_SPECIALIZATION)
 		{
+			objJSON["templateDeclaration"] = templateInfo.getTemplateDeclaration()->getID();
+
 			auto& templateArgsJSON = objJSON["templateArguments"] = Json::Value(Json::arrayValue);
 			for(auto it = templateInfo.getArguments().begin(), end = templateInfo.getArguments().end(); it!= end; ++it)
 				templateArgsJSON.append(convertASTObjectToJSON(**it));
@@ -100,6 +104,8 @@ namespace CPPAnalyzer
 			case KIND_TEMPLATE_EXPRESSION_ARGUMENT:         
 			case KIND_TEMPLATE_PACK_ARGUMENT:               options = options & ~ADD_ISDEFINITION & ~ADD_DEFINITION & ~ADD_DECLARATIONS & ~ADD_ID &~ADD_NAME & ~ADD_DISPLAYNAME & ~ADD_USR; break;
 		}
+
+		addASTObjectToExportedList(astObject);
 		
 		Json::Value objJSON;
 
@@ -174,6 +180,7 @@ namespace CPPAnalyzer
 					{
 						auto& baseJSON = basesJSON.append(Json::objectValue);
 						baseJSON["id"]     = (*it).base->getID();
+						addASTObjectToReferencedList(*(*it).base);
 						baseJSON["access"] = getASTObjectAccessString((*it).access);
 					}
 
@@ -223,7 +230,17 @@ namespace CPPAnalyzer
 			case KIND_TEMPLATE_DECLARATION_ARGUMENT:
 				{
 					auto& astObjectTemplArg = static_cast<ASTObject_TemplateDeclarationArgument&>(astObject);
-					objJSON["declaration"] = (astObjectTemplArg.getDeclaration() == NULL) ? -1 : astObjectTemplArg.getDeclaration()->getID();
+					auto decl = astObjectTemplArg.getDeclaration();
+					if(decl == NULL)
+					{
+						objJSON["declaration"] = -1;
+						m_unknownMissingASTObjects = true;
+					}
+					else
+					{
+						objJSON["declaration"] = decl->getID();
+						addASTObjectToReferencedList(*decl);
+					}
 					break;
 				}
 			case KIND_TEMPLATE_INTEGRAL_ARGUMENT:
@@ -235,7 +252,17 @@ namespace CPPAnalyzer
 			case KIND_TEMPLATE_TEMPLATE_ARGUMENT:
 				{
 					auto& astObjectTemplArg = static_cast<ASTObject_TemplateTemplateArgument&>(astObject);
-					objJSON["declaration"] = (astObjectTemplArg.getTemplate() == NULL) ? -1 : astObjectTemplArg.getTemplate()->getID();
+					auto templ = astObjectTemplArg.getTemplate();
+					if(templ == NULL)
+					{
+						objJSON["template"] = -1;
+						m_unknownMissingASTObjects = true;
+					}
+					else
+					{
+						objJSON["template"] = templ->getID();
+						addASTObjectToReferencedList(*templ);
+					}
 					break;
 				}
 			case KIND_VARIABLE_DECL:
@@ -339,14 +366,66 @@ namespace CPPAnalyzer
 		return objJSON;
 	}
 
+
 	void JSON_Converter::convertToJSON(std::string& str)
 	{
+		m_unknownMissingASTObjects = false;
+		m_ASTObjects.clear();
 		Json::Value root = convertASTObjectToJSON(*(m_ast->getRootASTObject()));
+
+		if(m_unknownMissingASTObjects)
+			std::cout << "ERROR: UNKNOWN MISSING OBJECTS" << std::endl;
+
+		for(auto itM = m_ASTObjects.begin(), endM = m_ASTObjects.end(); itM != endM; ++itM)
+		{
+			if(itM->second == REFERENCED)
+				std::cout << "ERROR MISSING: " << itM->first->getID() << std::endl;
+			else if(itM->second == EXPORTED_AND_REFERENCED)
+			{
+				std::cout << "INFO REFERENCED: " << itM->first->getID() << std::endl;
+			}
+		}
 
 		Json::StyledWriter writer;
 		str = writer.write( root );
 
 		//std::cout << str << std::endl;
+	}
+
+	void JSON_Converter::addASTObjectToExportedList(ASTObject& astObject)
+	{
+		auto res = m_ASTObjects.find(&astObject);
+		if(res != m_ASTObjects.end())
+		{
+			switch(res->second)
+			{
+				case EXPORTED:                break;
+				case REFERENCED:              res->second = EXPORTED_AND_REFERENCED; break;
+				case EXPORTED_AND_REFERENCED: break;
+			}
+		}
+		else
+		{
+			m_ASTObjects.insert(std::pair<ASTObject*, ASTObjectStatus>(&astObject, EXPORTED));
+		}
+	}
+
+	void JSON_Converter::addASTObjectToReferencedList(ASTObject& astObject)
+	{
+		auto res = m_ASTObjects.find(&astObject);
+		if(res != m_ASTObjects.end())
+		{
+			switch(res->second)
+			{
+			case EXPORTED:                res->second = EXPORTED_AND_REFERENCED; break;
+			case REFERENCED:              break;
+			case EXPORTED_AND_REFERENCED: break;
+			}
+		}
+		else
+		{
+			m_ASTObjects.insert(std::pair<ASTObject*, ASTObjectStatus>(&astObject, REFERENCED));
+		}
 	}
 
 }

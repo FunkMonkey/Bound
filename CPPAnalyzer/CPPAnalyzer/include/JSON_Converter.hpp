@@ -27,6 +27,13 @@ namespace CPPAnalyzer
 		ADD_ALL = ADD_NAME | ADD_DISPLAYNAME | ADD_USR | ADD_KIND | ADD_ID | ADD_ISDEFINITION | ADD_DEFINITION | ADD_DECLARATIONS
 	};
 
+	enum ASTObjectStatus
+	{
+		EXPORTED,
+		REFERENCED,
+		EXPORTED_AND_REFERENCED
+	};
+
 	class JSON_Converter
 	{
 		public:
@@ -41,9 +48,17 @@ namespace CPPAnalyzer
 			Json::Value convertASTObjectToJSON(ASTObject& astObject, int options = ADD_ALL);
 			void convertToJSON(std::string& str);
 
-		protected:
+			void addASTObjectToExportedList(ASTObject& astObject);
+			void addASTObjectToReferencedList(ASTObject& astObject);
 
+		protected:
 			Clang_AST* m_ast;
+
+
+			std::map<ASTObject*, ASTObjectStatus> m_ASTObjects;
+			bool             m_unknownMissingASTObjects;
+
+			
 	};
 }
 

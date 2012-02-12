@@ -82,9 +82,7 @@ namespace CPPAnalyzer
 	: m_rootCursor(translationUnit)
 	{
 		m_rootASTObject = new ASTObject_Namespace("");
-		m_astObjects.insert(std::pair<CXCursor, ASTObject*>(m_rootCursor, m_rootASTObject));
-
-		//m_usrASTObjects.insert(std::pair<CXCursor, ASTObject*>(m_rootCursor, m_rootASTObject));
+		registerASTObject(m_rootCursor, m_rootASTObject);
 	}
 
 
@@ -144,7 +142,7 @@ namespace CPPAnalyzer
 		return astObject;
 	}
 
-	ASTObject_Struct* Clang_AST::addStruct(CXCursor cursor, ASTObject* astParent, ASTObjectTemplateKind templateKind)
+	ASTObject_Struct* Clang_AST::addStruct(CXCursor cursor, ASTObject* astParent)
 	{
 		// Common properties
 		SelfDisposingCXString nodeName(clang_getCursorSpelling(cursor));
@@ -155,7 +153,6 @@ namespace CPPAnalyzer
 
 		// template properties
 		auto& templateInfo = astObject->getTemplateInfo();
-		templateInfo.setKind(templateKind);
 		setTemplateInformation(templateInfo, cursor, astObject);
 		
 		registerASTObject(cursor, astObject);
@@ -164,7 +161,41 @@ namespace CPPAnalyzer
 
 	void Clang_AST::setTemplateInformation(ASTObjectHelper_Template& templateInfo, CXCursor cursor, ASTObject* astObject)
 	{
-		ASTObjectTemplateKind templateKind = templateInfo.getKind();
+		ASTObjectTemplateKind templateKind = TEMPLATE_KIND_NON_TEMPLATE;
+		CXCursor templateCursor;
+
+		switch(cursor.kind)
+		{
+			case CXCursor_StructDecl:
+			case CXCursor_ClassDecl:
+		
+			case CXCursor_FunctionDecl:
+			case CXCursor_CXXMethod:
+			case CXCursor_Constructor:
+			case CXCursor_Destructor: 
+				{
+					templateCursor = clang_getSpecializedCursorTemplate(cursor);
+					if(clang_Cursor_isNull(templateCursor))
+						templateKind = TEMPLATE_KIND_NON_TEMPLATE;
+					else
+						templateKind = TEMPLATE_KIND_SPECIALIZATION;
+					break;
+				}
+
+			case CXCursor_ClassTemplate:
+			case CXCursor_FunctionTemplate: templateKind = TEMPLATE_KIND_TEMPLATE; break;
+
+			case CXCursor_ClassTemplatePartialSpecialization: 
+				{
+					templateCursor = clang_getSpecializedCursorTemplate(cursor);
+					assert(!clang_Cursor_isNull(templateCursor));
+					templateKind = TEMPLATE_KIND_PARTIAL_SPECIALIZATION; 
+					break;
+				}
+		}
+
+		templateInfo.setKind(templateKind);
+
 		if(templateKind == TEMPLATE_KIND_TEMPLATE || templateKind == TEMPLATE_KIND_PARTIAL_SPECIALIZATION)
 		{
 			// setting parameters
@@ -197,6 +228,12 @@ namespace CPPAnalyzer
 
 		if(templateKind == TEMPLATE_KIND_SPECIALIZATION || templateKind == TEMPLATE_KIND_PARTIAL_SPECIALIZATION)
 		{
+			// setting template
+			ASTObject* templDecl = getASTObjectFromCursor(templateCursor);
+			assert(templDecl != nullptr);
+
+			templateInfo.setTemplateDeclaration(templDecl);
+
 			// setting arguments
 			unsigned numArgs = clang_getTemplateSpecializationNumArguments(cursor);
 			assert(numArgs != UINT_MAX);
@@ -227,7 +264,7 @@ namespace CPPAnalyzer
 	}
 
 
-	ASTObject_Class* Clang_AST::addClass(CXCursor cursor, ASTObject* astParent, ASTObjectTemplateKind templateKind)
+	ASTObject_Class* Clang_AST::addClass(CXCursor cursor, ASTObject* astParent)
 	{
 		// Common properties
 		SelfDisposingCXString nodeName(clang_getCursorSpelling(cursor));
@@ -238,7 +275,6 @@ namespace CPPAnalyzer
 
 		// template properties
 		auto& templateInfo = astObject->getTemplateInfo();
-		templateInfo.setKind(templateKind);
 		setTemplateInformation(templateInfo, cursor, astObject);
 
 		registerASTObject(cursor, astObject);
@@ -379,7 +415,7 @@ namespace CPPAnalyzer
 		return astObject;
 	}
 
-	ASTObject_Function* Clang_AST::addFunction(CXCursor cursor, ASTObject* astParent, ASTObjectTemplateKind templateKind)
+	ASTObject_Function* Clang_AST::addFunction(CXCursor cursor, ASTObject* astParent)
 	{
 		// Common properties
 		SelfDisposingCXString nodeName(clang_getCursorSpelling(cursor));
@@ -390,7 +426,6 @@ namespace CPPAnalyzer
 
 		// template properties
 		auto& templateInfo = astObject->getTemplateInfo();
-		templateInfo.setKind(templateKind);
 		setTemplateInformation(templateInfo, cursor, astObject);
 
 		// Function properties
@@ -403,7 +438,7 @@ namespace CPPAnalyzer
 		return astObject;
 	}
 
-	ASTObject_Member_Function* Clang_AST::addMemberFunction(CXCursor cursor, ASTObject* astParent, ASTObjectTemplateKind templateKind)
+	ASTObject_Member_Function* Clang_AST::addMemberFunction(CXCursor cursor, ASTObject* astParent)
 	{
 		// Common properties
 		SelfDisposingCXString nodeName(clang_getCursorSpelling(cursor));
@@ -414,7 +449,6 @@ namespace CPPAnalyzer
 
 		// template properties
 		auto& templateInfo = astObject->getTemplateInfo();
-		templateInfo.setKind(templateKind);
 		setTemplateInformation(templateInfo, cursor, astObject);
 
 		// Member function properties
@@ -432,7 +466,7 @@ namespace CPPAnalyzer
 		return astObject;
 	}
 
-	ASTObject_Constructor* Clang_AST::addConstructor(CXCursor cursor, ASTObject* astParent, ASTObjectTemplateKind templateKind)
+	ASTObject_Constructor* Clang_AST::addConstructor(CXCursor cursor, ASTObject* astParent)
 	{
 		// Common properties
 		SelfDisposingCXString nodeName(clang_getCursorSpelling(cursor));
@@ -442,7 +476,6 @@ namespace CPPAnalyzer
 
 		// template properties
 		auto& templateInfo = astObject->getTemplateInfo();
-		templateInfo.setKind(templateKind);
 		setTemplateInformation(templateInfo, cursor, astObject);
 
 		// Constructor properties
@@ -455,7 +488,7 @@ namespace CPPAnalyzer
 		return astObject;
 	}
 
-	ASTObject_Destructor* Clang_AST::addDestructor(CXCursor cursor, ASTObject* astParent, ASTObjectTemplateKind templateKind)
+	ASTObject_Destructor* Clang_AST::addDestructor(CXCursor cursor, ASTObject* astParent)
 	{
 		// Common properties
 		SelfDisposingCXString nodeName(clang_getCursorSpelling(cursor));
@@ -465,7 +498,6 @@ namespace CPPAnalyzer
 
 		// template properties
 		auto& templateInfo = astObject->getTemplateInfo();
-		templateInfo.setKind(templateKind);
 		setTemplateInformation(templateInfo, cursor, astObject);
 		
 		// Destructor properties
@@ -670,19 +702,19 @@ namespace CPPAnalyzer
 							switch(typeDecl.kind)
 							{
 								case CXCursor_ClassDecl:
-									astDecl = addClass(typeDecl, templateScope, TEMPLATE_KIND_SPECIALIZATION);
+									astDecl = addClass(typeDecl, templateScope);
 									break;
 								case CXCursor_FunctionDecl:
-									astDecl = addFunction(typeDecl, templateScope, TEMPLATE_KIND_SPECIALIZATION);
+									astDecl = addFunction(typeDecl, templateScope);
 									break;
 								case CXCursor_CXXMethod:
-									astDecl = addMemberFunction(typeDecl, templateScope, TEMPLATE_KIND_SPECIALIZATION);
+									astDecl = addMemberFunction(typeDecl, templateScope);
 									break;
 								case CXCursor_Constructor:
-									astDecl = addConstructor(typeDecl, templateScope, TEMPLATE_KIND_SPECIALIZATION);
+									astDecl = addConstructor(typeDecl, templateScope);
 									break;
 								case CXCursor_Destructor:
-									astDecl = addDestructor(typeDecl, templateScope, TEMPLATE_KIND_SPECIALIZATION);
+									astDecl = addDestructor(typeDecl, templateScope);
 									break;
 							}
 						}
@@ -722,15 +754,6 @@ namespace CPPAnalyzer
 		auto cursorSpellingC = std::string(cursorSpelling.c_str());
 
 		
-		// TODO: use clang_getCanonicalCursor
-		//auto itUSR = m_usrASTObjects.find(usr_string);
-		//if(itUSR != m_usrASTObjects.end())
-		//{
-		//	// use the same ASTObject*
-		//	m_astObjects.insert(std::pair<CXCursor, ASTObject*>(cursor, itUSR->second));
-		//	return CXChildVisit_Recurse;
-		//}
-
 		auto canonicalCursor = clang_getCanonicalCursor(cursor);
 		auto itCanonicalCursor = m_canonicalASTObjects.find(canonicalCursor);
 		if(itCanonicalCursor != m_canonicalASTObjects.end())
@@ -775,48 +798,25 @@ namespace CPPAnalyzer
 
 			case CXCursor_StructDecl:
 			{
-				CXCursor templateCursor = clang_getSpecializedCursorTemplate(cursor);
-
-				if(!clang_Cursor_isNull(templateCursor))
-					astObject = addStruct(cursor, astParent, TEMPLATE_KIND_SPECIALIZATION);
-				else
-					astObject = addStruct(cursor, astParent, TEMPLATE_KIND_NON_TEMPLATE);
-
+				astObject = addStruct(cursor, astParent);
 				break;
 			}
 
 			case CXCursor_ClassDecl:
 			{
-				CXCursor templateCursor = clang_getSpecializedCursorTemplate(cursor);
-
-				if(!clang_Cursor_isNull(templateCursor))
-					astObject = addClass(cursor, astParent, TEMPLATE_KIND_SPECIALIZATION);
-				else
-					astObject = addClass(cursor, astParent, TEMPLATE_KIND_NON_TEMPLATE);
-				
+				astObject = addClass(cursor, astParent);
 				break;
 			}
 
 			case CXCursor_ClassTemplate:
 			{
-				// clang_getTemplateCursorKind
-				// clang_getSpecializedCursorTemplate
-
-				astObject = addClass(cursor, astParent, TEMPLATE_KIND_TEMPLATE);
-
-				auto location = getSourceLocation(cursor);
-				std::cout << location.line << ":" << location.column << ": CLASSTEMPLATE: " << kindSpelling.c_str() << " " << displayName.c_str() << "\n";
-
+				astObject = addClass(cursor, astParent);
 				break;
 			}
 
 			case CXCursor_ClassTemplatePartialSpecialization:
 			{
-				auto location = getSourceLocation(cursor);
-				std::cout << location.line << ":" << location.column << ": CLASSTEMPLATEPARTIAL: " << kindSpelling.c_str() << " " << displayName.c_str() << "\n";
-
-				astObject = addClass(cursor, astParent, TEMPLATE_KIND_PARTIAL_SPECIALIZATION);
-
+				astObject = addClass(cursor, astParent);
 				break;
 			}
 
@@ -840,25 +840,13 @@ namespace CPPAnalyzer
 
 			case CXCursor_Constructor:
 			{
-				CXCursor templateCursor = clang_getSpecializedCursorTemplate(cursor);
-
-				if(!clang_Cursor_isNull(templateCursor))
-					astObject = addConstructor(cursor, astParent, TEMPLATE_KIND_SPECIALIZATION);
-				else
-					astObject = addConstructor(cursor, astParent, TEMPLATE_KIND_NON_TEMPLATE);
-
+				astObject = addConstructor(cursor, astParent);
 				break;
 			}
 
 			case CXCursor_Destructor:
 			{
-				CXCursor templateCursor = clang_getSpecializedCursorTemplate(cursor);
-
-				if(!clang_Cursor_isNull(templateCursor))
-					astObject = addDestructor(cursor, astParent, TEMPLATE_KIND_SPECIALIZATION);
-				else
-					astObject = addDestructor(cursor, astParent, TEMPLATE_KIND_NON_TEMPLATE);
-
+				astObject = addDestructor(cursor, astParent);
 				break;
 			}
 
@@ -887,32 +875,19 @@ namespace CPPAnalyzer
 			
 			case CXCursor_FunctionTemplate:
 			{
-				clang_getTemplateNumParameters(cursor);
-				astObject = addFunction(cursor, astParent, TEMPLATE_KIND_TEMPLATE);
+				astObject = addFunction(cursor, astParent);
 				break;
 			}
 
 			case CXCursor_CXXMethod:
 			{
-				CXCursor templateCursor = clang_getSpecializedCursorTemplate(cursor);
-
-				if(!clang_Cursor_isNull(templateCursor))
-					astObject = addMemberFunction(cursor, astParent, TEMPLATE_KIND_SPECIALIZATION);
-				else
-					astObject = addMemberFunction(cursor, astParent, TEMPLATE_KIND_NON_TEMPLATE);
-
+				astObject = addMemberFunction(cursor, astParent);
 				break;
 			}
 
 			case CXCursor_FunctionDecl:
 				{
-					CXCursor templateCursor = clang_getSpecializedCursorTemplate(cursor);
-
-					if(!clang_Cursor_isNull(templateCursor))
-						astObject = addFunction(cursor, astParent, TEMPLATE_KIND_SPECIALIZATION);
-					else
-						astObject = addFunction(cursor, astParent, TEMPLATE_KIND_NON_TEMPLATE);
-
+					astObject = addFunction(cursor, astParent);
 					break;
 				}
 
@@ -985,25 +960,6 @@ namespace CPPAnalyzer
 
 				// TODO templates
 		}
-		
-		//if(astObject)
-		//{
-		//	m_astObjects.insert(std::pair<CXCursor, ASTObject*>(cursor, astObject));
-		//	
-		//	//if(usr_string != "")
-		//	//	m_usrASTObjects.insert(std::pair<std::string, ASTObject*>(usr_string, astObject));
-
-		//	//auto location = getSourceLocation(cursor);
-
-		//	//if(clang_isCursorDefinition(cursor))
-		//	//	astObject->setDefinition(location);
-		//	//else
-		//	//	astObject->addDeclaration(location);
-
-		//	m_canonicalASTObjects.insert(std::pair<CXCursor, ASTObject*>(canonicalCursor, astObject));
-
-		//	//std::cout << getASTObjectKind(astObject->getKind()).c_str() << " " << astObject->getNodeName().c_str() << "\n";
-		//}
 		
 		return CXChildVisit_Recurse;
 	}
