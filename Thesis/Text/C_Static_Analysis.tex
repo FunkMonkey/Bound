@@ -1,6 +1,30 @@
 \chapter{Static Analysis}
 
+In ''Secure Programming with Static Analysis'' \textbf{static analysis} is defined as followed:
+
+\begin{quotation}
+The term static analysis refers to any process for assessing code without
+executing it. Static analysis is powerful because it allows for the quick consideration of many possibilities. A static analysis tool can explore a large number of ''what if'' scenarios without having to go through all the computations
+necessary to execute the code for all the scenarios.\footnote{\citep[3]{SecureProgramming}}
+\end{quotation}
+
+Another definition that highlights the use of prediction during the process of analysis can be found in ''Principles of program analysis'':
+
+\begin{quotation}
+Program analysis offers static compile-time techniques for predicting safe and computable approximations to the set of values or behaviours arising dynamically at run-time when executing a program on a computer.\footnote{\citep[1]{ProgramAnalysis}}
+\end{quotation}
+
+Thus, tools performing static analysis evaluate software in the abstract, without running the software or considering a specific input.\footnote{\citep{UsingSAToFindBugs}}
+
+Complementary to static program analysis, there is also \textbf{dynamic program analysis}, which analyses software at run-time. Unit testing falls into the category of dynamic program analysis.
+
+
+\todo{analyse code and retrieve useful information}
+
+
 \todo{TODO-List}
+ - Rather than trying
+to prove that the code fulfills its specification, such tools look for violations of reasonable or recommended programming practice.
  - Was ist Static Analysis?
  - Wie soll Static Analysis innerhalb des Projektes genutzt werden?
  -- -> Erhebung von Typ- und Member-Informationen zur weiteren Verarbeitung

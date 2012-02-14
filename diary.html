@@ -1326,13 +1326,13 @@ You'll also need to enter your username for signing your edits: &lt;&lt;option t
 [[Diary]]
 [[David Meeting]]</pre>
 </div>
-<div title="Notes from A Survey of Static Program Analysis Techniques" creator="Andre" modifier="YourName" created="201202041312" modified="201202141255" changecount="3">
+<div title="Notes from A Survey of Static Program Analysis Techniques" creator="Andre" modifier="YourName" created="201202041312" modified="201202141437" changecount="4">
 <pre>1
-@@color:#F00;Computer program analysis is the process of automatically analysing
+--@@color:#F00;Computer program analysis is the process of automatically analysing
 the bahavior of computer programs. There are two main approaches in
 progam analysis: static program analysis and dynamic program analysis.
 In static analysis the programs are not executed but are analysed by tools
-to produce useful information.@@ @@color:#00F;Static analysis techniques range from the
+to produce useful information.@@-- @@color:#00F;Static analysis techniques range from the
 most mundane (statistics on the density of comments, for instance) to the
 more complex, semantics-based analysis techniques.@@
 
@@ -1405,7 +1405,7 @@ that may not be constant.@@</pre>
 
 [[Notes on Static Analysis]]</pre>
 </div>
-<div title="Notes from Principles of Program Analysis" creator="YourName" modifier="YourName" created="201202071258" modified="201202141241" changecount="11">
+<div title="Notes from Principles of Program Analysis" creator="YourName" modifier="YourName" created="201202071258" modified="201202141438" changecount="12">
 <pre>Flemming Nielson
 Hanne Riis Nielson
 Chris Hankin
@@ -1416,7 +1416,7 @@ Buzzwords: intraprocedural analysis, interprocedural analysis
 @@color:#0A0;Personal notes: returning references to discarded stack variables (local function variables)@@
 
 1
-@@color:#F00;Program analysis offers static compile-time techniques for predicting safe and computable approximations to the set of values or behavious arising dynamically at run-time when executing a program on a computer@@
+--@@color:#F00;Program analysis offers static compile-time techniques for predicting safe and computable approximations to the set of values or behavious arising dynamically at run-time when executing a program on a computer@@--
 @@color:#0A0;A main application is to allow compilers to generate code avoiding //redundant// computations, e.g. by reusing available results or by moving loop invariant computations out of loops, or avoiding //superfluous// computations, e.g. of results known to be not needed or of results known already at compile-time. Among the more recent applications is the validation of software (...) to reduce the likelihood of malicious or unintended behaviour.@@ @@color:#00F;Common for these applications is the need to combine information from different parts of the program.@@
 
 @@color:#00F;5
@@ -1449,7 +1449,7 @@ Shape Analysis
 (...) and an intraprocedural //Shape Analysis// that gives a //finite characterisation// of the //shapes// of these data structures.@@
 @@color:#0A0;compiler optimization, error detection f. ex. dereferencing null-pointer@@</pre>
 </div>
-<div title="Notes from Secure Programming With Static Analysis Tools" creator="Andre" modifier="YourName" created="201202041050" modified="201202141330" changecount="11">
+<div title="Notes from Secure Programming With Static Analysis Tools" creator="Andre" modifier="YourName" created="201202041050" modified="201202141437" changecount="12">
 <pre>xviii
 @@color:#0A0;The biggest problem in computer security today is that most systems
 aren’t constructed with security in mind.@@
@@ -1473,9 +1473,9 @@ tools to identify coding errors ''before they can be exploited'' @@
 --This book focuses on finding mistakes that manifest themselves in source
 code--
 
-@@color:#F00;The term static analysis refers to any process for assessing code without
+--@@color:#F00;The term static analysis refers to any process for assessing code without
 executing it. Static analysis is powerful because it allows for the quick consideration of many possibilities. A static analysis tool can explore a large number of “what if” scenarios without having to go through all the computations
-necessary to execute the code for all the scenarios.@@ @@color:#0A0;Static analysis is particularly well suited to security because many security problems occur in corner
+necessary to execute the code for all the scenarios.@@-- @@color:#0A0;Static analysis is particularly well suited to security because many security problems occur in corner
 cases and hard-to-reach states that can be difficult to exercise by actually running the code@@. --Good static analysis tools provide a fast way to get a consistent and detailed evaluation of a body of code.--
 
 4
@@ -1919,10 +1919,10 @@ semantics of the program at hand.--
 
 </pre>
 </div>
-<div title="Notes from Web" creator="Andre" modifier="YourName" created="201202041031" modified="201202141302" changecount="9">
+<div title="Notes from Web" creator="Andre" modifier="YourName" created="201202041031" modified="201202141402" changecount="10">
 <pre>![[http://www.keyvan.ms/introduction-to-static-analysis]]
 
-@@color:#F00;Static code analysis is the set of techniques and formal methods based on mathematical structures (specifically set and lattice theory) to analyze the behavior of the programming code and extract certain properties that hold based on the structure of the code.@@
+--@@color:#F00;Static code analysis is the set of techniques and formal methods based on mathematical structures (specifically set and lattice theory) to analyze the behavior of the programming code and extract certain properties that hold based on the structure of the code.@@--
 
 @@color:#0A0;Although developed mainly by the Programming Languages and Compilers community for compile-time optimizations, Static Analysis is applied in various fields of Computer Science including Software Engineering and ''Software Security''. In Software Engineering almost all the bug detection tools use static analyses in order to detect the potential bugs in the codes, and these are all done by applying different types of analyses developed in Static Analysis. Some well-known examples of static analysis tools are --FxCop and StyleCop for .NET, and-- FindBugs and Soot for Java.@@
 
@@ -1948,17 +1948,17 @@ Many errors can only be found by crossing function boundaries. This analysis tec
 Our product did not verify the absence of errors but rather tried to find as many of them as possible. 
 We could ignore code constructs that led to high rates of false-error messages (false positives) or analysis complexity, in the extreme skipping problematic code entirely (such as assembly statements, functions, or even entire files).@@</pre>
 </div>
-<div title="Notes from other Static Analysis Papers" creator="Andre" modifier="YourName" created="201202041424" modified="201202141244" changecount="3">
+<div title="Notes from other Static Analysis Papers" creator="Andre" modifier="YourName" created="201202041424" modified="201202141438" changecount="5">
 <pre>!Using Static Analysis to Find Bugs
 
 1
 
 @@color:#60F;''software quality''is important, but often imperfect in practice. We can use many
 techniques to try to improve quality, including testing, code review, and formal
-specification.@@  @@color:#F00;Static-analysis tools evaluate software in the abstract, without
+specification.@@ --@@color:#F00;Static-analysis tools evaluate software in the abstract, without
 running the software or considering a specific input. Rather than trying
 to prove that the code fulfills its specification, such tools look for violations of reasonable
-or recommended programming practice. @@ @@color:#0A0;Thus, they look for places in which code
+or recommended programming practice. @@-- @@color:#0A0;Thus, they look for places in which code
 might dereference a null pointer or overflow an array. Static-analysis tools might also
 flag an issue such as a comparison that can’t possibly
 be true. Although the comparison won’t cause
