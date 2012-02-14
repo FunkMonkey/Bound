@@ -3,8 +3,11 @@
 
 // no forward declarations
 #include <string>
-#include <json/json.h>
+#include <map>
 
+namespace Json{
+	class Value;
+}
 
 namespace CPPAnalyzer
 {
@@ -43,9 +46,10 @@ namespace CPPAnalyzer
 			}
 
 			
-			Json::Value convertASTTypeToJSON(ASTType& type);
+			
 			void addTemplateInfo(ASTObjectHelper_Template& templateInfo, Json::Value& objJSON, int options = ADD_ALL);
-			Json::Value convertASTObjectToJSON(ASTObject& astObject, int options = ADD_ALL);
+			Json::Value& convertASTTypeToJSON(ASTType& type, Json::Value& jsonObj);
+			Json::Value& convertASTObjectToJSON(ASTObject& astObject, Json::Value& jsonObj, int options = ADD_ALL);
 			void convertToJSON(std::string& str);
 
 			void addASTObjectToExportedList(ASTObject& astObject);

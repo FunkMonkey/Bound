@@ -27,9 +27,9 @@
 namespace CPPAnalyzer
 {
 	// TODO: performance
-	Json::Value JSON_Converter::convertASTTypeToJSON(ASTType& type)
+	Json::Value& JSON_Converter::convertASTTypeToJSON(ASTType& type, Json::Value& objJSON)
 	{
-		Json::Value objJSON;
+		//Json::Value objJSON;
 		objJSON["kind"]    = type.getKind();
 		objJSON["isConst"] = type.isConst();
 
@@ -40,7 +40,7 @@ namespace CPPAnalyzer
 		}
 		else if((type.getKind() == "Pointer" || type.getKind() == "LValueReference") && type.getPointsTo())
 		{
-			objJSON["pointsTo"] = convertASTTypeToJSON(*type.getPointsTo());
+			convertASTTypeToJSON(*type.getPointsTo(), objJSON["pointsTo"]);
 		}
 
 		return objJSON;
@@ -55,7 +55,7 @@ namespace CPPAnalyzer
 		{
 			auto& templateParamsJSON = objJSON["templateParameters"] = Json::Value(Json::arrayValue);
 			for(auto it = templateInfo.getParameters().begin(), end = templateInfo.getParameters().end(); it!= end; ++it)
-				templateParamsJSON.append(convertASTObjectToJSON(**it));
+				convertASTObjectToJSON(**it, templateParamsJSON.append(Json::Value(Json::objectValue)));
 		}
 
 		if(templateKind == TEMPLATE_KIND_SPECIALIZATION || templateKind == TEMPLATE_KIND_PARTIAL_SPECIALIZATION)
@@ -64,14 +64,14 @@ namespace CPPAnalyzer
 
 			auto& templateArgsJSON = objJSON["templateArguments"] = Json::Value(Json::arrayValue);
 			for(auto it = templateInfo.getArguments().begin(), end = templateInfo.getArguments().end(); it!= end; ++it)
-				templateArgsJSON.append(convertASTObjectToJSON(**it));
+				convertASTObjectToJSON(**it, templateArgsJSON.append(Json::Value(Json::objectValue)));
 		}
 
 		// TODO: reference to template declaration
 	}
 
 	// TODO: performance
-	Json::Value JSON_Converter::convertASTObjectToJSON(ASTObject& astObject, int options_)
+	Json::Value& JSON_Converter::convertASTObjectToJSON(ASTObject& astObject, Json::Value& objJSON,  int options_)
 	{
 		ASTObjectKind kind = astObject.getKind();
 
@@ -107,7 +107,7 @@ namespace CPPAnalyzer
 
 		addASTObjectToExportedList(astObject);
 		
-		Json::Value objJSON;
+		//Json::Value objJSON;
 
 		if(options & ADD_NAME)
 			objJSON["name"] = astObject.getNodeName();
@@ -153,7 +153,10 @@ namespace CPPAnalyzer
 					auto& children = astObject.getChildren();
 
 					for(auto it = children.begin(), end = children.end(); it!= end; ++it)
-						childrenJSON.append(convertASTObjectToJSON(**it));
+					{
+						// TODO: performance?
+						convertASTObjectToJSON(**it, childrenJSON.append(Json::Value(Json::objectValue)));
+					}
 
 					break;
 				}
@@ -163,8 +166,8 @@ namespace CPPAnalyzer
 					auto& astObjectTypedef = static_cast<ASTObject_Typedef&>(astObject);
 
 					// type
-					objJSON["type"]          = convertASTTypeToJSON(*astObjectTypedef.getType());
-					objJSON["typeCanonical"] = convertASTTypeToJSON(*astObjectTypedef.getTypeCanonical());
+					convertASTTypeToJSON(*astObjectTypedef.getType(),          objJSON["type"]);
+					convertASTTypeToJSON(*astObjectTypedef.getTypeCanonical(), objJSON["typeCanonical"]);
 
 					break;
 				}
@@ -206,7 +209,7 @@ namespace CPPAnalyzer
 							case KIND_ENUM:
 							case KIND_ENUMCONSTANT:
 							case KIND_UNION:
-								childrenJSON.append(convertASTObjectToJSON(**it));
+								convertASTObjectToJSON(**it, childrenJSON.append(Json::Value(Json::objectValue)));
 								break;
 							default:
 								break;
@@ -223,8 +226,8 @@ namespace CPPAnalyzer
 			case KIND_TEMPLATE_TYPE_ARGUMENT:
 				{
 					auto& astObjectTemplArg = static_cast<ASTObject_TemplateTypeArgument&>(astObject);
-					objJSON["type"] = convertASTTypeToJSON(*astObjectTemplArg.getType());
-					objJSON["typeCanonical"] = convertASTTypeToJSON(*astObjectTemplArg.getTypeCanonical());
+					convertASTTypeToJSON(*astObjectTemplArg.getType(),          objJSON["type"]);
+					convertASTTypeToJSON(*astObjectTemplArg.getTypeCanonical(), objJSON["typeCanonical"] );
 					break;
 				}
 			case KIND_TEMPLATE_DECLARATION_ARGUMENT:
@@ -270,8 +273,8 @@ namespace CPPAnalyzer
 					auto& astObjectVar = static_cast<ASTObject_Variable_Decl&>(astObject);
 
 					// props
-					objJSON["type"]          = convertASTTypeToJSON(*astObjectVar.getType());
-					objJSON["typeCanonical"] = convertASTTypeToJSON(*astObjectVar.getTypeCanonical());
+					convertASTTypeToJSON(*astObjectVar.getType(), objJSON["type"]);
+					convertASTTypeToJSON(*astObjectVar.getTypeCanonical(), objJSON["typeCanonical"]);
 
 					break;
 				}
@@ -282,8 +285,8 @@ namespace CPPAnalyzer
 					// props
 					objJSON["access"]   = getASTObjectAccessString(astObjectField.getAccess());
 					objJSON["isStatic"] = astObjectField.isStatic();
-					objJSON["type"]          = convertASTTypeToJSON(*astObjectField.getType());
-					objJSON["typeCanonical"] = convertASTTypeToJSON(*astObjectField.getTypeCanonical());
+					convertASTTypeToJSON(*astObjectField.getType(),          objJSON["type"]);
+					convertASTTypeToJSON(*astObjectField.getTypeCanonical(), objJSON["typeCanonical"]);
 
 					break;
 				}
@@ -314,8 +317,8 @@ namespace CPPAnalyzer
 					// return type
 					if(kind == KIND_FUNCTION || kind == KIND_MEMBER_FUNCTION)
 					{
-						objJSON["returnType"]          = convertASTTypeToJSON(*astObjectFunc.getReturnType());
-						objJSON["returnTypeCanonical"] = convertASTTypeToJSON(*astObjectFunc.getReturnTypeCanonical());
+						convertASTTypeToJSON(*astObjectFunc.getReturnType(),          objJSON["returnType"]);
+						convertASTTypeToJSON(*astObjectFunc.getReturnTypeCanonical(), objJSON["returnTypeCanonical"]);
 					}
 
 					// parameters
@@ -324,7 +327,9 @@ namespace CPPAnalyzer
 						auto& parametersJSON = objJSON["parameters"] = Json::Value(Json::arrayValue);
 						auto& parameters = astObjectFunc.getParameters();
 						for(auto it = parameters.begin(), end = parameters.end(); it != end; ++it)
-							parametersJSON.append(convertASTObjectToJSON(**it));
+						{
+							convertASTObjectToJSON(**it, parametersJSON.append(Json::Value(Json::objectValue)));
+						}
 					}
 
 					// template info
@@ -338,8 +343,8 @@ namespace CPPAnalyzer
 					auto& astObjectParam = static_cast<ASTObject_Parameter&>(astObject);
 
 					//paramJSON["name"]          = (*it)->getNodeName();
-					objJSON["type"]          = convertASTTypeToJSON(*astObjectParam.getType());
-					objJSON["typeCanonical"] = convertASTTypeToJSON(*astObjectParam.getTypeCanonical());
+					convertASTTypeToJSON(*astObjectParam.getType(),          objJSON["type"]);
+					convertASTTypeToJSON(*astObjectParam.getTypeCanonical(), objJSON["typeCanonical"]);
 
 					break;
 				}
@@ -351,7 +356,9 @@ namespace CPPAnalyzer
 					auto& children = astObject.getChildren();
 
 					for(auto it = children.begin(), end = children.end(); it!= end; ++it)
-						childrenJSON.append(convertASTObjectToJSON(**it));
+					{
+						convertASTObjectToJSON(**it, childrenJSON.append(Json::Value(Json::objectValue)));
+					}
 
 					break;
 				}
@@ -371,7 +378,8 @@ namespace CPPAnalyzer
 	{
 		m_unknownMissingASTObjects = false;
 		m_ASTObjects.clear();
-		Json::Value root = convertASTObjectToJSON(*(m_ast->getRootASTObject()));
+		Json::Value root(Json::objectValue);
+		convertASTObjectToJSON(*(m_ast->getRootASTObject()), root);
 
 		if(m_unknownMissingASTObjects)
 			std::cout << "ERROR: UNKNOWN MISSING OBJECTS" << std::endl;
