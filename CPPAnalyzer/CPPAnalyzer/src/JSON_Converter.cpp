@@ -382,7 +382,7 @@ namespace CPPAnalyzer
 				std::cout << "ERROR MISSING: " << itM->first->getID() << std::endl;
 			else if(itM->second == EXPORTED_AND_REFERENCED)
 			{
-				std::cout << "INFO REFERENCED: " << itM->first->getID() << std::endl;
+				//std::cout << "INFO REFERENCED: " << itM->first->getID() << std::endl;
 			}
 		}
 

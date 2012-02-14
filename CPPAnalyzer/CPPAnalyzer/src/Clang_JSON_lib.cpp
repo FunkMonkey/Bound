@@ -55,6 +55,9 @@ using namespace CPPAnalyzer;
 				clang_disposeString(String);
 			}
 
+			clang_getNumDiagnostics(TU);
+			clang_getTranslationUnitCursor(TU);
+
 			// source-tree
 			CXCursor rootCursor = clang_getTranslationUnitCursor(TU);
 			clang_AST = new Clang_AST(rootCursor);
@@ -62,7 +65,7 @@ using namespace CPPAnalyzer;
 			clang_visitChildren(rootCursor, printVisitor, NULL);
 
 			std::cout << "---------------" << std::endl;
-			clang_AST->printTree();
+			//clang_AST->printTree();
 			std::cout << "---------------" << std::endl;
 			
 			std::string json;
@@ -84,6 +87,8 @@ using namespace CPPAnalyzer;
 		}
 		
 		clang_disposeIndex(Index);
+
+		fprintf(stderr, "%s\n", "DONE!");
 
 		return parserInfo;
 	}

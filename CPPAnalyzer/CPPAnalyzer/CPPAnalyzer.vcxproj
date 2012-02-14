@@ -95,6 +95,7 @@
     <ClInclude Include="include\ASTObject_TemplateArgument.hpp" />
     <ClInclude Include="include\ASTObject_TemplateParameter.hpp" />
     <ClInclude Include="include\ASTObject_Typedef.hpp" />
+    <ClInclude Include="include\ASTObject_Union.hpp" />
     <ClInclude Include="include\ASTObject_Variable_Decl.hpp" />
     <ClInclude Include="include\ASTObjectKinds.hpp" />
     <ClInclude Include="include\ASTType.hpp" />

@@ -24,6 +24,7 @@ namespace CPPAnalyzer
 	class ASTObject_Enum;
 	class ASTObject_EnumConstant;
 	class ASTObject_Field;
+	class ASTObject_Union;
 
 	class ASTObject_TemplateTypeParameter;
 	class ASTObject_TemplateNonTypeParameter;
@@ -95,6 +96,7 @@ namespace CPPAnalyzer
 			ASTObject_Typedef* addTypedef(CXCursor cursor, ASTObject* astParent);
 			ASTObject_Enum* addEnum(CXCursor cursor, ASTObject* astParent);
 			ASTObject_EnumConstant* addEnumConstant(CXCursor cursor, ASTObject* astParent);
+			ASTObject_Union* addUnion(CXCursor cursor, ASTObject* astParent);
 
 			ASTObject_TemplateTypeParameter* addTemplateTypeParameter(CXCursor cursor, ASTObject* astParent);
 			ASTObject_TemplateNonTypeParameter* addTemplateNonTypeParameter(CXCursor cursor, ASTObject* astParent);
@@ -117,12 +119,15 @@ namespace CPPAnalyzer
 
 			ASTObject_Namespace* getRootASTObject(){ return m_rootASTObject; }
 
+			CXCursor getParentCursor(CXCursor cursor);
+
 		protected:
 
 			ASTObject_Namespace* m_rootASTObject;
 			CXCursor m_rootCursor;
 			CXCursorASTObjectMap m_astObjects;	// TODO: merge
 			CXCursorASTObjectMap m_canonicalASTObjects;
+			std::map<CXCursor, CXCursor, CXCursor_less> m_parentMap;
 	};
 }
 

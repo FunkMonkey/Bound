@@ -75,6 +75,9 @@
     <ClInclude Include="include\ASTObject_TemplateArgument.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\ASTObject_Union.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ASTObject.cpp">
