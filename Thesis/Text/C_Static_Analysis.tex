@@ -16,15 +16,118 @@ Program analysis offers static compile-time techniques for predicting safe and c
 
 Thus, tools performing static analysis evaluate software in the abstract, without running the software or considering a specific input.\footnote{\citep{UsingSAToFindBugs}}
 
-Complementary to static program analysis, there is also \textbf{dynamic program analysis}, which analyses software at run-time. Unit testing falls into the category of dynamic program analysis.
+Complementary to static program analysis, there is also \textbf{dynamic program analysis}, which analyses software at run-time. Unit testing comes to mind as a prominent example of dynamic program analysis.
+
+\section{Area of application}
+
+The general purpose of static analysis is to extract useful information from source code or source code products (like byte code or binary code).
+
+The type of information retrieved depends on the context and purpose of the static analysis and can be arranged into different categories:
+
+\begin{itemize}\addtolength{\itemsep}{-0.5\baselineskip}
+\item Program correctness
+\item Software security
+\item Style checking
+\item Program understanding
+\item Optimization
+\end{itemize}
+
+\subsection{Program correctness}
+
+Static analysis tools that are concerned with program correctness try to detect defects at compile-time so that those do not manifest in run-time errors, such as crashes, data corruption and program malfunctioning. Thus these tools are often referred to as \textbf{bug finders}.
+
+Bug finders point out places in the source code, where the program will behave in a way that the programmer did not intend. Most tools are easy to use because they come pre-stocked with a set of ''bug idioms'' (rules) that describe patterns in code that often indicate bugs.\todo{ref} They help to find these often hard-to-spot defects early in the software development life-cycle, reducing the cost, time, and risk of software errors.\todo{ref}
+
+A prominent example of preventing run-time errors at compile-time is type checking\todo{definition}. In this sense, compilers themselves can be seen as static analysis tools and - as we will see later - both have much in common.
+
+\subsubsection{Generic and context-specific defects}
+
+Defects can be categorized in generic and context-specific defects.
+
+\textbf{Generic defects} are problems that can occur in almost any program written in the given programming language, such as buffer overflows and memory leaks. \textbf{Context-specific defects} on the other hand require specific knowledge about the semantics of the given program.\todo{ref} Applications that deal with atomic operations (like a program that handles money transfer) belong to the latter category.
+
+The following sections will present different kinds of bugs, most of which can be found by analysing the control and data flow of an application.
+
+\subsubsection{Overflow and range analysis problems}
+
+A buffer overflow occurs when a program writes data outside the bounds of allocated memory\todo{ref SA 175}, for example when writing data into a buffer that is too small for the data to be written, leading to the memory after the buffer being overwritten and thus corrupted. Static analysis tools can detect such problems and advice the programmer to do a bounds-check.\todo{more internals}
+
+An integer overflow occurs when an integral value is increased or decreased beyond its capacity\todo{ref}. The following example demonstrates how this can lead to an infinite loop:
+
+\begin{lstlisting}[language=C++, caption=Integer ''underflow'' in C++]
+for(unsigned int i = 200; i >= 0; --i)
+{
+	// execute code
+}
+\end{lstlisting}
+
+A static analysis tool will detect that the expression \textbf{i \textgreater= 0} will always be true for \textbf{unsigned} integer types like \textbf{i}, as i will be set to the highest possible unsigned integer when being 0 and decreased by 1.
+
+\subsubsection{Resource leaks}
+
+Resource leaks can be detected by tracking request (for example allocation of memory) and release of resources.
+
+If a program gives up all references to a resources while it is has not been released, the resource is leaked. On the other hand, using a resource that has not been requested properly or releasing an already released resource may lead to unexpected results or even crashes.
+
+The most prominent example of a resource leak is a memory leak. But there are other important resources like files and databases that may need to be locked before usage and released afterwards.
+
+\subsubsection{Threads and concurrency}
+
+Static analysis tools can also be used to find problems with threads such as data races and deadlocks.
+
+Similar to the detection of resource leaks, the data and call flow of the application can be analysed to track the locking and unlocking of semaphores.
+
+\subsubsection{Other problems and warnings}
+
+There are many more possible sources for bugs that can be detected using static analysis tools, such as division by zero, dereferencing of null-pointers or the returning of references or pointers to local function variables.
+
+Bug finders are not only concerned with finding malicious code that will lead to run-time errors, but may also warn about code that is redundant, like comparisons that will always have the same result. Although such a comparison won't cause a failure or exception, its existence suggests that it might have resulted from a coding error, leading to incorrect program behaviour.\todo{ref}
+
+Similar warnings could be issued for functions whose\todo{whose?} return values (for example error codes) have not been checked or for exception catch-clauses that are too broad, so that they catch important exceptions like OutOfMemoryError without handling them.
+
+\subsection{Software security}
+
+\begin{quotation}
+Static analysis is particularly well suited to security because many security problems occur in corner cases and hard-to-reach states that can be difficult to exercise by actually running the code.\todo{ref}
+\end{quotation}
+
+Concerning software security, static analysis tools are used to find coding errors before they can be exploited. Buffer overflows and format string vulnerabilities come to mind, possibly resulting in SQL injection, cross-site scripting or unwarranted acquisition of administrator privileges. 
+
+Static analysis may also track input data flow and validation to determine
+all the implicit ways a program might be putting unwarranted faith in some aspect of its input.\todo{ref}
+
+\subsection{Style checking}
+
+Style checkers enforce rules related to whitespace, position of scope-brackets, naming conventions, deprecated functions, commenting, program structure, and similar non-semantic issues. \todo{ref}
+
+\todo{picture}
+
+\subsection{Program understanding}
+
+Program understanding tools help users make sense of a large codebase. \todo{ref} Most modern IDE's provide functionality for helping the user navigating the codebase, for example jumping to a functions definition, finding all uses of a method. Some even provide functionality for refactoring symbols, like renaming classes. All these operations need knowledge of the symbols existing in the codebase.
+
+Other tools visualize the source code, for example by creating UML diagrams from source, rendering images of class hierarchies or function callgraphs that can help the user understand the control flow of the application and the relationship of the existing symbols.
+
+\todo{picture}
+
+Prominent tools like Doxygen\todo{ref} automatically create documentation from source code and code comments.
+
+\subsection{Optimization}
+
+Compilers perform static analysis to do\todo{word} code optimization:
+
+\begin{quotation}
+A main application is to allow compilers to generate code avoiding redundant computations, e.g. by reusing available results or by moving loop invariant computations out of loops, or avoiding superfluous computations, e.g. of results known to be not needed or of results known already at compile-time.\todo{ref}
+\end{quotation}
+
+Apart from code optimization, compile-time optimization, for example by finding unnecessary Include-files in C++ applications is another area that static analysis is used for. \textbf{include-what-you-use}\todo{ref} is a tool to perform this task. It internally uses the Clang compiler.
 
 
-\todo{analyse code and retrieve useful information}
+--------------------------------------
 
 
 \todo{TODO-List}
- - Rather than trying
-to prove that the code fulfills its specification, such tools look for violations of reasonable or recommended programming practice.
+
  - Was ist Static Analysis?
  - Wie soll Static Analysis innerhalb des Projektes genutzt werden?
  -- -> Erhebung von Typ- und Member-Informationen zur weiteren Verarbeitung
