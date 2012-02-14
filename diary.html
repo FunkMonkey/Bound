@@ -1326,20 +1326,20 @@ You'll also need to enter your username for signing your edits: &lt;&lt;option t
 [[Diary]]
 [[David Meeting]]</pre>
 </div>
-<div title="Notes from A Survey of Static Program Analysis Techniques" creator="Andre" modifier="Andre" created="201202041312" changecount="1">
+<div title="Notes from A Survey of Static Program Analysis Techniques" creator="Andre" modifier="YourName" created="201202041312" modified="201202141255" changecount="3">
 <pre>1
-Computer program analysis is the process of automatically analysing
+@@color:#F00;Computer program analysis is the process of automatically analysing
 the bahavior of computer programs. There are two main approaches in
 progam analysis: static program analysis and dynamic program analysis.
 In static analysis the programs are not executed but are analysed by tools
-to produce useful information. Static analysis techniques range from the
+to produce useful information.@@ @@color:#00F;Static analysis techniques range from the
 most mundane (statistics on the density of comments, for instance) to the
-more complex, semantics-based analysis techniques.
+more complex, semantics-based analysis techniques.@@
 
-The main applications of program analysis are program optimization
-and program correctness.
+@@color:#0A0;The main applications of program analysis are program optimization
+and program correctness.@@
 
-Since there is no
+@@color:#60F;Since there is no
 general solution to the halting problem, a total correctness assertion is not
 solvable in general.
 
@@ -1348,7 +1348,7 @@ theorem [3] and the undecideabillity of the Halting Problem
 [7] , show the
 limit of analysis methods. Generally precise program analysis methods are
 in exaustive need and processing time and/or memory space. Therefore
-the degree of precision must be determined application specific. Especially
+the degree of precision must be determined application specific.@@ @@color:#00F;Especially
 abstract interpretation offers good possibillities to handle this trade-off
 between precision and scalability.
 
@@ -1381,20 +1381,20 @@ Abstract interpretation is a theory of semantics approximation. The idea of
 abstract interpretation is to create a new semantic of the programming language
 so that the semantic always terminates and the store for every program points
 contains a superset of the values that are possible in the actual semantic, for
-every possible input.
+every possible input.@@
 
-Using that abstract semantics one can detect some possible semantic errors,
-like division by zero.
+@@color:#0A0;Using that abstract semantics one can detect some possible semantic errors,
+like division by zero.@@
 
 8
-Abstract interpretation is a very powerful program analysis method. It uses
-information on the programming language’s semantic and can detect possible
-runtime errors, like division by zero or variable overflow. 
+@@color:#00F;Abstract interpretation is a very powerful program analysis method. It uses
+information on the programming language’s semantic @@ @@color:#0A0;and can detect possible
+runtime errors, like --division by zero-- or variable overflow. @@
 
 9
-Symbolic Analysis
+@@color:#00F;Symbolic Analysis
 Symbolic analysis is a static analysis method for reasoning about program values
-that may not be constant.</pre>
+that may not be constant.@@</pre>
 </div>
 <div title="Notes from Literature" creator="YourName" modifier="YourName" created="201202040958" modified="201202141241" changecount="7">
 <pre>[[Notes from Web]]
@@ -1449,65 +1449,64 @@ Shape Analysis
 (...) and an intraprocedural //Shape Analysis// that gives a //finite characterisation// of the //shapes// of these data structures.@@
 @@color:#0A0;compiler optimization, error detection f. ex. dereferencing null-pointer@@</pre>
 </div>
-<div title="Notes from Secure Programming With Static Analysis Tools" creator="Andre" modifier="Andre" created="201202041050" modified="201202041116" changecount="7">
+<div title="Notes from Secure Programming With Static Analysis Tools" creator="Andre" modifier="YourName" created="201202041050" modified="201202141330" changecount="11">
 <pre>xviii
-The biggest problem in computer security today is that most systems
-aren’t constructed with security in mind.
+@@color:#0A0;The biggest problem in computer security today is that most systems
+aren’t constructed with security in mind.@@
 
 xix
-At the code level, the focus is
+--At the code level, the focus is
 on implementation bugs, especially those that static analysis tools that scan
-source code for common vulnerabilities can discover.
+source code for common vulnerabilities can discover.--
 
 xxii ff
-Challenger
+@@color:#90C;Challenger
 They knew
 anomalous behavior had taken place in the past, but they used the fact that
 no disaster had occurred yet as a reason to believe that no disaster would
-ever occur.
+ever occur.@@
 
-Use static analysis
-tools to identify coding errors before they can be exploited
+@@color:#0A0;Use static analysis
+tools to identify coding errors ''before they can be exploited'' @@
 
 3 ff
-This book focuses on finding mistakes that manifest themselves in source
-code
+--This book focuses on finding mistakes that manifest themselves in source
+code--
 
-The term static analysis refers to any process for assessing code without
-executing it. Static analysis is powerful because it allows for the quick consid-eration of many possibilities. A static analysis tool can explore a large num-ber of “what if” scenarios without having to go through all the computations
-necessary to execute the code for all the scenarios. Static analysis is particu-larly well suited to security because many security problems occur in corner
-cases and hard-to-reach states that can be difficult to exercise by actually run-ning the code. Good static analysis tools provide a fast way to get a consis-tent and detailed evaluation of a body of code.
+@@color:#F00;The term static analysis refers to any process for assessing code without
+executing it. Static analysis is powerful because it allows for the quick consideration of many possibilities. A static analysis tool can explore a large number of “what if” scenarios without having to go through all the computations
+necessary to execute the code for all the scenarios.@@ @@color:#0A0;Static analysis is particularly well suited to security because many security problems occur in corner
+cases and hard-to-reach states that can be difficult to exercise by actually running the code@@. --Good static analysis tools provide a fast way to get a consistent and detailed evaluation of a body of code.--
 
 4
-The term defensive programming often comes up in introductory program-ming courses. Although it is increasingly given a security connotation, his-torically it has referred only to the practice of coding with the mindset that
-errors are inevitable and that, sooner or later, something will go wrong and
+@@color:#90C;The term defensive programming often comes up in introductory programming courses. Although it is increasingly given a security connotation, historically it has referred only to the practice of coding with the mindset that errors are inevitable and that, sooner or later, something will go wrong and
 lead to unexpected conditions within the program. Kernighan and Plauger
-call it “writing the program so it can cope with small disasters”
+call it “writing the program so it can cope with small disasters”@@
 
 6
-In considering the range of things that might go wrong with a piece of
+--In considering the range of things that might go wrong with a piece of
 code, programmers tend to stick with their experience: The program might
 crash, it might loop forever, or it might simply fail to produce the desired
 result. All of these failure modes are important, but preventing them does
-not lead to software that stands up to attack.
+not lead to software that stands up to attack.--
 
 9
-By far the most
+@@color:#90C;By far the most
 widely used approach to bug finding is dynamic testing, which involves 
 running the software and comparing its output against an expected result.
 Advocates of extreme programming want to see a lot of small tests (unit
 tests) written by the programmer even before the code is written. Large 
 software organizations have big groups of dedicated QA engineers who are
-responsible for nothing other than writing tests, running tests, and evaluat-ing test results.
+responsible for nothing other than writing tests, running tests, and evaluating test results.
 
-Functionality testing works well for making sure that typi-cal users with typical needs will be happy, but it just won’t work for finding
-security defects that aren’t related to security features. Most software test-ing is aimed at comparing the implementation to the requirements, and this
+Functionality testing works well for making sure that typical users with typical needs will be happy, but it just won’t work for finding
+security defects that aren’t related to security features. Most software testing is aimed at comparing the implementation to the requirements, and this
 approach is inadequate for finding security problems.
 
-This works well for testing software functionality, even security func-tionality, but it will miss many security problems because security problems
-are often not violations of the requirements.
+This works well for testing software functionality, even security functionality, but it will miss many security problems because security problems
+are often not violations of the requirements.@@
 
-10
+@@color:#F3F;10
 ''picture''
 Testing to make sure that the implementation includes the features described
 in the specification will miss many security problems
@@ -1515,19 +1514,19 @@ in the specification will miss many security problems
 12
 ''picture''
 Treating the cause: Focusing on security early, with activities centered on the
-way the software is built.
+way the software is built.@@
 
 13
-Gary McGraw estimates that roughly half of the mistakes that lead to
-security problems are implementation oversights, omissions, or misunder-standings 
+--Gary McGraw estimates that roughly half of the mistakes that lead to
+security problems are implementation oversights, omissions, or misunder-standings --
 
-A static analysis
-tool can make the code review process faster and more fruitful by hypothe-sizing a set of potential problems for consideration during a code review.
+@@color:#90C;A static analysis
+tool can make the code review process faster and more fruitful by hypothesizing a set of potential problems for consideration during a code review.@@
 
-If a review of the design indicates that the program requires special privi-leges to run, the code review can look for ways in which those special privi-leges might be abused or misappropriated.
+--If a review of the design indicates that the program requires special privileges to run, the code review can look for ways in which those special privileges might be abused or misappropriated.--
 
 14
-A generic defect is a problem that can occur in almost any program
+@@color:#0A0;A generic defect is a problem that can occur in almost any program
 written in the given language. A buffer overflow is an excellent example of
 a generic defect for C and C++ programs: A buffer overflow represents a
 security problem in almost any context, and many of the functions and
@@ -1536,15 +1535,15 @@ of the purpose of the program. (Chapters 6, &quot;Buffer Overflow&quot; and 7,
 “Bride of Buffer Overflow,” discuss buffer overflow defects in detail.)
 Finding context-specific defects, on the other hand, requires a specific
 knowledge about the semantics of the program at hand. Imagine a program
-that handles credit card numbers.
+that handles credit card numbers.@@
 
 21
-A clean run doesn’t guarantee that
+@@color:#90C;A clean run doesn’t guarantee that
 your code is perfect; it merely indicates that it is free of certain kinds of
-common problems.
+common problems.@@
 
 22
-Static analysis tools apply checks thoroughly and consistently, without
+@@color:#90C;Static analysis tools apply checks thoroughly and consistently, without
 any of the bias that a programmer might have about which pieces of
 code are “interesting” from a security perspective or which pieces of
 code are easy to exercise through dynamic testing.
@@ -1554,38 +1553,38 @@ root cause of a security problem, not just one of its symptoms.
 
 Static analysis can find errors early in development, even before the pro-gram is run for the first time. Finding an error early not only reduces the
 cost of fixing the error, but the quick feedback cycle can help guide a
-programmer’s work: A programmer has the opportunity to correct mis-takes he or she wasn’t previously aware could even happen. The attack
-scenarios and information about code constructs used by a static analy-sis tool act as a means of knowledge transfer.
+programmer’s work: A programmer has the opportunity to correct mistakes he or she wasn’t previously aware could even happen. The attack
+scenarios and information about code constructs used by a static analysis tool act as a means of knowledge transfer.@@
 
 23
-The most common complaint leveled against static analysis tools that
-target security is that they produce too much noise. Specifically, they pro-duce too many false positives, also known as false alarms. In this context, a
+@@color:#90C;The most common complaint leveled against static analysis tools that
+target security is that they produce too much noise. Specifically, they produce too many'' false positives'', also known as false alarms. In this context, a
 false positive is a problem reported in a program when no problem actually
 exists. A large number of false positives can cause real difficulties. Not only
 does wading through a long list of false positives feel a little like serving
 latrine duty, but a programmer who has to look through a long list of false
 positives might overlook important results that are buried in the list.
 False positives are certainly undesirable, but from a security perspective,
-false negatives are much worse. With a false negative, a problem exists in the
+''false negatives'' are much worse. With a false negative, a problem exists in the
 program, but the tool does not report it. The penalty for a false positive is the
 amount of time wasted while reviewing the result. The penalty for a false
 negative is far greater. Not only do you pay the price associated with having
-a vulnerability in your code, but you live with a false sense of security stem-ming from the fact that the tool made it appear that everything was okay.
+a vulnerability in your code, but you live with a false sense of security stemming from the fact that the tool made it appear that everything was okay.
 
-balance a tool
+''balance a tool'' @@
 
-The
+--The
 penalty for overlooked security bugs is high, so security tools usually pro-duce more false positives to minimize false negatives.
 For a static analysis tool to catch a defect, the defect must be visible in the
 code. This might seem like an obvious point, but it is important to under-stand that architectural risk analysis is a necessary compliment to static
-analysis.
+analysis.--
 
 24
-Static analysis is used more widely than many people realize, partially
+--Static analysis is used more widely than many people realize, partially
 because there are many kinds of static analysis tools, each with different
-goals.
+goals.--
 
-Type Checking
+@@color:#0A0;Type Checking
 
 By catching errors at compile time, type checking prevents run-time errors.
 
@@ -1594,7 +1593,7 @@ By catching errors at compile time, type checking prevents run-time errors.
 Style Checking
 
 Pure style checkers
-enforce rules related to whitespace, naming, deprecated functions, com-menting, program structure, and the like.
+enforce rules related to whitespace, naming, deprecated functions, commenting, program structure, and the like.
 
 27
 Program understanding tools help users make sense of a large codebase
@@ -1609,87 +1608,87 @@ Bug Finding
 
 The purpose of a bug finding tool is not to complain about formatting
 issues, like a style checker, nor is it to perform a complete and exhaustive
-comparison of the program against a specification, as a program verification
-tool would. Instead, a bug finder simply points out places where the pro-gram will behave in a way that the programmer did not intend. Most bug
+comparison of the program against a specification, as a'' program verification
+tool'' would. Instead, a bug finder simply points out places where the pro-gram will behave in a way that the programmer did not intend. Most bug
 finders are easy to use because they come prestocked with a set of “bug
-idioms” (rules) that describe patterns in code that often indicate bugs.
-Example 2.9 demonstrates one such idiom, known as double-checked
-locking. 
-
+idioms” (rules) that describe patterns in code that often indicate bugs.@@
+--Example 2.9 demonstrates one such idiom, known as double-checked
+locking. --
+@@color:#0A0;
 33
 Security Review
 Security-focused static analysis tools use many of the same techniques found
 in other tools, but their more focused goal (identifying security problems)
-means that they apply these techniques differently
+means that they apply these techniques differently@@
 
-35
+@@color:#90C;35
 Turing posed the halting problem
 
 In 1953, Henry Rice posed what has come to be known as Rice’s theorem.
 The implication of Rice’s theorem is that static analysis cannot perfectly
-determine any nontrivial property of a general program. 
+determine any nontrivial property of a general program. @@
 
-36
+--36
 • The ability of the tool to make sense of the program being analyzed
 • The trade-offs the tool makes between precision and scalability
 
 37
 • The set of errors that the tool checks for 
 • The lengths to which the tool’s creators go to in order to make the tool
-easy to use
+easy to use--
 
-After the code is parsed, a static analysis tool must understand the
+@@color:#0CC;After the code is parsed, a static analysis tool must understand the
 effects of library or system calls invoked by the program being analyzed.
-This requires the tool to include a model for the behavior of library and sys-tem functions. Characterizing all the relevant libraries for any widely used
+This requires the tool to include a model for the behavior of library and system functions. Characterizing all the relevant libraries for any widely used
 programming language involves understanding thousands of functions and
-methods. The quality of the tool’s program model—and therefore the qual-ity of its analysis results—is directly related to the quality of its library char-acterizations.
+methods. The quality of the tool’s program model—and therefore the quality of its analysis results—is directly related to the quality of its library characterizations.@@
 
-38
+--38
 Most static analysis
-tools sacrifice some amount of precision to achieve better scalability
+tools sacrifice some amount of precision to achieve better scalability--
 
 40
-Static analysis tools must be armed with the right set of defects to search for.
+@@color:#90C;Static analysis tools must be armed with the right set of defects to search for.
 What the “right set” consists of depends entirely upon the purpose of the
-software being analyzed. Clients fail differently than servers. Operating sys-tems fail differently than desktop applications. The makers of a static analy-sis tool must somehow take this context into account. 
+software being analyzed. Clients fail differently than servers. Operating systems fail differently than desktop applications. The makers of a static analysis tool must somehow take this context into account. 
 
 Even with a limited purview, the most valuable things to search for are
 often specific to the particular piece of software being evaluated. Finding
 these defects requires the tool to be extensible; users must be able to add their
-own custom rules.
+own custom rules.@@
 
 42
-Analyzing the Source vs. Analyzing Compiled Code
+@@color:#0CC;Analyzing the Source vs. Analyzing Compiled Code@@
 
 45
-All static analysis tools produce at least some false positives or some
-false negatives, but most produce both. For security purposes, false nega-tives are more troublesome than false positives, although too many false
-positives can lead a reviewer to overlook true positives.
-Practical challenges for static analysis tools include the following:
+--All static analysis tools produce at least some false positives or some
+false negatives, but most produce both. For security purposes, false negatives are more troublesome than false positives, although too many false
+positives can lead a reviewer to overlook true positives.--
+@@color:#0CC;Practical challenges for static analysis tools include the following:
 • Making sense of the program (building an accurate program model)
 • Making good trade-offs between precision, depth, and scalability
 • Looking for the right set of defects
 • Presenting easy-to-understand results and errors
 • Integrating easily with the build system and integrated development
-environments
+environments@@
 
 50
-Run static analysis tools with the goals of the review in mind. To get started,
+--Run static analysis tools with the goals of the review in mind. To get started,
 you need to gather the target code, configure the tool to report the kinds of
-problems that pose the greatest risks, and disable checks that aren’t relevant.
+problems that pose the greatest risks, and disable checks that aren’t relevant.--
 
 69
-When used as part of code review, static analysis
+--When used as part of code review, static analysis
 tools can help codify best practices, catch common mistakes, and generally
-make the security process more efficient and consistent.
+make the security process more efficient and consistent.--
 
 71
-They all accept code, build a model that represents the program, analyze
+@@color:#0CC;They all accept code, build a model that represents the program, analyze
 that model in combination with a body of security knowledge, and finish 
-by presenting their results back to the user. 
+by presenting their results back to the user. @@
 
 72
-Building a Model
+@@color:#0CC;Building a Model
 
 The first thing a static analysis tool needs to do is transform the code to be
 analyzed into a program model, a set of data structures that represent the
@@ -1701,13 +1700,13 @@ Lexical Analysis
 Tools that operate on source code begin by transforming the code into a
 series of tokens, discarding unimportant features of the program text such
 as whitespace or comments along the way. The creation of the token stream
-is called lexical analysis. 
-
+is called lexical analysis. @@
+--
 To enable useful error reporting later, tokens should
 carry at least one other kind of information with them: their position in the
-source text 
+source text --
 
-73
+@@color:#0CC;73
 Parsing
 A language parser uses a context-free grammar (CFG) to match the token
 stream. The grammar consists of a set of productions that describe the sym-bols (elements) in the language.
@@ -1737,15 +1736,15 @@ important for the analysis of an object-oriented language because the type
 of an object determines the set of methods that the object can invoke.
 
 In the compiler world, symbol resolution and type checking are referred to
-as semantic analysis because the compiler is attributing meaning to the symbols
-found in the program. 
-
-For example, they can correctly inter-pret the meaning of overloaded operators in C++ or determine that a Java
+as ''semantic analysis'' because the compiler is attributing meaning to the symbols
+found in the program. @@
+--
+For example, they can correctly interpret the meaning of overloaded operators in C++ or determine that a Java
 method named doPost() is, in fact, part of an implementation of HttpServlet.
 These capabilities enable a tool to perform useful checks on the structure of
-the program. We use the term structural analysis for these kinds of checks.
+the program. We use the term structural analysis for these kinds of checks.--
 
-Depending on the type of analysis to be performed, a static analysis tool
+@@color:#00F;Depending on the type of analysis to be performed, a static analysis tool
 might perform additional transformations on the AST or might generate its
 own variety of intermediate representation suitable to its needs.
 
@@ -1776,13 +1775,13 @@ function to a vulnerable operation.
 
 Pointer Aliasing
 Pointer alias analysis is another dataflow problem. The purpose of alias analy-sis is to understand which pointers could possibly refer to the same memory
-location.
+location.@@
 
-For security tools, alias analysis is important for performing taint
-propagation. 
+--For security tools, alias analysis is important for performing taint
+propagation. --
 
 83
-The motivation for using advanced static analysis algorithms is to improve
+--The motivation for using advanced static analysis algorithms is to improve
 context sensitivity—to determine the circumstances and conditions under
 which a particular piece of code runs. Better context sensitivity enables a
 better assessment of the danger the code represents. It’s easy to point at all
@@ -1792,17 +1791,17 @@ attacker to overflow a buffer.
 Any advanced analysis strategy consists of at least two major pieces: an
 intraprocedural analysis component for analyzing an individual function,
 and an interprocedural analysis component for analyzing interaction
-between functions.
+between functions.--
 
 84
-If the program logic guarantees that this assertion will always succeed,
+--If the program logic guarantees that this assertion will always succeed,
 no buffer overflow is possible.1 If there are a set of conditions under which
-the assertion might fail, the analyzer should report a potential buffer over-flow. 
+the assertion might fail, the analyzer should report a potential buffer over-flow. --
 
-For the remainder of this section, we treat static analysis as an assertion-checking problem. 
+@@color:#90C;For the remainder of this section, we treat static analysis as an assertion-checking problem. @@
 
 85
-SQL injection
+@@color:#0A0;SQL injection
 and cross-site scripting are two vulnerability
 
 Looking for exploitable buffer overflow vulnerabilities, range analysis problems
@@ -1813,16 +1812,16 @@ point in the code.
 or the
 freed state (entered when it is passed to the function free()). If a pro-gram gives up all references to the memory while it is in the allocated
 state, the memory is leaked. If a pointer to the memory is passed to
-free() when it is in the freed state, a double free vulnerability is present.
+free() when it is in the freed state, a double free vulnerability is present.@@
 
 89
-Abstract Interpretation
+@@color:#00F;Abstract Interpretation
 Abstract interpretation is a general technique formalized by Cousot and
 Cousot for abstracting away aspects of the program that are not relevant to
-the properties of interest and then performing an interpretation
+the properties of interest and then performing an interpretation@@
 
 96
-Rules
+@@color:#0CC;Rules
 The rules that define what a security tool should report are just as impor-tant, if not more important, than the analysis algorithms and heuristics that
 the tool implements. 
 
@@ -1849,21 +1848,21 @@ take the form of specially formatted comments
 100
 Microsoft has its own version of source annotation: the Microsoft Stan-dard Annotation Language (SAL). 
 Another approach to rule writing is to expose the static analysis engine’s
-data structures and algorithms programmatically. 
+data structures and algorithms programmatically. @@
 
 101
- Users
+-- Users
 wrote scripts that took a long time to execute because they did not under-stand the computational complexity of the underlying operations they were
 invoking, and they were not particularly happy with the interface because
-they were being asked not only to specify the results they wanted to see,
+they were being asked not only to specify the results they wanted to see,--
 
 105
-Reporting Results
+--Reporting Results
 Most of the academic research effort invested in static analysis tools is spent
-devising clever new approaches to identifying defects
+devising clever new approaches to identifying defects--
 
 113 ff
-Major challenges for a static analysis tool include choosing an appropriate
+@@color:#0CC;Major challenges for a static analysis tool include choosing an appropriate
 representation for the program being analyzed (building a model) that makes
 good trade-offs between precision and scalability, and choosing algorithms
 capable of finding the target set of defects. Essential static analysis problems
@@ -1873,10 +1872,10 @@ because so many security problems are a result of trusting untrustworthy
 input.
 Good static analysis tools are rule driven. 
 
-Rules also define the security properties that the tool will check against.
+Rules also define the security properties that the tool will check against.@@
 
 117
-Input Validation and
+@@color:#0A0;Input Validation and
 Representation
 
 172
@@ -1902,52 +1901,52 @@ Preventing Resource Leaks
 Static Analysis: Hunt for Debug Code
 
 421
-Privileged Programs
+Privileged Programs@@
 
 542
-A static analysis tool can com-pare a large body of code against an extensive list of possible problems.
+--A static analysis tool can compare a large body of code against an extensive list of possible problems.
 Tools are more malleable than languages or programming frameworks, so
 the list of problems they identify can change faster than languages or frame-works. The problems they identify can also change depending on the type of
-code being analyzed or the needs of the person running the analysis. 
+code being analyzed or the needs of the person running the analysis. --
 
 543
-There
+--There
 is considerable power in the ability to customize a tool to check against the
-semantics of the program at hand.
+semantics of the program at hand.--
 
 
 
 
 </pre>
 </div>
-<div title="Notes from Web" creator="Andre" modifier="Andre" created="201202041031" modified="201202041843" changecount="7">
+<div title="Notes from Web" creator="Andre" modifier="YourName" created="201202041031" modified="201202141302" changecount="9">
 <pre>![[http://www.keyvan.ms/introduction-to-static-analysis]]
 
-Static code analysis is the set of techniques and formal methods based on mathematical structures (specifically set and lattice theory) to analyze the behavior of the programming code and extract certain properties that hold based on the structure of the code.
+@@color:#F00;Static code analysis is the set of techniques and formal methods based on mathematical structures (specifically set and lattice theory) to analyze the behavior of the programming code and extract certain properties that hold based on the structure of the code.@@
 
-Although developed mainly by the Programming Languages and Compilers community for compile-time optimizations, Static Analysis is applied in various fields of Computer Science including Software Engineering and Software Security. In Software Engineering almost all the bug detection tools use static analyses in order to detect the potential bugs in the codes, and these are all done by applying different types of analyses developed in Static Analysis. Some well-known examples of static analysis tools are FxCop and StyleCop for .NET, and FinBugs and Soot for Java.
+@@color:#0A0;Although developed mainly by the Programming Languages and Compilers community for compile-time optimizations, Static Analysis is applied in various fields of Computer Science including Software Engineering and ''Software Security''. In Software Engineering almost all the bug detection tools use static analyses in order to detect the potential bugs in the codes, and these are all done by applying different types of analyses developed in Static Analysis. Some well-known examples of static analysis tools are --FxCop and StyleCop for .NET, and-- FindBugs and Soot for Java.@@
 
-As you may have noticed, roughly speaking, Static Analysis is the way to prove the correctness of programming code and this is opposed to the very common misbeliefs among developers ''that unit testing proves their code''.
+@@color:#90C;As you may have noticed, roughly speaking, Static Analysis is the way to prove the correctness of programming code and this is opposed to the very common misbeliefs among developers ''that unit testing proves their code''.@@
 
-Some main highlights of these approaches are ''Data Flow Analysis, Constraint Based Analysis, Abstract Interpretation, and Type and Effect Systems'' while there are some lesser common approaches such as Denotational Based Analysis and Projection Analysis that can be considered as subsets of the first four approaches. However, Data Flow Analysis and Abstract Interpretation, especially the latter one, seem to have been of more interest among researchers.
+@@color:#00F;Some main highlights of these approaches are ''Data Flow Analysis, Constraint Based Analysis, Abstract Interpretation, and Type and Effect Systems'' while there are some lesser common approaches such as Denotational Based Analysis and Projection Analysis that can be considered as subsets of the first four approaches. However, Data Flow Analysis and Abstract Interpretation, especially the latter one, seem to have been of more interest among researchers.@@
 
 ![[http://www.coverity.com/products/static-analysis.html]]
-helps developers find hard-to-spot, yet potentially crash-causing defects early in the software development life-cycle, reducing the cost, time, and risk of software errors.
+@@color:#0A0;helps developers find hard-to-spot, yet potentially crash-causing defects early in the software development life-cycle@@,@@color:#90C; reducing the cost, time, and risk of software errors.@@
 
-''Interprocedural Analysis''
-Many errors can only be found by crossing function boundaries. This analysis technique looks at all of the functions in context to find the defect, goes to an infinite number of levels deep to tell you where the problem is, and shows you the exact location in the code that was analyzed to provide evidence of the problem.
+@@color:#00F;''Interprocedural Analysis''
+Many errors can only be found by crossing function boundaries. This analysis technique looks at all of the functions in context to find the defect, goes to an infinite number of levels deep to tell you where the problem is, and shows you the exact location in the code that was analyzed to provide evidence of the problem.@@
 
-''concurrency issues''
+@@color:#0A0;''concurrency issues''@@
 
 !A few billion lines of code later
 
-We built our tool to find generic errors (such as memory corruption and data races) and system-specific or interface-specific violations (such as violations of function-ordering constraints). The tool, like all static bug finders, leveraged the fact that programming rules often map clearly to source code; thus static inspection can find many of their violations. For example, to check the rule &quot;acquired locks must be released,&quot; a checker would look for relevant operations (such as lock() and unlock()) and inspect the code path after flagging rule disobedience (such as lock() with no unlock() and double locking).
+@@color:#0A0;We built our tool to find generic errors (such as memory corruption and data races) and system-specific or interface-specific violations (such as violations of function-ordering constraints). @@The tool, like all static bug finders, leveraged the fact that programming rules often map clearly to source code; thus static inspection can find many of their violations.@@color:#0A0; For example, to check the rule &quot;acquired locks must be released,&quot; a checker would look for relevant operations (such as lock() and unlock()) and inspect the code path after flagging rule disobedience (such as lock() with no unlock() and double locking).@@
 
-For those who keep track of such things, checkers in the research system typically traverse program paths (flow-sensitive) in a forward direction, going across function calls (inter-procedural) while keeping track of call-site-specific information (context-sensitive) and toward the end of the effort had some of the support needed to detect when a path was infeasible (path-sensitive).
+@@color:#00F;For those who keep track of such things, checkers in the research system typically traverse program paths (flow-sensitive) in a forward direction, going across function calls (inter-procedural) while keeping track of call-site-specific information (context-sensitive) and toward the end of the effort had some of the support needed to detect when a path was infeasible (path-sensitive).@@
 
-As much as possible, we avoided using annotations or specifications to reduce manual labor.
+@@color:#90C;As much as possible, we avoided using annotations or specifications to reduce manual labor.
 Our product did not verify the absence of errors but rather tried to find as many of them as possible. 
-We could ignore code constructs that led to high rates of false-error messages (false positives) or analysis complexity, in the extreme skipping problematic code entirely (such as assembly statements, functions, or even entire files).</pre>
+We could ignore code constructs that led to high rates of false-error messages (false positives) or analysis complexity, in the extreme skipping problematic code entirely (such as assembly statements, functions, or even entire files).@@</pre>
 </div>
 <div title="Notes from other Static Analysis Papers" creator="Andre" modifier="YourName" created="201202041424" modified="201202141244" changecount="3">
 <pre>!Using Static Analysis to Find Bugs
