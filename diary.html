@@ -1396,7 +1396,7 @@ Symbolic Analysis
 Symbolic analysis is a static analysis method for reasoning about program values
 that may not be constant.</pre>
 </div>
-<div title="Notes from Literature" creator="YourName" modifier="YourName" created="201202040958" modified="201202071256" changecount="6">
+<div title="Notes from Literature" creator="YourName" modifier="YourName" created="201202040958" modified="201202141241" changecount="7">
 <pre>[[Notes from Web]]
 [[Notes from Secure Programming With Static Analysis Tools]]
 [[Notes from A Survey of Static Program Analysis Techniques]]
@@ -1405,7 +1405,7 @@ that may not be constant.</pre>
 
 [[Notes on Static Analysis]]</pre>
 </div>
-<div title="Notes from Principles of Program Analysis" creator="YourName" modifier="YourName" created="201202071258" modified="201202071342" changecount="5">
+<div title="Notes from Principles of Program Analysis" creator="YourName" modifier="YourName" created="201202071258" modified="201202141241" changecount="11">
 <pre>Flemming Nielson
 Hanne Riis Nielson
 Chris Hankin
@@ -1413,13 +1413,13 @@ Chris Hankin
 ISBN: 3-540-65410-0
 
 Buzzwords: intraprocedural analysis, interprocedural analysis
-Personal notes: returning references to discarded stack variables (local function variables)
+@@color:#0A0;Personal notes: returning references to discarded stack variables (local function variables)@@
 
 1
-Program analysis offers static compile-time techniques for predicting safe and computable approximations to the set of values or behavious arising dynamically at run-time when executing a program on a computer
-A mainapplication is to allow compilers to generate code avoiding //redundant// computations, e.g. by reusing available results or by moving loop invariant computations out of loops, or avoiding //superfluous// computations, e.g. of results known to be not needed or of results known already at compile-time. Among the more recent applications is the validation of software (...) to reduce the likelihood of malicious or unintended behaviour. Common for these applications is the need to combine information from different parts of the program.
+@@color:#F00;Program analysis offers static compile-time techniques for predicting safe and computable approximations to the set of values or behavious arising dynamically at run-time when executing a program on a computer@@
+@@color:#0A0;A main application is to allow compilers to generate code avoiding //redundant// computations, e.g. by reusing available results or by moving loop invariant computations out of loops, or avoiding //superfluous// computations, e.g. of results known to be not needed or of results known already at compile-time. Among the more recent applications is the validation of software (...) to reduce the likelihood of malicious or unintended behaviour.@@ @@color:#00F;Common for these applications is the need to combine information from different parts of the program.@@
 
-5
+@@color:#00F;5
 Data Flow Analysis
 In //Data Flow Analysis// it is customary to think of a program as a graph: the nodes are the elementary blocks and the edges descibe how control might pass from one elementary block to another.
 Buzzwords: equational approach, constraint based appproach
@@ -1446,8 +1446,8 @@ The Data Flow Analysis techniques that have been presented in the previous secti
 
 104
 Shape Analysis
-(...) and an intraprocedural //Shape Analysis// that gives a //finite characterisation// of the //shapes// of these data structures.
-compiler optimization, error detection f. ex. dereferencing null-pointer</pre>
+(...) and an intraprocedural //Shape Analysis// that gives a //finite characterisation// of the //shapes// of these data structures.@@
+@@color:#0A0;compiler optimization, error detection f. ex. dereferencing null-pointer@@</pre>
 </div>
 <div title="Notes from Secure Programming With Static Analysis Tools" creator="Andre" modifier="Andre" created="201202041050" modified="201202041116" changecount="7">
 <pre>xviii
@@ -1949,17 +1949,17 @@ As much as possible, we avoided using annotations or specifications to reduce ma
 Our product did not verify the absence of errors but rather tried to find as many of them as possible. 
 We could ignore code constructs that led to high rates of false-error messages (false positives) or analysis complexity, in the extreme skipping problematic code entirely (such as assembly statements, functions, or even entire files).</pre>
 </div>
-<div title="Notes from other Static Analysis Papers" creator="Andre" modifier="Andre" created="201202041424" modified="201202041425" changecount="2">
+<div title="Notes from other Static Analysis Papers" creator="Andre" modifier="YourName" created="201202041424" modified="201202141244" changecount="3">
 <pre>!Using Static Analysis to Find Bugs
 
 1
 
-software quality is important, but often imperfect in practice. We can use many
+@@color:#60F;''software quality''is important, but often imperfect in practice. We can use many
 techniques to try to improve quality, including testing, code review, and formal
-specification. Static-analysis tools evaluate software in the abstract, without
+specification.@@  @@color:#F00;Static-analysis tools evaluate software in the abstract, without
 running the software or considering a specific input. Rather than trying
 to prove that the code fulfills its specification, such tools look for violations of reasonable
-or recommended programming practice. Thus, they look for places in which code
+or recommended programming practice. @@ @@color:#0A0;Thus, they look for places in which code
 might dereference a null pointer or overflow an array. Static-analysis tools might also
 flag an issue such as a comparison that can’t possibly
 be true. Although the comparison won’t cause
@@ -1968,19 +1968,19 @@ might have resulted from a coding error, leading to
 incorrect program behavior.
 Some tools also flag or enforce programming
 style issues, such as naming conventions or the use
-of curly braces in conditionals and looping structures.
-The lint program for C programs1 is generally
+of curly braces in conditionals and looping structures.@@
+@@color:#60F;The lint program for C programs1 is generally
 considered the first widely used static-analysis
-tool for defect detection,
+tool for defect detection,@@
 
-security vulnerabilities, such as buffer overflows,
+@@color:#0A0;security vulnerabilities, such as buffer overflows,
 format string vulnerabilities, SQL injection,
-and cross-site scripting.
+and cross-site scripting.@@
 
 3
-Rather than use a
+@@color:#60F;Rather than use a
 pattern language to describe bugs (as PMD9 and
-Metal10 do)</pre>
+Metal10 do)@@</pre>
 </div>
 <div title="Notes on Static Analysis" creator="Andre" modifier="Andre" created="201202041413" changecount="1">
 <pre>* lint
