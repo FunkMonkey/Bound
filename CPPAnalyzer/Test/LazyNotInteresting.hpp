@@ -1,0 +1,8 @@
+
+namespace NotInteresting
+{
+
+	class Boring 
+	{
+	};
+}

@@ -100,15 +100,20 @@
     <ClInclude Include="include\ASTObjectKinds.hpp" />
     <ClInclude Include="include\ASTType.hpp" />
     <ClInclude Include="include\Clang_AST.hpp" />
+    <ClInclude Include="include\Clang_AST_CXTree.hpp" />
     <ClInclude Include="include\clang_helpers.hpp" />
     <ClInclude Include="include\Clang_JSON_lib.hpp" />
     <ClInclude Include="include\JSON_Converter.hpp" />
+    <ClInclude Include="include\clang_helpers.hpp" />
+    <ClInclude Include="include\SelfDisposingCXString.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ASTObject.cpp" />
     <ClCompile Include="src\ASTObject_Function.cpp" />
     <ClCompile Include="src\ASTObject_Struct.cpp" />
     <ClCompile Include="src\Clang_AST.cpp" />
+    <ClCompile Include="src\Clang_AST_CXTree.cpp" />
+    <ClCompile Include="src\clang_helpers.cpp" />
     <ClCompile Include="src\Clang_JSON_lib.cpp" />
     <ClCompile Include="src\jsoncpp.cpp" />
     <ClCompile Include="src\JSON_Converter.cpp" />

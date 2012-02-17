@@ -1,8 +1,11 @@
 
-	float float_param_int_float(int x, float y)
-	{
-		return 8.0;
-	}
+float float_param_int_float(int x, float y);
+float float_param_int_float(int x, float y);
+
+float float_param_int_float(int x, float y)
+{
+	return 8.0;
+}
 
 namespace MyNamespace
 {

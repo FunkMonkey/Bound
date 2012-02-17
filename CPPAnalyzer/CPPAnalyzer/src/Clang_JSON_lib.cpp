@@ -63,9 +63,10 @@ using namespace CPPAnalyzer;
 			clang_AST = new Clang_AST(rootCursor);
 
 			clang_visitChildren(rootCursor, printVisitor, NULL);
+			clang_AST->analyze();
 
 			std::cout << "---------------" << std::endl;
-			//clang_AST->printTree();
+			clang_AST->printTree();
 			std::cout << "---------------" << std::endl;
 			
 			std::string json;

@@ -1,6 +1,7 @@
 #include "JSON_Converter.hpp"
 
 #include "Clang_AST.hpp"
+#include "Clang_AST_CXTree.hpp"
 
 #include <json/json.h>
 #include <assert.h>
@@ -33,7 +34,7 @@ namespace CPPAnalyzer
 		objJSON["kind"]    = type.getKind();
 		objJSON["isConst"] = type.isConst();
 
-		if((type.getKind() == "Record" || type.getKind() == "Typedef" || type.getKind() == "TemplateTypeParm" || type.getKind() == "TemplateSpecialization") && type.getDeclaration())
+		if((type.getKind() == "Record" || type.getKind() == "Typedef" || type.getKind() == "Elaborated" || type.getKind() == "TemplateTypeParm" || type.getKind() == "TemplateSpecialization") && type.getDeclaration())
 		{
 			objJSON["declaration"] = type.getDeclaration()->getID();
 			addASTObjectToReferencedList(*type.getDeclaration());
@@ -379,7 +380,7 @@ namespace CPPAnalyzer
 		m_unknownMissingASTObjects = false;
 		m_ASTObjects.clear();
 		Json::Value root(Json::objectValue);
-		convertASTObjectToJSON(*(m_ast->getRootASTObject()), root);
+		convertASTObjectToJSON(*(m_ast->getRootTreeNode()->getASTObject()), root);
 
 		if(m_unknownMissingASTObjects)
 			std::cout << "ERROR: UNKNOWN MISSING OBJECTS" << std::endl;

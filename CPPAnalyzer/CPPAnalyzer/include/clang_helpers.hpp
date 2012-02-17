@@ -6,7 +6,8 @@
 
 namespace CPPAnalyzer
 {
-
+	ASTObject_SourceLocation getSourceLocationFromCursor(CXCursor cursor);
+	
 }
 
 #endif // __CLANG_HELPERS_HPP__

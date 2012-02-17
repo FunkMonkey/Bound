@@ -8,3 +8,9 @@ std::string s;*/
 #include <string>
 #include <vector>
 #include <map>
+
+class Test
+{
+	std::string m_string;
+	void setVector(std::vector<int> vec);
+};

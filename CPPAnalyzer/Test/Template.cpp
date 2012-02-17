@@ -14,6 +14,8 @@ class TemplatedClass<bool, P, TT, 1>
 
 int aP = 3;
 
+bool x = true;
+
 class NoTemplate{};
 
 template<class T>
@@ -21,8 +23,16 @@ class TemplateForTemplate{};
 
 template class TemplatedClass<bool, &aP, TemplateForTemplate >;
 
-void tParam(TemplatedClass<int, &aP, TemplateForTemplate > p)
+namespace TestSpace
 {
+	//template class TemplatedClass<int, &aP, TemplateForTemplate >;
+	void tParam(TemplatedClass<int, &aP, TemplateForTemplate > p)
+	{
+	}
+	
+	void tParam2(TemplatedClass<int, &aP, TemplateForTemplate > p)
+	{
+	}
 }
 
 template<typename T>

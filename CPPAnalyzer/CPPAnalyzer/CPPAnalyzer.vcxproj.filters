@@ -78,6 +78,13 @@
     <ClInclude Include="include\ASTObject_Union.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\Clang_AST_CXTree.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\clang_helpers.hpp" />
+    <ClInclude Include="include\SelfDisposingCXString.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ASTObject.cpp">
@@ -99,6 +106,12 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\jsoncpp.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Clang_AST_CXTree.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\clang_helpers.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

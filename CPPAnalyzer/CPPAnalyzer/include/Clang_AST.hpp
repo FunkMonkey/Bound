@@ -1,14 +1,17 @@
-#ifndef __CLANG_AST_H__
-#define __CLANG_AST_H__
+#ifndef __CLANG_AST_HPP__
+#define __CLANG_AST_HPP__
 
 #include <clang-c/index.h>
 #include <map>
 #include <string>
+#include <regex>
 
 #include "ASTObjectKinds.hpp"
 
 namespace CPPAnalyzer
 {
+	class Clang_AST_CXTreeNode;
+
 	class ASTType;
 	class ASTObject;
 	class ASTObject_Namespace;
@@ -53,25 +56,30 @@ namespace CPPAnalyzer
 
 	typedef std::map<CXCursor, ASTObject*, CXCursor_less> CXCursorASTObjectMap;
 
-	class SelfDisposingCXString
+	enum Filter_Access
+	{
+		NONE,
+		PRIVATE,
+		PROTECTED,
+		PUBLIC,
+		PRIVATE_PROTECTED,
+		PRIVATE_PUBLIC,
+		PROTECTED_PUBLIC,
+		PRIVATE_PROTECTED_PUBLIC,
+		ALL = PRIVATE_PROTECTED_PUBLIC
+	};
+
+	class VisibilityFilter
 	{
 		public:
-			SelfDisposingCXString(CXString str)
-				: m_cxString(str)
+			VisibilityFilter(const std::string& fileRegex, const std::string& nameRegex, Filter_Access accessFilter)
+				: fileFilter(fileRegex), nameFilter(nameRegex), accessFilter(accessFilter)
 			{}
 
-			~SelfDisposingCXString()
-			{
-				clang_disposeString(m_cxString);
-			}
-
-			const char* c_str() const { return clang_getCString(m_cxString); }
-			CXString getCXString() const { return m_cxString; }
-
-		protected:
-			CXString m_cxString;
+			Filter_Access accessFilter;
+			std::regex fileFilter;
+			std::regex nameFilter;
 	};
-	
 
 	class Clang_AST
 	{
@@ -79,56 +87,90 @@ namespace CPPAnalyzer
 			Clang_AST(CXCursor translationUnit);
 			CXChildVisitResult visitCursor(CXCursor cursor, CXCursor parent, CXClientData client_data);
 
-			ASTObject* getASTObjectFromCursor(CXCursor cursor);
-			void registerASTObject(CXCursor cursor, ASTObject* astObject);
-			void setTemplateInformation(ASTObjectHelper_Template& templateInfo, CXCursor cursor, ASTObject* astParent);
+			// C
+			ASTObject_Variable_Decl*   createVariableDecl(Clang_AST_CXTreeNode& treeNode);
+			ASTObject_Struct*          createStruct(Clang_AST_CXTreeNode& treeNode);
+			ASTObject_Field*           createField(Clang_AST_CXTreeNode& treeNode);
+			ASTObject_Function*        createFunction(Clang_AST_CXTreeNode& treeNode);
+			ASTObject_Parameter*       createParameter(Clang_AST_CXTreeNode& treeNode);
+			ASTObject_Typedef*         createTypedef(Clang_AST_CXTreeNode& treeNode);
 
-			ASTObject_Namespace* addNamespace(CXCursor cursor, ASTObject* astParent);
-			ASTObject_Variable_Decl* addVariableDecl(CXCursor cursor, ASTObject* astParent);
-			ASTObject_Struct* addStruct(CXCursor cursor, ASTObject* astParent);
-			ASTObject_Class* addClass(CXCursor cursor, ASTObject* astParent);
-			ASTObject_Field* addField(CXCursor cursor, ASTObject* astParent);
-			ASTObject_Function* addFunction(CXCursor cursor, ASTObject* astParent);
-			ASTObject_Member_Function* addMemberFunction(CXCursor cursor, ASTObject* astParent);
-			ASTObject_Parameter* addParameter(CXCursor cursor, ASTObject* astParent);
-			ASTObject_Constructor* addConstructor(CXCursor cursor, ASTObject* astParent);
-			ASTObject_Destructor* addDestructor(CXCursor cursor, ASTObject* astParent);
-			ASTObject_Typedef* addTypedef(CXCursor cursor, ASTObject* astParent);
-			ASTObject_Enum* addEnum(CXCursor cursor, ASTObject* astParent);
-			ASTObject_EnumConstant* addEnumConstant(CXCursor cursor, ASTObject* astParent);
-			ASTObject_Union* addUnion(CXCursor cursor, ASTObject* astParent);
+			// C++
+			ASTObject_Namespace*       createNamespace(Clang_AST_CXTreeNode& treeNode);
+			ASTObject_Enum*            createEnum(Clang_AST_CXTreeNode& treeNode);
+			ASTObject_EnumConstant*    createEnumConstant(Clang_AST_CXTreeNode& treeNode);
+			ASTObject_Union*           createUnion(Clang_AST_CXTreeNode& treeNode);
+			ASTObject_Class*           createClass(Clang_AST_CXTreeNode& treeNode);
+			ASTObject_Constructor*     createConstructor(Clang_AST_CXTreeNode& treeNode);
+			ASTObject_Destructor*      createDestructor(Clang_AST_CXTreeNode& treeNode);
+			ASTObject_Member_Function* createMemberFunction(Clang_AST_CXTreeNode& treeNode);
+			
+			// C++: Templates
+			ASTObject_TemplateTypeParameter*     createTemplateTypeParameter(Clang_AST_CXTreeNode& treeNode);
+			ASTObject_TemplateNonTypeParameter*  createTemplateNonTypeParameter(Clang_AST_CXTreeNode& treeNode);
+			ASTObject_TemplateTemplateParameter* createTemplateTemplateParameter(Clang_AST_CXTreeNode& treeNode);
 
-			ASTObject_TemplateTypeParameter* addTemplateTypeParameter(CXCursor cursor, ASTObject* astParent);
-			ASTObject_TemplateNonTypeParameter* addTemplateNonTypeParameter(CXCursor cursor, ASTObject* astParent);
-			ASTObject_TemplateTemplateParameter* addTemplateTemplateParameter(CXCursor cursor, ASTObject* astParent);
+			ASTObject_TemplateTypeArgument*        createTemplateTypeArgument(Clang_AST_CXTreeNode& treeNode);
+			ASTObject_TemplateDeclarationArgument* createTemplateDeclarationArgument(Clang_AST_CXTreeNode& treeNode);
+			ASTObject_TemplateIntegralArgument*    createTemplateIntegralArgument(Clang_AST_CXTreeNode& treeNode);
+			ASTObject_TemplateTemplateArgument*    createTemplateTemplateArgument(Clang_AST_CXTreeNode& treeNode);
+			ASTObject_TemplateExpressionArgument*  createTemplateExpressionArgument(Clang_AST_CXTreeNode& treeNode);
 
-			ASTObject_TemplateTypeArgument* addTemplateTypeArgument(CXCursor cursor, ASTObject* astParent);
-			ASTObject_TemplateDeclarationArgument* addTemplateDeclarationArgument(CXCursor cursor, ASTObject* astParent);
-			ASTObject_TemplateIntegralArgument* addTemplateIntegralArgument(CXCursor cursor, ASTObject* astParent);
-			ASTObject_TemplateTemplateArgument* addTemplateTemplateArgument(CXCursor cursor, ASTObject* astParent);
-			ASTObject_TemplateExpressionArgument* addTemplateExpressionArgument(CXCursor cursor, ASTObject* astParent);
 
-			void addBase(CXCursor cursor, ASTObject* astParent);
-
-			ASTType* createASTTypeFromCursor(CXCursor cursor, bool canonical, ASTObject_Namespace* templateScope);
-			ASTType* createASTType(CXType type, bool canonical, ASTObject_Namespace* templateScope);
+			// Types
+			ASTType* createASTTypeFromCursor(CXCursor cursor, bool canonical);
+			ASTType* createASTType(CXType type, bool canonical);
 			ASTObject* getTypeDeclaration(CXCursor cursor, bool canonical);
+
+			// Helper functions
+			void addBase(CXCursor cursor, ASTObject* astParent);
+			void setTemplateInformation(ASTObjectHelper_Template& templateInfo, CXCursor cursor, ASTObject* astParent);
 
 			void printTreeNode(ASTObject* node, int depth) const;
 			void printTree() const;
 
-			ASTObject_Namespace* getRootASTObject(){ return m_rootASTObject; }
+			
 
 			CXCursor getParentCursor(CXCursor cursor);
 
+			// ==================================================================================================================================
+
+			void analyze();
+
+			//void registerTreeNode(Clang_AST_CXTreeNode* treeNode);
+			Clang_AST_CXTreeNode* getTreeNodeFromCursor(CXCursor cursor);
+			Clang_AST_CXTreeNode* getRootTreeNode(){ return m_rootTreeNode; }
+			Clang_AST_CXTreeNode* getReferencedTreeNodeFromCursor(CXCursor cursor);
+			void markTreeNodeAsReferenced(Clang_AST_CXTreeNode& treeNode);
+
 		protected:
 
-			ASTObject_Namespace* m_rootASTObject;
-			CXCursor m_rootCursor;
-			CXCursorASTObjectMap m_astObjects;	// TODO: merge
-			CXCursorASTObjectMap m_canonicalASTObjects;
-			std::map<CXCursor, CXCursor, CXCursor_less> m_parentMap;
+			void addFunctionParameters(Clang_AST_CXTreeNode& treeNode);
+
+			void analyzeVisibility(Clang_AST_CXTreeNode& treeNode);
+			void analyzeChildrenVisibility(Clang_AST_CXTreeNode& treeNode);
+			void connectASTObjects(Clang_AST_CXTreeNode& treeNode);
+
+			void visitTreeNode(Clang_AST_CXTreeNode& treeNode, int filterInfo);
+			void visitTreeNode_asTypeReference(Clang_AST_CXTreeNode& treeNode, int filterInfo);
+			void visitTreeNode_asBaseReference(Clang_AST_CXTreeNode& treeNode, int filterInfo);
+			void visitTreeNode_asParent(Clang_AST_CXTreeNode& treeNode, int filterInfo);
+
+			ASTObject* createASTObjectForTreeNode(Clang_AST_CXTreeNode& treeNode);
+			Clang_AST_CXTreeNode* createTreeNodeFromCursor(CXCursor cursor);
+			Clang_AST_CXTreeNode* addTreeNodeFromCursor(CXCursor cursor, Clang_AST_CXTreeNode& parent);
+
+			//ASTObject_Namespace* m_rootASTObject;
+			//CXCursor m_rootCursor;
+			//CXCursorASTObjectMap m_astObjects;	// TODO: merge
+			//CXCursorASTObjectMap m_canonicalASTObjects;
+			//std::map<CXCursor, CXCursor, CXCursor_less> m_parentMap;
+
+			Clang_AST_CXTreeNode* m_rootTreeNode;
+			std::map<CXCursor, Clang_AST_CXTreeNode*, CXCursor_less> m_canonicalCursorTreeNodeMap;
+
+			VisibilityFilter m_filter;
 	};
 }
 
-#endif // __CLANG_AST_H__
+#endif // __CLANG_AST_HPP__
