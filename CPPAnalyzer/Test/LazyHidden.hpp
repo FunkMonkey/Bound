@@ -65,3 +65,8 @@ namespace Hidden
 			static int staticFieldPrivateHidden;
 	};
 }
+
+namespace BothFiles
+{
+	class BothFilesHidden {};
+}

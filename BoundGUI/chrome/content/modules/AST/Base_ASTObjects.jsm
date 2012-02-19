@@ -12,7 +12,7 @@ Components.utils.import("chrome://bound/content/modules/Utils/MetaData.jsm");
  */
 function ASTObject(parent, name)
 {
-	this._name = name;
+	this._name = (name == null) ? "" : name;
 	this._parent = null;
 	this.parent = (parent == null) ? null : parent;
 	
@@ -52,7 +52,21 @@ ASTObject.KIND_DESTRUCTOR      = 11;
 ASTObject.KIND_ENUM            = 12;
 ASTObject.KIND_ENUMCONSTANT    = 13;
 ASTObject.KIND_UNION           = 14;
-ASTObject.KIND_PROPERTY        = 15;
+
+ASTObject.KIND_TEMPLATE_TYPE_PARAMETER              = 15;
+ASTObject.KIND_TEMPLATE_NON_TYPE_PARAMETER          = 16;
+ASTObject.KIND_TEMPLATE_TEMPLATE_PARAMETER          = 17;
+ASTObject.KIND_TEMPLATE_NULL_ARGUMENT               = 18;
+ASTObject.KIND_TEMPLATE_TYPE_ARGUMENT               = 19;
+ASTObject.KIND_TEMPLATE_DECLARATION_ARGUMENT        = 20;
+ASTObject.KIND_TEMPLATE_INTEGRAL_ARGUMENT           = 21;
+ASTObject.KIND_TEMPLATE_TEMPLATE_ARGUMENT           = 22;
+ASTObject.KIND_TEMPLATE_TEMPLATE_EXPANSION_ARGUMENT = 23;
+ASTObject.KIND_TEMPLATE_EXPRESSION_ARGUMENT         = 24;
+ASTObject.KIND_TEMPLATE_PACK_ARGUMENT               = 25;
+
+ASTObject.KIND_PROPERTY        = 100;
+
 
 ASTObject.getKindAsString = function getKindAsString(kind)
 {
@@ -73,6 +87,18 @@ ASTObject.getKindAsString = function getKindAsString(kind)
 		case ASTObject.KIND_ENUM           : return "Enum";
 		case ASTObject.KIND_ENUMCONSTANT   : return "EnumConstant";
 		case ASTObject.KIND_UNION          : return "Union";
+		case ASTObject.KIND_TEMPLATE_TYPE_PARAMETER:              return "TemplateTypeParameter";
+		case ASTObject.KIND_TEMPLATE_NON_TYPE_PARAMETER:          return "TemplateNonTypeParameter";
+		case ASTObject.KIND_TEMPLATE_TEMPLATE_PARAMETER:          return "TemplateTemplateParameter";
+		case ASTObject.KIND_TEMPLATE_NULL_ARGUMENT:               return "TemplateNullArgument";
+		case ASTObject.KIND_TEMPLATE_TYPE_ARGUMENT:               return "TemplateTypeArgument";
+		case ASTObject.KIND_TEMPLATE_DECLARATION_ARGUMENT:        return "TemplateDeclarationArgument";
+		case ASTObject.KIND_TEMPLATE_INTEGRAL_ARGUMENT:           return "TemplateIntegralArgument";
+		case ASTObject.KIND_TEMPLATE_TEMPLATE_ARGUMENT:           return "TemplateTemplateArgument";
+		case ASTObject.KIND_TEMPLATE_TEMPLATE_EXPANSION_ARGUMENT: return "TemplateTemplateExpansionArgument";
+		case ASTObject.KIND_TEMPLATE_EXPRESSION_ARGUMENT:         return "TemplateExpressionArgument";
+		case ASTObject.KIND_TEMPLATE_PACK_ARGUMENT:               return "TemplatePackArgument";
+			
 		case ASTObject.KIND_PROPERTY       : return "Property";
 	}
 	

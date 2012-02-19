@@ -33,7 +33,9 @@ var LogUtils = {
 		var str = "";
 		for(var member in object)
 		{
-			str += member + ": " + object[member] + "\n";
+			var sub = (object[member].toString == null) ? "[Object]" : ""+ object[member];
+			
+			str += member + ": " + sub + "\n";
 		}
 		
 		log(str);

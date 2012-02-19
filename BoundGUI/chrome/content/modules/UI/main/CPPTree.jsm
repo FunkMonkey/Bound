@@ -97,26 +97,17 @@ var CPPTreePrototype = {
 	
 	astNodeToTreeNode: function astNodeToTreeNode(astNode, $parent)
 	{
-		var $row = this.createAndAppendRow($parent, astNode.children.length !== 0, astNode);	
-		
-		for(var childName in astNode._childrenMap)
+		if(astNode instanceof ASTOverloadContainer)
 		{
-			var child = astNode._childrenMap[childName];
-			
-			// handle overloads
-			if(child instanceof ASTOverloadContainer)
-			{
-				var $sameNameRow = this.createAndAppendRow($row, true, child);
-				
-				for(var i = 0; i < child.overloads.length; ++i)
-				{
-					this.astNodeToTreeNode(child.overloads[i], $sameNameRow);
-				}
-			}
-			else
-			{
-				this.astNodeToTreeNode(child, $row);
-			}
+			var $row = this.createAndAppendRow($parent, true, astNode);
+			for(var i = 0, len = astNode.overloads.length; i < len; ++i)
+				this.astNodeToTreeNode(astNode.overloads[i], $row);
+		}
+		else
+		{
+			var $row = this.createAndAppendRow($parent, astNode.children.length !== 0, astNode);
+			for(var childName in astNode._childrenMap)
+				this.astNodeToTreeNode(astNode._childrenMap[childName], $row);
 		}
 		
 		return $row;
@@ -128,9 +119,9 @@ var CPPTreePrototype = {
 		
 		this.removeAllRows();
 		
-		for(var i = 0; i < this.cppAST.root.children.length; ++i)
+		for(var childName in this.cppAST.root._childrenMap)
 		{
-			var child = this.cppAST.root.children[i];
+			var child = this.cppAST.root._childrenMap[childName];
 			this.astNodeToTreeNode(child, null);
 		}
 	},
@@ -140,7 +131,7 @@ var CPPTreePrototype = {
 		switch(type)
 		{
 			case "label":
-				return (data.overloadContainer && data.overloadName) ? data.overloadName : data.name;
+				return (data.overloadContainer) ? data.displayName : data.name;
 			case "attributes" : return { ast_kind: data.getKindAsString()};
 		}
 		

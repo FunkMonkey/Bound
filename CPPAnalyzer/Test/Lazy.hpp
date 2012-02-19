@@ -74,3 +74,8 @@ namespace Visible
 
 	};
 }
+
+namespace BothFiles
+{
+	class BothFilesVisible {};
+}

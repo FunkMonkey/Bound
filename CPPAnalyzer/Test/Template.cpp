@@ -36,13 +36,13 @@ namespace TestSpace
 }
 
 template<typename T>
-void doIt(){}
+void doIt(int paramI){}
 
 template<>
-void doIt<bool>(){}
+void doIt<bool>(int paramI){}
 
 template<>
-void doIt<int>(){}
+void doIt<int>(int paramI){}
 
 
 

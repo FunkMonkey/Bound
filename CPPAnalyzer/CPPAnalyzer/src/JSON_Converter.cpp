@@ -56,7 +56,7 @@ namespace CPPAnalyzer
 		{
 			auto& templateParamsJSON = objJSON["templateParameters"] = Json::Value(Json::arrayValue);
 			for(auto it = templateInfo.getParameters().begin(), end = templateInfo.getParameters().end(); it!= end; ++it)
-				convertASTObjectToJSON(**it, templateParamsJSON.append(Json::Value(Json::objectValue)));
+				templateParamsJSON.append((*it)->getID());
 		}
 
 		if(templateKind == TEMPLATE_KIND_SPECIALIZATION || templateKind == TEMPLATE_KIND_PARTIAL_SPECIALIZATION)
@@ -65,10 +65,8 @@ namespace CPPAnalyzer
 
 			auto& templateArgsJSON = objJSON["templateArguments"] = Json::Value(Json::arrayValue);
 			for(auto it = templateInfo.getArguments().begin(), end = templateInfo.getArguments().end(); it!= end; ++it)
-				convertASTObjectToJSON(**it, templateArgsJSON.append(Json::Value(Json::objectValue)));
+				templateArgsJSON.append((*it)->getID());
 		}
-
-		// TODO: reference to template declaration
 	}
 
 	// TODO: performance
@@ -103,7 +101,7 @@ namespace CPPAnalyzer
 			case KIND_TEMPLATE_TEMPLATE_ARGUMENT:           
 			case KIND_TEMPLATE_TEMPLATE_EXPANSION_ARGUMENT: 
 			case KIND_TEMPLATE_EXPRESSION_ARGUMENT:         
-			case KIND_TEMPLATE_PACK_ARGUMENT:               options = options & ~ADD_ISDEFINITION & ~ADD_DEFINITION & ~ADD_DECLARATIONS & ~ADD_ID &~ADD_NAME & ~ADD_DISPLAYNAME & ~ADD_USR; break;
+			case KIND_TEMPLATE_PACK_ARGUMENT:               options = options & ~ADD_ISDEFINITION & ~ADD_DEFINITION & ~ADD_DECLARATIONS &~ADD_NAME & ~ADD_DISPLAYNAME & ~ADD_USR; break;
 		}
 
 		addASTObjectToExportedList(astObject);
@@ -149,16 +147,6 @@ namespace CPPAnalyzer
 		{
 			case KIND_NAMESPACE:
 				{
-					// adding children
-					auto& childrenJSON = objJSON["children"] = Json::Value(Json::arrayValue);
-					auto& children = astObject.getChildren();
-
-					for(auto it = children.begin(), end = children.end(); it!= end; ++it)
-					{
-						// TODO: performance?
-						convertASTObjectToJSON(**it, childrenJSON.append(Json::Value(Json::objectValue)));
-					}
-
 					break;
 				}
 			
@@ -186,35 +174,6 @@ namespace CPPAnalyzer
 						baseJSON["id"]     = (*it).base->getID();
 						addASTObjectToReferencedList(*(*it).base);
 						baseJSON["access"] = getASTObjectAccessString((*it).access);
-					}
-
-					// adding children
-					auto& childrenJSON = objJSON["children"] = Json::Value(Json::arrayValue);
-					auto& children = astObject.getChildren();
-
-					for(auto it = children.begin(), end = children.end(); it!= end; ++it)
-					{
-						switch((*it)->getKind())
-						{
-							case KIND_NAMESPACE:
-							case KIND_TYPEDEF:
-							case KIND_STRUCT:
-							case KIND_CLASS:
-							case KIND_VARIABLE_DECL:
-							case KIND_FIELD:
-							case KIND_FUNCTION:
-							case KIND_MEMBER_FUNCTION:
-							case KIND_PARAMETER:
-							case KIND_CONSTRUCTOR:
-							case KIND_DESTRUCTOR:
-							case KIND_ENUM:
-							case KIND_ENUMCONSTANT:
-							case KIND_UNION:
-								convertASTObjectToJSON(**it, childrenJSON.append(Json::Value(Json::objectValue)));
-								break;
-							default:
-								break;
-						}
 					}
 
 					// template info
@@ -328,9 +287,7 @@ namespace CPPAnalyzer
 						auto& parametersJSON = objJSON["parameters"] = Json::Value(Json::arrayValue);
 						auto& parameters = astObjectFunc.getParameters();
 						for(auto it = parameters.begin(), end = parameters.end(); it != end; ++it)
-						{
-							convertASTObjectToJSON(**it, parametersJSON.append(Json::Value(Json::objectValue)));
-						}
+							parametersJSON.append((*it)->getID());
 					}
 
 					// template info
@@ -343,7 +300,6 @@ namespace CPPAnalyzer
 				{
 					auto& astObjectParam = static_cast<ASTObject_Parameter&>(astObject);
 
-					//paramJSON["name"]          = (*it)->getNodeName();
 					convertASTTypeToJSON(*astObjectParam.getType(),          objJSON["type"]);
 					convertASTTypeToJSON(*astObjectParam.getTypeCanonical(), objJSON["typeCanonical"]);
 
@@ -352,15 +308,6 @@ namespace CPPAnalyzer
 
 			case KIND_ENUM:
 				{
-					// children
-					auto& childrenJSON = objJSON["children"] = Json::Value(Json::arrayValue);
-					auto& children = astObject.getChildren();
-
-					for(auto it = children.begin(), end = children.end(); it!= end; ++it)
-					{
-						convertASTObjectToJSON(**it, childrenJSON.append(Json::Value(Json::objectValue)));
-					}
-
 					break;
 				}
 			case KIND_ENUMCONSTANT:
@@ -369,6 +316,19 @@ namespace CPPAnalyzer
 					
 					objJSON["value"] = astObjectEnumConstant.getValue();
 				}
+		}
+
+		// adding children
+		auto& children = astObject.getChildren();
+		if(children.size() > 0)
+		{
+			auto& childrenJSON = objJSON["children"] = Json::Value(Json::arrayValue);
+
+			for(auto it = children.begin(), end = children.end(); it!= end; ++it)
+			{
+				// TODO: performance?
+				convertASTObjectToJSON(**it, childrenJSON.append(Json::Value(Json::objectValue)));
+			}
 		}
 
 		return objJSON;

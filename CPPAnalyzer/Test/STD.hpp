@@ -14,3 +14,8 @@ class Test
 	std::string m_string;
 	void setVector(std::vector<int> vec);
 };
+
+namespace Foo
+{
+	std::vector<int> FooVec;
+}

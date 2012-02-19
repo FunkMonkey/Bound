@@ -15,6 +15,15 @@ var EXPORTED_SYMBOLS = ["CPP_AST",
 						"CPP_ASTObject_Destructor",
 						"CPP_ASTObject_Enum",
 						"CPP_ASTObject_EnumConstant",
+						"CPP_ASTObject_Union",
+						"CPP_ASTObject_TemplateTypeParameter",
+						"CPP_ASTObject_TemplateNonTypeParameter",
+						"CPP_ASTObject_TemplateTemplateParameter",
+						"CPP_ASTObject_TemplateTypeArgument",
+						"CPP_ASTObject_TemplateDeclarationArgument",
+						"CPP_ASTObject_TemplateIntegralArgument",
+						"CPP_ASTObject_TemplateTemplateArgument",
+						"CPP_ASTObject_TemplateExpressionArgument",
 						"CPP_FakeASTObject_Property"];
 
 const Cc = Components.classes;
@@ -55,6 +64,8 @@ CPP_AST.createFromSaveObject = function createFromSaveObject(saveObj)
 	var result = new CPP_AST();
 	
 	result.root = result._addASTObjectFromJSON(null, saveObj.rootJSON);
+	result._initASTObject(result.root);
+	
 	result.root._AST = result;
 	result.TUPath = saveObj.TUPath;
 	
@@ -91,14 +102,22 @@ CPP_AST.prototype = {
 	*/
 	_addASTTypeFromJSON: function _addASTTypeFromJSON(jsonObject)
 	{
-	   var astType = new CPP_ASTType(jsonObject.kind, this.astObjectsByID[jsonObject.declaration], jsonObject.isConst);
-	   
-	   if(jsonObject.pointsTo)
-		   astType.pointsTo = this._addASTTypeFromJSON(jsonObject.pointsTo);
-		   
-	   return astType;
+		var astObj = null;
+		if(jsonObject.declaration)
+		{
+			astObj = this.astObjectsByID[jsonObject.declaration];
+			if(!astObj)
+					throw "Could not get ASTObject for type declaration";
+		}
+
+		var astType = new CPP_ASTType(jsonObject.kind, astObj, jsonObject.isConst);
+		
+		if(jsonObject.pointsTo)
+			astType.pointsTo = this._addASTTypeFromJSON(jsonObject.pointsTo);
+			
+		return astType;
 	}, 
-	
+		
 	
 	/**
 	* Summary
@@ -110,159 +129,350 @@ CPP_AST.prototype = {
 	*/
 	_addASTObjectFromJSON: function _addASTObjectFromJSON(parent, jsonObject)
 	{
-	   var astObject = null;
+		var astObject = null;
+		
+		var type = null;
+		var typeCanonical = null;
 	   
-	   var type = null;
-	   var typeCanonical = null;
-	   
-	   switch(jsonObject.kind)
-	   {
-		   case "Namespace":
+		switch(jsonObject.kind)
+		{
+			case "Namespace":
 				// TODO: hack
 				var USR = jsonObject.USR;
 				if(USR == "")
 					USR = "namespace_global";
 				
 				astObject = new CPP_ASTObject_Namespace(parent, jsonObject.name, jsonObject.id, USR);
-				this.astObjectsByID[jsonObject.id] = astObject;
-				this.astObjectsByUSR[USR] = astObject;
 				break;
-		   
-		   case "Typedef":
-			   type = this._addASTTypeFromJSON(jsonObject.type);
-			   typeCanonical = this._addASTTypeFromJSON(jsonObject.typeCanonical);
-			   astObject = new CPP_ASTObject_Typedef(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical);
-			   this.astObjectsByID[jsonObject.id] = astObject;
-			   this.astObjectsByUSR[jsonObject.USR] = astObject;
+			
+			case "Typedef":
+				astObject = new CPP_ASTObject_Typedef(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
+				break;
+			
+			case "Struct":
+				astObject = new CPP_ASTObject_Struct(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
+				break;
+			
+			case "Class":
+				astObject = new CPP_ASTObject_Class(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
+				break;
+			
+			case "VariableDeclaration":
+				astObject = new CPP_ASTObject_Var_Decl(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
+				break;
+			
+			case "Field":
+				astObject = new CPP_ASTObject_Field(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
+				break;
+			
+			case "Function":
+				astObject = new CPP_ASTObject_Function(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
+				break;
+			
+			case "Parameter":
+			   astObject = new CPP_ASTObject_Parameter(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
 			   break;
-		   
-		   case "Struct":
-			   astObject = new CPP_ASTObject_Struct(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
-			   this.astObjectsByID[jsonObject.id] = astObject;
-			   this.astObjectsByUSR[jsonObject.USR] = astObject;
+			
+			case "MemberFunction":
+				astObject = new CPP_ASTObject_Member_Function(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
+				break;	
+			
+			case "Constructor":
+				astObject = new CPP_ASTObject_Constructor(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
+				break;	
 			   
-			   for(var i = 0; i < jsonObject.bases.length; ++i)
-				   astObject.addBase(this.astObjectsByID[jsonObject.bases[i].id], ASTObject.getAccessFromString(jsonObject.bases[i].access));
-			   
-			   break;
-		   
-		   case "Class":
-			   astObject = new CPP_ASTObject_Class(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
-			   this.astObjectsByID[jsonObject.id] = astObject;
-			   this.astObjectsByUSR[jsonObject.USR] = astObject;
-			   
-			   for(var i = 0; i < jsonObject.bases.length; ++i)
-				   astObject.addBase(this.astObjectsByID[jsonObject.bases[i].id], ASTObject.getAccessFromString(jsonObject.bases[i].access));
-			   
-			   break;
-		   
-		   case "VariableDeclaration":
-			   type = this._addASTTypeFromJSON(jsonObject.type);
-			   typeCanonical = this._addASTTypeFromJSON(jsonObject.typeCanonical);
-			   astObject = new CPP_ASTObject_Var_Decl(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical);
-			   this.astObjectsByID[jsonObject.id] = astObject;
-			   this.astObjectsByUSR[jsonObject.USR] = astObject;
-			   break;
-		   
-		   case "Field":
-			   type = this._addASTTypeFromJSON(jsonObject.type);
-			   typeCanonical = this._addASTTypeFromJSON(jsonObject.typeCanonical);
-			   astObject = new CPP_ASTObject_Field(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical, ASTObject.getAccessFromString(jsonObject.access), jsonObject.isStatic);
-			   this.astObjectsByID[jsonObject.id] = astObject;
-			   this.astObjectsByUSR[jsonObject.USR] = astObject;
-			   break;
-		   
-		   case "Function":
-			   type = this._addASTTypeFromJSON(jsonObject.returnType);
-			   typeCanonical = this._addASTTypeFromJSON(jsonObject.returnTypeCanonical);
-			   astObject = new CPP_ASTObject_Function(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical);
-			   this.astObjectsByID[jsonObject.id] = astObject;
-			   this.astObjectsByUSR[jsonObject.USR] = astObject;
-			   
-			   for(var i = 0; i < jsonObject.parameters.length; ++i)
-			   {
-				   type = this._addASTTypeFromJSON(jsonObject.parameters[i].type);
-				   typeCanonical = this._addASTTypeFromJSON(jsonObject.parameters[i].typeCanonical);
-				   var param = new CPP_ASTObject_Parameter(astObject, jsonObject.parameters[i].name, type, typeCanonical);
-				   astObject.addParameter(param);
-			   }
-			   
-			   break;
-		   
-		   case "MemberFunction":
-			   type = this._addASTTypeFromJSON(jsonObject.returnType);
-			   typeCanonical = this._addASTTypeFromJSON(jsonObject.returnTypeCanonical);
-			   astObject = new CPP_ASTObject_Member_Function(parent, jsonObject.name, jsonObject.id, jsonObject.USR, type, typeCanonical, ASTObject.getAccessFromString(jsonObject.access), jsonObject.isStatic, jsonObject.isVirtual, false);
-			   this.astObjectsByID[jsonObject.id] = astObject;
-			   this.astObjectsByUSR[jsonObject.USR] = astObject;
-			   
-			   for(var i = 0; i < jsonObject.parameters.length; ++i)
-			   {
-				   type = this._addASTTypeFromJSON(jsonObject.parameters[i].type);
-				   typeCanonical = this._addASTTypeFromJSON(jsonObject.parameters[i].typeCanonical);
-				   var param = new CPP_ASTObject_Parameter(astObject, jsonObject.parameters[i].name, type, typeCanonical);
-				   astObject.addParameter(param);
-			   }
-			   
-			   break;	
-			   
-		   case "Parameter":
-			   break;
-		   
-		   case "Constructor":
-			   astObject = new CPP_ASTObject_Constructor(parent, jsonObject.name, jsonObject.id, jsonObject.USR, ASTObject.getAccessFromString(jsonObject.access));
-			   this.astObjectsByID[jsonObject.id] = astObject;
-			   this.astObjectsByUSR[jsonObject.USR] = astObject;
-			   
-			   for(var i = 0; i < jsonObject.parameters.length; ++i)
-			   {
-				   type = this._addASTTypeFromJSON(jsonObject.parameters[i].type);
-				   typeCanonical = this._addASTTypeFromJSON(jsonObject.parameters[i].typeCanonical);
-				   var param = new CPP_ASTObject_Parameter(astObject, jsonObject.name, type, typeCanonical);
-				   astObject.addParameter(param);
-			   }
-			   
-			   break;	
-			   
-		   case "Destructor":
-			   astObject = new CPP_ASTObject_Destructor(parent, jsonObject.name, jsonObject.id, jsonObject.USR, ASTObject.getAccessFromString(jsonObject.access), false);
-			   this.astObjectsByID[jsonObject.id] = astObject;
-			   this.astObjectsByUSR[jsonObject.USR] = astObject;
-			   break;
+			case "Destructor":
+				astObject = new CPP_ASTObject_Destructor(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
+				break;
 				
 			case "Enum":
 			   astObject = new CPP_ASTObject_Enum(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
-			   this.astObjectsByID[jsonObject.id] = astObject;
-			   this.astObjectsByUSR[jsonObject.USR] = astObject;
 			   break;
 			
 			case "EnumConstant":
-			   astObject = new CPP_ASTObject_EnumConstant(parent, jsonObject.name, jsonObject.id, jsonObject.USR, jsonObject.value);
-			   this.astObjectsByID[jsonObject.id] = astObject;
-			   this.astObjectsByUSR[jsonObject.USR] = astObject;
+			   astObject = new CPP_ASTObject_EnumConstant(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
 			   break;
-	   }
-	   
-		if(astObject)
-		{
 			
-			astObject.isDefinition = jsonObject.isDefinition;
-			if(jsonObject.isDefinition)
-				astObject.definition = jsonObject.definition;
+			case "Union":
+			   astObject = new CPP_ASTObject_Union(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
+			   break;
 			
-			if(jsonObject.declarations)
-				for(var i = 0, len = jsonObject.declarations.length; i < len; ++i)
-					astObject.declarations.push(jsonObject.declarations[i]);
+			case "TemplateTypeParameter":
+			   astObject = new CPP_ASTObject_TemplateTypeParameter(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
+			   break;
+			
+			case "TemplateNonTypeParameter":
+			   astObject = new CPP_ASTObject_TemplateNonTypeParameter(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
+			   break;
+			
+			case "TemplateTemplateParameter":
+			   astObject = new CPP_ASTObject_TemplateTemplateParameter(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
+			   break;
+			
+			case "TemplateTypeArgument":
+			   astObject = new CPP_ASTObject_TemplateTypeArgument(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
+			   break;
+			
+			case "TemplateDeclarationArgument":
+			   astObject = new CPP_ASTObject_TemplateDeclarationArgument(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
+			   break;
+			
+			case "TemplateIntegralArgument":
+			   astObject = new CPP_ASTObject_TemplateIntegralArgument(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
+			   break;
+			
+			case "TemplateTemplateArgument":
+			   astObject = new CPP_ASTObject_TemplateTemplateArgument(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
+			   break;
+			
+			case "TemplateExpressionArgument":
+			   astObject = new CPP_ASTObject_TemplateExpressionArgument(parent, jsonObject.name, jsonObject.id, jsonObject.USR);
+			   break;
 		}
 	   
-	   if(jsonObject.children)
-	   {
-		   for(var i = 0; i < jsonObject.children.length; ++i)
-			   astObject.addChild(this._addASTObjectFromJSON(astObject, jsonObject.children[i]));
-	   }
 	   
-	   return astObject;
-	}
+		if(!astObject)
+			throw "Unrecognized ASTObject";
+		
+		this.astObjectsByID[jsonObject.id] = astObject;
+		this.astObjectsByUSR[(USR == null) ? jsonObject.USR : USR] = astObject;
+		
+		astObject.displayName = (jsonObject.displayname == null) ? jsonObject.name : jsonObject.displayname;
+		
+		astObject._jsonObject = jsonObject;
+	   
+		if(jsonObject.children)
+		{
+			for(var i = 0; i < jsonObject.children.length; ++i)
+				astObject.addChild(this._addASTObjectFromJSON(astObject, jsonObject.children[i]));
+		}
+		
+		return astObject;
+	},
+	
+	/**
+	 * Adds parameters to the astObject
+	 * 
+	 * @param   {ASTObject}   astObject   ASTObject to add params to
+	 */
+	_initAddParameters: function _initAddParameters(astObject)
+	{
+		var jsonObject = astObject._jsonObject;
+		
+		for(var i = 0; i < jsonObject.parameters.length; ++i)
+		{
+			var paramObj = this.astObjectsByID[jsonObject.parameters[i]];
+			if(!paramObj)
+				throw "Could not retrieve ASTObject for base class";
+			astObject.addParameter(paramObj);
+		}
+	},
+	
+	/**
+	 * Adds template information to the astobject
+	 * 
+	 * @param   {ASTObject}   astObject   ASTObject to add template information to
+	 */
+	_initAddTemplateInformation: function _initAddTemplateInformation(astObject)
+	{
+		var jsonObject = astObject._jsonObject;
+		
+		if(jsonObject.templateParameters)
+		{
+			for(var i = 0; i < jsonObject.templateParameters.length; ++i)
+			{
+				var paramObj = this.astObjectsByID[jsonObject.templateParameters[i]];
+				if(!paramObj)
+					throw "Could not retrieve ASTObject for template parameter";
+				astObject.templateParameters.push(paramObj);
+			}
+		}
+		
+		if(jsonObject.templateArguments)
+		{
+			for(var i = 0; i < jsonObject.templateArguments.length; ++i)
+			{
+				var argObj = this.astObjectsByID[jsonObject.templateArguments[i]];
+				if(!argObj)
+					throw "Could not retrieve ASTObject for template argument";
+				astObject.templateArguments.push(argObj);
+			}
+		}
+		
+		if(jsonObject.templateKind)
+			astObject.templateKind = jsonObject.templateKind;
+			
+		if(jsonObject.templateDeclaration)
+		{
+			var declObj = this.astObjectsByID[jsonObject.templateDeclaration];
+			if(!declObj)
+				throw "Could not retrieve ASTObject for template declaration";
+			astObject.templateDeclaration = declObj;
+		}
+	}, 
+	
+	
+	/**
+	 * Initializes the ASTObject and sets up the references
+	 * 
+	 * @param   {ASTObject}   astObject   ASTObject to init
+	 */
+	_initASTObject: function _initASTObject(astObject)
+	{
+		var type = null;
+		var typeCanonical = null;
+		
+		var jsonObject = astObject._jsonObject;
+	   
+		switch(jsonObject.kind)
+		{
+			case "Namespace":
+				 break;
+			
+			case "Typedef":
+				astObject.type = this._addASTTypeFromJSON(jsonObject.type);
+				astObject.typeCanonical = this._addASTTypeFromJSON(jsonObject.typeCanonical);
+				break;
+			
+			case "Struct":
+			case "Class":
+				for(var i = 0; i < jsonObject.bases.length; ++i)
+				{
+					var baseObj = this.astObjectsByID[jsonObject.bases[i].id];
+					if(!baseObj)
+						throw "Could not retrieve ASTObject for base class";
+					astObject.addBase(baseObj, ASTObject.getAccessFromString(jsonObject.bases[i].access));
+				}
+				
+				this._initAddTemplateInformation(astObject);
+				
+				break;
+			
+			case "VariableDeclaration":
+				astObject.type = this._addASTTypeFromJSON(jsonObject.type);
+				astObject.typeCanonical = this._addASTTypeFromJSON(jsonObject.typeCanonical);
+				break;
+			
+			case "Field":
+				astObject.type = this._addASTTypeFromJSON(jsonObject.type);
+				astObject.typeCanonical = this._addASTTypeFromJSON(jsonObject.typeCanonical);
+				astObject.access = ASTObject.getAccessFromString(jsonObject.access);
+				astObject.isStatic = jsonObject.isStatic;
+				break;
+			
+			case "Function":
+				astObject.returnType = this._addASTTypeFromJSON(jsonObject.returnType);
+				astObject.returnTypeCanonical = this._addASTTypeFromJSON(jsonObject.returnTypeCanonical);
+				
+				this._initAddParameters(astObject);
+				this._initAddTemplateInformation(astObject);
+				
+				break;
+			
+			case "MemberFunction":
+				astObject.returnType = this._addASTTypeFromJSON(jsonObject.returnType);
+				astObject.returnTypeCanonical = this._addASTTypeFromJSON(jsonObject.returnTypeCanonical);
+				astObject.access = ASTObject.getAccessFromString(jsonObject.access);
+				astObject.isStatic = jsonObject.isStatic;
+				astObject.isVirtual = jsonObject.isVirtual;
+				astObject.isConst = jsonObject.isConst;
+				
+				this._initAddParameters(astObject);
+				this._initAddTemplateInformation(astObject);
+				
+				break;	
+				
+			case "Parameter":
+				astObject.type = this._addASTTypeFromJSON(jsonObject.type);
+				astObject.typeCanonical = this._addASTTypeFromJSON(jsonObject.typeCanonical);
+				break;
+			
+			case "Constructor":
+				astObject.access = ASTObject.getAccessFromString(jsonObject.access);
+				
+				this._initAddParameters(astObject);
+				this._initAddTemplateInformation(astObject);
+				
+				break;	
+				
+			case "Destructor":
+				astObject.access = ASTObject.getAccessFromString(jsonObject.access);
+				astObject.isVirtual = jsonObject.isVirtual;
+				
+				this._initAddTemplateInformation(astObject);
+				
+				break;
+				 
+			case "Enum":
+				break;
+			
+			case "EnumConstant":
+				astObject.value = jsonObject.value;
+				break;
+			
+			case "Union":
+				break;
+			
+			case "TemplateTypeParameter":
+				break;
+			
+			case "TemplateNonTypeParameter":
+				break;
+			
+			case "TemplateTemplateParameter":
+				break;
+			
+			case "TemplateTypeArgument":
+				astObject.type = this._addASTTypeFromJSON(jsonObject.type);
+				astObject.typeCanonical = this._addASTTypeFromJSON(jsonObject.typeCanonical);
+				astObject.name = "TemplateArgument";
+				astObject.displayName = astObject.type.kind;
+				break;
+			
+			case "TemplateDeclarationArgument":
+				var declObj = this.astObjectsByID[jsonObject.declaration];
+				if(!declObj)
+					throw "Could not retrieve ASTObject for template declaration argument";
+				astObject.declaration = declObj;
+				astObject.displayName = declObj.name;
+				astObject.name = "TemplateArgument";
+				break;
+			
+			case "TemplateIntegralArgument":
+				astObject.integral = jsonObject.integral;
+				astObject.displayName = astObject.integral;
+				astObject.name = "TemplateArgument";
+				break;
+			
+			case "TemplateTemplateArgument":
+				var declObj = this.astObjectsByID[jsonObject.template];
+				if(!declObj)
+					throw "Could not retrieve ASTObject for template template argument";
+				astObject.template = declObj;
+				astObject.displayName = declObj.name;
+				astObject.name = "TemplateArgument";
+				break;
+			
+			case "TemplateExpressionArgument":
+				astObject.name = "TemplateArgument";
+				break;
+		}
+		
+		astObject.isDefinition = (jsonObject.isDefinition == null) ? false : true;
+		if(jsonObject.isDefinition)
+			astObject.definition = jsonObject.definition;
+		
+		if(jsonObject.declarations)
+			for(var i = 0, len = jsonObject.declarations.length; i < len; ++i)
+				astObject.declarations.push(jsonObject.declarations[i]);
+		
+		// removing it, as it was only temporary
+		delete astObject._jsonObject;
+		
+		for(var i = 0; i < astObject.children.length; ++i)
+			this._initASTObject(astObject.children[i]);
+	}, 
+	
 }
 
 MetaData.initMetaDataOn(CPP_AST.prototype)
@@ -280,11 +490,12 @@ function CPP_ASTObject(parent, name, id, usr)
 {
 	this.cppLongName = "";	
 	ASTObject.call(this, parent, name);
-	this.id = id;
-	this.USR = usr;
+	this.id = (id == null) ? -1 : id;
+	this.USR = (usr == null) ? "" : usr;
 	this.isDefinition = false;
 	this.declarations = [];
 	this.definition = null;
+	this.displayName = "";
 }
 
 CPP_ASTObject.prototype = {
@@ -479,6 +690,12 @@ function CPP_ASTObject_Struct(parent, name, id, usr)
 	
 	this.bases = [];
 	this.functions = [];
+	
+	// template information
+	this.templateParameters = [];
+	this.templateArguments = [];
+	this.templateDeclaration = null;
+	this.templateKind = "";
 };
 
 CPP_ASTObject_Struct.prototype = {
@@ -501,7 +718,11 @@ CPP_ASTObject_Struct.prototype = {
 Extension.inherit(CPP_ASTObject_Struct, CPP_ASTObject);
 
 MetaData.initMetaDataOn(CPP_ASTObject_Struct.prototype)
-   .addPropertyData("bases",          {view: {}})
+   .addPropertyData("bases",               {view: {}})
+   .addPropertyData("templateKind",        {view: {}})
+   .addPropertyData("templateParameters",  {view: {}})
+   .addPropertyData("templateArguments",   {view: {}})
+   .addPropertyData("templateDeclaration", {view: {}})
 
 //======================================================================================
 
@@ -531,11 +752,11 @@ Extension.inherit(CPP_ASTObject_Class, CPP_ASTObject_Struct);
  * @constructor
  * @this {CPP_ASTObject_Typedef}
  */
-function CPP_ASTObject_Typedef(parent, name, id, usr, type, typeCanonical)
+function CPP_ASTObject_Typedef(parent, name, id, usr)
 {
 	CPP_ASTObject.call(this, parent, name, id, usr);
-	this.type = type;
-	this.typeCanonical = typeCanonical;
+	this.type = null;
+	this.typeCanonical = null;
 };
 
 CPP_ASTObject_Typedef.prototype = {
@@ -557,11 +778,11 @@ MetaData.initMetaDataOn(CPP_ASTObject_Typedef.prototype)
  * @constructor
  * @this {CPP_ASTObject_Var_Decl}
  */
-function CPP_ASTObject_Var_Decl(parent, name, id, usr, type, typeCanonical)
+function CPP_ASTObject_Var_Decl(parent, name, id, usr)
 {
 	CPP_ASTObject.call(this, parent, name, id, usr);
-	this.type = type;
-	this.typeCanonical = typeCanonical;
+	this.type = null;
+	this.typeCanonical = null;
 };
 
 CPP_ASTObject_Var_Decl.prototype = {
@@ -583,11 +804,11 @@ MetaData.initMetaDataOn(CPP_ASTObject_Var_Decl.prototype)
  * @constructor
  * @this {CPP_ASTObject_Field}
  */
-function CPP_ASTObject_Field(parent, name, id, usr, type, typeCanonical, access, isStatic)
+function CPP_ASTObject_Field(parent, name, id, usr)
 {
-	CPP_ASTObject_Var_Decl.call(this, parent, name, id, usr, type, typeCanonical);
-	this.access = access;
-	this.isStatic = isStatic;
+	CPP_ASTObject_Var_Decl.call(this, parent, name, id, usr);
+	this.access = ASTObject.ACCESS_INVALID;
+	this.isStatic = false;
 };
 
 CPP_ASTObject_Field.prototype = {
@@ -609,9 +830,9 @@ MetaData.initMetaDataOn(CPP_ASTObject_Field.prototype)
  * @constructor
  * @this {CPP_ASTObject_Parameter}
  */
-function CPP_ASTObject_Parameter(parent, name, type, typeCanonical)
+function CPP_ASTObject_Parameter(parent, name, id, usr)
 {
-	CPP_ASTObject_Var_Decl.call(this, parent, name, -1, "", type, typeCanonical);
+	CPP_ASTObject_Var_Decl.call(this, parent, name, id, usr);
 };
 
 CPP_ASTObject_Parameter.prototype = {
@@ -629,14 +850,18 @@ Extension.inherit(CPP_ASTObject_Parameter, CPP_ASTObject_Var_Decl);
  * @constructor
  * @this {CPP_ASTObject_Function}
  */
-function CPP_ASTObject_Function(parent, name, id, usr, returnType, returnTypeCanonical)
+function CPP_ASTObject_Function(parent, name, id, usr)
 {
 	CPP_ASTObject.call(this, parent, name, id, usr);
 	
-	this.returnType = returnType;
-	this.returnTypeCanonical = returnTypeCanonical;
+	this.returnType = null;
+	this.returnTypeCanonical = null;
 	
 	this.parameters = [];
+	this.templateParameters = [];
+	this.templateArguments = [];
+	this.templateDeclaration = null;
+	this.templateKind = "";
 	
 	this.overloadName = name + "()";
 };
@@ -683,6 +908,10 @@ Extension.inherit(CPP_ASTObject_Function, CPP_ASTObject);
 MetaData.initMetaDataOn(CPP_ASTObject_Function.prototype)
    .addPropertyData("returnType",          {view: {}})
    .addPropertyData("returnTypeCanonical", {view: {}})
+   .addPropertyData("templateKind",        {view: {}})
+   .addPropertyData("templateParameters",  {view: {}})
+   .addPropertyData("templateArguments",   {view: {}})
+   .addPropertyData("templateDeclaration", {view: {}})
 
 //======================================================================================
 
@@ -692,13 +921,13 @@ MetaData.initMetaDataOn(CPP_ASTObject_Function.prototype)
  * @constructor
  * @this {CPP_ASTObject_Member_Function}
  */
-function CPP_ASTObject_Member_Function(parent, name, id, usr, returnType, returnTypeCanonical, access, isStatic, isVirtual, isConst)
+function CPP_ASTObject_Member_Function(parent, name, id, usr)
 {
-	CPP_ASTObject_Function.call(this, parent, name, id, usr, returnType, returnTypeCanonical);
-	this.access = access;
-	this.isVirtual = isVirtual;
-	this.isConst = isConst;
-	this.isStatic = isStatic;
+	CPP_ASTObject_Function.call(this, parent, name, id, usr);
+	this.access = ASTObject.ACCESS_INVALID;
+	this.isVirtual = false;
+	this.isConst = false;
+	this.isStatic = false;
 };
 
 CPP_ASTObject_Member_Function.prototype = {
@@ -720,9 +949,9 @@ MetaData.initMetaDataOn(CPP_ASTObject_Member_Function.prototype)
  * @constructor
  * @this {CPP_ASTObject_Constructor}
  */
-function CPP_ASTObject_Constructor(parent, name, id, usr, access)
+function CPP_ASTObject_Constructor(parent, name, id, usr)
 {
-	CPP_ASTObject_Member_Function.call(this, parent, name, id, usr, null, null, access, false, false)
+	CPP_ASTObject_Member_Function.call(this, parent, name, id, usr)
 };
 
 CPP_ASTObject_Constructor.prototype = {
@@ -740,9 +969,9 @@ Extension.inherit(CPP_ASTObject_Constructor, CPP_ASTObject_Member_Function);
  * @constructor
  * @this {CPP_ASTObject_Destructor}
  */
-function CPP_ASTObject_Destructor(parent, name, id, usr, access, isVirtual)
+function CPP_ASTObject_Destructor(parent, name, id, usr)
 {
-	CPP_ASTObject_Member_Function.call(this, parent, name, id, usr, null, null, access, isVirtual, false)
+	CPP_ASTObject_Member_Function.call(this, parent, name, id, usr)
 };
 
 CPP_ASTObject_Destructor.prototype = {
@@ -780,11 +1009,11 @@ Extension.inherit(CPP_ASTObject_Enum, CPP_ASTObject);
  * @constructor
  * @this {CPP_ASTObject_EnumConstant}
  */
-function CPP_ASTObject_EnumConstant(parent, name, id, usr, value)
+function CPP_ASTObject_EnumConstant(parent, name, id, usr)
 {
 	CPP_ASTObject.call(this, parent, name, id, usr);
 	
-	this.value = value;
+	this.value = -1;
 };
 
 CPP_ASTObject_EnumConstant.prototype = {
@@ -796,4 +1025,202 @@ Extension.inherit(CPP_ASTObject_EnumConstant, CPP_ASTObject);
 
 MetaData.initMetaDataOn(CPP_ASTObject_EnumConstant.prototype)
    .addPropertyData("value",          {view: {}})
+   
+//======================================================================================
+
+/**
+ * CPP_ASTObject_Union
+ *
+ * @constructor
+ * @this {CPP_ASTObject_Union}
+ */
+function CPP_ASTObject_Union(parent, name, id, usr)
+{
+	CPP_ASTObject.call(this, parent, name, id, usr);
+};
+
+CPP_ASTObject_Union.prototype = {
+	constructor: CPP_ASTObject_Union,
+	kind: ASTObject.KIND_UNION,
+};
+
+Extension.inherit(CPP_ASTObject_Union, CPP_ASTObject);
+   
+//======================================================================================
+
+/**
+ * CPP_ASTObject_TemplateTypeParameter
+ *
+ * @constructor
+ * @this {CPP_ASTObject_TemplateTypeParameter}
+ */
+function CPP_ASTObject_TemplateTypeParameter(parent, name, id, usr)
+{
+	CPP_ASTObject.call(this, parent, name, id, usr);
+};
+
+CPP_ASTObject_TemplateTypeParameter.prototype = {
+	constructor: CPP_ASTObject_TemplateTypeParameter,
+	kind: ASTObject.KIND_TEMPLATE_TYPE_PARAMETER,
+};
+
+Extension.inherit(CPP_ASTObject_TemplateTypeParameter, CPP_ASTObject);
+
+//======================================================================================
+
+/**
+ * CPP_ASTObject_TemplateNonTypeParameter
+ *
+ * @constructor
+ * @this {CPP_ASTObject_TemplateNonTypeParameter}
+ */
+function CPP_ASTObject_TemplateNonTypeParameter(parent, name, id, usr)
+{
+	CPP_ASTObject.call(this, parent, name, id, usr);
+};
+
+CPP_ASTObject_TemplateNonTypeParameter.prototype = {
+	constructor: CPP_ASTObject_TemplateNonTypeParameter,
+	kind: ASTObject.KIND_TEMPLATE_NON_TYPE_PARAMETER,
+};
+
+Extension.inherit(CPP_ASTObject_TemplateNonTypeParameter, CPP_ASTObject);
+
+//======================================================================================
+
+/**
+ * CPP_ASTObject_TemplateTemplateParameter
+ *
+ * @constructor
+ * @this {CPP_ASTObject_TemplateTemplateParameter}
+ */
+function CPP_ASTObject_TemplateTemplateParameter(parent, name, id, usr)
+{
+	CPP_ASTObject.call(this, parent, name, id, usr);
+};
+
+CPP_ASTObject_TemplateTemplateParameter.prototype = {
+	constructor: CPP_ASTObject_TemplateTemplateParameter,
+	kind: ASTObject.KIND_TEMPLATE_TEMPLATE_PARAMETER,
+};
+
+Extension.inherit(CPP_ASTObject_TemplateTemplateParameter, CPP_ASTObject);
+
+//======================================================================================
+
+/**
+ * CPP_ASTObject_TemplateTypeArgument
+ *
+ * @constructor
+ * @this {CPP_ASTObject_TemplateTypeArgument}
+ */
+function CPP_ASTObject_TemplateTypeArgument(parent, name, id, usr)
+{
+	CPP_ASTObject.call(this, parent, name, id, usr);
+	this.type = null;
+	this.typeCanonical = null;
+};
+
+CPP_ASTObject_TemplateTypeArgument.prototype = {
+	constructor: CPP_ASTObject_TemplateTypeArgument,
+	kind: ASTObject.KIND_TEMPLATE_TYPE_ARGUMENT,
+};
+
+Extension.inherit(CPP_ASTObject_TemplateTypeArgument, CPP_ASTObject);
+
+MetaData.initMetaDataOn(CPP_ASTObject_TemplateTypeArgument.prototype)
+   .addPropertyData("type",          {view: {}})
+   .addPropertyData("typeCanonical", {view: {}})
+
+//======================================================================================
+
+/**
+ * CPP_ASTObject_TemplateDeclarationArgument
+ *
+ * @constructor
+ * @this {CPP_ASTObject_TemplateDeclarationArgument}
+ */
+function CPP_ASTObject_TemplateDeclarationArgument(parent, name, id, usr)
+{
+	CPP_ASTObject.call(this, parent, name, id, usr);
+	this.declaration = null;
+};
+
+CPP_ASTObject_TemplateDeclarationArgument.prototype = {
+	constructor: CPP_ASTObject_TemplateDeclarationArgument,
+	kind: ASTObject.KIND_TEMPLATE_DECLARATION_ARGUMENT,
+};
+
+Extension.inherit(CPP_ASTObject_TemplateDeclarationArgument, CPP_ASTObject);
+
+MetaData.initMetaDataOn(CPP_ASTObject_TemplateDeclarationArgument.prototype)
+   .addPropertyData("declaration",          {view: {}})
+
+//======================================================================================
+
+/**
+ * CPP_ASTObject_TemplateIntegralArgument
+ *
+ * @constructor
+ * @this {CPP_ASTObject_TemplateIntegralArgument}
+ */
+function CPP_ASTObject_TemplateIntegralArgument(parent, name, id, usr)
+{
+	CPP_ASTObject.call(this, parent, name, id, usr);
+	this.integral = 0;
+};
+
+CPP_ASTObject_TemplateIntegralArgument.prototype = {
+	constructor: CPP_ASTObject_TemplateIntegralArgument,
+	kind: ASTObject.KIND_TEMPLATE_INTEGRAL_ARGUMENT,
+};
+
+Extension.inherit(CPP_ASTObject_TemplateIntegralArgument, CPP_ASTObject);
+
+MetaData.initMetaDataOn(CPP_ASTObject_TemplateIntegralArgument.prototype)
+   .addPropertyData("integral",          {view: {}})
+
+//======================================================================================
+
+/**
+ * CPP_ASTObject_TemplateTemplateArgument
+ *
+ * @constructor
+ * @this {CPP_ASTObject_TemplateTemplateArgument}
+ */
+function CPP_ASTObject_TemplateTemplateArgument(parent, name, id, usr)
+{
+	CPP_ASTObject.call(this, parent, name, id, usr);
+	this.template = null;
+};
+
+CPP_ASTObject_TemplateTemplateArgument.prototype = {
+	constructor: CPP_ASTObject_TemplateTemplateArgument,
+	kind: ASTObject.KIND_TEMPLATE_TEMPLATE_ARGUMENT,
+};
+
+Extension.inherit(CPP_ASTObject_TemplateTemplateArgument, CPP_ASTObject);
+
+MetaData.initMetaDataOn(CPP_ASTObject_TemplateTemplateArgument.prototype)
+   .addPropertyData("template",          {view: {}})
+
+//======================================================================================
+
+/**
+ * CPP_ASTObject_TemplateExpressionArgument
+ *
+ * @constructor
+ * @this {CPP_ASTObject_TemplateExpressionArgument}
+ */
+function CPP_ASTObject_TemplateExpressionArgument(parent, name, id, usr)
+{
+	CPP_ASTObject.call(this, parent, name, id, usr);
+};
+
+CPP_ASTObject_TemplateExpressionArgument.prototype = {
+	constructor: CPP_ASTObject_TemplateExpressionArgument,
+	kind: ASTObject.KIND_TEMPLATE_EXPRESSION_ARGUMENT,
+};
+
+Extension.inherit(CPP_ASTObject_TemplateExpressionArgument, CPP_ASTObject);
 

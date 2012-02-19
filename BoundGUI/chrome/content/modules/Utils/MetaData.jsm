@@ -241,8 +241,14 @@ MetaDataAggregate.prototype = {
 				else
 					return val.constructor.name;
 			}
+			else if(typeof(val) === "undefined")
+			{
+				return "undefined";
+			}
 			else
-				throw "Could not get propertytype!";
+			{
+				throw "Could not get property type for " + propertyName + "!";
+			}
 		}
 		else
 		{

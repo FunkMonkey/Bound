@@ -31,21 +31,23 @@ var MainWindow = {
 		ResultTabbox.init(this);
 		
 		// TODO: move somewhere else
-		CPPAnalyzer.init();
-		//var path = "D:/Data/Projekte/Bound/src/CPPAnalyzer/Test/";
-		//var cppAST = CPPAnalyzer.parse_header(path, ["supertest", path + "test1.cpp"]);
-		//var path = "D:/Data/Projekte/Bound/src/Wrapping/Spidermonkey/WrappingTest/include/";
-		//var cppAST = CPPAnalyzer.parse_header(path, ["supertest", path + "SimpleClass.hpp"]);
+			CPPAnalyzer.init();
+			var path = "D:/Data/Projekte/Bound/src/CPPAnalyzer/Test/";
+			var cppAST = CPPAnalyzer.parse_header(path, ["supertest", path + "Template.cpp"]);
+			
+			//var path = "D:/Data/Projekte/Bound/src/Wrapping/Spidermonkey/WrappingTest/include/";
+			//var cppAST = CPPAnalyzer.parse_header(path, ["supertest", path + "SimpleClass.hpp"]);
+			
+			//var path = "D:/Data/Projekte/Bound/src/Wrapping/Spidermonkey/WrappingTest/include/";
+			//var cppAST = CPPAnalyzer.parse_header(path, ["supertest", path + "Functions_BasicTypes.hpp"]);
+			
+			this.CPPTree.setCPPAST(cppAST);
+			this.ExportTree.newExportAST(cppAST);
+			
+			//var proxyHandler = new ForwardProxyHandler(cppAST.root.children[2]);
+			//var proxy = Proxy.create(proxyHandler, Object.getPrototypeOf(proxyHandler.obj));
+			//var handler = new MetaDataHandler(proxy, this.$window);
+			//this.PropertyExplorer.setDataHandler(handler);
 		
-		//var path = "D:/Data/Projekte/Bound/src/Wrapping/Spidermonkey/WrappingTest/include/";
-		//var cppAST = CPPAnalyzer.parse_header(path, ["supertest", path + "Functions_BasicTypes.hpp"]);
-		
-		//this.CPPTree.setCPPAST(cppAST);
-		//this.ExportTree.newExportAST(cppAST);
-		
-		//var proxyHandler = new ForwardProxyHandler(cppAST.root.children[2]);
-		//var proxy = Proxy.create(proxyHandler, Object.getPrototypeOf(proxyHandler.obj));
-		//var handler = new MetaDataHandler(proxy, this.$window);
-		//this.PropertyExplorer.setDataHandler(handler);
 	},
 };

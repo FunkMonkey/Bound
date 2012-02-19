@@ -69,6 +69,13 @@ namespace CPPAnalyzer
 		ALL = PRIVATE_PROTECTED_PUBLIC
 	};
 
+	enum Rule_Success
+	{
+		RULE_SUCCESS,
+		RULE_FAIL,
+		RULE_FAIL_CHECK_CHILDREN
+	};
+
 	class VisibilityFilter
 	{
 		public:
@@ -123,7 +130,7 @@ namespace CPPAnalyzer
 			ASTObject* getTypeDeclaration(CXCursor cursor, bool canonical);
 
 			// Helper functions
-			void addBase(CXCursor cursor, ASTObject* astParent);
+			void setBaseInformation(Clang_AST_CXTreeNode& treeNode);
 			void setTemplateInformation(ASTObjectHelper_Template& templateInfo, CXCursor cursor, ASTObject* astParent);
 
 			void printTreeNode(ASTObject* node, int depth) const;
@@ -137,7 +144,6 @@ namespace CPPAnalyzer
 
 			void analyze();
 
-			//void registerTreeNode(Clang_AST_CXTreeNode* treeNode);
 			Clang_AST_CXTreeNode* getTreeNodeFromCursor(CXCursor cursor);
 			Clang_AST_CXTreeNode* getRootTreeNode(){ return m_rootTreeNode; }
 			Clang_AST_CXTreeNode* getReferencedTreeNodeFromCursor(CXCursor cursor);
@@ -145,26 +151,20 @@ namespace CPPAnalyzer
 
 		protected:
 
+			Rule_Success checkFileRule(Clang_AST_CXTreeNode& treeNode);
+			Rule_Success checkNameRule(Clang_AST_CXTreeNode& treeNode);
+			Rule_Success checkAccessRule(Clang_AST_CXTreeNode& treeNode);
+			bool supportsASTObject(CXCursorKind kind);
+
 			void addFunctionParameters(Clang_AST_CXTreeNode& treeNode);
 
 			void analyzeVisibility(Clang_AST_CXTreeNode& treeNode);
 			void analyzeChildrenVisibility(Clang_AST_CXTreeNode& treeNode);
 			void connectASTObjects(Clang_AST_CXTreeNode& treeNode);
 
-			void visitTreeNode(Clang_AST_CXTreeNode& treeNode, int filterInfo);
-			void visitTreeNode_asTypeReference(Clang_AST_CXTreeNode& treeNode, int filterInfo);
-			void visitTreeNode_asBaseReference(Clang_AST_CXTreeNode& treeNode, int filterInfo);
-			void visitTreeNode_asParent(Clang_AST_CXTreeNode& treeNode, int filterInfo);
-
 			ASTObject* createASTObjectForTreeNode(Clang_AST_CXTreeNode& treeNode);
 			Clang_AST_CXTreeNode* createTreeNodeFromCursor(CXCursor cursor);
 			Clang_AST_CXTreeNode* addTreeNodeFromCursor(CXCursor cursor, Clang_AST_CXTreeNode& parent);
-
-			//ASTObject_Namespace* m_rootASTObject;
-			//CXCursor m_rootCursor;
-			//CXCursorASTObjectMap m_astObjects;	// TODO: merge
-			//CXCursorASTObjectMap m_canonicalASTObjects;
-			//std::map<CXCursor, CXCursor, CXCursor_less> m_parentMap;
 
 			Clang_AST_CXTreeNode* m_rootTreeNode;
 			std::map<CXCursor, Clang_AST_CXTreeNode*, CXCursor_less> m_canonicalCursorTreeNodeMap;

@@ -170,7 +170,12 @@ function PropertyFactoryObject($row)
 
 PropertyFactoryObject.refresh = function refresh()
 {
-	this.childNodes[1].value = (this.dataHandler.getPropertyValue(this.propName) == null) ? "null" : "object";
+	var val = this.dataHandler.getPropertyValue(this.propName);
+	
+	if(val == null)
+		this.childNodes[1].value =  (val === null) ? "null" : "undefined";
+	else
+		this.childNodes[1].value =  "object";
 }
 
 PropertyFactoryObject.save = function save()

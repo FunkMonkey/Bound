@@ -48,20 +48,25 @@ namespace CPPAnalyzer
 
 	void setStandardProperties(const Clang_AST_CXTreeNode& treeNode, ASTObject* astObject)
 	{
-		CXCursor cursor = treeNode.getCanonicalCursor();
+		CXCursor canonicalCursor = treeNode.getCanonicalCursor();
 
-		SelfDisposingCXString USR(clang_getCursorUSR(cursor));
+		SelfDisposingCXString USR(clang_getCursorUSR(canonicalCursor));
 		astObject->setUSR(USR.c_str());
 
-		SelfDisposingCXString fullName(clang_getCursorDisplayName(cursor));
+		SelfDisposingCXString fullName(clang_getCursorDisplayName(canonicalCursor));
 		astObject->setDisplayName(fullName.c_str());
 
-		//auto location = getSourceLocation(cursor);
+		auto& cursors = treeNode.getCursors();
+		for(auto it = cursors.begin(), end = cursors.end(); it != end; ++it)
+		{
+			auto cursor = *it;
+			auto location = getSourceLocationFromCursor(cursor);
 
-		/*if(clang_isCursorDefinition(cursor))
-			astObject->setDefinition(location);
-		else if(clang_isDeclaration(cursor.kind))
-			astObject->addDeclaration(location);*/
+			if(clang_isCursorDefinition(cursor))
+				astObject->setDefinition(location);
+			else if(clang_isDeclaration(cursor.kind))
+				astObject->addDeclaration(location);
+		}
 	}
 
 	/*
@@ -76,78 +81,6 @@ namespace CPPAnalyzer
 		return static_cast<ASTObject_Namespace*>(astObject);
 	}
 
-
-
-	void Clang_AST::addBase(CXCursor cursor, ASTObject* astParent)
-	{
-		CXType baseType = clang_getCursorType(cursor);
-		CXCursor baseDecl = clang_getTypeDeclaration(baseType);
-
-		ASTObject* baseObject = getASTObjectFromCursor(baseDecl);
-		if(!baseObject)
-		{
-			ASTObject_Namespace* parentNS = getParentNamespace(astParent);
-
-			switch(baseDecl.kind)
-			{
-			case CXCursor_StructDecl:
-				baseObject = addStruct(baseDecl, parentNS);
-				break;
-			case CXCursor_ClassDecl:
-				baseObject = addClass(baseDecl, parentNS);
-				break;
-			case CXCursor_FunctionDecl:
-				baseObject = addFunction(baseDecl, parentNS);
-				break;
-			case CXCursor_CXXMethod:
-				baseObject = addMemberFunction(baseDecl, parentNS);
-				break;
-			case CXCursor_Constructor:
-				baseObject = addConstructor(baseDecl, parentNS);
-				break;
-			case CXCursor_Destructor:
-				baseObject = addDestructor(baseDecl, parentNS);
-				break;
-			}
-		}
-
-		assert(baseObject != NULL);
-		// TODO: check if struct or class
-
-		ASTObject_Struct* parentStruct = dynamic_cast<ASTObject_Struct*>(astParent);
-		if(parentStruct)
-		{
-			
-
-			enum CX_CXXAccessSpecifier access = clang_getCXXAccessSpecifier(cursor);
-
-			ASTObjectAccess astAccess;
-
-			switch (access) {
-				case CX_CXXPublic:    astAccess = ACCESS_PUBLIC; break;
-				case CX_CXXProtected: astAccess = ACCESS_PROTECTED; break;
-				case CX_CXXPrivate:   astAccess = ACCESS_PRIVATE; break;
-				default: break; // TODO: error
-			}
-
-			parentStruct->addBase(static_cast<ASTObject_Struct*>(baseObject), astAccess);
-		}
-		// TODO: else throw exception
-
-	}
-
-	//ASTObject* Clang_AST::getTypeDeclaration(CXCursor cursor, bool canonical)
-	//{
-	//	CXType inputType = clang_getCursorType(cursor);
-	//	CXType type = (canonical) ? clang_getCanonicalType(inputType): inputType;
-
-	//	CXCursor typeDecl = clang_getTypeDeclaration(type);
-	//	auto it = m_astObjects.find(typeDecl);
-	//	if(it != m_astObjects.end())
-	//		return it->second;
-
-	//	return NULL;
-	//}
 
 */
 
@@ -263,7 +196,7 @@ namespace CPPAnalyzer
 			treeNode.setVisibility(VISIBILITY_REFERENCED);
 
 			// create object
-			if(treeNode.getCanonicalCursor().kind != CXCursor_LinkageSpec)
+			if(supportsASTObject(treeNode.getCanonicalCursor().kind))
 				createASTObjectForTreeNode(treeNode);
 
 			auto parentNode = treeNode.getParentNode();
@@ -363,7 +296,7 @@ namespace CPPAnalyzer
 			case CXCursor_Constructor:
 			case CXCursor_Destructor:
 			case CXCursor_CXXMethod:
-			//case CXCursor_CXXBaseSpecifier: // TODO: remove
+			case CXCursor_CXXBaseSpecifier: // TODO: remove
 			case CXCursor_EnumDecl:
 			case CXCursor_EnumConstantDecl:
 			case CXCursor_LinkageSpec:
@@ -399,7 +332,7 @@ namespace CPPAnalyzer
 	{
 		// TODO: remove
 		m_filter.nameFilter = std::regex(".*");
-		m_filter.fileFilter = std::regex(".*STD.hpp");
+		m_filter.fileFilter = std::regex(".*");
 
 		analyzeVisibility(*m_rootTreeNode);
 
@@ -413,14 +346,14 @@ namespace CPPAnalyzer
 	{
 		switch(kind)
 		{
-			case CXCursor_TranslationUnit:
-			case CXCursor_StructDecl:
 			case CXCursor_Namespace:
 			case CXCursor_ClassDecl:
+			case CXCursor_StructDecl:
+			case CXCursor_EnumDecl:
 			case CXCursor_ClassTemplate:
 			case CXCursor_ClassTemplatePartialSpecialization:
-			case CXCursor_EnumDecl:
 			case CXCursor_LinkageSpec:
+			case CXCursor_TranslationUnit:
 				return true;
 
 			default:
@@ -428,10 +361,167 @@ namespace CPPAnalyzer
 		}
 	}
 
-	bool checkNameRule(CXCursorKind kind)
+	bool checkCreateASTObject(CXCursorKind kind)
+	{
+		return true;
+	}
+
+	Rule_Success Clang_AST::checkFileRule(Clang_AST_CXTreeNode& treeNode)
+	{
+		auto canonicalCursor = treeNode.getCanonicalCursor();
+		auto success = RULE_FAIL;
+		
+		bool foundRule = false;
+		auto& fileNames = treeNode.getFileNames();
+		for (auto it = fileNames.begin(), end = fileNames.end(); it != end; ++it)
+		{
+			std::string val = *it;
+			if(canonicalCursor.kind == CXCursor_TranslationUnit || std::regex_match(*it, m_filter.fileFilter))
+			{
+				success = RULE_SUCCESS;
+				break;
+			}
+		}
+
+		return success;
+	}
+
+	Rule_Success Clang_AST::checkNameRule(Clang_AST_CXTreeNode& treeNode)
+	{
+		auto canonicalCursor = treeNode.getCanonicalCursor();
+
+		switch(canonicalCursor.kind)
+		{
+			// no children
+			case CXCursor_VarDecl:
+			case CXCursor_UnionDecl:
+			case CXCursor_TypedefDecl:
+			case CXCursor_FunctionDecl:
+			case CXCursor_FieldDecl:
+			case CXCursor_Constructor:
+			case CXCursor_Destructor:
+			case CXCursor_EnumConstantDecl:
+			case CXCursor_CXXMethod:
+			case CXCursor_FunctionTemplate:
+				return (std::regex_match(treeNode.getFullName(), m_filter.nameFilter))  ? RULE_SUCCESS : RULE_FAIL;
+
+			// children
+			case CXCursor_Namespace:
+			case CXCursor_ClassDecl:
+			case CXCursor_StructDecl:
+			case CXCursor_EnumDecl:
+			case CXCursor_ClassTemplate:
+			case CXCursor_ClassTemplatePartialSpecialization:
+				return (std::regex_match(treeNode.getFullName(), m_filter.nameFilter))  ? RULE_SUCCESS : RULE_FAIL_CHECK_CHILDREN;
+
+			case CXCursor_LinkageSpec:
+			case CXCursor_TranslationUnit:
+				return RULE_FAIL_CHECK_CHILDREN;
+
+			default:
+				return RULE_FAIL;
+		}
+	}
+
+	Rule_Success Clang_AST::checkAccessRule(Clang_AST_CXTreeNode& treeNode)
+	{
+		auto canonicalCursor = treeNode.getCanonicalCursor();
+		
+		auto access = clang_getCXXMemberAccessSpecifier(canonicalCursor);
+
+		// we can only check for access if it has access
+		if(access != CX_CXXInvalidAccessSpecifier)
+		{
+			switch(m_filter.accessFilter)
+			{
+			case NONE:
+				return RULE_FAIL;
+			case PRIVATE:
+				if(access != CX_CXXPrivate)
+					return RULE_FAIL;
+				break;
+			case PROTECTED:
+				if(access != CX_CXXProtected)
+					return RULE_FAIL;
+				break;
+			case PUBLIC:
+				if(access != CX_CXXPublic)
+					return RULE_FAIL;
+				break;
+			case PRIVATE_PROTECTED:
+				if(access == CX_CXXPublic)
+					return RULE_FAIL;
+				break;
+			case PRIVATE_PUBLIC:
+				if(access == CX_CXXProtected)
+					return RULE_FAIL;
+				break;
+			case PROTECTED_PUBLIC:
+				if(access == CX_CXXPrivate)
+					return RULE_FAIL;
+				break;
+			case PRIVATE_PROTECTED_PUBLIC:
+				break;
+			}
+		}
+
+		return RULE_SUCCESS;
+	}
+
+	bool Clang_AST::supportsASTObject(CXCursorKind kind)
 	{
 		switch(kind)
 		{
+			// C
+			case CXCursor_VarDecl:
+			case CXCursor_UnionDecl:
+			case CXCursor_TypedefDecl:
+			case CXCursor_StructDecl:
+			case CXCursor_FunctionDecl:
+			case CXCursor_ParmDecl:
+			case CXCursor_FieldDecl:
+
+			// C++
+			case CXCursor_Namespace:
+			case CXCursor_ClassDecl:
+			case CXCursor_Constructor:
+			case CXCursor_Destructor:
+			case CXCursor_CXXMethod:
+			case CXCursor_EnumDecl:
+			case CXCursor_EnumConstantDecl:
+
+			// C++: Templates
+			case CXCursor_ClassTemplate:
+			case CXCursor_ClassTemplatePartialSpecialization:
+			case CXCursor_FunctionTemplate:
+
+			case CXCursor_TemplateTypeParameter:
+			case CXCursor_NonTypeTemplateParameter:
+			case CXCursor_TemplateTemplateParameter:
+			case CXCursor_TemplateNullArgument:
+			case CXCursor_TemplateTypeArgument:
+			case CXCursor_TemplateDeclarationArgument:
+			case CXCursor_TemplateIntegralArgument:
+			case CXCursor_TemplateTemplateArgument:
+			case CXCursor_TemplateTemplateExpansionArgument:
+			case CXCursor_TemplateExpressionArgument:
+			case CXCursor_TemplatePackArgument:
+				return true;
+
+			default: 
+				return false;
+		}
+	}
+
+	void Clang_AST::analyzeVisibility(Clang_AST_CXTreeNode& treeNode)
+	{
+		auto canonicalCursor = treeNode.getCanonicalCursor();
+
+		// let's see if we actually want to check the visibility rules
+		switch(canonicalCursor.kind)
+		{
+			case CXCursor_TranslationUnit:
+
 			// C
 			case CXCursor_VarDecl:
 			case CXCursor_UnionDecl:
@@ -448,114 +538,51 @@ namespace CPPAnalyzer
 			case CXCursor_CXXMethod:
 			case CXCursor_EnumDecl:
 			case CXCursor_EnumConstantDecl:
+			case CXCursor_LinkageSpec:
 
 			// C++: Templates
 			case CXCursor_ClassTemplate:
 			case CXCursor_ClassTemplatePartialSpecialization:
 			case CXCursor_FunctionTemplate:
-				return true;
-
+				break;
 			default:
-				return false;
+				return;
 		}
-	}
-
-	void Clang_AST::analyzeVisibility(Clang_AST_CXTreeNode& treeNode)
-	{
-		auto canonicalCursor = treeNode.getCanonicalCursor();
-
-		bool foundRule = false;
-		bool isContainer = isContainerKind(canonicalCursor.kind);
-		bool analyzeChildren = false;
 
 		// checking file-rule
-		auto& fileNames = treeNode.getFileNames();
-		for (auto it = fileNames.begin(), end = fileNames.end(); it != end; ++it)
-		{
-			std::string val = *it;
-			if(canonicalCursor.kind == CXCursor_TranslationUnit || std::regex_match(*it, m_filter.fileFilter))
-			{
-				foundRule = true;
-				break;
-			}
-		}
-
-		if(!foundRule) // we'll see about that!
+		if(checkFileRule(treeNode) != RULE_SUCCESS) // we'll see about that!
 			return;
 
 		// checking name-rule
-		if(checkNameRule(canonicalCursor.kind))
+		switch(checkNameRule(treeNode))
 		{
-			// if the name rule succeeds
-			if(std::regex_match(treeNode.getFullName(), m_filter.nameFilter)) 
-			{
-			}
-			// rule failed, let's still check the children
-			else if(isContainer)
-			{
+			case RULE_FAIL:
+				return;
+			case RULE_FAIL_CHECK_CHILDREN:
 				analyzeChildrenVisibility(treeNode);
 				return;
-			}
-			// rule didn't succeed and it is not a container
-			else
-				return;
-		}
-		else if(canonicalCursor.kind == CXCursor_LinkageSpec)
-		{
-			analyzeChildrenVisibility(treeNode);
-			return;
+			default:
+				break;
 		}
 
 		// checking access-rule
-		auto access = clang_getCXXMemberAccessSpecifier(canonicalCursor);
-		
-		// we can only check for access if it has access
-		if(access != CX_CXXInvalidAccessSpecifier)
-		{
-			switch(m_filter.accessFilter)
-			{
-				case NONE:
-					return;
-				case PRIVATE:
-					if(access != CX_CXXPrivate)
-						return;
-					break;
-				case PROTECTED:
-					if(access != CX_CXXProtected)
-						return;
-					break;
-				case PUBLIC:
-					if(access != CX_CXXPublic)
-						return;
-					break;
-				case PRIVATE_PROTECTED:
-					if(access == CX_CXXPublic)
-						return;
-					break;
-				case PRIVATE_PUBLIC:
-					if(access == CX_CXXProtected)
-						return;
-					break;
-				case PROTECTED_PUBLIC:
-					if(access == CX_CXXPrivate)
-						return;
-					break;
-				case PRIVATE_PROTECTED_PUBLIC:
-						break;
-			}
-		}
+		if(checkAccessRule(treeNode) != RULE_SUCCESS)
+			return;
 
 		// if we got here, we're setting the visibility 
 		treeNode.setVisibility(VISIBILITY_VISIBLE);
 
-		// create the ASTObject, if it hasn't been created before by a reference
-		if(!treeNode.getASTObject())
+		if(supportsASTObject(canonicalCursor.kind))
 		{
-			createASTObjectForTreeNode(treeNode);
+			// create the ASTObject, if it hasn't been created before by a reference
+			if(!treeNode.getASTObject())
+			{
+				createASTObjectForTreeNode(treeNode);
 
-			auto parentNode = treeNode.getParentNode();
-			if(parentNode)
-				markTreeNodeAsReferenced(*parentNode);
+				auto parentNode = treeNode.getParentNode();
+				if(parentNode)
+					markTreeNodeAsReferenced(*parentNode);
+			}
 		}
 
 		// and depending on the rule, we may check the children
@@ -570,59 +597,6 @@ namespace CPPAnalyzer
 			for (auto it = children.begin(), end = children.end(); it != end; ++it)
 				analyzeVisibility(**it);
 		}
-	}
-
-
-	void Clang_AST::visitTreeNode(Clang_AST_CXTreeNode& treeNode, int filterInfo)
-	{
-		CXCursor cursor = treeNode.getCanonicalCursor();
-		switch(cursor.kind)
-		{
-			// C
-			case CXCursor_VarDecl:
-			case CXCursor_UnionDecl:
-			case CXCursor_TypedefDecl:
-			case CXCursor_StructDecl:
-			case CXCursor_FunctionDecl:
-			case CXCursor_ParmDecl: 
-			case CXCursor_FieldDecl:
-
-			// C++
-			case CXCursor_Namespace:
-			case CXCursor_ClassDecl:
-			case CXCursor_Constructor:
-			case CXCursor_Destructor:
-			case CXCursor_CXXMethod:
-			case CXCursor_CXXBaseSpecifier:
-			case CXCursor_EnumDecl:
-			case CXCursor_EnumConstantDecl:
-			case CXCursor_LinkageSpec:
-
-
-			// C++: Templates
-			case CXCursor_ClassTemplate:
-			case CXCursor_ClassTemplatePartialSpecialization:
-			case CXCursor_TemplateTypeParameter:
-			case CXCursor_NonTypeTemplateParameter:
-			case CXCursor_TemplateTemplateParameter:
-			case CXCursor_FunctionTemplate:
-				break;
-		}
-	}
-
-	void Clang_AST::visitTreeNode_asTypeReference(Clang_AST_CXTreeNode& treeNode, int filterInfo)
-	{
-
-	}
-
-	void Clang_AST::visitTreeNode_asBaseReference(Clang_AST_CXTreeNode& treeNode, int filterInfo)
-	{
-
-	}
-
-	void Clang_AST::visitTreeNode_asParent(Clang_AST_CXTreeNode& treeNode, int filterInfo)
-	{
-
 	}
 
 	ASTObject* Clang_AST::createASTObjectForTreeNode(Clang_AST_CXTreeNode& treeNode)
@@ -805,6 +779,9 @@ namespace CPPAnalyzer
 		treeNode.setASTObject(astObject);
 		setStandardProperties(treeNode, astObject);
 
+		// base information
+		setBaseInformation(treeNode);
+
 		// template properties
 		auto& templateInfo = astObject->getTemplateInfo();
 		setTemplateInformation(templateInfo, cursor, astObject);
@@ -979,6 +956,9 @@ namespace CPPAnalyzer
 		ASTObject_Class* astObject = new ASTObject_Class(nodeName.c_str());
 		treeNode.setASTObject(astObject);
 		setStandardProperties(treeNode, astObject);
+
+		// base information
+		setBaseInformation(treeNode);
 
 		// template properties
 		auto& templateInfo = astObject->getTemplateInfo();
@@ -1381,5 +1361,32 @@ namespace CPPAnalyzer
 		auto& children = treeNode.getChildren();
 		for (auto it = children.begin(), end = children.end(); it != end; ++it)
 			connectASTObjects(**it);
+	}
+
+	void Clang_AST::setBaseInformation(Clang_AST_CXTreeNode& treeNode)
+	{
+		auto& children = treeNode.getChildren();
+
+		auto subStruct = dynamic_cast<ASTObject_Struct*>(treeNode.getASTObject());
+		assert(subStruct != nullptr);
+
+		for(auto it = children.begin(), end = children.end(); it != end; ++it)
+		{
+			auto baseCursor = (*it)->getCanonicalCursor();
+			if(baseCursor.kind == CXCursor_CXXBaseSpecifier)
+			{
+				auto baseType = clang_getCanonicalType(clang_getCursorType(baseCursor));
+				auto baseDecl = clang_getTypeDeclaration(baseType);
+
+				auto baseTreeNode = getReferencedTreeNodeFromCursor(baseDecl);
+				assert(baseTreeNode != nullptr);
+
+				auto baseStruct = dynamic_cast<ASTObject_Struct*>(baseTreeNode->getASTObject());
+				assert(baseStruct != nullptr);
+
+				auto access = convertClangAccess(clang_getCXXAccessSpecifier(baseCursor));
+				subStruct->addBase(baseStruct, access);
+			}
+		}
 	}
 }
