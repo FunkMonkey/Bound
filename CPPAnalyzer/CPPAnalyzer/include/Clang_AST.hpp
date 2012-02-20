@@ -7,6 +7,7 @@
 #include <regex>
 
 #include "ASTObjectKinds.hpp"
+#include "Logger.hpp"
 
 namespace CPPAnalyzer
 {
@@ -58,7 +59,7 @@ namespace CPPAnalyzer
 
 	enum Filter_Access
 	{
-		NONE,
+		NONE = 1,
 		PRIVATE,
 		PROTECTED,
 		PUBLIC,
@@ -91,7 +92,9 @@ namespace CPPAnalyzer
 	class Clang_AST
 	{
 		public:
-			Clang_AST(CXCursor translationUnit);
+			Clang_AST();
+			void setTranslationUnit(CXTranslationUnit TU);
+
 			CXChildVisitResult visitCursor(CXCursor cursor, CXCursor parent, CXClientData client_data);
 
 			// C
@@ -126,7 +129,7 @@ namespace CPPAnalyzer
 
 			// Types
 			ASTType* createASTTypeFromCursor(CXCursor cursor, bool canonical);
-			ASTType* createASTType(CXType type, bool canonical);
+			ASTType* createASTType(CXType type, bool canonical, CXCursor src);
 			ASTObject* getTypeDeclaration(CXCursor cursor, bool canonical);
 
 			// Helper functions
@@ -135,6 +138,9 @@ namespace CPPAnalyzer
 
 			void printTreeNode(ASTObject* node, int depth) const;
 			void printTree() const;
+
+			const VisibilityFilter& getFilter() const { return m_filter; }
+			void setFilter(const VisibilityFilter& val) { m_filter = val; }
 
 			
 
@@ -148,6 +154,9 @@ namespace CPPAnalyzer
 			Clang_AST_CXTreeNode* getRootTreeNode(){ return m_rootTreeNode; }
 			Clang_AST_CXTreeNode* getReferencedTreeNodeFromCursor(CXCursor cursor);
 			void markTreeNodeAsReferenced(Clang_AST_CXTreeNode& treeNode);
+
+			const Logger& getLogger() const { return m_logger; }
+			Logger& getLogger(){ return m_logger; }
 
 		protected:
 
@@ -170,6 +179,8 @@ namespace CPPAnalyzer
 			std::map<CXCursor, Clang_AST_CXTreeNode*, CXCursor_less> m_canonicalCursorTreeNodeMap;
 
 			VisibilityFilter m_filter;
+
+			Logger m_logger;
 	};
 }
 

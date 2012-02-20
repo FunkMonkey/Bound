@@ -46,6 +46,11 @@ namespace CPPAnalyzer
 		return result;
 	}
 
+	CXChildVisitResult printVisitor(CXCursor cursor, CXCursor parent, CXClientData client_data)
+	{
+		return static_cast<Clang_AST*>(client_data)->visitCursor(cursor, parent, client_data);
+	}
+
 	void setStandardProperties(const Clang_AST_CXTreeNode& treeNode, ASTObject* astObject)
 	{
 		CXCursor canonicalCursor = treeNode.getCanonicalCursor();
@@ -68,22 +73,6 @@ namespace CPPAnalyzer
 				astObject->addDeclaration(location);
 		}
 	}
-
-	/*
-
-	// returns the next namespace or astObject if it is itself a namespace
-	ASTObject_Namespace* getParentNamespace(ASTObject* astObject)
-	{
-		//ASTObject_Namespace* ns = NULL;
-		while(astObject->getKind() != KIND_NAMESPACE)
-			astObject = astObject->getParent();
-
-		return static_cast<ASTObject_Namespace*>(astObject);
-	}
-
-
-*/
-
 
 	// just dirty for testing
 	void Clang_AST::printTreeNode(ASTObject* node, int depth) const
@@ -131,13 +120,53 @@ namespace CPPAnalyzer
 
 	// ==================================================================================================================================
 
-	Clang_AST::Clang_AST(CXCursor translationUnit)
+	Clang_AST::Clang_AST()
 		: m_filter(".*", ".*", ALL)
 	{
-		m_rootTreeNode = createTreeNodeFromCursor(translationUnit);
+		m_rootTreeNode = new Clang_AST_CXTreeNode();
 		m_rootTreeNode->setASTObject(new ASTObject_Namespace(""));
 		m_rootTreeNode->setVisibility(VISIBILITY_VISIBLE);
 	}
+
+
+	void Clang_AST::setTranslationUnit(CXTranslationUnit TU)
+	{
+		assert(TU != nullptr);
+
+		delete m_rootTreeNode;
+
+		auto tuCursor = clang_getTranslationUnitCursor(TU);
+		m_rootTreeNode = createTreeNodeFromCursor(tuCursor);
+		m_rootTreeNode->setASTObject(new ASTObject_Namespace(""));
+		m_rootTreeNode->setVisibility(VISIBILITY_VISIBLE);
+
+		// Diagnostics, TODO: put into diagnostics-logger!
+		for (unsigned i = 0, numDiag = clang_getNumDiagnostics(TU); i != numDiag; ++i)
+		{
+			CXDiagnostic diag = clang_getDiagnostic(TU, i);
+			SelfDisposingCXString diagText(clang_formatDiagnostic(diag, clang_defaultDiagnosticDisplayOptions()));
+
+			switch(clang_getDiagnosticSeverity(diag))
+			{
+				case CXDiagnostic_Warning:
+					m_logger.addWarning(diagText.c_str());
+					break;
+				case CXDiagnostic_Error:
+				case CXDiagnostic_Fatal:
+					m_logger.addError(diagText.c_str());
+					break;
+				default:
+					m_logger.addInfo(diagText.c_str());
+					break;
+			}
+		}
+
+
+		clang_visitChildren(tuCursor, printVisitor, this);
+		this->analyze();
+	}
+
+
 
 	/** Creates a TreeNode from a cursor
 	 *
@@ -330,10 +359,6 @@ namespace CPPAnalyzer
 
 	void Clang_AST::analyze()
 	{
-		// TODO: remove
-		m_filter.nameFilter = std::regex(".*");
-		m_filter.fileFilter = std::regex(".*");
-
 		analyzeVisibility(*m_rootTreeNode);
 
 		// connecting the objects
@@ -846,8 +871,8 @@ namespace CPPAnalyzer
 
 		// Function properties
 		CXType returnType = clang_getCursorResultType(cursor);
-		astObject->setReturnType(createASTType(returnType, false));
-		astObject->setReturnTypeCanonical(createASTType(returnType, true));
+		astObject->setReturnType(createASTType(returnType, false, cursor));
+		astObject->setReturnTypeCanonical(createASTType(returnType, true, cursor));
 
 		addFunctionParameters(treeNode);
 
@@ -886,8 +911,8 @@ namespace CPPAnalyzer
 
 		auto tmpLocation = getSourceLocationFromCursor(cursor);
 		
-		astObject->setType(createASTType(type, false));
-		astObject->setTypeCanonical(createASTType(type, true));
+		astObject->setType(createASTType(type, false, cursor));
+		astObject->setTypeCanonical(createASTType(type, true, cursor));
 
 		return astObject;
 	}
@@ -1027,8 +1052,8 @@ namespace CPPAnalyzer
 		CXType returnType = clang_getCursorResultType(cursor);
 
 		astObject->setAccess(convertClangAccess(clang_getCXXMemberAccessSpecifier(cursor)));
-		astObject->setReturnType(createASTType(returnType, false));
-		astObject->setReturnTypeCanonical(createASTType(returnType, true));
+		astObject->setReturnType(createASTType(returnType, false, cursor));
+		astObject->setReturnTypeCanonical(createASTType(returnType, true, cursor));
 		astObject->setVirtual(clang_CXXMethod_isVirtual(cursor) != 0);
 		astObject->setStatic(clang_CXXMethod_isStatic(cursor) != 0);
 
@@ -1086,8 +1111,8 @@ namespace CPPAnalyzer
 		treeNode.setASTObject(astObject);
 		setStandardProperties(treeNode, astObject);
 
-		astObject->setType(createASTType(clang_getTemplateArgumentValueAsType(cursor), false));
-		astObject->setTypeCanonical(createASTType(clang_getTemplateArgumentValueAsType(cursor), true));
+		astObject->setType(createASTType(clang_getTemplateArgumentValueAsType(cursor), false, cursor));
+		astObject->setTypeCanonical(createASTType(clang_getTemplateArgumentValueAsType(cursor), true, cursor));
 
 		return astObject;
 	}
@@ -1228,13 +1253,15 @@ namespace CPPAnalyzer
 	ASTType* Clang_AST::createASTTypeFromCursor(CXCursor cursor, bool canonical)
 	{
 		CXType type = clang_getCursorType(cursor);
-		if(type.kind == CXType_Unexposed)
+		/*if(type.kind == CXType_Unexposed)
 		{
 			auto location = getSourceLocationFromCursor(cursor);
-			// TODO: error-log
-			std::cout << location.line << ":" << location.column << ": WARNING: Found unexposed type" << std::endl;
-		}
-		return createASTType(type, canonical);
+
+			std::stringstream ss;
+			ss << "Found unexposed type in " << location.fileName << ":"  << location.line << ":" << location.column;
+			m_logger.addWarning(ss.str());
+		}*/
+		return createASTType(type, canonical, cursor);
 	}
 
 	bool isBuggyType(CXType type)
@@ -1257,7 +1284,7 @@ namespace CPPAnalyzer
 		}
 	}
 
-	ASTType* Clang_AST::createASTType(CXType type, bool canonical)
+	ASTType* Clang_AST::createASTType(CXType type, bool canonical, CXCursor src)
 	{
 		// TODO: fix canonical types for CXType_TemplateTypeParm and CXType_TemplateSpecialization
 
@@ -1279,7 +1306,7 @@ namespace CPPAnalyzer
 			case CXType_Pointer:
 			case CXType_LValueReference:
 				{
-					ASTType* pointsTo = createASTType(clang_getPointeeType(type), canonical); 
+					ASTType* pointsTo = createASTType(clang_getPointeeType(type), canonical, src); 
 					asttype->setPointsTo(pointsTo);
 					break;
 				}
@@ -1304,8 +1331,13 @@ namespace CPPAnalyzer
 					break;
 				}
 			case CXType_Unexposed:
-				// TODO: error-reporter
-				std::cout << "ERROR: unexposed type" << std::endl;
+				{
+					auto location = getSourceLocationFromCursor(src);
+
+					std::stringstream ss;
+					ss << "Found unexposed type in " << location.fileName << ":"  << location.line << ":" << location.column;
+					m_logger.addWarning(ss.str());
+				}
 				//assert(false && "Unexposed type!!!");
 		}
 
@@ -1348,8 +1380,9 @@ namespace CPPAnalyzer
 				}
 				else
 				{
-					// TODO: error log
-					std::cout << "ERROR: Parameter parent is not function" << std::endl;
+					// TODO: location
+					std::stringstream ss;
+					m_logger.addWarning("Parameter parent is not function");
 					//assert(func != nullptr);
 				}
 				
@@ -1376,6 +1409,16 @@ namespace CPPAnalyzer
 			if(baseCursor.kind == CXCursor_CXXBaseSpecifier)
 			{
 				auto baseType = clang_getCanonicalType(clang_getCursorType(baseCursor));
+
+				if(baseType.kind = CXType_TemplateTypeParm)
+				{
+					auto location = getSourceLocationFromCursor(baseCursor);
+					std::stringstream ss;
+					ss << "TemplateTypeParameter as base class is not supported!! in " << location.fileName << ":" << location.line << ":" << location.column;
+					m_logger.addWarning(ss.str());
+					continue;
+				}
+
 				auto baseDecl = clang_getTypeDeclaration(baseType);
 
 				auto baseTreeNode = getReferencedTreeNodeFromCursor(baseDecl);

@@ -105,6 +105,7 @@
     <ClInclude Include="include\Clang_JSON_lib.hpp" />
     <ClInclude Include="include\JSON_Converter.hpp" />
     <ClInclude Include="include\clang_helpers.hpp" />
+    <ClInclude Include="include\Logger.hpp" />
     <ClInclude Include="include\SelfDisposingCXString.hpp" />
   </ItemGroup>
   <ItemGroup>

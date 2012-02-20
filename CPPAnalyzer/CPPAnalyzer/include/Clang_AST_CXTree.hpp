@@ -26,6 +26,8 @@ namespace CPPAnalyzer
 				m_canonicalCursor = clang_getNullCursor();
 			}
 
+			// TODO: destructor with TreeNode and ASTobject cleanup
+
 
 			Clang_AST_CXTreeNode* getParentNode() const { return m_parentNode; }
 			void setParentNode(Clang_AST_CXTreeNode* val) { m_parentNode = val; calculateFullName(); }

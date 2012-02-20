@@ -85,6 +85,10 @@
     <ClInclude Include="include\SelfDisposingCXString.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\clang_helpers.hpp" />
+    <ClInclude Include="include\Logger.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ASTObject.cpp">

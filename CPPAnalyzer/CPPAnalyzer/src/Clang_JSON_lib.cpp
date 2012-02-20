@@ -12,24 +12,21 @@
 
 using namespace CPPAnalyzer;
 
-	Clang_AST* clang_AST = NULL;
-
-	CXChildVisitResult printVisitor(CXCursor cursor, CXCursor parent, CXClientData client_data)
-	{
-
-		return clang_AST->visitCursor(cursor, parent, client_data);
-		
-	}
-
 	void free_ParserInfo(ParserInfo* pi)
 	{
 		delete[] (pi->astTreeJSON);
 		pi->astTreeJSON = NULL;
 	}
 
-	ParserInfo* parse_header(int argc, char *argv[])
+	ParserInfo* parse_header(int argc, char *argv[], const char* filterFile, const char* filterName, int filterAccess)
 	{
 		ParserInfo* parserInfo = NULL;
+
+		Clang_AST clang_AST;
+
+		auto& logger = clang_AST.getLogger();
+
+		// TODO: move everything into Clang_AST, except for the export
 		
 		std::cout << "argc = " << argc << std::endl;
 		for(int i = 0; i < argc; i++)
@@ -41,55 +38,52 @@ using namespace CPPAnalyzer;
 
 		if(!TU)
 		{
-			std::cout << "no TU!!";
+			logger.addError("Fatal: Could not create Translation Unit!");
 		}
 		else
 		{
-			std::cout << "starting !!";
-			// diagnostics 
-			for (unsigned I = 0, N = clang_getNumDiagnostics(TU); I != N; ++I) {
-				CXDiagnostic Diag = clang_getDiagnostic(TU, I);
-				CXString String = clang_formatDiagnostic(Diag,
-					clang_defaultDiagnosticDisplayOptions());
-				fprintf(stderr, "%s\n", clang_getCString(String));
-				clang_disposeString(String);
+			try
+			{
+				// setting the filter
+				VisibilityFilter filter(filterFile, filterName, (Filter_Access)filterAccess);
+				clang_AST.setFilter(filter); // TODO: safety!
+
+				// source-tree
+				clang_AST.setTranslationUnit(TU);
+			}
+			catch(std::regex_error)
+			{
+				logger.addError("Fatal: Malformed regular expression for filter!");
 			}
 
-			clang_getNumDiagnostics(TU);
-			clang_getTranslationUnitCursor(TU);
-
-			// source-tree
-			CXCursor rootCursor = clang_getTranslationUnitCursor(TU);
-			clang_AST = new Clang_AST(rootCursor);
-
-			clang_visitChildren(rootCursor, printVisitor, NULL);
-			clang_AST->analyze();
-
-			std::cout << "---------------" << std::endl;
-			clang_AST->printTree();
-			std::cout << "---------------" << std::endl;
 			
-			std::string json;
-			JSON_Converter json_conv(clang_AST);
-			json_conv.convertToJSON(json);
-
-			// all that copying, TODO: performance
-			parserInfo = new ParserInfo();
-			parserInfo->astTreeJSON = new char[json.size() + 1];
-			std::copy(json.begin(), json.end(), parserInfo->astTreeJSON);
-			parserInfo->astTreeJSON[json.size()] = '\0';
-
-			
-			std::cout << json.c_str();
-
-
 			// dispose unit
 			clang_disposeTranslationUnit(TU);
 		}
-		
-		clang_disposeIndex(Index);
 
-		fprintf(stderr, "%s\n", "DONE!");
+		std::cout << "---------------" << std::endl;
+		
+		auto& messages = logger.getMessages();
+		for(auto it = messages.begin(), end = messages.end(); it != end; ++it)
+			std::cout << (*it).message << std::endl;
+
+		std::cout << "---------------" << std::endl;
+		clang_AST.printTree();
+		std::cout << "---------------" << std::endl;
+
+		std::string json;
+		JSON_Converter json_conv(&clang_AST);
+		json_conv.convertToJSON(json);
+
+		// all that copying, TODO: performance
+		parserInfo = new ParserInfo();
+		parserInfo->astTreeJSON = new char[json.size() + 1];
+		std::copy(json.begin(), json.end(), parserInfo->astTreeJSON);
+		parserInfo->astTreeJSON[json.size()] = '\0';
+
+		std::cout << json.c_str();
+
+		clang_disposeIndex(Index);
 
 		return parserInfo;
 	}

@@ -47,6 +47,7 @@
 			</tabbox>
 			<vbox id="propertyExplorer" width="220" />
 		</hbox>
+		<vbox id="logBox" />
 	</vbox>
 </window>
 

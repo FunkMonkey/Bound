@@ -63,7 +63,7 @@ CPP_AST.createFromSaveObject = function createFromSaveObject(saveObj)
 {
 	var result = new CPP_AST();
 	
-	result.root = result._addASTObjectFromJSON(null, saveObj.rootJSON);
+	result.root = result._addASTObjectFromJSON(null, saveObj.rootJSON.AST);
 	result._initASTObject(result.root);
 	
 	result.root._AST = result;
@@ -72,6 +72,7 @@ CPP_AST.createFromSaveObject = function createFromSaveObject(saveObj)
 	result._toSave = saveObj._toSave;
 	
 	result.rootJSON = saveObj.rootJSON;
+	result.logMessages = saveObj.rootJSON.log;
 	
 	return result;
 }

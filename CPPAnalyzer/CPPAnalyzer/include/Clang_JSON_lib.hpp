@@ -24,7 +24,7 @@ extern "C"
 {
 	LIBRARY_API void free_ParserInfo(ParserInfo* pi);
 
-	LIBRARY_API ParserInfo* parse_header(int argc, char *argv[]);
+	LIBRARY_API ParserInfo* parse_header(int argc, char *argv[], const char* filterFile, const char* filterName, int filterAccess);
 }
 
 #endif // __CLANG_JSON_LIB_HPP__

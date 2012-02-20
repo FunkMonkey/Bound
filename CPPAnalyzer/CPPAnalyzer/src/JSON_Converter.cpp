@@ -334,29 +334,67 @@ namespace CPPAnalyzer
 		return objJSON;
 	}
 
+	void convertLoggerToJSON(const Logger& logger, Json::Value& arrayValue)
+	{
+		auto& messages = logger.getMessages();
+		for(auto it = messages.begin(), end = messages.end(); it != end; ++it)
+		{
+			auto& entry = arrayValue.append(Json::Value(Json::objectValue));
+			entry["message"] = it->message;
+
+			switch(it->type)
+			{
+				case MESSAGE_INFO: 
+					entry["type"] = "Info";
+					break;
+				case MESSAGE_WARNING: 
+					entry["type"] = "Warning";
+					break;
+				case MESSAGE_ERROR: 
+					entry["type"] = "Error";
+					break;
+			}
+		}
+	}
+
 
 	void JSON_Converter::convertToJSON(std::string& str)
 	{
 		m_unknownMissingASTObjects = false;
 		m_ASTObjects.clear();
-		Json::Value root(Json::objectValue);
-		convertASTObjectToJSON(*(m_ast->getRootTreeNode()->getASTObject()), root);
+
+		Json::Value output(Json::objectValue);
+
+		convertASTObjectToJSON(*(m_ast->getRootTreeNode()->getASTObject()), output["AST"]);
+
+		Logger exportLogger;
 
 		if(m_unknownMissingASTObjects)
-			std::cout << "ERROR: UNKNOWN MISSING OBJECTS" << std::endl;
+			exportLogger.addError("Unknown missing objects");
 
 		for(auto itM = m_ASTObjects.begin(), endM = m_ASTObjects.end(); itM != endM; ++itM)
 		{
 			if(itM->second == REFERENCED)
-				std::cout << "ERROR MISSING: " << itM->first->getID() << std::endl;
+			{
+				exportLogger.addError(std::string("ASTObject not exported: ") + itM->first->getNodeName());
+				//std::cout << "ERROR MISSING: " << itM->first->getID() << std::endl;
+			}
 			else if(itM->second == EXPORTED_AND_REFERENCED)
 			{
 				//std::cout << "INFO REFERENCED: " << itM->first->getID() << std::endl;
 			}
 		}
 
+		// exporting logs
+		auto& log = output["log"];
+		
+		auto& logClang  = log["Clang"]  = Json::Value(Json::arrayValue);
+		auto& logExport = log["Export"] = Json::Value(Json::arrayValue);
+		convertLoggerToJSON(m_ast->getLogger(), logClang);
+		convertLoggerToJSON(exportLogger, logClang);
+
 		Json::StyledWriter writer;
-		str = writer.write( root );
+		str = writer.write( output );
 
 		//std::cout << str << std::endl;
 	}

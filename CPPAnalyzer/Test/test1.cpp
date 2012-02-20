@@ -1,3 +1,5 @@
+#include "LazyHidden.hpp"
+
 
 float float_param_int_float(int x, float y);
 float float_param_int_float(int x, float y);

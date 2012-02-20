@@ -13,3 +13,30 @@
 {
 	list-style-image: url("chrome://bound/skin/AST/O.png");
 }
+
+#logBox
+{
+	height: 10em;
+	
+	background-color: #fff;
+	overflow: auto;
+	margin: 2px 4px;
+    padding: 2px 2px 3px;
+	
+	-moz-user-focus: normal;
+}
+
+#logBox > label[logType="Info"]
+{
+	
+}
+
+#logBox > label[logType="Warning"]
+{
+	color: #008000;
+}
+
+#logBox > label[logType="Error"]
+{
+	color: #FF0000;
+}

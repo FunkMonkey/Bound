@@ -22,13 +22,14 @@ var CPPAnalyzer =
 									[ { "astTreeJSON": ctypes.char.ptr } ]);
 		
 		this.libCPPAnalyzer.CharPtrArray = new ctypes.ArrayType(ctypes.char.ptr);
+		this.libCPPAnalyzer.CharArray = new ctypes.ArrayType(ctypes.char);
 		
-		this.libCPPAnalyzer.parse_header = this.libCPPAnalyzer.declare("parse_header", ctypes.winapi_abi, this.libCPPAnalyzer.ParserInfo.ptr, ctypes.int, this.libCPPAnalyzer.CharPtrArray);
+		this.libCPPAnalyzer.parse_header = this.libCPPAnalyzer.declare("parse_header", ctypes.winapi_abi, this.libCPPAnalyzer.ParserInfo.ptr, ctypes.int, this.libCPPAnalyzer.CharPtrArray, this.libCPPAnalyzer.CharArray, this.libCPPAnalyzer.CharArray, ctypes.int);
 		
 	},
 	
 	
-	parse_header: function parse_header(tuPath, cmdParams)
+	parse_header: function parse_header(tuPath, cmdParams, filterFile, filterName, filterAccess)
 	{
 		var params = this.libCPPAnalyzer.CharPtrArray(cmdParams.length);
 		
@@ -38,7 +39,7 @@ var CPPAnalyzer =
 		}
 		
 		//var params = CharPtrArray([ctypes.char.array()("supertest"), ctypes.char.array()("D:\\Data\\Projekte\\Bound\\src\\CPPAnalyzer\\Test\\test1.cpp")]);
-		var result = this.libCPPAnalyzer.parse_header(params.length, params);
+		var result = this.libCPPAnalyzer.parse_header(params.length, params, ctypes.char.array()(filterFile), ctypes.char.array()(filterName), filterAccess);
 		
 		var jsonStr = result.contents.astTreeJSON.readString();
 		//log(jsonStr);
