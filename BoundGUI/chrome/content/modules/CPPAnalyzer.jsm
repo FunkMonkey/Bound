@@ -22,12 +22,11 @@ var CPPAnalyzer =
 		PRIVATE_PUBLIC:           6,
 		PROTECTED_PUBLIC:         7,
 		PRIVATE_PROTECTED_PUBLIC: 8,
-		ALL:                      8
 	},
 	
 	init: function init()
 	{
-		this.libClang = ctypes.open(FileUtils.getFile("CurProcD", ["components", "libClang.dll"]).path);
+		this.libClang =       ctypes.open(FileUtils.getFile("CurProcD", ["components", "libClang.dll"]).path);
 		this.libCPPAnalyzer = ctypes.open(FileUtils.getFile("CurProcD", ["components", "CPPAnalyzer.dll"]).path);
 		
 		this.libCPPAnalyzer.ParserInfo = new ctypes.StructType("ParserInfo",

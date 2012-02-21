@@ -4,10 +4,15 @@
 class SimpleClass
 {
 public:
+	void constMethod() const;
+	void nonConstMethod();
+	
 	SimpleClass()
 		: m_intProp(7), floatPropField(9.0f)
 	{
 	}
+	
+	
 
 	void void_param0();
 	static void static_void_param0();

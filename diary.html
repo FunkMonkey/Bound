@@ -1180,8 +1180,25 @@ window.removeCookie=function(name,force)
 * Clang-Support for TemplateTypeParams
 * NodeJS-CopyApp</pre>
 </div>
-<div title="Diary Week 14" creator="YourName" modifier="YourName" created="201202171950" modified="201202202356" changecount="5">
-<pre>!20.02 (4)
+<div title="Diary Week 14" creator="YourName" modifier="YourName" created="201202171950" modified="201202211955" changecount="9">
+<pre>!21.02 (7)
+!!CPPAnalyzer
+* fixed small bug with base classes
+* P2: Filtering ASTObjects via Regex
+* P1: Exporting function pointers
+
+!!BoundGUI
+* new project format
+* refactoring
+* fixed _metaData to be non-enumerable
+* support for metadata dropdown lists
+* project settings
+* CPP reparse
+** rewiring of ASTObjects
+* P1: Interface for calling CPPAnalyzer
+** P2: filtering files
+
+!20.02 (4)
 !!CPPAnalyzer
 * thoughts about multiple translation units
 * error-logger
@@ -2766,17 +2783,17 @@ table.listView th, table.listView td, table.listView tr {padding:0 3px 0 3px;}
 /*}}}*/
 </pre>
 </div>
-<div title="Todo" creator="YourName" modifier="YourName" created="201201251542" modified="201202191833" changecount="37">
+<div title="Todo" creator="YourName" modifier="YourName" created="201201251542" modified="201202211955" changecount="40">
 <pre>!CPPAnalyzer
 
 * --P1: Exporting enums--
 * --P1: Exporting templates--
-* ''P1: Exporting function pointers''
+* --P1: Exporting function pointers--
 * --P1: Exporting virtual--
 * --P1: Exporting static functions--
 * --P1: Exporting static fields--
 * ''P1: Exporting const-functions''
-* P2: Filtering ASTObjects via Regex
+* --P2: Filtering ASTObjects via Regex--
 
 !BoundGUI: Spidermonkey
 * ''P1: Support strings''
@@ -2793,8 +2810,8 @@ table.listView th, table.listView td, table.listView tr {padding:0 3px 0 3px;}
 * P3: Support templates
 
 !BoundGUI: User-Interface
-* ''P1: Interface for calling CPPAnalyzer''
-** P2: filtering files
+* --P1: Interface for calling CPPAnalyzer--
+** --P2: filtering files--
 * ''P1: Interface for adjusting ASTObjects and CodeGenerators''
 ** ''P1: project name''
 * ''P1: Creating ExportTree objects''

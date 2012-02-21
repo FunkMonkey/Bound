@@ -43,6 +43,23 @@ namespace CPPAnalyzer
 		{
 			convertASTTypeToJSON(*type.getPointsTo(), objJSON["pointsTo"]);
 		}
+		else if(type.getKind() == "FunctionProto")
+		{
+			auto& parameters = type.getParameters();
+			if(parameters.size() > 0)
+			{
+				auto& paramsJSON = objJSON["parameters"] = Json::Value(Json::arrayValue);
+				for(auto it = parameters.begin(), end = parameters.end(); it != end; ++it)
+					convertASTTypeToJSON(**it, paramsJSON.append(Json::Value(Json::objectValue)));
+
+				auto& canonicalParameters = type.getParametersCanonical();
+				auto& canonicalParamsJSON = objJSON["parametersCanonical"] = Json::Value(Json::arrayValue);
+				for(auto it = canonicalParameters.begin(), end = canonicalParameters.end(); it != end; ++it)
+					convertASTTypeToJSON(**it, canonicalParamsJSON.append(Json::Value(Json::objectValue)));
+			}
+
+			
+		}
 
 		return objJSON;
 	}

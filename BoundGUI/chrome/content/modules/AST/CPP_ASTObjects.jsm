@@ -103,18 +103,35 @@ CPP_AST.prototype = {
 	*/
 	_addASTTypeFromJSON: function _addASTTypeFromJSON(jsonObject)
 	{
-		var astObj = null;
-		if(jsonObject.declaration)
+		var astType = null;
+		if(jsonObject.kind == "FunctionProto")
 		{
-			astObj = this.astObjectsByID[jsonObject.declaration];
-			if(!astObj)
-					throw "Could not get ASTObject for type declaration";
+			astType = new CPP_ASTFunctionType(jsonObject.kind, null, jsonObject.isConst);
+			
+			if(jsonObject.parameters)
+			{
+				for(var i = 0; i < jsonObject.parameters.length; ++i)
+				{
+					astType.parameters.push(this._addASTTypeFromJSON(jsonObject.parameters[i]));
+					astType.parametersCanonical.push(this._addASTTypeFromJSON(jsonObject.parametersCanonical[i]))
+				}
+			}
+			
 		}
-
-		var astType = new CPP_ASTType(jsonObject.kind, astObj, jsonObject.isConst);
-		
-		if(jsonObject.pointsTo)
-			astType.pointsTo = this._addASTTypeFromJSON(jsonObject.pointsTo);
+		else
+		{
+			var astObj = null;
+			if(jsonObject.declaration)
+			{
+				astObj = this.astObjectsByID[jsonObject.declaration];
+				if(!astObj)
+					throw "Could not get ASTObject for type declaration";
+			}
+			astType = new CPP_ASTType(jsonObject.kind, astObj, jsonObject.isConst);
+			
+			if(jsonObject.pointsTo)
+				astType.pointsTo = this._addASTTypeFromJSON(jsonObject.pointsTo);
+		}
 			
 		return astType;
 	}, 
@@ -637,6 +654,33 @@ MetaData.initMetaDataOn(CPP_ASTType.prototype)
    .addPropertyData("declaration",   {view: {}})
    .addPropertyData("pointsTo",      {view: {}})
    .addPropertyData("isConst",       {view: {}})
+   
+//======================================================================================   
+   
+/**
+ * CPP_ASTFunctionType
+ *
+ * @constructor
+ * @this {CPP_ASTFunctionType}
+ */
+function CPP_ASTFunctionType(kind, declaration, isConst)
+{
+	CPP_ASTType.call(this, kind, null, isConst);
+	
+	this.parameters = [];
+	this.parametersCanonical = [];
+};
+
+CPP_ASTFunctionType.prototype = {
+	constructor: CPP_ASTFunctionType,
+	
+};
+
+Extension.inherit(CPP_ASTFunctionType, CPP_ASTType);
+
+MetaData.initMetaDataOn(CPP_ASTFunctionType.prototype)
+   .addPropertyData("parameters",            {view: {}})
+   .addPropertyData("parametersCanonical",   {view: {}})
 
 
 

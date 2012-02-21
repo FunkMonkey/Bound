@@ -1253,14 +1253,6 @@ namespace CPPAnalyzer
 	ASTType* Clang_AST::createASTTypeFromCursor(CXCursor cursor, bool canonical)
 	{
 		CXType type = clang_getCursorType(cursor);
-		/*if(type.kind == CXType_Unexposed)
-		{
-			auto location = getSourceLocationFromCursor(cursor);
-
-			std::stringstream ss;
-			ss << "Found unexposed type in " << location.fileName << ":"  << location.line << ":" << location.column;
-			m_logger.addWarning(ss.str());
-		}*/
 		return createASTType(type, canonical, cursor);
 	}
 
@@ -1306,8 +1298,20 @@ namespace CPPAnalyzer
 			case CXType_Pointer:
 			case CXType_LValueReference:
 				{
-					ASTType* pointsTo = createASTType(clang_getPointeeType(type), canonical, src); 
-					asttype->setPointsTo(pointsTo);
+					auto pointeeType = clang_getPointeeType(type);
+					
+					// try fix unexposed by using canonical type
+					if(pointeeType.kind == CXType_Unexposed)
+					{
+						ASTType* pointsTo = createASTType(clang_getCanonicalType(pointeeType), canonical, src); 
+						asttype->setPointsTo(pointsTo);
+					}
+					else
+					{
+						ASTType* pointsTo = createASTType(pointeeType, canonical, src); 
+						asttype->setPointsTo(pointsTo);
+					}
+					
 					break;
 				}
 			case CXType_Record:
@@ -1338,7 +1342,20 @@ namespace CPPAnalyzer
 					ss << "Found unexposed type in " << location.fileName << ":"  << location.line << ":" << location.column;
 					m_logger.addWarning(ss.str());
 				}
-				//assert(false && "Unexposed type!!!");
+			case CXType_FunctionProto:
+				{
+					// add parameters
+					unsigned numParams = clang_getNumArgTypes(type);
+					if(numParams != UINT_MAX)
+					{
+						for(unsigned i = 0; i < numParams; ++i)
+						{
+							auto paramType = clang_getArgType(type, i);
+							asttype->addParameter(createASTType(paramType, false, src));
+							asttype->addParameterCanonical(createASTType(paramType, true, src));
+						}
+					}
+				}
 		}
 
 		asttype->setConst(clang_isConstQualifiedType(type) != 0);

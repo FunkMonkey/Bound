@@ -27,6 +27,12 @@ namespace CPPAnalyzer
 				delete m_pointsTo;
 				m_pointsTo = NULL;
 			}
+
+			for(auto it = m_parameters.begin(), end = m_parameters.end(); it != end; ++it)
+				delete *it;
+
+			for(auto it = m_parametersCanonical.begin(), end = m_parametersCanonical.end(); it != end; ++it)
+				delete *it;
 		}
 
 		ASTObject* getDeclaration() const { return m_decl; }
@@ -41,15 +47,28 @@ namespace CPPAnalyzer
 		bool isConst() const { return m_isConst; }
 		void setConst(bool isConst){ m_isConst = isConst; }
 
+		const std::vector<ASTType*>& getParameters() const { return m_parameters; }
+		const std::vector<ASTType*>& getParametersCanonical() const { return m_parametersCanonical; }
+		
+		void addParameter(ASTType* param)
+		{
+			m_parameters.push_back(param);
+		}
+
+		void addParameterCanonical(ASTType* param)
+		{
+			m_parametersCanonical.push_back(param);
+		}
+
 	protected:
 		std::string m_kind; // TODO: use enum
 		ASTType* m_pointsTo;
 		ASTObject* m_decl;
 		bool m_isConst;
 
+		std::vector<ASTType*> m_parameters;
+		std::vector<ASTType*> m_parametersCanonical;
 	};
-
-
 }
 
 #endif // __AST_TYPE_HPP__
