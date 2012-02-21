@@ -55,7 +55,7 @@ Plugin_CPP_Spidermonkey.prototype = {
 	getCodeGeneratorByASTObject: function getCodeGeneratorByASTObject(astObject, exportParent)
 	{
 		if(!astObject)
-			return null;
+			return CodeGenerator_Object; // TODO: is this a good idea?
 		
 		if(!astObject.getKindAsString)
 			return null;
@@ -500,7 +500,7 @@ CodeGenerator_Object.prototype = {
 		var tHPPTemplate = null;
 		var tCPPTemplate = null;
 		
-		if(sourceObj.kind === ASTObject.KIND_STRUCT || sourceObj.kind === ASTObject.KIND_CLASS)
+		if(sourceObj && (sourceObj.kind === ASTObject.KIND_STRUCT || sourceObj.kind === ASTObject.KIND_CLASS))
 		{
 			// ------ classes only ------
 			tHPPTemplate = getAndUseTemplate("CPP_Spidermonkey/hpp_scope_content_class", usedTemplates);

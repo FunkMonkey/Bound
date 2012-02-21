@@ -537,8 +537,8 @@ Object.defineProperties(CPP_ASTObject.prototype, {
 MetaData.initMetaDataOn(CPP_ASTObject.prototype)
    .addPropertyData("USR",          {view: {}})
    .addPropertyData("isDefinition", {view: {}})
-   //.addPropertyData("definition",   {view: {}})
-   //.addPropertyData("declarations", {view: {}})
+   .addPropertyData("definition",   {view: {}})
+   .addPropertyData("declarations", {view: {}})
 
 Extension.inherit(CPP_ASTObject, ASTObject);
 

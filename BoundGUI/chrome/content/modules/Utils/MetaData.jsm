@@ -57,7 +57,8 @@ var MetaData = {
 		if(hasOwnProperty.call(object, "_metaData"))
 			return object._metaData;
 		
-		object._metaData = new MetaDataInfo();
+		
+		Object.defineProperty(object, "_metaData", { configurable: true, writable: true, enumerable: false, value: new MetaDataInfo()});
 		
 		if(propertyData)
 			object._metaData.addPropertyData(propertyData)
@@ -73,7 +74,7 @@ var MetaData = {
 	 */
 	setMetaDataOn: function setMetaDataOn(object, metaData)
 	{
-		object._metaData = metaData;
+		Object.defineProperty(object, "_metaData", { configurable: true, writable: true, enumerable: false, value: metaData});
 	},
 	
 	/**
@@ -123,7 +124,7 @@ var MetaData = {
 			
 			// ... or create a new one
 			var aggr = new MetaDataAggregate(obj);
-			obj._metaDataAggr = aggr;
+			Object.defineProperty(obj, "_metaDataAggr", { configurable: true, writable: true, enumerable: false, value: aggr});
 			return aggr;
 		}
 		else

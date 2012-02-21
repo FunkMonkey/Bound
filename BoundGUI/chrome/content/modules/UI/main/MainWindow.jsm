@@ -6,9 +6,9 @@ Components.utils.import("chrome://bound/content/modules/UI/main/ResultTabbox.jsm
 Components.utils.import("chrome://bound/content/modules/UI/main/PropertyExplorer.jsm");
 Components.utils.import("chrome://bound/content/modules/UI/main/LogBox.jsm");
 
-Components.utils.import("chrome://bound/content/modules/CPPAnalyzer.jsm");
-
 Components.utils.import("chrome://bound/content/modules/log.jsm");
+
+Components.utils.import("chrome://bound/content/modules/Bound.jsm");
 
 // TEMP
 
@@ -33,25 +33,13 @@ var MainWindow = {
 		ResultTabbox.init(this);
 		LogBox.init(this);
 		
-		// TODO: move somewhere else
-			CPPAnalyzer.init();
-			var path = "D:/Data/Projekte/Bound/src/CPPAnalyzer/Test/";
-			var cppAST = CPPAnalyzer.parse_header(path, ["supertest", path + "STD.hpp"], ".*STD.hpp", ".*", 8);
-			
-			//var path = "D:/Data/Projekte/Bound/src/Wrapping/Spidermonkey/WrappingTest/include/";
-			//var cppAST = CPPAnalyzer.parse_header(path, ["supertest", path + "SimpleClass.hpp"]);
-			
-			//var path = "D:/Data/Projekte/Bound/src/Wrapping/Spidermonkey/WrappingTest/include/";
-			//var cppAST = CPPAnalyzer.parse_header(path, ["supertest", path + "Functions_BasicTypes.hpp"]);
-			
-			this.CPPTree.setCPPAST(cppAST);
-			this.ExportTree.newExportAST(cppAST);
-			this.LogBox.showMessagesFromCPPAST(cppAST);
-			
-			//var proxyHandler = new ForwardProxyHandler(cppAST.root.children[2]);
-			//var proxy = Proxy.create(proxyHandler, Object.getPrototypeOf(proxyHandler.obj));
-			//var handler = new MetaDataHandler(proxy, this.$window);
-			//this.PropertyExplorer.setDataHandler(handler);
+		var project = Bound.currentProject;
+		if(project.cppAST)
+		{
+			MainWindow.CPPTree.setCPPAST(project.cppAST);
+			MainWindow.LogBox.showMessagesFromCPPAST(project.cppAST);
+		}
+		MainWindow.ExportTree.setExportAST(project.exportAST);
 		
 	},
 };

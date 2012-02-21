@@ -14,6 +14,7 @@ Components.utils.import("chrome://bound/content/modules/AST/CPP_ASTObjects.jsm")
 Components.utils.import("chrome://bound/content/modules/AST/Export_ASTObjects.jsm");
 
 
+Components.utils.import("chrome://bound/content/modules/Project/Project.jsm");
 
 function exportFiles()
 {
@@ -62,22 +63,7 @@ function saveProject()
 	var rv = fp.show();
 	if (rv == nsIFilePicker.returnOK || rv == nsIFilePicker.returnReplace)
 	{
-		var projectFile = fp.file;
-		var projectFileSplit = projectFile.leafName.split(".");
-		
-		// save the project
-		var projectSaveData = JSON.stringify(MainWindow.ExportTree.exportAST.toSaveObject());
-		FileIO.writeTextFile(projectSaveData, projectFile);
-		
-		// save the CPP AST
-		if(MainWindow.CPPTree.cppAST._toSave)
-		{
-			var cppASTFile = projectFile.parent.clone();
-			cppASTFile.append(projectFileSplit[0] + "_CPP_AST.json");
-			
-			var cppASTSaveData = JSON.stringify(MainWindow.CPPTree.cppAST.toSaveObject());
-			FileIO.writeTextFile(cppASTSaveData, cppASTFile);
-		}
+		Bound.currentProject.saveToFile(fp.file);
 	}
 }
 
@@ -92,29 +78,34 @@ function loadProject()
 	var rv = fp.show();
 	if (rv == nsIFilePicker.returnOK || rv == nsIFilePicker.returnReplace)
 	{
-		var projectFile = fp.file;
-		var projectFileSplit = projectFile.leafName.split(".");
-		
-		// load the CPP AST
-		var cppASTFile = projectFile.parent.clone();
-		cppASTFile.append(projectFileSplit[0] + "_CPP_AST.json");
-		
-		var cppJSONStr = FileIO.readTextFile(cppASTFile);
-		var cppAST = CPP_AST.createFromSaveObject(JSON.parse(cppJSONStr));
-		MainWindow.CPPTree.setCPPAST(cppAST);
-		
-		// load the project
-		var projectJSONStr = FileIO.readTextFile(projectFile);
-		var exportAST = Export_AST.createFromSaveObject(JSON.parse(projectJSONStr), MainWindow.CPPTree.cppAST);
-		MainWindow.ExportTree.setExportAST(exportAST);
+		Bound.currentProject = Project.loadFromFile(fp.file);
 		
 		// fill the trees
+		MainWindow.CPPTree.setCPPAST(Bound.currentProject.cppAST);
+		MainWindow.ExportTree.setExportAST(Bound.currentProject.exportAST);
+		MainWindow.LogBox.showMessagesFromCPPAST(Bound.currentProject.cppAST);
 	}
+}
+
+function reparseCurrentProject()
+{
+	Bound.reparseCurrentProject();
+	MainWindow.CPPTree.setCPPAST(Bound.currentProject.cppAST);
+	MainWindow.ExportTree.setExportAST(Bound.currentProject.exportAST);
+	MainWindow.LogBox.showMessagesFromCPPAST(Bound.currentProject.cppAST);
 }
 
 function init()
 {
 	Bound.init(MainWindow);
+	
+	var projectOptions = Bound.currentProject.options;
+	
+	/*var path = "D:/Data/Projekte/Bound/src/CPPAnalyzer/Test/";
+	projectOptions.clangArguments = path + "SimpleClass.hpp";
+	
+	Bound.reparseCurrentProject();*/
+	
 	MainWindow.init(window);
 }
 

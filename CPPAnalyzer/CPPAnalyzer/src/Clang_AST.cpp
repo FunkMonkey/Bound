@@ -1408,9 +1408,11 @@ namespace CPPAnalyzer
 			auto baseCursor = (*it)->getCanonicalCursor();
 			if(baseCursor.kind == CXCursor_CXXBaseSpecifier)
 			{
-				auto baseType = clang_getCanonicalType(clang_getCursorType(baseCursor));
+				auto baseType2 = clang_getCursorType(baseCursor);
+				auto baseType = clang_getCanonicalType(baseType2);
+				
 
-				if(baseType.kind = CXType_TemplateTypeParm)
+				if(baseType.kind == CXType_TemplateTypeParm)
 				{
 					auto location = getSourceLocationFromCursor(baseCursor);
 					std::stringstream ss;

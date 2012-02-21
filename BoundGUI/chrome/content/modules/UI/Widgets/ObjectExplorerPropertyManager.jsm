@@ -250,5 +250,53 @@ PropertyFactoryArray._onGroupToggle = function()
 	this.isOpen = !this.isOpen;
 }
 
+ObjectExplorerPropertyManager.registerPropertyFactory("Object", PropertyFactoryArray);
 ObjectExplorerPropertyManager.registerPropertyFactory("Array", PropertyFactoryArray);
 ObjectExplorerPropertyManager.registerPropertyFactory("KeyValueMap", PropertyFactoryArray);
+
+//======================================================================================//
+// PropertyFactoryDropdown
+//======================================================================================//
+function PropertyFactoryDropdown($row)
+{
+	$row.refresh = PropertyFactoryDropdown.refresh;
+	$row.save = PropertyFactoryDropdown.save;
+	
+	$row.classList.add("objexp-prop-dropdown");
+	
+	$row.$menuList = DOMHelper.createDOMNodeOn($row, "menulist");
+	$row.$menuPopup = DOMHelper.createDOMNodeOn($row.$menuList , "menupopup");
+	
+	$row.items = $row.propData.metadata.view.dropDownValues;
+	
+	for(var itemName in $row.items)
+	{
+		$menuItem = DOMHelper.createDOMNodeOn($row.$menuPopup  , "menuitem", { label: itemName}, {itemValue: $row.items[itemName]});
+	}
+	
+	$row.$menuList.addEventListener("command", $row.save.bind($row), false);
+}
+
+PropertyFactoryDropdown.refresh = function refresh()
+{
+	var val = this.dataHandler.getPropertyValue(this.propName);
+	
+	var index = 0;
+	for(var itemName in this.items)
+	{
+		if(this.items[itemName] === val)
+		{
+			this.$menuList.selectedIndex = index;
+			break;
+		}
+		++index;
+	}
+}
+
+PropertyFactoryDropdown.save = function save()
+{
+	this.dataHandler.setPropertyValue(this.propName, this.$menuList.selectedItem.itemValue);
+	this.refresh();
+}
+
+ObjectExplorerPropertyManager.registerPropertyFactory("dropdown", PropertyFactoryDropdown);

@@ -10,13 +10,20 @@
 	<script type="application/javascript" src="chrome://bound/content/scripts/main.js"/>
   
 	<toolbox>
-	  <menubar id="main-menubar">
-		  <menu id="tools-menu" label="Tools">
-			  <menupopup id="tools-popup">
-			  <menuitem label="Extensions" oncommand="window.open('chrome://mozapps/content/extensions/extensions.xul?type=extensions', '', 'chrome, resizable=yes');"/>
-			  </menupopup>
-		  </menu>
-	  </menubar>
+		<menubar id="main-menubar">
+			<menu id="settings-menu" label="Settings">
+				<menupopup id="settings-popup">
+					<menuitem label="Project settings" oncommand="window.open('chrome://bound/content/ui/project_options.xul', '', 'chrome, resizable=yes');"/>
+				</menupopup>
+			</menu>
+			<menu id="tools-menu" label="Tools">
+				<menupopup id="tools-popup">
+					<menuitem label="JSConsole" oncommand="window.open('chrome://global/content/console.xul', '', 'chrome, resizable=yes');"/>
+					<menuitem label="about:config" oncommand="window.open('chrome://global/content/config.xul', '', 'chrome, resizable=yes');"/>
+					<menuitem label="Extensions" oncommand="window.open('chrome://mozapps/content/extensions/extensions.xul?type=extensions', '', 'chrome, resizable=yes');"/>
+				</menupopup>
+			</menu>
+		</menubar>
 	</toolbox>
 	<toolbox>
 		<toolbar>
@@ -24,6 +31,7 @@
 			<toolbarbutton label="Export" oncommand="exportFiles();"></toolbarbutton>
 			<toolbarbutton label="Save Project" oncommand="saveProject();"></toolbarbutton>
 			<toolbarbutton label="Open Project" oncommand="loadProject();"></toolbarbutton>
+			<toolbarbutton label="Reparse C++" oncommand="reparseCurrentProject();"></toolbarbutton>
 		</toolbar>
 	</toolbox>
 	

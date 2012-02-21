@@ -21,12 +21,11 @@ Cu.import("chrome://bound/content/modules/log.jsm");
 function Export_AST(rootNodeName)
 {
 	if(rootNodeName)
-	{
 		this.root = new Export_ASTObject(null, rootNodeName, null);
-		this.root._AST = this;
-	}
 	else
-		this.root = null;
+		this.root = new Export_ASTObject(null, "ROOT", null);
+		
+	this.root._AST = this;
 	
 	this.codeGeneratorPlugins = {};
 }
@@ -35,14 +34,14 @@ function Export_AST(rootNodeName)
  * Creates a CPP_AST given a JSON compatible object
  * 
  * @param   {Object}   saveObj    JSON compatible object
- * @param   {AST}      inputAST   The Input AST TODO: think about something else
+ * @param   {AST}      sourceAST  The Input AST TODO: think about something else
  * 
  * @returns {Exort_AST} New Exort_AST
  */
-Export_AST.createFromSaveObject = function createFromSaveObject(saveObj, inputAST)
+Export_AST.createFromSaveObject = function createFromSaveObject(saveObj, sourceAST)
 {
 	var result = new Export_AST();
-	result.inputAST = inputAST;
+	result._sourceAST = sourceAST;
 	
 	// load code generator plugins
 	for(var context in saveObj.codeGeneratorPlugins)
@@ -104,7 +103,23 @@ Export_AST.prototype = {
 			result.codeGeneratorPlugins[context] = this.codeGeneratorPlugins[context].toSaveObject();
 			
 		return result;
+	},
+	
+	get sourceAST(){ return this._sourceAST; },
+	set sourceAST(val)
+	{
+		if(val === this._sourceAST)
+			return;
+		
+		this._sourceAST = val;
+		
+		if(this._sourceAST)
+		{
+			this.root.onSourceASTChanged(this._sourceAST);
+		}
 	}
+	
+	
 }
 
 /**
@@ -186,9 +201,19 @@ Export_ASTObject.prototype = {
 		
 		// saving sourceObject: different if it is self-saved like a C++-AST
 		// TODO: make the difference!
-		result.sourceObject = {
-			referenceID: this.sourceObject.getReferenceID()
+		if(this.sourceObject)
+		{
+			result.sourceObject = {
+				referenceID: this.sourceObject.getReferenceID()
+			}
 		}
+		else if(this._sourceObjectSaveObject)
+		{
+			result.sourceObject = this._sourceObjectSaveObject;
+		}
+		else
+			result.sourceObject = null;
+		
 		
 		// saving codeGenerators
 		result.codeGenerators = {};
@@ -204,6 +229,57 @@ Export_ASTObject.prototype = {
 		
 		return result;
 	},
+	
+	/**
+	 * Called when the sourceAST of the export tree changed
+	 * 
+	 * @param   {AST}   sourceAST   New source AST
+	 */
+	onSourceASTChanged: function onSourceASTChanged(sourceAST)
+	{
+		if(this.sourceObject)
+		{
+			if(this.sourceObject.AST !== sourceAST)
+			{
+				var sourceObject = sourceAST.astObjectsByUSR[this.sourceObject.getReferenceID()];
+				if(sourceObject)
+				{
+					if(this._sourceObjectSaveObject)
+						delete this._sourceObjectSaveObject;
+						
+					this.sourceObject = sourceObject;
+				}
+				else
+				{
+					this._sourceObjectSaveObject = {
+							referenceID: this.sourceObject.getReferenceID()
+						};
+					log("ERROR: TODO: could not resolve sourceObject from SaveObject!!!")
+					this.sourceObject = null;
+				}
+			}
+		}
+		else if(this._sourceObjectSaveObject)
+		{
+			var sourceObject = sourceAST.astObjectsByUSR[this._sourceObjectSaveObject.referenceID];
+			if(sourceObject)
+			{
+				delete this._sourceObjectSaveObject;
+					
+				this.sourceObject = sourceObject;
+			}
+			else
+			{
+				log("ERROR: TODO: could not resolve sourceObject from SaveObject!!!")
+			}
+		}
+		
+		for(var i = 0; i < this.children.length; ++i)
+		{
+			this.children[i].onSourceASTChanged(sourceAST);
+		}
+	}, 
+	
 };
 
 /**
@@ -225,9 +301,19 @@ Export_ASTObject.createFromSaveObject = function createFromSaveObject(saveObject
 		ast = parent.AST;
 		
 	// name resolution, TODO: do not C++-specific!
-	var obj = ast.inputAST.astObjectsByUSR[saveObject.sourceObject.referenceID];
-	var sourceObject = (obj == null) ? null : obj;
-	result.sourceObject = obj;
+	if(saveObject.sourceObject)
+	{
+		var sourceObject = ast.sourceAST.astObjectsByUSR[saveObject.sourceObject.referenceID];
+		if(sourceObject)
+		{
+			result.sourceObject = sourceObject;
+		}
+		else
+		{
+			result._sourceObjectSaveObject = saveObject.sourceObject;
+			log("ERROR: TODO: could not resolve sourceObject from SaveObject!!!")
+		}
+	}
 		
 	// loading codeGenerators
 	for(var context in saveObject.codeGenerators)
@@ -250,5 +336,6 @@ Export_ASTObject.createFromSaveObject = function createFromSaveObject(saveObject
 Extension.inherit(Export_ASTObject, ASTObject);
 
 MetaData.initMetaDataOn(Export_ASTObject.prototype)
-     .addPropertyData("codeGenerators", { type: "KeyValueMap", view: {}})
+    .addPropertyData("codeGenerators", { type: "KeyValueMap", view: {}})
+    .addPropertyData("sourceObject",   { view: {}})
 

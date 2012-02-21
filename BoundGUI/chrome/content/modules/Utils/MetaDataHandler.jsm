@@ -35,13 +35,15 @@ function MetaDataHandler(sourceObject, readOnly)
 					type = this.metaDataProps[propName].type;
 				else
 					type = (MetaData.hasMetaData(sourceObject[propName]) == true) ? "KeyValueMap" : metaDataAggr.getPropertyType(propName);
+				
 				var prop = {
-					name: propName,
-					labelName: ("name" in metaDataProp.view) ? metaDataProp.view.name : propName,
-					type: type,
-					metadata: self.metaDataProps[propName],
-					readOnly : readOnly
-				}
+						name: propName,
+						labelName: ("name" in metaDataProp.view) ? metaDataProp.view.name : propName,
+						type: type,
+						metadata: self.metaDataProps[propName],
+						readOnly : readOnly
+					};
+					
 				this.props.push(prop);
 			}
 			
@@ -58,10 +60,10 @@ function MetaDataHandler(sourceObject, readOnly)
 			var sourceProp = sourceObject[propName];
 			var prop = {
 					name: propName,
-					type: (sourceProp && MetaData.hasMetaData(sourceProp)) ? "KeyValueMap" : typeof(sourceProp),
+					type: (sourceProp && (MetaData.hasMetaData(sourceProp) || typeof(sourceProp) === "object")) ? "KeyValueMap" : typeof(sourceProp),
 					readOnly : readOnly
 				}
-			
+				
 			this.props.push(prop);
 		}
 	}
@@ -127,7 +129,7 @@ MetaDataHandler.prototype = {
 	 */
 	handleException: function handleException(propertyName, e)
 	{
-		return true;
+		return false;
 	}, 
 	
 	

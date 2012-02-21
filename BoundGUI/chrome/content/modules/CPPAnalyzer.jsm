@@ -13,6 +13,18 @@ Cu.import("chrome://bound/content/modules/AST/CPP_ASTObjects.jsm")
 
 var CPPAnalyzer =
 {
+	FilterAccess: {
+		NONE:                     1,
+		PRIVATE:                  2,
+		PROTECTED:                3,
+		PUBLIC:                   4,
+		PRIVATE_PROTECTED:        5,
+		PRIVATE_PUBLIC:           6,
+		PROTECTED_PUBLIC:         7,
+		PRIVATE_PROTECTED_PUBLIC: 8,
+		ALL:                      8
+	},
+	
 	init: function init()
 	{
 		this.libClang = ctypes.open(FileUtils.getFile("CurProcD", ["components", "libClang.dll"]).path);
@@ -29,13 +41,15 @@ var CPPAnalyzer =
 	},
 	
 	
-	parse_header: function parse_header(tuPath, cmdParams, filterFile, filterName, filterAccess)
+	parse_header: function parse_header(tuPath, cmdArgs, filterFile, filterName, filterAccess)
 	{
-		var params = this.libCPPAnalyzer.CharPtrArray(cmdParams.length);
+		paramsArray = ["Bound", cmdArgs];
 		
-		for(var i = 0; i < cmdParams.length; ++i)
+		var params = this.libCPPAnalyzer.CharPtrArray(paramsArray.length);
+		
+		for(var i = 0; i < paramsArray.length; ++i)
 		{
-			params[i] = ctypes.char.array()(cmdParams[i])
+			params[i] = ctypes.char.array()(paramsArray[i])
 		}
 		
 		//var params = CharPtrArray([ctypes.char.array()("supertest"), ctypes.char.array()("D:\\Data\\Projekte\\Bound\\src\\CPPAnalyzer\\Test\\test1.cpp")]);

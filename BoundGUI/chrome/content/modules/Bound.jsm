@@ -4,6 +4,9 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
 const Cu = Components.utils;
 
+Components.utils.import("chrome://bound/content/modules/CPPAnalyzer.jsm");
+Components.utils.import("chrome://bound/content/modules/Project/Project.jsm");
+Components.utils.import("resource://gre/modules/Services.jsm");
 
 
 var Bound = {
@@ -15,9 +18,38 @@ var Bound = {
 	 */
 	init: function init(mainWindow)
 	{
+		CPPAnalyzer.init();
 		this.MainWindow = mainWindow;
 		this.currentContext = "CPP_Spidermonkey";
+		
+		this.currentProject = new Project();
+		var projOptions = this.currentProject.options;
+		
+		// TODO: remove
+		projOptions.clangArguments = Services.prefs.getCharPref("bound.lastProject.clangArguments");
+		projOptions.fileNameFilter = Services.prefs.getCharPref("bound.lastProject.fileNameFilter");
+		projOptions.symbolNameFilter = Services.prefs.getCharPref("bound.lastProject.symbolNameFilter");
+		projOptions.accessFilter = Services.prefs.getIntPref("bound.lastProject.accessFilter");
+		
+	},
+	
+	/**
+	 * Reparses the current project
+	 */
+	reparseCurrentProject: function reparseCurrentProject()
+	{
+		var projectOptions = this.currentProject.options;
+		var cppAST = CPPAnalyzer.parse_header("", projectOptions.clangArguments, projectOptions.fileNameFilter, projectOptions.symbolNameFilter, projectOptions.accessFilter);
+	
+		//var path = "D:/Data/Projekte/Bound/src/Wrapping/Spidermonkey/WrappingTest/include/";
+		//var cppAST = CPPAnalyzer.parse_header(path, ["supertest", path + "SimpleClass.hpp"]);
+		
+		//var path = "D:/Data/Projekte/Bound/src/Wrapping/Spidermonkey/WrappingTest/include/";
+		//var cppAST = CPPAnalyzer.parse_header(path, ["supertest", path + "Functions_BasicTypes.hpp"]);
+		
+		this.currentProject.cppAST = cppAST;
 	}, 
+	
 	
 	
 	quit: function quit(aForceQuit)

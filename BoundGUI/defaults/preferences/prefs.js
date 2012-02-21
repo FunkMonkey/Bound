@@ -2,6 +2,7 @@ pref("toolkit.defaultChromeURI", "chrome://bound/content/ui/main.xul");
 pref("devtools.errorconsole.enabled", true);
 
 pref("javascript.options.showInConsole", true);
+pref("dom.report_all_js_exceptions", true);
 pref("nglayout.debug.disable_xul_cache", true);
 pref("browser.dom.window.dump.enabled", true);
 pref("javascript.options.strict", false); // TODO make true
@@ -31,4 +32,13 @@ pref("extensions.getMoreThemesURL", "chrome://mozapps/locale/extensions/extensio
 pref("extensions.getAddons.cache.enabled", false); // TODO: remove
 
 // XULRUNNER needs this
-pref("accessibility.typeaheadfind.flashBar", 0); 
+pref("accessibility.typeaheadfind.flashBar", 0);
+
+// ==================================== Bound settings
+
+pref("bound.CPPAnalyzer.pathToLibClang", "");
+pref("bound.CPPAnalyzer.pathToLibCPPAnalyzer", "");
+pref("bound.lastProject.clangArguments", "");
+pref("bound.lastProject.fileNameFilter", ".*");
+pref("bound.lastProject.symbolNameFilter", ".*");
+pref("bound.lastProject.accessFilter", 8);
