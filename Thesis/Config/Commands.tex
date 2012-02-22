@@ -22,3 +22,10 @@
 
 %\newcommand{\myWebCiteSense}[2]{\footnote{sinngemäß nach [\cite{#1}] \citetalias{#1}, #2}}
 %\newcommand{\myWebCite}[2]{\footnote{[\cite{#1}] \citetalias{#1}, #2}}
+
+\usepackage{array,booktabs,arydshln,xcolor}
+\newcommand\VRule[1][\arrayrulewidth]{\vrule width #1}
+
+\newcommand{\myLBHighlight}[1]{\begin{tabular}{c!{\color{cyan}\VRule[2pt]}p{0.9\textwidth}}
+ & #1
+\end{tabular}}
