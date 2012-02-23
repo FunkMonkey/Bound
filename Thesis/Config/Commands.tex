@@ -2,8 +2,8 @@
 
 \newcommand{\myLink}[1]{\textbf{#1}}
 
-\newcommand{\myRefChapter}[1]{\textbf{\hyperref[#1]{Kapitel ~\ref*{#1}: ~\nameref{#1}}}}
-\newcommand{\myRefSection}[1]{\textbf{\hyperref[#1]{Abschnitt ~\ref*{#1}: ~\nameref{#1}}}}
+\newcommand{\myRefChapter}[1]{\textbf{\hyperref[#1]{Chapter ~\ref*{chap:#1}: ~\nameref{chap:#1}}}}
+\newcommand{\myRefSection}[1]{\textbf{\hyperref[#1]{Section ~\ref*{sec:#1}: ~\nameref{sec:#1}}}}
 
 \newcommand{\myNameref}[1]{\textbf{\nameref{#1}}}
 
@@ -26,6 +26,6 @@
 \usepackage{array,booktabs,arydshln,xcolor}
 \newcommand\VRule[1][\arrayrulewidth]{\vrule width #1}
 
-\newcommand{\myLBHighlight}[1]{\begin{tabular}{c!{\color{cyan}\VRule[2pt]}p{0.9\textwidth}}
+\newcommand{\myLBHighlight}[1]{\vspace{5mm}\hspace{5mm}\begin{tabular}{c!{\color{cyan}\VRule[2pt]}p{0.9\textwidth}}
  & #1
-\end{tabular}}
+\end{tabular}\vspace{5mm}}

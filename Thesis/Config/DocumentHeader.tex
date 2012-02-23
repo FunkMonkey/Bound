@@ -17,6 +17,7 @@
 % ===== Common settings =====
 % ===========================
 
+\setcounter{secnumdepth}{3}
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
 \OnehalfSpacing % Zeilenabstand
@@ -82,6 +83,14 @@
            {ß}{{\ss}}1
 }
 
+
+
+% ===== Custom Commands =====
+\input{Config/Commands}
+
+% ===== lstlisting: JavaScript =====
+\input{Config/JS}
+
 % ===== Links =====
 \usepackage[%
 	colorlinks, 		% verwende farbige Links
@@ -100,9 +109,3 @@
     linkcolor=black,%
     urlcolor=black
 }
-
-% ===== Custom Commands =====
-\input{Config/Commands}
-
-% ===== lstlisting: JavaScript =====
-\input{Config/JS}

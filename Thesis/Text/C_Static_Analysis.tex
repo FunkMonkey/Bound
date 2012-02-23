@@ -16,8 +16,9 @@ Program analysis offers static compile-time techniques for predicting safe and c
 
 Thus, tools performing static analysis evaluate software in the abstract, without running the software or considering a specific input.\footnote{\citep[1]{UsingSAToFindBugs}}
 
-Complementary to static program analysis, there is also \textbf{dynamic program analysis}, which analyses software at run-time. Unit testing comes to mind as a prominent example of dynamic program analysis.
+Complementary to static program analysis, there is \textbf{dynamic program analysis}, which analyses software at run-time. Unit testing comes to mind as a prominent example of dynamic program analysis.
 
+\newpage
 \section{Area of application}
 
 The general purpose of static analysis is to extract useful information from source code or compiled code (like byte code or binary code).
@@ -38,7 +39,7 @@ Static analysis tools that are concerned with program correctness try to detect 
 
 Bug finders point out places in the source code, where the program will behave in a way that the programmer did not intend. Most tools are easy to use because they come pre-stocked with a set of ''bug idioms'' (rules) that describe patterns in code that often indicate bugs.\footnote{\citep[32]{SecureProgramming}} They help to find these often hard-to-spot defects early in the software development life-cycle, reducing the cost, time, and risk of software errors.\footnote{\citep{CovertySA}}
 
-A prominent example of preventing run-time errors at compile-time is type checking\todo{definition}. In this sense, compilers themselves can be seen as static analysis tools and - as we will see later - both have much in common.
+A prominent example of preventing run-time errors at compile-time is type checking. In this sense, compilers themselves can be seen as static analysis tools and - as we will see later - both have much in common.
 
 ''The lint program for C programs is generally considered the first widely used static analysis tool for defect detection.''\footnote{\citep[1]{UsingSAToFindBugs}}
 
@@ -46,13 +47,14 @@ A prominent example of preventing run-time errors at compile-time is type checki
 
 Defects can be categorized in generic and context-specific defects.
 
-\textbf{Generic defects} are problems that can occur in almost any program written in the given programming language, such as buffer overflows and memory leaks. \textbf{Context-specific defects} on the other hand require specific knowledge about the semantics of the given program.\footnote{\citep[14]{SecureProgramming}} Applications that deal with atomic operations (like a program that handles money transfer) belong to the latter category.
+\textbf{Generic defects} are problems that can occur in almost any program written in the given programming language, such as buffer overflows and memory leaks.\\
+\textbf{Context-specific defects} on the other hand require specific knowledge about the semantics of the given program.\footnote{\citep[14]{SecureProgramming}} Applications that deal with atomic operations (like a program that handles money transfer) belong to the latter category.
 
 The following sections will present different kinds of bugs, most of which can be found by analysing the control and data flow of an application.
 
 \subsubsection{Overflow and range analysis problems}
 
-A buffer overflow occurs when a program writes data outside the bounds of allocated memory\footnote{\citep[175]{SecureProgramming}}, for example when writing data into a buffer that is too small for the data to be written, leading to the memory after the buffer being overwritten and thus corrupted. Static analysis tools can detect such problems and advice the programmer to do a bounds-check.\todo{more internals}
+A buffer overflow occurs when a program writes data outside the bounds of allocated memory\footnote{\citep[175]{SecureProgramming}}, for example when writing data into a buffer that is too small for the data to be written, leading to the memory after the buffer being overwritten and thus corrupted. Static analysis tools can detect such problems and advice the programmer to do a bounds-check.
 
 An integer overflow occurs when an integral value is increased or decreased beyond its capacity\footnote{\citep[235]{SecureProgramming}}. The following example demonstrates how this can lead to an infinite loop:
 
@@ -69,7 +71,7 @@ A static analysis tool will detect that the expression \textbf{i \textgreater= 0
 
 Resource leaks can be detected by tracking request (for example allocation of memory) and release of resources.
 
-If a program gives up all references to a resources while it is has not been released, the resource is leaked. On the other hand, using a resource that has not been requested properly or releasing an already released resource may lead to unexpected results or even crashes.
+If a program gives up all references to a resource while it is has not been released, the resource is leaked. On the other hand, using a resource that has not been requested properly or releasing an already released resource may lead to unexpected results or even crashes.
 
 The most prominent example of a resource leak is a memory leak. But there are other important resources like files and databases that may need to be locked before usage and released afterwards.
 
@@ -85,7 +87,7 @@ There are many more possible sources for bugs that can be detected using static 
 
 Bug finders are not only concerned with finding malicious code that will lead to run-time errors, but may also warn about code that is redundant, like comparisons that will always have the same result. Although such a comparison won't cause a failure or exception, its existence suggests that it might have resulted from a coding error, leading to incorrect program behaviour.\footnote{\citep[1]{UsingSAToFindBugs}}
 
-Similar warnings could be issued for functions whose\todo{whose?} return values (for example error codes) have not been checked or for exception catch-clauses that are too broad, so that they catch important exceptions like OutOfMemoryError without handling them.
+Similar warnings could be issued for functions whose return values (for example error codes) have not been checked or for exception catch-clauses that are too broad, so that they catch important exceptions like OutOfMemoryError without handling them.
 
 \subsection{Software security}
 
@@ -106,9 +108,9 @@ Style checkers enforce rules related to whitespace, position of scope-brackets, 
 
 \subsection{Program understanding}
 
-Program understanding tools help users make sense of a large codebase. \footnote{\citep[27]{SecureProgramming}} Most modern IDE's provide functionality for helping the user navigating the codebase, for example jumping to a functions definition, finding all uses of a method. Some even provide functionality for refactoring symbols, like renaming classes. All these operations need knowledge of the symbols existing in the codebase.
+Program understanding tools help users make sense of large codebases. \footnote{\citep[27]{SecureProgramming}} Most modern IDE's provide functionality for helping the user navigate the codebase, for example jumping to a function's definition or finding all uses of a method. Some even provide functionality for refactoring symbols, like renaming classes. All these operations need knowledge about the symbols existing in the codebase.
 
-Other tools visualize the source code, for example by creating UML diagrams from source, rendering images of class hierarchies or function callgraphs that can help the user understand the control flow of the application and the relationship of the existing symbols.
+Other tools visualize the source code, for example by creating UML diagrams from source, rendering images of class hierarchies or function callgraphs that can help the user understand the control flow of the application and the relationships between the existing symbols.
 
 \todo{picture}
 
@@ -116,19 +118,19 @@ Prominent tools like Doxygen\footnote{\url{http://www.stack.nl/~dimitri/doxygen/
 
 \subsection{Optimization}
 
-Compilers perform static analysis to do\todo{word} code optimization:
+Compilers use static analysis to perform code optimization:
 
 \begin{quotation}
 A main application is to allow compilers to generate code avoiding redundant computations, e.g. by reusing available results or by moving loop invariant computations out of loops, or avoiding superfluous computations, e.g. of results known to be not needed or of results known already at compile-time.\footnote{\citep[1]{ProgramAnalysis}}
 \end{quotation}
 
-Apart from code optimization, compile-time optimization, for example by finding unnecessary Include-files in C++ applications is another area that static analysis is used for. \textbf{include-what-you-use}\footnote{\url{http://code.google.com/p/include-what-you-use/}} is a tool to perform this task. It internally uses the Clang compiler.
+Apart from code optimization, compile-time optimization, for example by finding unnecessary include-files in C++ applications is another area that static analysis is used for. \textbf{include-what-you-use}\footnote{\url{http://code.google.com/p/include-what-you-use/}} is a tool to perform this task. It internally uses the Clang compiler.
 
 \section{Static analysis as part of a programmers workflow}
 
 Being major factors of software quality, companies put a lot of effort into improving and verifying \textbf{program correctness} and \textbf{software security}. Different techniques have been developed, each concerned with achieving this main goal, but taking varying routes and targeting different stages of the development.
 
-\textbf{Software engineering} and planning begin long before any program code is written, specifying program behaviour and design, and finding structural problems and security concerns before implementation. \textbf{Pair programming} aims at reducing coding errors and making design choices at the time of writing program code by using human experience and communication. \textbf{Code review} is similar, but happens at a later stage. \textbf{Dynamic testing}, including unit tests, has been invented to verify correct run-time program behaviour of written code programmatically, with the help of more program code that tests code and compares the results to the expected output.
+\textbf{Software engineering} and planning begin long before any program code is written, specifying program behaviour and design, and finding structural problems and security concerns before implementation. \textbf{Pair programming} aims at reducing coding errors and making design choices at the time of writing program code by using human experience and communication. \textbf{Code review} is similar, but happens at a later stage. \textbf{Dynamic testing}, including unit tests, has been invented to verify correct run-time program behaviour of written code programmatically, with the help of more program code that tests implementations and compares the results to the expected output.
 
 All these techniques follow a defensive mindset about writing applications, knowing that every programmer, no matter how experienced, will make mistakes that lead to undefined program behaviour. As such these techniques aim at reducing the rate of errors that go unnoticed.
 
@@ -166,7 +168,7 @@ Static analysis tools that search for coding errors usually also associate the t
 
 As the created syntax tree contains a lot of irrelevant data that is not needed for later analysis (parentheses, etc.), the syntax tree is usually transformed into an \textbf{abstract syntax tree (AST)}, where such information is either removed or combined from multiple tree nodes into single ones.\footnote{\citep[99]{CompilerBasics}}
 
-Some static analysis tools may go their own way from this point on and create their model based on the abstract syntax tree.\\Other tools, like bug finders, as well as compilers for statically typed languages will perform another phase common in the compiler world: \textbf{semantic analysis}. During that phase, a symbol table will be build, which associates each identifier found in the program with its type and a pointer to its declaration or definition.\footnote{\citep[76]{SecureProgramming}} Using the created table, the tool or compiler is able to perform type-checking to check the correctness of the program.\footnote{\citep[76]{SecureProgramming}}
+Some static analysis tools may go their own way from this point on and create their model based on the abstract syntax tree.\\Other tools, like bug finders, as well as compilers for statically typed languages will perform another phase common in the compiler world: \textbf{semantic analysis}. During that phase, a symbol table will be build, which associates each identifier found in the program with its type and a pointer to its declaration or definition.\footnote{\citep[76]{SecureProgramming}} Using the created table, the tool or compiler is able to perform type checking to check the correctness of the program.\footnote{\citep[76]{SecureProgramming}}
 
 Bug finders additionally need to populate their model with information about the effects of library or system calls invoked by the program being analysed.\footnote{\citep[37]{SecureProgramming}}
 
@@ -174,7 +176,7 @@ Bug finders additionally need to populate their model with information about the
 
 After creating a model, static analysis tools that check for correctness, will perform checks on the model using a set of rules that are delivered with the tool. These rules may search for common ''bug idioms'' like memory leaks, buffer overflows or may define the characteristics of a special security related problem.
 
-Some tools allow the user to extend the set of rules to search for bugs that may be specific to the users codebase or that are not found by the rules delivered with the tool.\footnote{\citep[97]{SecureProgramming}}
+Some tools allow the user to extend the set of rules to search for bugs that may be specific to the user's codebase or that are not found by the rules delivered with the tool.\footnote{\citep[97]{SecureProgramming}}
 
 For altering the output of the static analysis tool, some bug finders allow the annotation of source code passages.\footnote{\citep[99]{SecureProgramming}} An annotation can be helpful to suppress a false positive in the output.
 \\For languages that do not provide special syntax for annotations, as Java and C\# do, annotations usually

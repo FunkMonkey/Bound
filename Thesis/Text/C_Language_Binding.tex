@@ -1,26 +1,32 @@
 \chapter{Language Binding}
 
-The term ''language binding'' refers to the process\todo{Word} of exposing functionality written in one programming language, so it can be used from within a different programming language\todo{and verse visa} - for example exposing C++ functions for use in Python.
+The term \textbf{language binding} refers to the process of exposing functionality written in one programming language, so it can be used from within another programming language and verse visa - for example exposing C++ functions for use in Python. As such, language binding deals with the communication between code written in different programming languages within a single application.
 
 The need to combine different programming languages and exchange information between those may arise due to several reasons. A specific language may support a different set of programming paradigms and thus be better suited for solving a special group of tasks. A project may also rely on a 3rd party library written in another language. In general, software-reuse is a common reason for binding multiple languages together.
 
-Often, language binding is needed to connect a higher-level programming language (f. ex. a scripting language like Python) with a lower-level programming language (f. ex. a system programming language like C).
+Often, language binding is needed to connect a higher-level programming language (e.g. a scripting language like Python) with a lower-level programming language (e.g. a system programming language like C).
 
 \section{System programming languages and scripting languages}
 
-Speaking of language binding, there is a set of terms that need explanation.\todo{rewrite}
+According to John Ousterhout, the creator of the programming language TCL, the terms \textbf{''low(er)-level''} and \textbf{''high(er)-level''} refer to the degree of abstraction a programming language provides in comparison to another language. Higher-level languages encapsulate more machine instructions per statement and thus usually need less code to be written to perform a given task as they are handling machine-oriented details like register allocation automatically while omitting complexity. This leads to better code-maintainability and faster development at the cost of performance.\footnote{\citep{Ousterhout}}
 
-According to John Ousterhout, the creator of the scripting language TCL, the terms \textbf{''low(er)-level''} and \textbf{''high(er)-level''} refer to the degree of abstraction a programming language provides in comparison to another language. Higher-level languages encapsulate more machine instructions per statement and thus usually need less code to be written to perform a given task as they are handling machine-oriented details like register allocation automatically while omitting complexity. This leads to better code-maintainability and faster development at the cost of performance.\footnote{\citep{Ousterhout}}
+Ousterhout describes a \textbf{system programming language} as a strongly (statically) typed language designed to create applications from scratch, but offering a higher level of abstraction in doing so compared to assembly programming languages, which are considered very low-level. C, C++ and Pascal come to mind as popular system programming languages.
 
-Ousterhout describes a \textbf{system programming language} as a strongly (statically) typed language designed to create applications from scratch, but offering a higher level of abstraction in doing so compared to assembly programming languages, which are considered very low-level.
+Ousterhout states, that \textbf{scripting languages}, on the other hand, represent a very different style of programming than system programming languages. They ''assume that there already exists a collection of useful components written in other languages [...] and are intended primarily for plugging together components''\footnote{\citep{Ousterhout}}. They offer a higher level of abstraction compared to system programming languages, f. ex. by using dynamic typing, thus sacrificing execution speed to improve development speed. Popular examples are Python and JavaScript.
+\\ Being mostly interpreted languages, they support faster development and rapid prototyping by eliminating compile- and link-time. Interpretation using a virtual machine also offers better portability as well as a great deal of flexibility by allowing run-time code-manipulation. Due to their simpler syntax, scripting languages are usually easier to learn. Opposed to \textbf{interpreted code}, the machine code produced by compiling system programming languages like C++ is often referred to as \textbf{native code}.
 
-He states, that \textbf{scripting languages}, on the other hand, represent a very different style of programming than system programming languages. They ''assume that there already exists a collection of useful components written in other languages [...] and are intended primarily for plugging together components''\footnote{\citep{Ousterhout}}. They offer a higher level of abstraction compared to system programming languages, f. ex. by using dynamic typing, thus sacrificing execution speed to improve development speed.\todo{code-reuse?}\\ Being mostly interpreted languages, they support faster development and rapid prototyping by eliminating compile- and link-time. Interpretation also offers better portability as well as a great deal of flexibility by allowing run-time code-manipulation. Due to their simpler syntax, scripting languages are usually easier to learn.
+There are languages that lie in between these definitions, being statically typed as well as interpreted or byte-code compiled, for example C\# and Java. 
 
-Scripting and system programming languages are symbiotic. System programming languages are used to create high-performance components providing access to platform- and operating system functionality, which can then be assembled using scripting languages.\footnote{\citep{Ousterhout}} Binding a system programming language and a scripting language together provides the advantages of both worlds\todo{types?}.
+Scripting and system programming languages are symbiotic. System programming languages are used to create high-performance components providing access to platform- and operating system functionality, which can then be assembled using scripting languages.\footnote{\citep{Ousterhout}} Binding a system programming language and a scripting language together provides the advantages of both worlds and most importantly allows the reuse of existing code that may not be integrable without language binding.
 
-\todo{Software-Reuse, OS-API and access, native, host, guest, extending, embedding, pipe-example}
+\subsection{Extending vs embedding}
+
+When binding together a system programming language and a scripting language, we need to differentiate between \textbf{extending} and \textbf{embedding} of a scripting language.\footnote{\citep{PythonHP}} Languages like Python that run inside a virtual machine come with an own interpreter, which often also exists as an independent executable. The developers also provide a library that exposes the scripting language's extending/embedding API. \\
+When \textbf{extending} a scripting language, the programmer creates a shared library in the system programming language that can be loaded and used from the scripting language's interpreter executable. The shared library uses the provided API-library to expose functionality to the scripting language.\\
+\textbf{Embedding} a scripting language means that the programmer includes an instance of the interpreter in his own application. Again, the API-library is used for exposing functionality, but the application further needs to deal with the initialization of the interpreter itself and the communication with it. In such a scenario the embedded language is often referred to as the \textbf{guest language}, while the main application's programming language is the \textbf{host language}.
 
 \section{Types of function binding}
+\label{sec:TypesOfFunctionBinding}
 
 Before the process of binding different languages into one application is explained, it is important to define some terms concerning the binding of functions.
 
@@ -28,14 +34,14 @@ Before the process of binding different languages into one application is explai
 
 \textbf{Dynamic binding, dynamic dispatch} or \textbf{''late'' binding}, on the opposite side, refers to resolving the address of the code to be called dynamically at run-time. This can be done in various ways, and the definitions in literature and internet vary extremely at this point.
 
-Looking at C++, calls to virtual functions are bound at run-time, as the compiler is unable to know which implementation a base class reference may point to and thus which function to call. Every class containing virtual functions has run-time type information (RTTI) for retrieving the correct implementation. The addresses of all virtual functions of a class and its base classes are stored in a so-called virtual table. Instances of such classes hold a pointer to their classes virtual table. For a virtual function call, the compiler stores the functions offset in the virtual table at the call position. When resolving the function call at run-time a pointer to the objects virtual table is retrieved and the stored offset used to call the appropriate function. Compared to an statically bound function call, there is one more level of indirection. For this kind of dynamic binding, the compiler is still able to do static type checking. Therefore, compile-time knowledge about the interface / base class of the object is needed. 
+Looking at C++, calls to virtual functions are bound at run-time, as the compiler is unable to know which implementation a base class reference may point to and thus which function to call. Every class containing virtual functions has run-time type information (RTTI) for retrieving the correct implementation. The addresses of all virtual functions of a class and its base classes are stored in a so-called virtual table. Instances of such classes hold a pointer to their classes' virtual table. For a virtual function call, the compiler stores the function's offset in the virtual table at the call position. When resolving the function call at run-time a pointer to the object's virtual table is retrieved and the stored offset used to call the appropriate function. Compared to a statically bound function call, there is one more level of indirection. For this kind of dynamic binding, the compiler is still able to do static type checking. Therefore, compile-time knowledge about the interface(s) and base class(es) of the object is needed. 
 
 Looking up the address of a function at run-time using a string or another type of identifier is also a kind of dynamic binding. This is sometimes also referred to as \textbf{dynamic method invocation}.\\
 The lookup of native functions may be trivial for programming languages that support reflection, like C\# or Java, where the language provides ways of calling functions using a string-identifier.\\
-A language like C++, which does not support reflection, needs special type libraries\todo{explain typelib}, which map the identifiers to the according offset of the function in the classes virtual table. Given an instance with a virtual table and the type library, the functions address can be retrieved and the function itself called. Alternatively to using type libraries the object may also provide a dispatch function that takes an identifier and resolves the function address.
-\\Apart from the function address, information about parameters and return types may also needed to be looked up. Type checking has to be done at run-time, but therefore this approach does not require compile-time knowledge about the objects interface. Trying to call non-existent functions will result in run-time errors.
+A language like C++, which does not support reflection, needs special type libraries, which map the identifiers to the according offset of the function in the class' virtual table. Type library files also contain information about the types of function arguments and return types. Given an instance with a virtual table and the type library, the function's address can be retrieved and the function itself called. Alternatively to using type libraries, the object may also provide a dispatch function that takes an identifier and resolves the function address.
+\\Type checking of function arguments and return values needs to be done at run-time with the information given in the type library. Therefore dynamic method invocation does not require compile-time knowledge about the object's interface. Trying to call non-existent functions will result in run-time errors.
 
-Concerning performance, static binding is the fastest. Dynamic binding using RTTI and virtual tables is just insignificantly slower on modern hardware, because of one level of indirection. Dynamic method invocation is by far the slowest, due to the resolving of a functions address using an identifier and type checking at run-time. 
+Concerning performance, static binding is the fastest. Dynamic binding using RTTI and virtual tables is just insignificantly slower on modern hardware, because of one more level of indirection. Dynamic method invocation is by far the slowest, due to the resolving of a function's address using an identifier and type checking at run-time. 
 
 Note, that in contexts outside of standard C++, for example in Microsoft COM, dynamic binding using RTTI is still sometimes referred to as ''early'' binding, due to its performance advantage compared to the lookup using an identifier.
 
@@ -63,8 +69,8 @@ A foreign interface is a piece of glue code, intended to make it possible to use
 \textbf{Static foreign interfaces} are written and compiled in the system programming language using the API the scripting language provides.\\
 \textbf{Dynamic foreign interfaces} are created at run-time. This can be done in two ways:
 \begin{itemize}
-\item writing glue code in the system programming language using the scripting languages API \textbf{in conjunction} with dynamic method invocation
-\item writing glue code in the scripting language itself using the scripting languages dynamic \textbf{foreign \underline{function} interface} (FFI)
+\item writing glue code in the system programming language using the scripting language's API in conjunction with \textbf{dynamic method invocation}
+\item writing glue code in the scripting language itself using the scripting language's dynamic \textbf{foreign \underline{function} interface} (FFI)
 \end{itemize}
 
 The terminology concerning foreign \underline{function} interfaces (FFIs) is somewhat confusing. This thesis will use the following definition:
@@ -81,8 +87,8 @@ The different ways of creating foreign interfaces will be explained in more deta
 
 Both Python and Mozilla's JavaScript implementation Spidermonkey are accessible in form of a library exposing a C-API. Thus glue code for binding C or C++ functionality to one of these languages has to be written in C / C++ using the given API.
 
-\begin{lstlisting}[language=C++, caption=Exposing a C function to Spidermonkey (taken from MDN)]
-// A simple JS wrapper for the rand() function from the C standard library
+\begin{lstlisting}[language=C++, caption=Exposing a C function to Spidermonkey]
+/* A simple JS wrapper for the rand() function from the C standard library */
 JSBool myjs_rand(JSContext *cx, uintN argc, jsval *vp)
 {
     // setting the result of rand() as the return value
@@ -90,8 +96,7 @@ JSBool myjs_rand(JSContext *cx, uintN argc, jsval *vp)
     return JS_TRUE;
 }
 
-// ... somewhere in the code: defining the function on the global object
-// so it can be used from the script
+/* ... somewhere in the code: defining the function on the global object so it can be used from the script */
 JSFunctionSpec myjs_global_functions[] = {
     JS_FS("rand",   myjs_rand,   0, 0),
     JS_FS_END
@@ -99,41 +104,69 @@ JSFunctionSpec myjs_global_functions[] = {
 
 JS_DefineFunctions(cx, global, myjs_global_functions);
 \end{lstlisting}
-\todo{Reference to MDN}
 
 \begin{lstlisting}[language=JavaScript, caption=Using a C function from SpiderMonkey]
 var r = rand();	// r is a random number
 \end{lstlisting}
 
-The glue code is responsible for converting between the types of the system programming language and the scripting language for arguments and return value, as well as calling the wrapped function in between. When converting arguments from script types to the expected types of the function, type-checking needs to be performed. This happens at run-time as the number and types of arguments (stored in in \textbf{argc} and \textbf{vp}) passed to this wrapper function is not known at compile-time.
+Example taken from the Mozilla Developer Network\footnote{\url{https://developer.mozilla.org/En/SpiderMonkey/JSAPI_User_Guide}}.
 
-The \textit{call of the native function} \textbf{rand} itself uses static binding or when working with virtual classes (for calling methods) dynamic binding using RTTI. As JavaScript itself is a weakly typed language, the \textit{call to the wrapper function} \textbf{myjs\_rand} itself is in fact dynamically bound and its address looked up using the string ''rand''.
+In the given example ()that the glue code is responsible for converting between the types of the system programming language and the scripting language for arguments and return value, as well as calling the wrapped function in between. When converting arguments from script types to the expected types of the function, type-checking needs to be performed. This happens at run-time as the number and types of arguments (stored in in \textbf{argc} and \textbf{vp}) passed to this wrapper function is not known at compile-time.
 
-Looking at the given example, it is obvious that even the wrapping of a simple C function that does nothing but return a double value without taking any argument, requires a \todo{nicht zu unterschätzen} amount of glue code, which is most-likely error-prone and hard to maintain.
+The call of the \underline{native} function \textbf{rand} itself uses static binding or when working with virtual classes (for calling methods) dynamic binding using RTTI. As JavaScript itself is a weakly typed language, the call to the \underline{wrapper} function \textbf{myjs\_rand} itself is in fact dynamically bound and its address looked up using the string ''rand''.
 
-\myLBHighlight{Thus, the purpose of this thesis is to develop an application that automatically creates glue code for binding different scripting languages to C++.}
+Looking at the given example, it is obvious that even the wrapping of a simple C function that does nothing but return a double value without taking any argument, requires an amount of glue code that must not be underestimated and which is most-likely error-prone and hard to maintain.
+
+\myLBHighlight{Thus, the purpose of this thesis is to develop an application that assists in the creation of glue code for binding different scripting languages to C++ using a static foreign interface as presented above for Mozilla Spidermonkey.}
 
 \subsection{Dynamic foreign interfaces and dynamic method invocation}
+\label{sec:DynamicForeignInterfaces}
 
-When wrapping a class, instead of writing glue code for every single function, it is also possible to direct every call through a single proxy function that does all the work at run-time. This is a form of dynamic dispatch, thus such a function can be called a ''dispatch function''. \todo{check}\\
+When wrapping a class, instead of writing glue code for every single function, it is also possible to direct every call through a single proxy function that does all the work at run-time, with the help of type libraries. This is a form of dynamic dispatch, thus such a function can be called a ''dispatch function''.
 
-Calls to an objects functions are resolved using dynamic method invocation based on an identifier as explained in \todo{ref}. Consider a script object that wraps a class instance. The object internally holds a reference to the wrapped instance. When calling a method of the given object, f. ex. ''doSomething'', the call will be directed to the proxy function. Based on the given string ''doSomething'' and the internal instance, the proxy will look up the memory address and expected parameters of the native function, convert the given script-arguments to the expected format, call the native function (dynamic invocation) and convert the return value to a type that is understood by the scripting language - all at run-time.
+Calls to an object's functions are resolved using dynamic method invocation based on an identifier as explained in \myRefSection{TypesOfFunctionBinding}. Consider a script object that wraps a class instance. The object internally holds a reference to the wrapped instance. When calling a method of the given object, f. ex. ''doSomething'', the call will be directed to the proxy function. Based on the given string ''doSomething'' and the internal instance, the proxy will look up the memory address and expected parameters of the native function, convert the given script-arguments to the expected format, call the native function and convert the return value to a type that is understood by the scripting language - all at run-time.
 
-Compared to writing glue code for every function, where the function addresses are known at compile-time (static binding) or looked up via RTTI, this approach has the performance issues described in \todo{ref}. Function addresses and parameter information need to be looked up and compared with the given parameters at run-time. Dynamic method invocation though has the advantage, that type information of the wrapped classes is not needed at compile-time of the code that handles the binding (proxy function).
+Creating a dynamic foreign interface using this approach will lead to worse performance compared to static foreign interfaces.\\
+When binding a weakly typed language, both approaches have the cost of resolving the method's name to the address of the wrapper function using dynamic method invocation.\\
+Both approaches also need to do type conversion of function arguments at run-time due to differing types between the languages. When using dynamic method invocation for the foreign interface, the type information needs to be gathered from a type library, while a static foreign interface already includes the conversion code (that may also be compiler optimized). Compared to the static foreign interface, where the function addresses are known at compile-time (static binding) or looked up via RTTI, this type of dynamic foreign interface also has the cost of resolving the function's address using dynamic method invocation - thus one script object's function call will lead to two address lookups, one for the wrapper function and one for the native function to call.
+
+Dynamic method invocation though has the advantage that type information of the wrapped class is not needed at compile-time of the code that handles the binding, i.e. the proxy function.
+
+\myLBHighlight{The developed application should be designed in a way that it can later be extended to allow the creation of type libraries based on C++ source code.}
 
 \subsection{Dynamic foreign function interfaces}
 
 Some scripting languages allow the use of public symbols from shared libraries, such as calling functions and accessing data types, without the need to write glue code in the system programming language. The scripting language provides an API (the dynamic foreign function interface) for writing the glue code in the scripting language itself.
 
-Such APIs are available in a multitude of programming languages such as Lisp and Haskell. One of the most prominent examples is Pythons foreign function library ''ctypes''. Mozilla developed an equivalent for SpiderMonkey called ''js-ctypes''. Besides the Java Native Interface (JNI), which is part static and part dynamic, there is a completely dynamic foreign function interface for Java called Java Native Access (JNA). \todo{reference}
+Such APIs are available in a multitude of programming languages such as Lisp and Haskell. One of the most prominent examples is Python's foreign function library ''ctypes''\footnote{\url{http://docs.python.org/library/ctypes.html}}. Mozilla developed an equivalent for SpiderMonkey called ''js-ctypes''\footnote{\url{https://developer.mozilla.org/en/js-ctypes}}. Besides the Java Native Interface (JNI)\footnote{\url{http://docs.oracle.com/javase/1.5.0/docs/guide/jni/spec/jniTOC.html}}, which is part static and part dynamic, there is a completely dynamic foreign function interface for Java called Java Native Access (JNA)\footnote{\url{https://github.com/twall/jna}}.
 
 These APIs provide equivalents for basic C types like numbers and pointers. Complex data types like structs need to be composited on the scripting side using the given types. C functions can be looked up using the string representation of their name.
 
-\todo{Example}
+\begin{lstlisting}[language=JavaScript, caption={Exposing a C function to JavaScript using js-ctypes}]
+/* opening the shared library */
+var lib = ctypes.open("C:\\WINDOWS\\system32\\user32.dll");  
+  
+/* Declare the signature of the function we are going to call */  
+var msgBox = lib.declare("MessageBoxW",  
+                         ctypes.winapi_abi,  
+                         ctypes.int32_t,  
+                         ctypes.int32_t,  
+                         ctypes.jschar.ptr,  
+                         ctypes.jschar.ptr,  
+                         ctypes.int32_t);  
+var MB_OK = 0;  
+
+/* calling the function */
+var ret = msgBox(0, "Hello world", "title", MB_OK); 
+\end{lstlisting}
+
+Example taken from the Mozilla Developer Network\footnote{\url{https://developer.mozilla.org/en/js-ctypes/Using_js-ctypes}}.
 
 Due to the complexity of the data structures and the non-standardized name mangling (the creation of unique names for functions for symbol export) in C++, most FFIs are only able to access libraries that use basic C types, plain old data (POD) structures and C name mangling.
 
-As a side note, most FFI implementations use the same library, \textbf{libffi}\todo{link}, for handling the common low level tasks.
+As a side note, most FFI implementations use the same library, \textbf{libffi}\footnote{\url{http://sourceware.org/libffi/}}, for handling the common low level tasks.
+
+\myLBHighlight{Besides creating glue code for static foreign interfaces, the application should be designed in a way that it can be extended to support the creation of glue code for dynamic foreign function interfaces.}
 
 \section{Existing language binding systems and tools}
 
@@ -161,9 +194,9 @@ The services offered by a component are made available through an interface, and
 
 CORBA, COM and XPCOM are strictly separating interfaces and implementations. The same interface can be implemented by multiple classes and a class can also implement multiple interfaces.
 
-Interfaces are defined in a special interface definition language (IDL). These interface files are used in different ways.\\
+Interfaces are defined in a special interface definition language (IDL). The interface files are used in different ways.\\
 When implementing COM or CORBA components in C++, an IDL compiler is used to create header files with abstract classes that are to be extended and implemented.\\
-The IDL compiler will also create type libraries which hold information about the interfaces, the functions and their offsets in the virtual table, their parameters, etc. When calling a components method from a dynamically typed scripting language, these type libraries will be used for dynamically invoking the method by its name at run-time as described in section XXX. \todo{link} In COM, statically typed or compiled languages like Visual Basic also use the type libraries for retrieving function memory addresses at compile-time to eliminate the cost of dynamic method invocation.
+The IDL compiler will also create type libraries which hold information about the interfaces, the functions and their offsets in the virtual table, their parameters, etc. When calling a component's method from a dynamically typed scripting language, these type libraries will be used for dynamically invoking the method by its name at run-time as described in \myRefSection{DynamicForeignInterfaces}. In COM, statically typed or compiled languages like Visual Basic also use the type libraries for retrieving function memory addresses at compile-time to eliminate the cost of dynamic method invocation.  
 
 \subsection{Communication between components}
 
@@ -173,19 +206,19 @@ Components written in COM have to follow a binary standard, meaning they have to
 
 CORBA on the other hand standardizes the IDL as well as the language bindings. All calls are routed through the Object Request Broker, which is responsible for translating the calls and converting arguments. ''By mandating the use of runtime software for all object invocations, CORBA can effectively hide differences between communicating objects — what languages they are written in, on what machines they are running and the operating system used — without requiring that their interfaces all look the same in memory. Thus, CORBA is, unlike COM, not a binary standard.''\footnote{\citep[83]{ComponentTechnology}}
 
-When using objects from a weakly typed scripting language, neither CORBA nor COM are producing glue code for binding purposes but handle function calls and type-checking at run-time using dynamic binding with lookup using identifiers (dynamic method invocation). Thus calls to such an object from script are dynamically bound twice. First the address of the handler-function needs to be looked up, then the handler needs to look up the address and parameter information of the function to call. This is a performance overhead compared to compiled glue code that uses static binding.
+When using objects from a weakly typed scripting language, neither CORBA nor COM are producing glue code for binding purposes but handle function calls and type-checking at run-time using a dynamic foreign interface with dynamic method invocation and as such have the explained performance penalties.
 
 Component models and the according middleware have the advantage of handling the communication between the different languages under the hood, so there is no need for the programmer to write glue code that deals with argument conversion or memory management issues.\\
-On the downside, when wrapping C++, the wrapped classes need to inherit from the given interfaces or in the case of COM at least conform to the binary layout of the interface. Already existing libraries can thus not be wrapped without modification or creation of a wrapper-library that conforms to the component standard.
+On the downside, when wrapping C++, the wrapped classes need to inherit from the given interfaces or in the case of COM at least conform to the binary layout of the interface (including the standard IUnknown interface). Already existing libraries can thus not be wrapped without modification or creation of a wrapper-library that conforms to the component standard.
+
+\myLBHighlight{The developed application should be able to create language bindings for libraries without the need to modify those.}
 
 Component models like COM and CORBA provide many more features than just language-agnosticism and inter-language communication. CORBA and DCOM, the distributed version of COM, also provide support for handling inter-process and inter-machine communication, hiding the complexity of remote calls from the user. These architectures thus come with an overhead, which may be unacceptable when all the user wants to do is to bind two programming languages.
 
-\todo{Non-Goal need to include interfaces}
+\myLBHighlight{The glue code generated by the application should have as little overhead as possible to achieve maximum run-time performance.}
 
-.\\
-.\\
+
 \todo{TODO-List}
-  - late binding!!!
   - Erzeugung von Komponenten in welcher Sprache? Richtung der Aufrufe ...
   - Welche Systeme / Methoden / Tools gibt es schon um Language-Binding zu vereinfachen / automatisieren (COM, Corba, Mozilla XPCOM + IDL, SWIG)
   - Warum wird ein eigenes Tool entwickelt? (Notwendigkeit, Vorteile, Goals- und Non-Goals, etc.)
