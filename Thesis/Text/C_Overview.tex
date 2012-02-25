@@ -1,8 +1,17 @@
 \chapter{Overview}
 
-\todo{Overview over chapters}
+\myRefChapter{chap:LanguageBinding} defines the term language binding and presents different ways in which programming languages can be bound together within a single application.
 
+Given the information of the previous chapter, \myRefChapter{chap:Task} will formulate design goals for the application to be developed.
 
-\myLBHighlight{Passages that are highlighted like with a blue border, indicate information about the goal of this thesis and the written application.}
+\myRefChapter{chap:LanguageBindingCPPJS} gives insights about the different kinds of constructs the two programming languages C++ and JavaScript provide and how these can be mapped onto each other.
+
+In \myRefChapter{chap:StaticAnalysis} basics of static program analysis are described and areas of application shown. The chapter will also present existing static analysis tools and explain the decision to use Clang for performing static analysis.
+
+\myRefChapter{chap:AnalysingCPP} shows details about the implementation of a C++ application that analyses certain symbols and declarations from C and C++ source code files and exports the information as JSON.
+
+The exported information will be used in a GUI application based on the Mozilla Framework, as described in \myRefChapter{chap:GUIApplication}. The chapter will introduce the basic architecture of the application and explain how the symbol information is used to create language binding code for JavaScript.
+
+\myLBHighlight{Passages that are highlighted with a left blue border can be found in earlier chapters and indicate information about the goal of this thesis and the developed application.}
 
 

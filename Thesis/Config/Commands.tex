@@ -2,8 +2,9 @@
 
 \newcommand{\myLink}[1]{\textbf{#1}}
 
-\newcommand{\myRefChapter}[1]{\textbf{\hyperref[#1]{Chapter ~\ref*{chap:#1}: ~\nameref{chap:#1}}}}
-\newcommand{\myRefSection}[1]{\textbf{\hyperref[#1]{Section ~\ref*{sec:#1}: ~\nameref{sec:#1}}}}
+\newcommand{\myRef}[1]{\textbf{\hyperref[#1]{~\ref*{#1}: ~\nameref{#1}}}}
+\newcommand{\myRefChapter}[1]{\textbf{\hyperref[#1]{Chapter ~\ref*{#1}: ~\nameref{#1}}}}
+\newcommand{\myRefSection}[1]{\textbf{\hyperref[#1]{Section ~\ref*{#1}: ~\nameref{#1}}}}
 
 \newcommand{\myNameref}[1]{\textbf{\nameref{#1}}}
 

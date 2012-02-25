@@ -1,6 +1,7 @@
 \chapter{Language Binding}
+\label{chap:LanguageBinding}
 
-The term \textbf{language binding} refers to the process of exposing functionality written in one programming language, so it can be used from within another programming language and verse visa - for example exposing C++ functions for use in Python. As such, language binding deals with the communication between code written in different programming languages within a single application.
+The term \textbf{language binding} refers to the process of exposing functionality written in one programming language, so it can be used from within another programming language and verse visa - for example exposing C++ functions for use in Python. Consequently, language binding deals with the communication between code written in different programming languages within a single application.
 
 The need to combine different programming languages and exchange information between those may arise due to several reasons. A specific language may support a different set of programming paradigms and thus be better suited for solving a special group of tasks. A project may also rely on a 3rd party library written in another language. In general, software-reuse is a common reason for binding multiple languages together.
 
@@ -124,7 +125,7 @@ Looking at the given example, it is obvious that even the wrapping of a simple C
 
 When wrapping a class, instead of writing glue code for every single function, it is also possible to direct every call through a single proxy function that does all the work at run-time, with the help of type libraries. This is a form of dynamic dispatch, thus such a function can be called a ''dispatch function''.
 
-Calls to an object's functions are resolved using dynamic method invocation based on an identifier as explained in \myRefSection{TypesOfFunctionBinding}. Consider a script object that wraps a class instance. The object internally holds a reference to the wrapped instance. When calling a method of the given object, f. ex. ''doSomething'', the call will be directed to the proxy function. Based on the given string ''doSomething'' and the internal instance, the proxy will look up the memory address and expected parameters of the native function, convert the given script-arguments to the expected format, call the native function and convert the return value to a type that is understood by the scripting language - all at run-time.
+Calls to an object's functions are resolved using dynamic method invocation based on an identifier as explained in \myRefSection{sec:TypesOfFunctionBinding}. Consider a script object that wraps a class instance. The object internally holds a reference to the wrapped instance. When calling a method of the given object, f. ex. ''doSomething'', the call will be directed to the proxy function. Based on the given string ''doSomething'' and the internal instance, the proxy will look up the memory address and expected parameters of the native function, convert the given script-arguments to the expected format, call the native function and convert the return value to a type that is understood by the scripting language - all at run-time.
 
 Creating a dynamic foreign interface using this approach will lead to worse performance compared to static foreign interfaces.\\
 When binding a weakly typed language, both approaches have the cost of resolving the method's name to the address of the wrapper function using dynamic method invocation.\\
@@ -196,7 +197,7 @@ CORBA, COM and XPCOM are strictly separating interfaces and implementations. The
 
 Interfaces are defined in a special interface definition language (IDL). The interface files are used in different ways.\\
 When implementing COM or CORBA components in C++, an IDL compiler is used to create header files with abstract classes that are to be extended and implemented.\\
-The IDL compiler will also create type libraries which hold information about the interfaces, the functions and their offsets in the virtual table, their parameters, etc. When calling a component's method from a dynamically typed scripting language, these type libraries will be used for dynamically invoking the method by its name at run-time as described in \myRefSection{DynamicForeignInterfaces}. In COM, statically typed or compiled languages like Visual Basic also use the type libraries for retrieving function memory addresses at compile-time to eliminate the cost of dynamic method invocation.  
+The IDL compiler will also create type libraries which hold information about the interfaces, the functions and their offsets in the virtual table, their parameters, etc. When calling a component's method from a dynamically typed scripting language, these type libraries will be used for dynamically invoking the method by its name at run-time as described in \myRefSection{sec:DynamicForeignInterfaces}. In COM, statically typed or compiled languages like Visual Basic also use the type libraries for retrieving function memory addresses at compile-time to eliminate the cost of dynamic method invocation.  
 
 \subsubsection{Communication between components}
 
@@ -206,7 +207,7 @@ Components written in COM have to follow a binary standard, meaning they have to
 
 CORBA on the other hand standardizes the IDL as well as the language bindings. All calls are routed through the Object Request Broker, which is responsible for translating the calls and converting arguments. ''By mandating the use of runtime software for all object invocations, CORBA can effectively hide differences between communicating objects — what languages they are written in, on what machines they are running and the operating system used — without requiring that their interfaces all look the same in memory. Thus, CORBA is, unlike COM, not a binary standard.''\footnote{\citep[83]{ComponentTechnology}}
 
-When using objects from a weakly typed scripting language, neither CORBA nor COM are producing glue code for binding purposes but handle function calls and type-checking at run-time using a dynamic foreign interface with dynamic method invocation and as such have the explained performance penalties.
+When using objects from a weakly typed scripting language, neither CORBA nor COM are producing glue code for binding purposes but handle function calls and type-checking at run-time using a dynamic foreign interface with dynamic method invocation and in consequence have the explained performance penalties.
 
 Component models and the according middleware have the advantage of handling the communication between the different languages under the hood, so there is no need for the programmer to write glue code that deals with argument conversion or memory management issues.\\
 On the downside, when wrapping C++, the wrapped classes need to inherit from the given interfaces or in the case of COM at least conform to the binary layout of the interface (including the standard IUnknown interface). Already existing libraries can thus not be wrapped without modification or creation of a wrapper-library that conforms to the component standard.
@@ -217,15 +218,16 @@ Component models like COM and CORBA provide many more features than just languag
 
 \myLBHighlight{The glue code generated by the application should have as little overhead as possible to achieve maximum run-time performance.}
 
+\newpage
 \subsection{SWIG}
 
 \begin{quotation}
 SWIG is an interface compiler that connects programs written in C and C++ with scripting languages such as Perl, Python, Ruby, and Tcl. It works by taking the declarations found in C/C++ header files and using them to generate the wrapper code that scripting languages need to access the underlying C/C++ code. In addition, SWIG provides a variety of customization features that let you tailor the wrapping process to suit your application.\footnote{\citep{SWIGHPExec}}
 \end{quotation}
 
-\myLBHighlight{As such SWIG serves the exact same purpose as the application developed in this thesis.}
+\myLBHighlight{Thus SWIG serves the exact same purpose as the application developed in this thesis.}
 
-SWIG expects input files containing ANSI C/C++ declarations annotated with special SWIG directives that will later be used to create the glue code. Although the program contains a feature-rich C++ parser that is able to parse most C++ header files, most users will provide special SWIG interface files containing the declarations to be wrapped. This is useful for filtering and customizing the output, especially in cases where the original header files can not be modified. SWIG is called through its command-line interface, providing the interface- or header file as an argument.
+SWIG, an abbreviation for Simplified Wrapper and Interface Generator, expects input files containing ANSI C/C++ declarations annotated with special SWIG directives that will later be used to create the glue code. Although the program contains a feature-rich C++ parser that is able to parse most C++ header files, most users will provide special SWIG interface files containing the declarations to be wrapped. This is useful for filtering and customizing the output, especially in cases where the original header files can not be modified. SWIG is called through its command-line interface, providing the interface- or header file as an argument.
 \\The following example will demonstrate the interface file for wrapping a single function from a given header file:
 
 \begin{lstlisting}[language=C++, caption=Original header file: sample.h]
@@ -250,8 +252,10 @@ The creation of the glue code itself for the various types of declarations (clas
 
 The glue code generated by SWIG will need no further modification by the user, but can be compiled as is.
 
-The development of SWIG already started in 1995\footnote{\citep{SWIGHPDoc} in 1.1 Introduction}. As such, the application can wrap most C++ constructs to be used in a multitude of scripting languages, while allowing extreme customization of the output code and its behaviour. SWIG's detailed documentation\footnote{\url{http://www.swig.org/Doc2.0/Contents.html\#Contents}} contains a lot of background information - not just about the usage of SWIG itself, but also about the problems that can arise when binding languages, both for language binding tools and their users. It also explains the design decisions behind SWIG to circumvent these problems.
-\\Unfortunately, this valuable information was discovered very late in the writing of this 20 weeks-long thesis and as such did not influence most of the design decisions made for the developed application. This late discovery has been a clear mistake of the author resulting from a too superficial theoretical research on alternate language binding tools. Nevertheless, the information in the documentation will be useful for the ongoing development of the application after the time of this writing.
+SWIG does not include a full C++ parser by design. The parser in SWIG was created in a way that it can handle incomplete interfaces and deal with missing type declarations.
+
+The development of SWIG already started in 1995\footnote{\citep{SWIGHPDoc} in 1.1 Introduction}. The application can wrap most C++ constructs to be used in a multitude of scripting languages, while allowing extreme customization of the output code and its behaviour. SWIG's detailed documentation\footnote{\url{http://www.swig.org/Doc2.0/Contents.html\#Contents}} contains a lot of background information - not just about the usage of SWIG itself, but also about the problems that can arise when binding languages, both for language binding tools and their users. It also explains the design decisions behind SWIG to circumvent these problems.
+\\Unfortunately, this valuable information was discovered very late in the writing of this 20 weeks-long thesis and consequently did not influence most of the design decisions made for the developed application. This late discovery has been a clear mistake of the author resulting from a too superficial theoretical research on alternate language binding tools. Nevertheless, the information in the documentation will be useful for the ongoing development of the application after the time of this writing.
 
 \myLBHighlight{
 This thesis does not have the purpose of reinventing the wheel, but to tackle the same problem in a different way.\\
@@ -259,13 +263,11 @@ This thesis does not have the purpose of reinventing the wheel, but to tackle th
 & SWIG is a command-line utility. For enhanced usability the application created in this thesis will be a GUI application that allows the exploration of a C++ syntax tree, creation of an output tree for multiple languages and customization of export options using GUI elements.\\
 & \\
 & Just like SWIG, the application should be extendable in an easy fashion. As explained in TODO:REF the Mozilla framework, which also serves as the foundation for the Firefox browser, will be used for easy extendability. This will allow language modules to be written in JavaScript instead of C++, which is needed in SWIG. This brings all the benefits (and drawbacks) of using scripting languages to the language binding tool itself.\\
-& The application should not be restricted to language binding, but allow extensions that use C++ syntax trees in different fashions (documentation, etc.) as described in \myRefSection{AreaOfApplication} of static analysis tools.\\
+& The application should not be restricted to language binding, but allow extensions that use C++ syntax trees in different fashions (documentation, etc.) as described in \myRefSection{sec:AreaOfApplication} of static analysis tools.\\
 & \\
-& Although the tool can be used as a replacement for SWIG, the general idea for future releases is to also provide a SWIG language module that is able to produce SWIG interface files - turning the application into a GUI frontend for SWIG and as such add support for languages not supported by Bound itself.\\
+& Although the tool can be used as a replacement for SWIG, the general idea for future releases is to also provide a SWIG language module that is able to produce SWIG interface files - turning the application into a GUI frontend for SWIG and in this way add support for languages not supported by Bound itself.\\
 & \\
 & The first language module for this project is a scripting language currently not supported by SWIG: the Mozilla implementation of the ECMAScript Standard, commonly known as JavaScript, called Spidermonkey\\
 & \\
 & Compared to SWIG, Bound will include a complete C++ parser, based on the Clang C-language family compiler. This has the advantage of outsourcing the C++ parsing to an actively developed project that deals with implementing new language features that change syntax, like the auto-keyword or the alternative function syntax coming with the new C++ standard C++11.
 }
-
-\todo{ref c++11}

@@ -1,4 +1,5 @@
 \chapter{Static Analysis}
+\label{chap:StaticAnalysis}
 
 In ''Secure Programming with Static Analysis'' \textbf{static analysis} is defined as followed:
 
@@ -133,9 +134,9 @@ Being major factors of software quality, companies put a lot of effort into impr
 
 \textbf{Software engineering} and planning begin long before any program code is written, specifying program behaviour and design, and finding structural problems and security concerns before implementation. \textbf{Pair programming} aims at reducing coding errors and making design choices at the time of writing program code by using human experience and communication. \textbf{Code review} is similar, but happens at a later stage. \textbf{Dynamic testing}, including unit tests, has been invented to verify correct run-time program behaviour of written code programmatically, with the help of more program code that tests implementations and compares the results to the expected output.
 
-All these techniques follow a defensive mindset about writing applications, knowing that every programmer, no matter how experienced, will make mistakes that lead to undefined program behaviour. As such these techniques aim at reducing the rate of errors that go unnoticed.
+All these techniques follow a defensive mindset about writing applications, knowing that every programmer, no matter how experienced, will make mistakes that lead to undefined program behaviour. All in all these techniques aim at reducing the rate of errors that go unnoticed.
 
-\textbf{Static analysis} is another technique in the programmers toolbox serving this goal, during and after code creation. Compared to dynamic testing and code review, it reduces the human factor, programatically applying ''checks thoroughly and consistently, without any of the bias that a programmer might have about which pieces of code are 'interesting' (...) or which pieces of code are easy to exercise through dynamic testing.''\footnote{\citep[22]{SecureProgramming}} Static analysis tools accumulate the knowledge of experienced programmers and as Brian Chess and Jacob West point out, the feedback given by these tools acts as a means of knowledge transfer by showing the programmer types of errors he was not aware of.\footnote{\citep[22]{SecureProgramming}} As such, a "static analysis tool can make the code review process faster and more fruitful by hypothesizing a set of potential problems for consideration during a code review."\footnote{\citep[13]{SecureProgramming}}
+\textbf{Static analysis} is another technique in the programmers toolbox serving this goal, during and after code creation. Compared to dynamic testing and code review, it reduces the human factor, programatically applying ''checks thoroughly and consistently, without any of the bias that a programmer might have about which pieces of code are 'interesting' (...) or which pieces of code are easy to exercise through dynamic testing.''\footnote{\citep[22]{SecureProgramming}} Static analysis tools accumulate the knowledge of experienced programmers and as Brian Chess and Jacob West point out, the feedback given by these tools acts as a means of knowledge transfer by showing the programmer types of errors he was not aware of.\footnote{\citep[22]{SecureProgramming}} In this way, a "static analysis tool can make the code review process faster and more fruitful by hypothesizing a set of potential problems for consideration during a code review."\footnote{\citep[13]{SecureProgramming}}
 
 As with dynamic testing and code review, static analysis can not verify the absence of errors, but is a technique to reduce the amount of bugs before release.
 
@@ -145,7 +146,7 @@ As every technique, static analysis has drawbacks.
 
 Depending on how well a tool works and how good it is balanced, static analysis tools may produce a lot of \textbf{false positives}, meaning pointing out an error where none exists. Too much ''noise'' is problematic, as it costs the programmer valuable time to check if a result is really a bug or not. Also, real problems may be overseen, when false positives dominate the tools output.
 
-\textbf{False negatives}, on the other hand, are real bugs that a tool did not discover. It has already been said, that complete absence of errors can not be proven with any tool - as such using static analysis tools may give the programmer a false sense of security.\footnote{\citep[23]{SecureProgramming}}
+\textbf{False negatives}, on the other hand, are real bugs that a tool did not discover. It has already been said, that complete absence of errors can not be proven with any tool - so, using static analysis tools may give the programmer a false sense of security.\footnote{\citep[23]{SecureProgramming}}
 
 
 \section{Static analysis tool internals}
@@ -184,3 +185,55 @@ For altering the output of the static analysis tool, some bug finders allow the 
 take the form of specially formatted comments.\footnote{\citep[99]{SecureProgramming}}
 
 The approaches that are used for checking rules differ from rule to rule. Some checks track control flow or data flow throughout the program. Others use alternative relationships that can be drawn from the model. How static analysis tools perform these checks is out of scope of this thesis. For further knowledge the reader is advised to gather information about \textit{Control Flow Analysis}, \textit{Data Flow Analysis}, \textit{Constraint Based Analysis}, \textit{Taint Propagation}, \textit{Abstract Interpretation}, \textit{Interprocdural Analysis }as well as \textit{Type and Effect Systems}. 
+
+\section{Existing static analysis tools}
+
+The application to be developed will make use of a 3rd party library for performing an integral part of the analysis of C++ headers. 
+
+The most important factor of the chosen static analysis tool/library is its ability to parse C++ and to export or give access to a (simplified) abstract syntax tree of the parsed source files, including symbol and type information. Information about namespaces, global variables, functions including parameters and return types, classes, class-members and more needs to be extracted.
+
+Also, as this project is meant to be open-source, its dependencies must be released in an according licence, which excludes all commercial static analysis tools like Coverty\footnote{\url{http://www.coverity.com/}}, PVS-Studio\footnote{\url{http://www.viva64.com/en/pvs-studio/}} or pc-lint\footnote{\url{http://www.gimpel.com/html/pcl.htm}}. It is also not known, whether these tools would provide the ability to export symbol and type information.
+
+Further, the chosen library needed to be in active development to adjust to changes coming in the new C++ standard. This excluded a couple of small open source projects that dealt with parsing C++ headers.
+
+The choice had to be made between three projects: GCC-XML, Dehydra and Clang.
+
+\subsection{GCC-XML}
+
+GCC-XML\footnote{\url{http://www.gccxml.org/HTML/Index.html}} is an extension to GCC's C++ parser that outputs AST information into an XML file. It does not seem to provide any means of filtering the output. The developed application would need to parse the XML and build its own representation internally. Hence, GCC-XML only gives indirect access to GCC's syntax tree and is thus not well-suited for solving the problem.
+
+\subsection{Dehydra}
+
+\begin{quotation}
+Dehydra is a lightweight, scriptable, general purpose static analysis tool capable of application-specific analyses of C++ code (...) [that] is built as a GCC plugin, (...).\footnote{\citep{MDNDehydra}}
+\end{quotation}
+
+Dehydra is developed by Mozilla for checking specific bug patterns in its large codebase for Firefox and other Mozilla applications. It allows custom querying of the AST with the help of JavaScript scripts.
+
+When compiling a project with GCC and Dehydra, the user provides a script file along with the command-line arguments. As the compilation happens, functions in the given script are called to inform about found types, functions and other symbols. This way the script can build its own AST representation, filtering symbols on the fly when necessary.
+
+An example function that a script may provide is ''process\_type(t)'', which is called by Dehydra whenever a new type was found in the compiling code.
+
+The biggest drawback of Dehydra is that it is currently only supported on Linux based operating systems.
+
+Dehydra was used for implementing DXR\footnote{\url{https://github.com/mozilla/dxr}}, Mozilla's web source code cross-reference tool, that can be used to navigate inside the Mozilla code base. DXR development moved to using Clang in newer builds, though.
+
+\subsection{Clang and libclang}
+
+\begin{quotation}
+Clang is an ''LLVM native'' C/C++/Objective-C compiler, which aims to deliver amazingly fast compiles (...), extremely useful error and warning messages and to provide a platform for building great source level tools. The Clang Static Analyzer is a tool that automatically finds bugs in your code, and is a great example of the sort of tool that can be built using the Clang frontend as a library to parse C/C++ code.\footnote{\citep{LLVMHP}}
+\end{quotation}
+
+''The LLVM Project is a collection of modular and reusable compiler and toolchain technologies''. The LLVM compiler framework includes multiple compiler front-ends, like Clang for the C language family, an optimizer and code generation support for many popular CPUs.\footnote{\citep{LLVMHP}}
+
+The open-source Clang project is not only concerned with developing a compiler that produces high-performance code, but also with developing software that can be used in utilities like IDE's and bug finders to perform source code analysis and indexing.
+
+There are two approaches of how an application can integrate Clang for analysing purposes.
+\\On the one hand, one can include Clang itself as a library and use the internal structures and functions of the compiler, thus having access to the AST build by Clang in a direct way.
+\\The second approach is to use \textbf{libclang}, a C-API to Clang, which exposes much of Clang's functionality for indexing source code and accessing ASTs, while maintaining a stable interface independent of changes internal to Clang. libclang is extended on a per-need-basis and may thus not provide all features needed for a static analysis tool that builds upon it. As it is an open-source project, these features can easily be added.
+
+Clang works on all popular operating systems, including Microsoft Windows. Having this advantage over Dehydra, Clang is the favourite choice for use in this project. A detailed description of how libclang is used inside the application can be found in \myRefChapter{chap:AnalysingCPP}.
+
+\subsubsection{Emscripten}
+
+In the context of this thesis, another interesting LLVM-based project should be mentioned. ''Emscripten is an LLVM-to-JavaScript compiler. It takes LLVM bitcode (which can be generated from C/C++ using Clang, or any other language that can be converted into LLVM bitcode) and compiles that into JavaScript, which can be run on the web.''\footnote{\citep{EmscriptenHP} - taken from front page} Instead of accessing C++ through glue code, the C++ code itself is completely compiled to JavaScript. This may sound very slow in the first place, but with the current performance of JavaScript virtual machines and the reduced cost of type-conversion (as all is JavaScript), code generated by Emscripten is only 3 to 4 times slower than native code generated with gcc -O3.\footnote{\citep{EmscriptenHP} - taken from FAQ section}
