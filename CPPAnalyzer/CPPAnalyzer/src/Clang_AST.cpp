@@ -1056,6 +1056,7 @@ namespace CPPAnalyzer
 		astObject->setReturnTypeCanonical(createASTType(returnType, true, cursor));
 		astObject->setVirtual(clang_CXXMethod_isVirtual(cursor) != 0);
 		astObject->setStatic(clang_CXXMethod_isStatic(cursor) != 0);
+		astObject->setConst(clang_CXXMethod_isConst(cursor) != 0);
 
 		addFunctionParameters(treeNode);
 
