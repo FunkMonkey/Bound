@@ -112,6 +112,7 @@
     <ClCompile Include="src\ASTObject.cpp" />
     <ClCompile Include="src\ASTObject_Function.cpp" />
     <ClCompile Include="src\ASTObject_Struct.cpp" />
+    <ClCompile Include="src\ASTType.cpp" />
     <ClCompile Include="src\Clang_AST.cpp" />
     <ClCompile Include="src\Clang_AST_CXTree.cpp" />
     <ClCompile Include="src\clang_helpers.cpp" />

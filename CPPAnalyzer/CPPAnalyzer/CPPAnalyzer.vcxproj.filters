@@ -89,6 +89,7 @@
     <ClInclude Include="include\Logger.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\clang_helpers.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ASTObject.cpp">
@@ -116,6 +117,9 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\clang_helpers.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ASTType.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

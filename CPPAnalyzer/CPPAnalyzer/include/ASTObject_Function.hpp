@@ -15,20 +15,15 @@ namespace CPPAnalyzer
 	{
 	public:
 		ASTObject_Function(const std::string& nodeName)
-			: ASTObject(nodeName), m_returnType(NULL), m_returnTypeCanon(NULL)
+			: ASTObject(nodeName), m_returnType(NULL)
 		{
 
 		}
-
-		virtual ~ASTObject_Function();
 
 		virtual ASTObjectKind getKind() const { return KIND_FUNCTION; }
 
 		ASTType* getReturnType() const { return m_returnType; }
 		void setReturnType(ASTType* theType){ m_returnType = theType; }
-
-		ASTType* getReturnTypeCanonical() const { return m_returnTypeCanon; }
-		void setReturnTypeCanonical(ASTType* theType){ m_returnTypeCanon = theType; }
 
 		void addParameter(ASTObject_Parameter* param);
 		const std::vector<ASTObject_Parameter*>& getParameters() const { return m_parameters; }
@@ -41,7 +36,6 @@ namespace CPPAnalyzer
 
 	protected:
 		ASTType* m_returnType;
-		ASTType* m_returnTypeCanon;
 
 		std::vector<ASTObject_Parameter*> m_parameters;
 		// TODO: function-type

@@ -35,19 +35,16 @@ namespace CPPAnalyzer
 	public:
 
 		ASTObject_TemplateTypeArgument(const std::string& nodeName)
-			: ASTObject_TemplateArgument(nodeName){}
+			: ASTObject_TemplateArgument(nodeName), m_type(nullptr){}
 
 		virtual ASTObjectKind getKind() const { return KIND_TEMPLATE_TYPE_ARGUMENT; }
 
 		ASTType* getType() const { return m_type; }
 		void setType(ASTType* elType){ m_type = elType; }
 
-		ASTType* getTypeCanonical() const { return m_typeCanonical; }
-		void setTypeCanonical(ASTType* elType){ m_typeCanonical = elType; }
 	protected:
 
 		ASTType* m_type;
-		ASTType* m_typeCanonical;
 
 	};
 

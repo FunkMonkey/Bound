@@ -49,6 +49,8 @@ function CPP_AST()
 	this.astObjectsByID = {};
 	this.astObjectsByUSR = {};
 	
+	this.astTypesByID = {};
+	
 	this.TUPath = "";
 }
 
@@ -63,8 +65,15 @@ CPP_AST.createFromSaveObject = function createFromSaveObject(saveObj)
 {
 	var result = new CPP_AST();
 	
-	result.root = result._addASTObjectFromJSON(null, saveObj.rootJSON.AST);
+	var types = saveObj.rootJSON.AST.types;
+	for(var i = 0; i < types.length; ++i)
+		result.astTypesByID[types[i].id] = result._addASTTypeFromJSON(types[i]);
+	
+	result.root = result._addASTObjectFromJSON(null, saveObj.rootJSON.AST.root);
+	
 	result._initASTObject(result.root);
+	for(var typeID in result.astTypesByID)
+		result._initASTType(result.astTypesByID[typeID]);
 	
 	result.root._AST = result;
 	result.TUPath = saveObj.TUPath;
@@ -105,18 +114,48 @@ CPP_AST.prototype = {
 	{
 		var astType = null;
 		if(jsonObject.kind == "FunctionProto")
-		{
-			astType = new CPP_ASTFunctionType(jsonObject.kind, null, jsonObject.isConst);
+			astType = new CPP_ASTFunctionType(jsonObject.kind, jsonObject.id);
+		else
+			astType = new CPP_ASTType(jsonObject.kind, jsonObject.id);
+		
+		astType._jsonObject = jsonObject;
 			
+		return astType;
+	},
+	
+	/**
+	 * Returns the ASTType for the given id or throws exception of not existing
+	 * 
+	 * @param   {Number}   id   Id to look for
+	 * 
+	 * @returns {CPP_ASTType}   Found ASTType
+	 */
+	_getASTTypeOrExcept: function _getASTTypeOrExcept(id)
+	{
+		var type = this.astTypesByID[id];
+		if(!type)
+			throw "Could not get ASTType for given id";
+		
+		return type;
+	}, 
+	
+	
+	/**
+	* Initializes the ASTType and sets up the references
+	* 
+	* @param   {ASTType}   astType   The type to initialize
+	*/
+	_initASTType: function _initASTType(astType)
+	{
+		var jsonObject = astType._jsonObject;
+		
+		if(jsonObject.kind == "FunctionProto")
+		{
 			if(jsonObject.parameters)
 			{
 				for(var i = 0; i < jsonObject.parameters.length; ++i)
-				{
-					astType.parameters.push(this._addASTTypeFromJSON(jsonObject.parameters[i]));
-					astType.parametersCanonical.push(this._addASTTypeFromJSON(jsonObject.parametersCanonical[i]))
-				}
+					astType.parameters.push(this._getASTTypeOrExcept(jsonObject.parameters[i]));
 			}
-			
 		}
 		else
 		{
@@ -126,12 +165,21 @@ CPP_AST.prototype = {
 				astObj = this.astObjectsByID[jsonObject.declaration];
 				if(!astObj)
 					throw "Could not get ASTObject for type declaration";
+				
+				astType.declaration = astObj;
 			}
-			astType = new CPP_ASTType(jsonObject.kind, astObj, jsonObject.isConst);
 			
 			if(jsonObject.pointsTo)
-				astType.pointsTo = this._addASTTypeFromJSON(jsonObject.pointsTo);
+				astType.pointsTo = this._getASTTypeOrExcept(jsonObject.pointsTo);
 		}
+		
+		astType.isConst = jsonObject.isConst;
+		
+		if(jsonObject.canonicalType)
+			astType.canonicalType = this._getASTTypeOrExcept(jsonObject.canonicalType);
+			
+		// removing it, as it was only temporary
+		delete astType._jsonObject;	
 			
 		return astType;
 	}, 
@@ -150,7 +198,6 @@ CPP_AST.prototype = {
 		var astObject = null;
 		
 		var type = null;
-		var typeCanonical = null;
 	   
 		switch(jsonObject.kind)
 		{
@@ -338,7 +385,6 @@ CPP_AST.prototype = {
 	_initASTObject: function _initASTObject(astObject)
 	{
 		var type = null;
-		var typeCanonical = null;
 		
 		var jsonObject = astObject._jsonObject;
 	   
@@ -348,8 +394,7 @@ CPP_AST.prototype = {
 				 break;
 			
 			case "Typedef":
-				astObject.type = this._addASTTypeFromJSON(jsonObject.type);
-				astObject.typeCanonical = this._addASTTypeFromJSON(jsonObject.typeCanonical);
+				astObject.type = this._getASTTypeOrExcept(jsonObject.type);
 				break;
 			
 			case "Struct":
@@ -367,20 +412,17 @@ CPP_AST.prototype = {
 				break;
 			
 			case "VariableDeclaration":
-				astObject.type = this._addASTTypeFromJSON(jsonObject.type);
-				astObject.typeCanonical = this._addASTTypeFromJSON(jsonObject.typeCanonical);
+				astObject.type = this._getASTTypeOrExcept(jsonObject.type);
 				break;
 			
 			case "Field":
-				astObject.type = this._addASTTypeFromJSON(jsonObject.type);
-				astObject.typeCanonical = this._addASTTypeFromJSON(jsonObject.typeCanonical);
+				astObject.type = this._getASTTypeOrExcept(jsonObject.type);
 				astObject.access = ASTObject.getAccessFromString(jsonObject.access);
 				astObject.isStatic = jsonObject.isStatic;
 				break;
 			
 			case "Function":
-				astObject.returnType = this._addASTTypeFromJSON(jsonObject.returnType);
-				astObject.returnTypeCanonical = this._addASTTypeFromJSON(jsonObject.returnTypeCanonical);
+				astObject.returnType = this._getASTTypeOrExcept(jsonObject.returnType);
 				
 				this._initAddParameters(astObject);
 				this._initAddTemplateInformation(astObject);
@@ -388,8 +430,7 @@ CPP_AST.prototype = {
 				break;
 			
 			case "MemberFunction":
-				astObject.returnType = this._addASTTypeFromJSON(jsonObject.returnType);
-				astObject.returnTypeCanonical = this._addASTTypeFromJSON(jsonObject.returnTypeCanonical);
+				astObject.returnType = this._getASTTypeOrExcept(jsonObject.returnType);
 				astObject.access = ASTObject.getAccessFromString(jsonObject.access);
 				astObject.isStatic = jsonObject.isStatic;
 				astObject.isVirtual = jsonObject.isVirtual;
@@ -401,8 +442,7 @@ CPP_AST.prototype = {
 				break;	
 				
 			case "Parameter":
-				astObject.type = this._addASTTypeFromJSON(jsonObject.type);
-				astObject.typeCanonical = this._addASTTypeFromJSON(jsonObject.typeCanonical);
+				astObject.type = this._getASTTypeOrExcept(jsonObject.type);
 				break;
 			
 			case "Constructor":
@@ -441,8 +481,7 @@ CPP_AST.prototype = {
 				break;
 			
 			case "TemplateTypeArgument":
-				astObject.type = this._addASTTypeFromJSON(jsonObject.type);
-				astObject.typeCanonical = this._addASTTypeFromJSON(jsonObject.typeCanonical);
+				astObject.type = this._getASTTypeOrExcept(jsonObject.type);
 				astObject.name = "TemplateArgument";
 				astObject.displayName = astObject.type.kind;
 				break;
@@ -587,13 +626,15 @@ CPP_FakeASTObject_Property.prototype = {
  * @constructor
  * @this {CPP_ASTType}
  */
-function CPP_ASTType(kind, declaration, isConst)
+function CPP_ASTType(kind, id)
 {
 	this.kind = kind;
+	this.id = id;
 	
-	this.declaration = (declaration == null) ? null : declaration;
+	this.declaration = null;
 	this.pointsTo = null;
-	this.isConst = isConst;
+	this.isConst = false;
+	this.canonicalType = null;
 };
 
 CPP_ASTType.prototype = {
@@ -625,6 +666,8 @@ CPP_ASTType.prototype = {
 		"LongDouble":"long double"
 	},
 	
+	get isCanonical(){ return (this.canonicalType == null);},
+	
 	/**
 	 * Returns the type as its C++ code
 	 * 
@@ -654,6 +697,7 @@ MetaData.initMetaDataOn(CPP_ASTType.prototype)
    .addPropertyData("declaration",   {view: {}})
    .addPropertyData("pointsTo",      {view: {}})
    .addPropertyData("isConst",       {view: {}})
+   .addPropertyData("canonicalType", {view: {}})
    
 //======================================================================================   
    
@@ -663,12 +707,11 @@ MetaData.initMetaDataOn(CPP_ASTType.prototype)
  * @constructor
  * @this {CPP_ASTFunctionType}
  */
-function CPP_ASTFunctionType(kind, declaration, isConst)
+function CPP_ASTFunctionType(kind, id)
 {
-	CPP_ASTType.call(this, kind, null, isConst);
+	CPP_ASTType.call(this, kind, id);
 	
 	this.parameters = [];
-	this.parametersCanonical = [];
 };
 
 CPP_ASTFunctionType.prototype = {
@@ -680,7 +723,6 @@ Extension.inherit(CPP_ASTFunctionType, CPP_ASTType);
 
 MetaData.initMetaDataOn(CPP_ASTFunctionType.prototype)
    .addPropertyData("parameters",            {view: {}})
-   .addPropertyData("parametersCanonical",   {view: {}})
 
 
 
@@ -801,7 +843,6 @@ function CPP_ASTObject_Typedef(parent, name, id, usr)
 {
 	CPP_ASTObject.call(this, parent, name, id, usr);
 	this.type = null;
-	this.typeCanonical = null;
 };
 
 CPP_ASTObject_Typedef.prototype = {
@@ -813,7 +854,6 @@ Extension.inherit(CPP_ASTObject_Typedef, CPP_ASTObject);
 
 MetaData.initMetaDataOn(CPP_ASTObject_Typedef.prototype)
    .addPropertyData("type",          {view: {}})
-   .addPropertyData("typeCanonical", {view: {}})
 
 //======================================================================================
 
@@ -827,7 +867,6 @@ function CPP_ASTObject_Var_Decl(parent, name, id, usr)
 {
 	CPP_ASTObject.call(this, parent, name, id, usr);
 	this.type = null;
-	this.typeCanonical = null;
 };
 
 CPP_ASTObject_Var_Decl.prototype = {
@@ -839,7 +878,6 @@ Extension.inherit(CPP_ASTObject_Var_Decl, CPP_ASTObject);
 
 MetaData.initMetaDataOn(CPP_ASTObject_Var_Decl.prototype)
    .addPropertyData("type",          {view: {}})
-   .addPropertyData("typeCanonical", {view: {}})
 
 //======================================================================================
 
@@ -900,7 +938,6 @@ function CPP_ASTObject_Function(parent, name, id, usr)
 	CPP_ASTObject.call(this, parent, name, id, usr);
 	
 	this.returnType = null;
-	this.returnTypeCanonical = null;
 	
 	this.parameters = [];
 	this.templateParameters = [];
@@ -952,7 +989,6 @@ Extension.inherit(CPP_ASTObject_Function, CPP_ASTObject);
 
 MetaData.initMetaDataOn(CPP_ASTObject_Function.prototype)
    .addPropertyData("returnType",          {view: {}})
-   .addPropertyData("returnTypeCanonical", {view: {}})
    .addPropertyData("templateKind",        {view: {}})
    .addPropertyData("templateParameters",  {view: {}})
    .addPropertyData("templateArguments",   {view: {}})
@@ -1163,7 +1199,6 @@ function CPP_ASTObject_TemplateTypeArgument(parent, name, id, usr)
 {
 	CPP_ASTObject.call(this, parent, name, id, usr);
 	this.type = null;
-	this.typeCanonical = null;
 };
 
 CPP_ASTObject_TemplateTypeArgument.prototype = {
@@ -1175,7 +1210,6 @@ Extension.inherit(CPP_ASTObject_TemplateTypeArgument, CPP_ASTObject);
 
 MetaData.initMetaDataOn(CPP_ASTObject_TemplateTypeArgument.prototype)
    .addPropertyData("type",          {view: {}})
-   .addPropertyData("typeCanonical", {view: {}})
 
 //======================================================================================
 

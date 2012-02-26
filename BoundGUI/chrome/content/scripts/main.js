@@ -89,10 +89,18 @@ function loadProject()
 
 function reparseCurrentProject()
 {
-	Bound.reparseCurrentProject();
-	MainWindow.CPPTree.setCPPAST(Bound.currentProject.cppAST);
-	MainWindow.ExportTree.setExportAST(Bound.currentProject.exportAST);
-	MainWindow.LogBox.showMessagesFromCPPAST(Bound.currentProject.cppAST);
+	try
+	{
+		Bound.reparseCurrentProject();
+		MainWindow.CPPTree.setCPPAST(Bound.currentProject.cppAST);
+		MainWindow.ExportTree.setExportAST(Bound.currentProject.exportAST);
+		MainWindow.LogBox.showMessagesFromCPPAST(Bound.currentProject.cppAST);
+	}
+	catch(e)
+	{
+		log(e);
+	}
+	
 }
 
 function init()

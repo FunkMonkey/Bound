@@ -33,6 +33,7 @@ namespace CPPAnalyzer
 		//Json::Value objJSON;
 		objJSON["kind"]    = type.getKind();
 		objJSON["isConst"] = type.isConst();
+		objJSON["id"] = type.getID();
 
 		if((type.getKind() == "Record" || type.getKind() == "Typedef" || type.getKind() == "Elaborated" || type.getKind() == "TemplateTypeParm" || type.getKind() == "TemplateSpecialization") && type.getDeclaration())
 		{
@@ -41,7 +42,7 @@ namespace CPPAnalyzer
 		}
 		else if((type.getKind() == "Pointer" || type.getKind() == "LValueReference") && type.getPointsTo())
 		{
-			convertASTTypeToJSON(*type.getPointsTo(), objJSON["pointsTo"]);
+			objJSON["pointsTo"] = type.getPointsTo()->getID();
 		}
 		else if(type.getKind() == "FunctionProto")
 		{
@@ -50,16 +51,12 @@ namespace CPPAnalyzer
 			{
 				auto& paramsJSON = objJSON["parameters"] = Json::Value(Json::arrayValue);
 				for(auto it = parameters.begin(), end = parameters.end(); it != end; ++it)
-					convertASTTypeToJSON(**it, paramsJSON.append(Json::Value(Json::objectValue)));
-
-				auto& canonicalParameters = type.getParametersCanonical();
-				auto& canonicalParamsJSON = objJSON["parametersCanonical"] = Json::Value(Json::arrayValue);
-				for(auto it = canonicalParameters.begin(), end = canonicalParameters.end(); it != end; ++it)
-					convertASTTypeToJSON(**it, canonicalParamsJSON.append(Json::Value(Json::objectValue)));
+					paramsJSON.append((*it)->getID());
 			}
-
-			
 		}
+
+		if(!type.isCanonical())
+			objJSON["canonicalType"] = type.getCanonicalType()->getID();
 
 		return objJSON;
 	}
@@ -172,8 +169,7 @@ namespace CPPAnalyzer
 					auto& astObjectTypedef = static_cast<ASTObject_Typedef&>(astObject);
 
 					// type
-					convertASTTypeToJSON(*astObjectTypedef.getType(),          objJSON["type"]);
-					convertASTTypeToJSON(*astObjectTypedef.getTypeCanonical(), objJSON["typeCanonical"]);
+					objJSON["type"] = astObjectTypedef.getType()->getID();
 
 					break;
 				}
@@ -203,8 +199,7 @@ namespace CPPAnalyzer
 			case KIND_TEMPLATE_TYPE_ARGUMENT:
 				{
 					auto& astObjectTemplArg = static_cast<ASTObject_TemplateTypeArgument&>(astObject);
-					convertASTTypeToJSON(*astObjectTemplArg.getType(),          objJSON["type"]);
-					convertASTTypeToJSON(*astObjectTemplArg.getTypeCanonical(), objJSON["typeCanonical"] );
+					objJSON["type"] = astObjectTemplArg.getType()->getID();
 					break;
 				}
 			case KIND_TEMPLATE_DECLARATION_ARGUMENT:
@@ -250,8 +245,7 @@ namespace CPPAnalyzer
 					auto& astObjectVar = static_cast<ASTObject_Variable_Decl&>(astObject);
 
 					// props
-					convertASTTypeToJSON(*astObjectVar.getType(), objJSON["type"]);
-					convertASTTypeToJSON(*astObjectVar.getTypeCanonical(), objJSON["typeCanonical"]);
+					objJSON["type"] = astObjectVar.getType()->getID();
 
 					break;
 				}
@@ -262,8 +256,7 @@ namespace CPPAnalyzer
 					// props
 					objJSON["access"]   = getASTObjectAccessString(astObjectField.getAccess());
 					objJSON["isStatic"] = astObjectField.isStatic();
-					convertASTTypeToJSON(*astObjectField.getType(),          objJSON["type"]);
-					convertASTTypeToJSON(*astObjectField.getTypeCanonical(), objJSON["typeCanonical"]);
+					objJSON["type"] = astObjectField.getType()->getID();
 
 					break;
 				}
@@ -294,8 +287,7 @@ namespace CPPAnalyzer
 					// return type
 					if(kind == KIND_FUNCTION || kind == KIND_MEMBER_FUNCTION)
 					{
-						convertASTTypeToJSON(*astObjectFunc.getReturnType(),          objJSON["returnType"]);
-						convertASTTypeToJSON(*astObjectFunc.getReturnTypeCanonical(), objJSON["returnTypeCanonical"]);
+						objJSON["returnType"] = astObjectFunc.getReturnType()->getID();
 					}
 
 					// parameters
@@ -317,8 +309,7 @@ namespace CPPAnalyzer
 				{
 					auto& astObjectParam = static_cast<ASTObject_Parameter&>(astObject);
 
-					convertASTTypeToJSON(*astObjectParam.getType(),          objJSON["type"]);
-					convertASTTypeToJSON(*astObjectParam.getTypeCanonical(), objJSON["typeCanonical"]);
+					objJSON["type"] = astObjectParam.getType()->getID();
 
 					break;
 				}
@@ -381,11 +372,19 @@ namespace CPPAnalyzer
 		m_ASTObjects.clear();
 
 		Json::Value output(Json::objectValue);
+		auto& AST = output["AST"] = Json::Value(Json::objectValue);
 
-		convertASTObjectToJSON(*(m_ast->getRootTreeNode()->getASTObject()), output["AST"]);
+		//converting ASTTypes
+		auto& jsonTypes = AST["types"] = Json::Value(Json::arrayValue);
+		auto& types = m_ast->getASTTypes();
+		for(auto it = types.begin(), end = types.end(); it != end; ++it)
+			convertASTTypeToJSON(*(it->second), jsonTypes.append(Json::Value(Json::objectValue)));
 
+		// converting ASTObjects
+		convertASTObjectToJSON(*(m_ast->getRootTreeNode()->getASTObject()), AST["root"]);
+
+		// creating export log
 		Logger exportLogger;
-
 		if(m_unknownMissingASTObjects)
 			exportLogger.addError("Unknown missing objects");
 

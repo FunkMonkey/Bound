@@ -2,6 +2,7 @@
 #define __AST_TYPE_HPP__
 
 #include <string>
+#include <vector>
 
 namespace CPPAnalyzer
 {
@@ -14,9 +15,9 @@ namespace CPPAnalyzer
 		
 
 		ASTType()
-			: m_pointsTo(NULL), m_decl(NULL), m_isConst(false)
+			: m_id(ASTType::count+1), m_pointsTo(NULL), m_decl(NULL), m_isConst(false), m_canonicalType(nullptr)
 		{
-
+			++ASTType::count;
 		}
 
 		virtual ~ASTType()
@@ -35,6 +36,8 @@ namespace CPPAnalyzer
 				delete *it;
 		}
 
+		unsigned getID() const { return m_id; }
+
 		ASTObject* getDeclaration() const { return m_decl; }
 		void setDeclaration(ASTObject* decl){m_decl = decl;}
 
@@ -46,6 +49,11 @@ namespace CPPAnalyzer
 
 		bool isConst() const { return m_isConst; }
 		void setConst(bool isConst){ m_isConst = isConst; }
+
+		bool isCanonical() const { return (m_canonicalType == nullptr); }
+
+		ASTType* getCanonicalType() const { return m_canonicalType; }
+		void setCanonicalType(ASTType* val) { m_canonicalType = val; }
 
 		const std::vector<ASTType*>& getParameters() const { return m_parameters; }
 		const std::vector<ASTType*>& getParametersCanonical() const { return m_parametersCanonical; }
@@ -61,10 +69,14 @@ namespace CPPAnalyzer
 		}
 
 	protected:
+		static unsigned count;
+		unsigned m_id;
+
 		std::string m_kind; // TODO: use enum
 		ASTType* m_pointsTo;
 		ASTObject* m_decl;
 		bool m_isConst;
+		ASTType* m_canonicalType;
 
 		std::vector<ASTType*> m_parameters;
 		std::vector<ASTType*> m_parametersCanonical;

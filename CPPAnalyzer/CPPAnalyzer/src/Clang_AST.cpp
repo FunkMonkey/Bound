@@ -788,8 +788,7 @@ namespace CPPAnalyzer
 		setStandardProperties(treeNode, astObject);
 
 		// Variable properties
-		astObject->setType(createASTTypeFromCursor(cursor, false));
-		astObject->setTypeCanonical(createASTTypeFromCursor(cursor, true));
+		astObject->setType(getASTTypeFromCursor(cursor));
 
 		return astObject;
 	}
@@ -826,8 +825,7 @@ namespace CPPAnalyzer
 
 		// Field properties
 		astObject->setAccess(convertClangAccess(clang_getCXXMemberAccessSpecifier(cursor)));
-		astObject->setType(createASTTypeFromCursor(cursor, false));
-		astObject->setTypeCanonical(createASTTypeFromCursor(cursor, true));
+		astObject->setType(getASTTypeFromCursor(cursor));
 		
 		return astObject;
 	}
@@ -871,8 +869,7 @@ namespace CPPAnalyzer
 
 		// Function properties
 		CXType returnType = clang_getCursorResultType(cursor);
-		astObject->setReturnType(createASTType(returnType, false, cursor));
-		astObject->setReturnTypeCanonical(createASTType(returnType, true, cursor));
+		astObject->setReturnType(getASTType(returnType, cursor));
 
 		addFunctionParameters(treeNode);
 
@@ -890,8 +887,7 @@ namespace CPPAnalyzer
 		setStandardProperties(treeNode, astObject);
 
 		// Parameter properties
-		astObject->setType(createASTTypeFromCursor(cursor, false));
-		astObject->setTypeCanonical(createASTTypeFromCursor(cursor, true));
+		astObject->setType(getASTTypeFromCursor(cursor));
 
 		return astObject;
 	}
@@ -910,9 +906,8 @@ namespace CPPAnalyzer
 		CXType type = clang_getTypedefDeclUnderlyingType(cursor);
 
 		auto tmpLocation = getSourceLocationFromCursor(cursor);
-		
-		astObject->setType(createASTType(type, false, cursor));
-		astObject->setTypeCanonical(createASTType(type, true, cursor));
+
+		astObject->setType(getASTType(type, cursor));
 
 		return astObject;
 	}
@@ -1052,8 +1047,7 @@ namespace CPPAnalyzer
 		CXType returnType = clang_getCursorResultType(cursor);
 
 		astObject->setAccess(convertClangAccess(clang_getCXXMemberAccessSpecifier(cursor)));
-		astObject->setReturnType(createASTType(returnType, false, cursor));
-		astObject->setReturnTypeCanonical(createASTType(returnType, true, cursor));
+		astObject->setReturnType(getASTType(returnType, cursor));
 		astObject->setVirtual(clang_CXXMethod_isVirtual(cursor) != 0);
 		astObject->setStatic(clang_CXXMethod_isStatic(cursor) != 0);
 		astObject->setConst(clang_CXXMethod_isConst(cursor) != 0);
@@ -1112,8 +1106,7 @@ namespace CPPAnalyzer
 		treeNode.setASTObject(astObject);
 		setStandardProperties(treeNode, astObject);
 
-		astObject->setType(createASTType(clang_getTemplateArgumentValueAsType(cursor), false, cursor));
-		astObject->setTypeCanonical(createASTType(clang_getTemplateArgumentValueAsType(cursor), true, cursor));
+		astObject->setType(getASTType(clang_getTemplateArgumentValueAsType(cursor), cursor));
 
 		return astObject;
 	}
@@ -1251,10 +1244,10 @@ namespace CPPAnalyzer
 		}
 	}
 
-	ASTType* Clang_AST::createASTTypeFromCursor(CXCursor cursor, bool canonical)
+	ASTType* Clang_AST::getASTTypeFromCursor(CXCursor cursor)
 	{
 		CXType type = clang_getCursorType(cursor);
-		return createASTType(type, canonical, cursor);
+		return getASTType(type, cursor);
 	}
 
 	bool isBuggyType(CXType type)
@@ -1277,22 +1270,21 @@ namespace CPPAnalyzer
 		}
 	}
 
-	ASTType* Clang_AST::createASTType(CXType type, bool canonical, CXCursor src)
+	ASTType* Clang_AST::createASTType(CXType type, CXCursor src)
 	{
 		// TODO: fix canonical types for CXType_TemplateTypeParm and CXType_TemplateSpecialization
-
-		// do we use the canonical type or not?
-		bool messedWithType = false;
-
-		if(canonical && !isBuggyType(type))
-		{
-			type = clang_getCanonicalType(type);
-			messedWithType = true;
-		}
 
 		SelfDisposingCXString kind(clang_getTypeKindSpelling(type.kind));
 
 		ASTType* asttype = new ASTType();
+
+		// check if it already exists
+		auto it = m_typeMap.find(type);
+		if(it != m_typeMap.end())
+			assert(false && "creating already existing type");
+
+		m_typeMap.insert(std::pair<CXType, ASTType*>(type, asttype));
+
 		asttype->setKind(kind.c_str());
 		switch(type.kind)
 		{
@@ -1304,12 +1296,12 @@ namespace CPPAnalyzer
 					// try fix unexposed by using canonical type
 					if(pointeeType.kind == CXType_Unexposed)
 					{
-						ASTType* pointsTo = createASTType(clang_getCanonicalType(pointeeType), canonical, src); 
+						ASTType* pointsTo = getASTType(clang_getCanonicalType(pointeeType), src); 
 						asttype->setPointsTo(pointsTo);
 					}
 					else
 					{
-						ASTType* pointsTo = createASTType(pointeeType, canonical, src); 
+						ASTType* pointsTo = getASTType(pointeeType, src); 
 						asttype->setPointsTo(pointsTo);
 					}
 					
@@ -1352,8 +1344,7 @@ namespace CPPAnalyzer
 						for(unsigned i = 0; i < numParams; ++i)
 						{
 							auto paramType = clang_getArgType(type, i);
-							asttype->addParameter(createASTType(paramType, false, src));
-							asttype->addParameterCanonical(createASTType(paramType, true, src));
+							asttype->addParameter(getASTType(paramType, src));
 						}
 					}
 				}
@@ -1361,7 +1352,28 @@ namespace CPPAnalyzer
 
 		asttype->setConst(clang_isConstQualifiedType(type) != 0);
 
+		// if we don't have a canonical type already, we'll get it
+		auto canonicalType = clang_getCanonicalType(type);
+		if(!isBuggyType(type) && !clang_equalTypes(type, canonicalType))
+		{
+			auto canonicalASTType = getASTType(canonicalType, src);
+			asttype->setCanonicalType(canonicalASTType);
+		}
+
 		return asttype;
+	}
+
+	ASTType* Clang_AST::getASTType(CXType type, CXCursor src)
+	{
+		auto it = m_typeMap.find(type);
+
+		if(it == m_typeMap.end())
+		{
+			auto astType = this->createASTType(type, src);
+			return astType;
+		}
+		else
+			return it->second;
 	}
 
 	void Clang_AST::connectASTObjects(Clang_AST_CXTreeNode& treeNode)
@@ -1452,4 +1464,7 @@ namespace CPPAnalyzer
 			}
 		}
 	}
+
+
+
 }

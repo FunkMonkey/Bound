@@ -55,6 +55,15 @@ namespace CPPAnalyzer
 		}
 	};
 
+	struct CXType_less
+	{
+		bool operator()(CXType t1, CXType t2) const
+		{ 
+			return	t1.data[0] < t2.data[0] || 
+				(t1.data[0] == t2.data[0] && t1.data[1] < t2.data[1]);
+		}
+	};
+
 	typedef std::map<CXCursor, ASTObject*, CXCursor_less> CXCursorASTObjectMap;
 
 	enum Filter_Access
@@ -128,9 +137,11 @@ namespace CPPAnalyzer
 
 
 			// Types
-			ASTType* createASTTypeFromCursor(CXCursor cursor, bool canonical);
-			ASTType* createASTType(CXType type, bool canonical, CXCursor src);
-			ASTObject* getTypeDeclaration(CXCursor cursor, bool canonical);
+			ASTType* getASTTypeFromCursor(CXCursor cursor);
+			ASTType* createASTType(CXType type, CXCursor src);
+			//ASTObject* getTypeDeclaration(CXCursor cursor, bool canonical);
+
+			ASTType* getASTType(CXType type, CXCursor src);
 
 			// Helper functions
 			void setBaseInformation(Clang_AST_CXTreeNode& treeNode);
@@ -149,6 +160,8 @@ namespace CPPAnalyzer
 			// ==================================================================================================================================
 
 			void analyze();
+
+			const std::map<CXType, ASTType*, CXType_less>& getASTTypes() const { return m_typeMap; }
 
 			Clang_AST_CXTreeNode* getTreeNodeFromCursor(CXCursor cursor);
 			Clang_AST_CXTreeNode* getRootTreeNode(){ return m_rootTreeNode; }
@@ -177,6 +190,7 @@ namespace CPPAnalyzer
 
 			Clang_AST_CXTreeNode* m_rootTreeNode;
 			std::map<CXCursor, Clang_AST_CXTreeNode*, CXCursor_less> m_canonicalCursorTreeNodeMap;
+			std::map<CXType, ASTType*, CXType_less> m_typeMap;
 
 			VisibilityFilter m_filter;
 
