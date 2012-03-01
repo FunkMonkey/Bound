@@ -9,6 +9,8 @@ function log(str)
 	{
 		if(str == null)
 			str = "" + str;
+		else if(str === "")
+			str = " ";
 		consoleService.logStringMessage(str);
 	}
 	

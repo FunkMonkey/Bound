@@ -29,8 +29,7 @@ var Bound = {
 		projOptions.clangArguments = Services.prefs.getCharPref("bound.lastProject.clangArguments");
 		projOptions.fileNameFilter = Services.prefs.getCharPref("bound.lastProject.fileNameFilter");
 		projOptions.symbolNameFilter = Services.prefs.getCharPref("bound.lastProject.symbolNameFilter");
-		projOptions.accessFilter = Services.prefs.getIntPref("bound.lastProject.accessFilter");
-		
+		projOptions.accessFilter = Services.prefs.getIntPref("bound.lastProject.accessFilter");		
 	},
 	
 	/**
@@ -59,6 +58,7 @@ var Bound = {
 		// process if there is unsaved data. eForceQuit will quit no matter what.
 		var quitSeverity = aForceQuit ? Ci.nsIAppStartup.eForceQuit : Ci.nsIAppStartup.eAttemptQuit;
 		appStartup.quit(quitSeverity);
-	}
+	},
+	
 }
 

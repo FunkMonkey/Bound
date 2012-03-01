@@ -1272,10 +1272,21 @@ namespace CPPAnalyzer
 
 	ASTType* Clang_AST::createASTType(CXType type, CXCursor src)
 	{
+		if(type.kind == CXType_Elaborated)
+		{
+			type = clang_singleStepDesugarType(type);
+			// check if it already exists
+			auto it = m_typeMap.find(type);
+			if(it != m_typeMap.end())
+				return it->second;
+		}
+
 		// TODO: fix canonical types for CXType_TemplateTypeParm and CXType_TemplateSpecialization
+		
 
+		// -------------------------------------------
+		
 		SelfDisposingCXString kind(clang_getTypeKindSpelling(type.kind));
-
 		ASTType* asttype = new ASTType();
 
 		// check if it already exists

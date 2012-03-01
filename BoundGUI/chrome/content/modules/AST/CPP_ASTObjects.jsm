@@ -33,6 +33,7 @@ const Cu = Components.utils;
 Cu.import("chrome://bound/content/modules/log.jsm");
 Cu.import("chrome://bound/content/modules/Utils/Extension.jsm");
 Cu.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm");
+Cu.import("chrome://bound/content/modules/AST/CPP_ASTType.jsm");
 
 Components.utils.import("chrome://bound/content/modules/Utils/MetaData.jsm");
 
@@ -590,13 +591,15 @@ Object.defineProperties(CPP_ASTObject.prototype, {
 				set: function setParent(val){ this._parent = val; this._onParentChanged(); }}
 });
 
+Extension.inherit(CPP_ASTObject, ASTObject);
+
 MetaData.initMetaDataOn(CPP_ASTObject.prototype)
    .addPropertyData("USR",          {view: {}})
    .addPropertyData("isDefinition", {view: {}})
    .addPropertyData("definition",   {view: {}})
    .addPropertyData("declarations", {view: {}})
 
-Extension.inherit(CPP_ASTObject, ASTObject);
+
 
 //======================================================================================
 
@@ -620,113 +623,7 @@ CPP_FakeASTObject_Property.prototype = {
 
 //======================================================================================
 
-/**
- * CPP_ASTType
- *
- * @constructor
- * @this {CPP_ASTType}
- */
-function CPP_ASTType(kind, id)
-{
-	this.kind = kind;
-	this.id = id;
-	
-	this.declaration = null;
-	this.pointsTo = null;
-	this.isConst = false;
-	this.canonicalType = null;
-};
 
-CPP_ASTType.prototype = {
-	constructor: CPP_ASTType,
-	
-	// taken from http://clang.llvm.org/doxygen/MicrosoftMangle_8cpp_source.html
-	_fundamentalTypeCodes: {
-		"Void":      "void",
-		"Bool":      "bool",
-		"Char_U":    "char", // ???
-		"UChar":     "unsigned char",
-		"Char16":    "char16_t",
-		"Char32":    "char32_t",
-		"UShort":    "unsigned short",
-		"UInt":      "unsigned int",
-		"ULong":     "unsigned long",
-		"ULongLong": "unsigned long long",
-		"UInt128":   "unsigned __int128",
-		"Char_S":    "char", // ???
-		"SChar":     "signed char",
-		"WChar":     "wchar_t",
-		"Short":     "short",
-		"Int":       "int",
-		"Long":      "long",
-		"LongLong":  "long long",
-		"Int128":    "__int128",
-		"Float":     "float",
-		"Double":    "double",
-		"LongDouble":"long double"
-	},
-	
-	get isCanonical(){ return (this.canonicalType == null);},
-	
-	/**
-	 * Returns the type as its C++ code
-	 * 
-	 * @returns {String} 
-	 */
-	getAsCPPCode: function getAsCPPCode()
-	{
-		if(this.declaration)
-		{
-			return "INVALID";
-		}
-		else if(this.pointsTo)
-		{
-			return "INVALID";
-		}
-		else if(this._fundamentalTypeCodes[this.kind])
-		{
-			return ((this.isConst == true) ? "const " : "") + this._fundamentalTypeCodes[this.kind];
-		}
-		else return "INVALID";
-	}, 
-	
-};
-
-MetaData.initMetaDataOn(CPP_ASTType.prototype)
-   .addPropertyData("kind",          {view: {}})
-   .addPropertyData("declaration",   {view: {}})
-   .addPropertyData("pointsTo",      {view: {}})
-   .addPropertyData("isConst",       {view: {}})
-   .addPropertyData("canonicalType", {view: {}})
-   
-//======================================================================================   
-   
-/**
- * CPP_ASTFunctionType
- *
- * @constructor
- * @this {CPP_ASTFunctionType}
- */
-function CPP_ASTFunctionType(kind, id)
-{
-	CPP_ASTType.call(this, kind, id);
-	
-	this.parameters = [];
-};
-
-CPP_ASTFunctionType.prototype = {
-	constructor: CPP_ASTFunctionType,
-	
-};
-
-Extension.inherit(CPP_ASTFunctionType, CPP_ASTType);
-
-MetaData.initMetaDataOn(CPP_ASTFunctionType.prototype)
-   .addPropertyData("parameters",            {view: {}})
-
-
-
-//======================================================================================
 
 /**
  * CPP_ASTObject_Namespace

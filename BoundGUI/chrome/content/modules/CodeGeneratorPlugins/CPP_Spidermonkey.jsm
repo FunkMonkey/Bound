@@ -3,6 +3,8 @@
 var EXPORTED_SYMBOLS = ["Plugin_CPP_Spidermonkey"];
 
 Components.utils.import("chrome://bound/content/modules/log.jsm");
+Components.utils.import("chrome://bound/content/modules/Utils/Extension.jsm");
+Components.utils.import("chrome://bound/content/modules/CodeGeneratorPlugins/ScriptPlugin.jsm");
 
 Components.utils.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm");
 Components.utils.import("chrome://bound/content/modules/AST/CPP_ASTObjects.jsm");
@@ -23,6 +25,8 @@ Components.utils.import("chrome://bound/content/modules/Utils/LoadSaveFromMetaDa
  */
 function Plugin_CPP_Spidermonkey()
 {
+	ScriptCodeGenPlugin.call(this);
+	
 	this.AST = null;
 }
 
@@ -43,6 +47,52 @@ Plugin_CPP_Spidermonkey.prototype = {
 	constructor: Plugin_CPP_Spidermonkey,
 	
 	context: "CPP_Spidermonkey",
+	
+	typeTemplates_from_script: {
+		"bool":                "CPP_Spidermonkey/return_boolean",
+		"char":                "CPP_Spidermonkey/return_int", // ???
+		"unsigned char":       "CPP_Spidermonkey/return_int",
+		"char16_t":            "CPP_Spidermonkey/return_int",
+		"char32_t":            "CPP_Spidermonkey/return_int",
+		"unsigned short":      "CPP_Spidermonkey/return_int",
+		"unsigned int":        "CPP_Spidermonkey/return_int",
+		"unsigned long":       "CPP_Spidermonkey/return_int",
+		"unsigned long long":  "CPP_Spidermonkey/return_int",
+		"unsigned __int128":   "CPP_Spidermonkey/return_int",
+		"signed char":         "CPP_Spidermonkey/return_int",
+		"wchar_t":             "CPP_Spidermonkey/return_int", // TODO: may change
+		"short":               "CPP_Spidermonkey/return_int",
+		"int":                 "CPP_Spidermonkey/return_int",
+		"long":                "CPP_Spidermonkey/return_int",
+		"long long":           "CPP_Spidermonkey/return_int",
+		"__int128":            "CPP_Spidermonkey/return_int",
+		"float":               "CPP_Spidermonkey/return_float",
+		"double":              "CPP_Spidermonkey/return_float",
+		"long double":         "CPP_Spidermonkey/return_float"
+	},
+	
+	typeTemplates_to_script: {
+		"bool":                "CPP_Spidermonkey/param_jsval_to_boolean",
+		"char":                "CPP_Spidermonkey/param_jsval_to_int", // ???
+		"unsigned char":       "CPP_Spidermonkey/param_jsval_to_uint",
+		"char16_t":            "CPP_Spidermonkey/param_jsval_to_int",
+		"char32_t":            "CPP_Spidermonkey/param_jsval_to_int",
+		"unsigned short":      "CPP_Spidermonkey/param_jsval_to_uint",
+		"unsigned int":        "CPP_Spidermonkey/param_jsval_to_uint",
+		"unsigned long":       "CPP_Spidermonkey/param_jsval_to_uint",
+		"unsigned long long":  "CPP_Spidermonkey/param_jsval_to_uint",
+		"unsigned __int128":   "CPP_Spidermonkey/param_jsval_to_uint",
+		"signed char":         "CPP_Spidermonkey/param_jsval_to_int",
+		"wchar_t":             "CPP_Spidermonkey/param_jsval_to_int", // TODO: may change
+		"short":               "CPP_Spidermonkey/param_jsval_to_int",
+		"int":                 "CPP_Spidermonkey/param_jsval_to_int",
+		"long":                "CPP_Spidermonkey/param_jsval_to_int",
+		"long long":           "CPP_Spidermonkey/param_jsval_to_int",
+		"__int128":            "CPP_Spidermonkey/param_jsval_to_int",
+		"float":               "CPP_Spidermonkey/param_jsval_to_float",
+		"double":              "CPP_Spidermonkey/param_jsval_to_float",
+		"long double":         "CPP_Spidermonkey/param_jsval_to_float"
+	},
 	
 	/**
 	 * Returns a code generator that is compatible with the given ASTObject
@@ -145,6 +195,8 @@ Plugin_CPP_Spidermonkey.prototype = {
 	
 };
 
+Extension.inherit(Plugin_CPP_Spidermonkey, ScriptCodeGenPlugin);
+
 CodeGeneratorPluginManager.registerPlugin(Plugin_CPP_Spidermonkey.prototype.context, Plugin_CPP_Spidermonkey);
 
 //======================================================================================
@@ -175,15 +227,13 @@ function getAndUseTemplate(templateName, usedTemplates)
  */
 function CodeGenerator_Function(plugin)
 {
-	this.plugin = plugin;
-	this.exportObject = null;
+	ScriptCodeGen.call(this, plugin);
 }
 
 CodeGenerator_Function.isCompatible = Plugin_CPP_Spidermonkey.prototype._isCompatible;
 
 CodeGenerator_Function.prototype = {
 	constructor: CodeGenerator_Function,
-	context: Plugin_CPP_Spidermonkey.prototype.context,
 	
 	parameterTemplates: {
 		"Bool":      "CPP_Spidermonkey/param_jsval_to_boolean",
@@ -337,6 +387,23 @@ CodeGenerator_Function.prototype = {
 	},
 };
 
+Extension.inherit(CodeGenerator_Function, ScriptCodeGen);
+
+/**
+ * Creates the code generator from the given save object
+ * 
+ * @param   {Object}                    saveObj        Save object with data
+ * @param   {Plugin_CPP_Spidermonkey}   plugin         The plugin the generator will belong to
+ * @param   {Export_ASTObject}          exportASTObj   ASTObject the generator will belong to
+ * 
+ * @returns {CodeGenerator}   The created generator
+ */
+CodeGenerator_Function.createFromSaveObject =  function createFromSaveObject(saveObj, plugin, exportASTObj)
+{
+	var result = new CodeGenerator_Function(plugin);
+	return result;
+};
+
 //======================================================================================
 
 /**
@@ -347,15 +414,13 @@ CodeGenerator_Function.prototype = {
  */
 function CodeGenerator_Property(plugin)
 {
-	this.plugin = plugin;
-	this.exportObject = null;
+	ScriptCodeGen.call(this, plugin);
 }
 
 CodeGenerator_Property.isCompatible = Plugin_CPP_Spidermonkey.prototype._isCompatible;
 
 CodeGenerator_Property.prototype = {
 	constructor: CodeGenerator_Property,
-	context: Plugin_CPP_Spidermonkey.prototype.context,
 	
 	get isStatic()
 	{
@@ -383,22 +448,11 @@ CodeGenerator_Property.prototype = {
 	},
 };
 
+Extension.inherit(CodeGenerator_Property, ScriptCodeGen);
+
 //======================================================================================
 
-/**
- * Creates the code generator from the given save object
- * 
- * @param   {Object}                    saveObj        Save object with data
- * @param   {Plugin_CPP_Spidermonkey}   plugin         The plugin the generator will belong to
- * @param   {Export_ASTObject}          exportASTObj   ASTObject the generator will belong to
- * 
- * @returns {CodeGenerator}   The created generator
- */
-CodeGenerator_Function.createFromSaveObject =  function createFromSaveObject(saveObj, plugin, exportASTObj)
-{
-	var result = new CodeGenerator_Function(plugin);
-	return result;
-};
+
 
 function eliminateDuplicates(arr) {
   var i,
@@ -424,10 +478,11 @@ function eliminateDuplicates(arr) {
  */
 function CodeGenerator_Object(plugin)
 {
-	this.plugin = plugin;
-	this.exportObject = null;
+	ScriptCodeGen.call(this, plugin);
 	
 	this.hppTemplate = "You fool made it!";
+	
+	this._typeLibraryEntry = null;
 }
 
 CodeGenerator_Object.isCompatible = Plugin_CPP_Spidermonkey.prototype._isCompatible;
@@ -437,7 +492,54 @@ CodeGenerator_Object.isCompatible = Plugin_CPP_Spidermonkey.prototype._isCompati
 
 CodeGenerator_Object.prototype = {
 	constructor: CodeGenerator_Object,
-	context: Plugin_CPP_Spidermonkey.prototype.context,
+	
+	get exportObject(){ return this._exportObject; },
+	set exportObject(val) {this._exportObject = val; this._updateTypeLibraryEntry(); },
+	
+	/**
+	 * Removes the type library entry from the plugin
+	 */
+	_removeTypeLibraryEntry: function _removeTypeLibraryEntry()
+	{
+		if(this._typeLibraryEntry)
+		{
+			var entry = this.plugin.getTypeLibraryEntry(this._typeLibraryEntry.id);
+			if(entry)
+			{
+				if(entry !== this._typeLibraryEntry)
+					throw new Error("Trying to remove type library entry created by different codegen");
+					
+				this.plugin.removeTypeLibraryEntry(this._typeLibraryEntry.id);
+				this._typeLibraryEntry = null;
+			}
+			else
+			{
+				// TODO: that should not be possible
+			}
+		}
+	}, 
+	
+	
+	/**
+	 * Updates the entry in the plugin's type library
+	 */
+	_updateTypeLibraryEntry: function _updateTypeLibraryEntry()
+	{
+		if(this._typeLibraryEntry)
+			this._removeTypeLibraryEntry();
+		
+		var astObject = this.exportObject.astObject;
+		
+		// only C++ structs and classes need a type library entry
+		if(astObject &&  ((astObject instanceof CPP_ASTObject_Struct || astObject instanceof CPP_ASTObject_Class)))
+		{
+			this._typeLibraryEntry = new ASTTypeLibraryEntry(astObject.USR);
+			
+			// TODO: more info
+			this.plugin.addTypeLibraryEntry(this._typeLibraryEntry.id, this._typeLibraryEntry);
+		}
+	}, 
+	
 	
 	/**
 	 * Generates wrapper code for the connected function
@@ -602,6 +704,8 @@ CodeGenerator_Object.prototype = {
 	},
 	
 };
+
+Extension.inherit(CodeGenerator_Object, ScriptCodeGen);
 
 MetaData.initMetaDataOn(CodeGenerator_Object.prototype)
    .addPropertyData("hppTemplate", {view: {}, load_save: {}})

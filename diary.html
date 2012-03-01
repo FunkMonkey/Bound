@@ -1247,8 +1247,15 @@ window.removeCookie=function(name,force)
 !!Thesis
 * more writing on static analysis</pre>
 </div>
-<div title="Diary Week 15" creator="YourName" modifier="YourName" created="201202222223" modified="201202272310" changecount="6">
-<pre>!27.02 (4)
+<div title="Diary Week 15" creator="YourName" modifier="YourName" created="201202222223" modified="201202292019" changecount="8">
+<pre>!28.02 (9.5)
+!!BoundGUI
+* thoughts about type system and started integration
+* restructuring of CodeGens
+
+meeting with david
+
+!27.02 (4)
 !!CPPAnalyzer
 * experimented with Clang type printing and desugaring
 
@@ -1284,6 +1291,24 @@ window.removeCookie=function(name,force)
 !!Thesis
 * finished static analysis
 * rewrote language binding stuff</pre>
+</div>
+<div title="Diary Week 16" creator="YourName" modifier="YourName" created="201203011613" changecount="1">
+<pre>!01.03
+
+!!CPPAnalyzer
+* more documentation
+
+!!BoundGUI
+* more type library stuff
+
+!29.02 (2.5)
+
+!!CPPAnalyzer
+*documentation
+
+!!BoundGUI
+* beginning type library implementation
+* thoughts on validation</pre>
 </div>
 <div title="Diary Weeks 1 - 10" creator="Test" modifier="YourName" created="201201242016" modified="201201251535" changecount="14">
 <pre>!Week 3 - 9
@@ -1429,13 +1454,15 @@ Tiddler.prototype.autoLinkWikiWords = function()
 * [[DefaultTiddlers]]: Contains the names of the tiddlers that you want to appear when the TiddlyWiki is opened
 You'll also need to enter your username for signing your edits: &lt;&lt;option txtUserName&gt;&gt;</pre>
 </div>
-<div title="MainMenu" creator="YourName" modifier="YourName" created="201201242114" modified="201202222223" changecount="10">
+<div title="MainMenu" creator="YourName" modifier="YourName" created="201201242114" modified="201202292020" changecount="12">
 <pre>[[GettingStarted]]
 [[Todo]]
+[[Todo Practical]]
+[[Todo Thesis]]
 [[Agenda]]
 [[Notes from Literature]]
 [[Wrapping]]
-[[Diary Week 15]]
+[[Diary Week 16]]
 [[Diary]]
 [[David Meeting]]</pre>
 </div>
@@ -2839,7 +2866,11 @@ table.listView th, table.listView td, table.listView tr {padding:0 3px 0 3px;}
 /*}}}*/
 </pre>
 </div>
-<div title="Todo" creator="YourName" modifier="YourName" created="201201251542" modified="201202252055" changecount="49">
+<div title="Todo" creator="YourName" modifier="YourName" created="201201251542" modified="201202291935" changecount="52">
+<pre>[[Todo Practical]]
+[[Todo Thesis]]</pre>
+</div>
+<div title="Todo Practical" creator="YourName" modifier="YourName" created="201202291934" changecount="1">
 <pre>!CPPAnalyzer
 
 * --P1: Exporting enums--
@@ -2878,65 +2909,73 @@ table.listView th, table.listView td, table.listView tr {padding:0 3px 0 3px;}
 !BoundGUI: Performance
 * P3: Incremental background-export
 * P3: Incremental background-validation
+</pre>
+</div>
+<div title="Todo Thesis" creator="YourName" modifier="YourName" created="201202291935" modified="201202291938" changecount="4">
+<pre>! 1. Theory
 
-!Thesis
-# Theory
-## Language binding
-*** --SWIG: advantages over swig: no need for interface-files (may not need in swig either)--
-*** --Why own tool? What are the current systems missing? (necessity, advantages, goals, non-goals)--
-*** How will automation happen? Next chapter: static analysis ...
-## --Static analysis--
-*** --What is Static Analysis?--
-*** --Examples: DXR, IDE--
-*** --How will static analysis be used in the project (getting type, file and member-information)--
-*** --Other ways of getting the information - why are those not used? (Header-Parser, GCC-XML)--
-*** --existing static analysis tools? Why are they not used?--
-**** --rule-based static analysis tools--
-**** --Lint, other examples: Coverty pvs-studio, pc-lint, findbugs--
-***** --new tool needs to use output of the analysis (AST), not bug reports--
-**** --Dehydra (GCC-Plugin), Linux only--
-**** --Clang (LLVM-Compiler)--
-***** --What is LLVM?--
-*** --Explain decision for static analysis tool--
-*** How does the system fulfill the task?
-## --Task for the thesis--
-## Mapping C++ to scripting languages
-*** which language constructs can be ported to other languages
-*** Classes, Interfaces, virtual methods, polymorphism, static methods, Templates
-*** What about language constructs that do not exist in C++ or are complicated?
-**** Properties? Getters and setters? Functors, function pointers
-**** class-based-inheritence (C++) to prototype-based-inheritence (JS)
-## Other uses
-*** Meta-Data-editor
-*** Unit Testing boiler code generator
-# Practical
-** simpliefied AST up to function / parameter level
+!! Language binding
+* --SWIG: advantages over swig: no need for interface-files (may not need in swig either)--
+* --Why own tool? What are the current systems missing? (necessity, advantages, goals, non-goals)--
+* How will automation happen? Next chapter: static analysis ...
 
+!! --Static analysis--
+* --What is Static Analysis?--
+* --Examples: DXR, IDE--
+* --How will static analysis be used in the project (getting type, file and member-information)--
+* --Other ways of getting the information - why are those not used? (Header-Parser, GCC-XML)--
+* --existing static analysis tools? Why are they not used?--
+** --rule-based static analysis tools--
+** --Lint, other examples: Coverty pvs-studio, pc-lint, findbugs--
+*** --new tool needs to use output of the analysis (AST), not bug reports--
+** --Dehydra (GCC-Plugin), Linux only--
+** --Clang (LLVM-Compiler)--
+*** --What is LLVM?--
+* --Explain decision for static analysis tool--
+* How does the system fulfill the task?
 
-Practical:
------------
+!! --Task for the thesis--
 
-- boiler code for unit testing
+!! Mapping C++ to scripting languages
+* which language constructs can be ported to other languages
+* Classes, Interfaces, virtual methods, polymorphism, static methods, Templates
+* What about language constructs that do not exist in C++ or are complicated?
+** Properties? Getters and setters? Functors, function pointers
+** class-based-inheritence (C++) to prototype-based-inheritence (JS)
 
-CPPAnalyzer
------------
-- AST Objects
-- visitChildren
-- Logic for access
-- function parameter problem
-- JSON conversion
+!! Other uses
+* Meta-Data-editor
+* Unit Testing boiler code generator
 
-BoundGUI
----------
-- Tree
-- calling CPPAnalyzer using js-ctypes (conversion) --&gt; JSON
-- transforming JSON to AST-Tree
-- templating using jSmart
-- templates in JSON for additional data
-   - problem with escaping \n and \t
-   - includes
-   - custom functions (die auch auf alles zugreifen können, z.b. log) -&gt; fungieren genauso als return-values!
-- export AST and code-generators for contexts</pre>
+! 2. Practical
+
+!!CPPAnalyzer
+* simpliefied AST up to function / parameter level
+* AST Objects
+* visitChildren
+* Logic for access
+* function parameter problem
+* JSON conversion
+
+!!BoundGUI
+
+* General
+** export AST and code-generators for contexts
+* CodeGenerators
+** TypeSystem
+*** Shadowing of templates
+** Templates
+*** templating using jSmart
+*** templates in JSON for additional data
+*** problem with escaping \n and \t
+*** includes
+*** custom functions (die auch auf alles zugreifen können, z.b. log) -&gt; fungieren genauso als return-values!
+* Widgets
+** Tree
+* calling CPPAnalyzer using js-ctypes (conversion) --&gt; JSON
+* Import
+**  transforming JSON to AST-Tree
+</pre>
 </div>
 <div title="Wrapping" creator="YourName" modifier="YourName" created="201202071958" modified="201202072000" changecount="3">
 <pre>Topics: 

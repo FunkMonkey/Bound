@@ -26,8 +26,8 @@
 		</menubar>
 	</toolbox>
 	<toolbox>
-		<toolbar>
-			<toolbarbutton label="Testing" oncommand="addAfterSelection();"></toolbarbutton>
+		<toolbar id = "mainToolbar">
+			<toolbarbutton id="TestButton" label="Testing"></toolbarbutton>
 			<toolbarbutton label="Export" oncommand="exportFiles();"></toolbarbutton>
 			<toolbarbutton label="Save Project" oncommand="saveProject();"></toolbarbutton>
 			<toolbarbutton label="Open Project" oncommand="loadProject();"></toolbarbutton>
