@@ -198,6 +198,8 @@ ScriptCodeGen.prototype = {
 		
 		// --- 1b)check type libraries
 		
+		// ---- do we have a pointer type? TODO: shared pointers
+		
 		// == 2. check base types
 		// --- 2a) check type maps
 		
