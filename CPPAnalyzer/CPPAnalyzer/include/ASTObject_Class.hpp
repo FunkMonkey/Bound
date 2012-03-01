@@ -5,17 +5,26 @@
 
 namespace CPPAnalyzer
 {
+	/** Represents a C++ class AST node
+	 *     - only extended struct for own kind
+	*/
 	class ASTObject_Class: public ASTObject_Struct
 	{
 	public:
 		
-
+		/** Constructor
+		 *
+		 * \param 	nodeName Name of the node
+		 */
 		ASTObject_Class(const std::string& nodeName)
 			: ASTObject_Struct(nodeName)
 		{
-			setCurrentAccess(ACCESS_PRIVATE);
 		}
 
+		/** Returns the kind of this ASTObject
+		 *
+		 * \return   Kind of the ASTObject
+		 */
 		virtual ASTObjectKind getKind() const { return KIND_CLASS; }
 	};
 

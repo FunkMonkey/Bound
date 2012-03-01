@@ -5,16 +5,26 @@
 
 namespace CPPAnalyzer
 {
+	/** Represents a C function parameter AST node
+	*/
 	class ASTObject_Parameter: public ASTObject_Variable_Decl
 	{
 	public:
 
+		/** Constructor
+		 *
+		 * \param 	nodeName Name of the node
+		 */
 		ASTObject_Parameter(const std::string& nodeName)
 			: ASTObject_Variable_Decl(nodeName)
 		{
 
 		}
 
+		/** Returns the kind of this ASTObject
+		 *
+		 * \return   Kind of the ASTObject
+		 */
 		virtual ASTObjectKind getKind() const { return KIND_PARAMETER; }
 
 	};

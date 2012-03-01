@@ -7,25 +7,32 @@
 
 namespace CPPAnalyzer
 {
+	/** Represents a C++ namespace AST node
+	*/
 	class ASTObject_Namespace: public ASTObject
 	{
 	public:
-		explicit ASTObject_Namespace(const std::string& nodeName)
+
+		/** Constructor
+		 *
+		 * \param 	nodeName Name of the node
+		 */
+		ASTObject_Namespace(const std::string& nodeName)
 			: ASTObject(nodeName)
 		{
 
 		}
 
-		explicit ASTObject_Namespace(const char* nodeName)
-					: ASTObject(nodeName)
-				{
-
-				}
-
-		virtual ~ASTObject_Namespace(){}
-
+		/** Returns the kind of this ASTObject
+		 *
+		 * \return   Kind of the ASTObject
+		 */
 		virtual ASTObjectKind getKind() const { return KIND_NAMESPACE; }
 
+		/** Checks if it is an anonymous namespace
+		 *
+		 * \return   True if anonymous, otherwise false
+		 */
 		bool isAnonymous(){ return this->m_nodeName == ""; }
 	};
 
