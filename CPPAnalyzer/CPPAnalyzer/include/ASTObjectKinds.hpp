@@ -4,6 +4,8 @@
 
 namespace CPPAnalyzer
 {
+	/** Represents all kinds of exported AST nodes
+	 */
 	enum ASTObjectKind
 	{
 		KIND_INVALID,
@@ -34,6 +36,8 @@ namespace CPPAnalyzer
 		KIND_TEMPLATE_PACK_ARGUMENT
 	};
 
+	/** Represents all kinds of access (private, protected, public)
+	 */
 	enum ASTObjectAccess{
 			ACCESS_INVALID,
 			ACCESS_PRIVATE,
@@ -42,6 +46,12 @@ namespace CPPAnalyzer
 		};
 
 	// TODO: rename
+	/** Returns a string representation of the given access kind
+	 *
+	 * \param   access  Access kind
+	 *
+	 * \return 	String representation of access kind
+	 */
 	static const char* getASTObjectAccessString(ASTObjectAccess access)
 	{
 		switch(access)
@@ -53,6 +63,8 @@ namespace CPPAnalyzer
 		return "invalid";
 	}
 
+	/** Represents all kinds of templates
+	 */
 	enum ASTObjectTemplateKind
 	{
 		TEMPLATE_KIND_NON_TEMPLATE,
@@ -61,6 +73,12 @@ namespace CPPAnalyzer
 		TEMPLATE_KIND_SPECIALIZATION
 	};
 
+	/** Returns a string representation of the given template kind
+	 *
+	 * \param   access  Template kind
+	 *
+	 * \return 	String representation of template kind
+	 */
 	static const char* getTemplateKindSpelling(ASTObjectTemplateKind kind)
 	{
 		switch(kind)
@@ -74,6 +92,12 @@ namespace CPPAnalyzer
 	}
 
 	// TODO: rename
+	/** Returns a string representation of the given ASTObject kind
+	 *
+	 * \param   access  ASTObject kind
+	 *
+	 * \return 	String representation of ASTObject kind
+	 */
 	static const char* getASTObjectKind(ASTObjectKind kind)
 	{
 		switch(kind)
