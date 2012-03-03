@@ -180,6 +180,29 @@ ScriptCodeGen.prototype = {
 		return "";
 	}, 
 	
+	/**
+	 * Returns a USR of a declaration or pointer
+	 * 
+	 * @param   {CPP_ASTType}   astType        ASTType to find USR for
+	 * @param   {boolean}       useCanonical   Use the canonical type for retrieving the USR
+	 * 
+	 * @returns {String}   USR or ""
+	 */
+	_getTypeUSR: function _getTypeUSR(astType, useCanonical)
+	{
+		if(useCanonical)
+			astType = astType.canonicalType;
+		
+		if(astType.declaration)
+			return astType.declaration.USR;
+		
+		// ---- do we have a pointer type? TODO: shared pointers
+		if(astType.pointsTo && astType.pointsTo.declaration)
+			return astType.pointsTo.declaration.USR;
+		
+		return "";
+	}, 
+	
 	
 	/**
 	* Returns the template that handles the given type for the given usage (TYPE_TO_SCRIPT, TYPE_FROM_SCRIPT)
@@ -193,12 +216,30 @@ ScriptCodeGen.prototype = {
 	{
 		// throw exception, when TemplateParameterType
 		
+		var result = {};
+		result.templateName = "";
+		result.astType = astType;
+		
 		// == 1. check the type
 		// --- 1a) check type maps
+		result.templateName = this._getTypeHandlingTemplateFromTypeMaps(astType, usage);
+		if(result.templateName !== "")
+		{
+			result.kind = ScriptCodeGen.TYPE_RESULT_TYPEMAP;
+			return result;
+		}
 		
 		// --- 1b)check type libraries
+		var typeLib = this.plugin.getTypeLibraryEntry(this._getTypeUSR(astType, true)); // TODO: support non-canonical types
+		if(typeLib)
+		{
+			result.templateName = ""; // TODO: get template name based on usage
+			result.typeLib = typeLib;
+			result.kind = ScriptCodeGen.TYPE_RESULT_TYPELIB;
+			
+			return result;
+		}
 		
-		// ---- do we have a pointer type? TODO: shared pointers
 		
 		// == 2. check base types
 		// --- 2a) check type maps
@@ -206,11 +247,21 @@ ScriptCodeGen.prototype = {
 		// --- 2b)check type libraries
 		
 		// == 3. check standard pointer / reference wrapper
+		
+		
+		return null;
 	}, 	
 };
 
 ScriptCodeGen.TYPE_TO_SCRIPT   = 1;
 ScriptCodeGen.TYPE_FROM_SCRIPT = 2;
+
+ScriptCodeGen.TYPE_RESULT_TYPEMAP = 1;
+ScriptCodeGen.TYPE_RESULT_BASETYPEMAP = 2;
+ScriptCodeGen.TYPE_RESULT_TYPELIB = 3;
+ScriptCodeGen.TYPE_RESULT_BASETYPELIB = 4;
+ScriptCodeGen.TYPE_RESULT_VOID_POINTER = 5;
+ScriptCodeGen.TYPE_RESULT_VOID_REFERENCE = 6;
 
 Object.defineProperty(ScriptCodeGen.prototype, "constructor", {value: ScriptCodeGen});
 
