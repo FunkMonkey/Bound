@@ -11,6 +11,22 @@ bool operator==(const CXCursor& lhs, const CXCursor& rhs)
 
 namespace CPPAnalyzer
 {
+	Clang_AST_CXTreeNode::~Clang_AST_CXTreeNode()
+	{
+		// cleaning up astobject
+		if(this->m_astObject)
+		{
+			delete m_astObject;
+			m_astObject = nullptr;
+		}
+
+		// cleaning up children
+		for (auto it = m_children.begin(), end = m_children.end(); it != end; ++it)
+			delete *it;
+
+		m_children.clear();
+	}
+
 	void Clang_AST_CXTreeNode::addCursor(CXCursor cursor)
 	{
 

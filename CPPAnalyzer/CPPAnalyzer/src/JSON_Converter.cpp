@@ -27,23 +27,25 @@
 
 namespace CPPAnalyzer
 {
-	// TODO: performance
 	Json::Value& JSON_Converter::convertASTTypeToJSON(ASTType& type, Json::Value& objJSON)
 	{
-		//Json::Value objJSON;
+		// common information
 		objJSON["kind"]    = type.getKind();
 		objJSON["isConst"] = type.isConst();
 		objJSON["id"] = type.getID();
 
+		// information about declaration
 		if((type.getKind() == "Record" || type.getKind() == "Typedef" || type.getKind() == "Elaborated" || type.getKind() == "TemplateTypeParm" || type.getKind() == "TemplateSpecialization") && type.getDeclaration())
 		{
 			objJSON["declaration"] = type.getDeclaration()->getID();
 			addASTObjectToReferencedList(*type.getDeclaration());
 		}
+		// information about pointees
 		else if((type.getKind() == "Pointer" || type.getKind() == "LValueReference") && type.getPointsTo())
 		{
 			objJSON["pointsTo"] = type.getPointsTo()->getID();
 		}
+		// function type information
 		else if(type.getKind() == "FunctionProto")
 		{
 			auto& parameters = type.getParameters();
@@ -55,6 +57,7 @@ namespace CPPAnalyzer
 			}
 		}
 
+		// add the canonical type
 		if(!type.isCanonical())
 			objJSON["canonicalType"] = type.getCanonicalType()->getID();
 
@@ -63,9 +66,11 @@ namespace CPPAnalyzer
 
 	void JSON_Converter::addTemplateInfo(ASTObjectHelper_Template& templateInfo, Json::Value& objJSON, int options)
 	{
+		// common information
 		auto templateKind = templateInfo.getKind();
 		objJSON["templateKind"] = getTemplateKindSpelling(templateKind);
 
+		// template parameters
 		if(templateKind == TEMPLATE_KIND_TEMPLATE || templateKind == TEMPLATE_KIND_PARTIAL_SPECIALIZATION)
 		{
 			auto& templateParamsJSON = objJSON["templateParameters"] = Json::Value(Json::arrayValue);
@@ -73,6 +78,7 @@ namespace CPPAnalyzer
 				templateParamsJSON.append((*it)->getID());
 		}
 
+		// reference to original template and template arguments
 		if(templateKind == TEMPLATE_KIND_SPECIALIZATION || templateKind == TEMPLATE_KIND_PARTIAL_SPECIALIZATION)
 		{
 			objJSON["templateDeclaration"] = templateInfo.getTemplateDeclaration()->getID();
@@ -83,11 +89,11 @@ namespace CPPAnalyzer
 		}
 	}
 
-	// TODO: performance
 	Json::Value& JSON_Converter::convertASTObjectToJSON(ASTObject& astObject, Json::Value& objJSON,  int options_)
 	{
 		ASTObjectKind kind = astObject.getKind();
 
+		// setting some default options
 		int options = options_;
 		switch(kind)
 		{
@@ -120,8 +126,8 @@ namespace CPPAnalyzer
 
 		addASTObjectToExportedList(astObject);
 		
-		//Json::Value objJSON;
 
+		// setting some common properties
 		if(options & ADD_NAME)
 			objJSON["name"] = astObject.getNodeName();
 
@@ -157,6 +163,7 @@ namespace CPPAnalyzer
 			}
 		}
 		
+		// setting properties for a specific kind of ASTObject
 		switch(kind)
 		{
 			case KIND_NAMESPACE:
@@ -333,15 +340,18 @@ namespace CPPAnalyzer
 			auto& childrenJSON = objJSON["children"] = Json::Value(Json::arrayValue);
 
 			for(auto it = children.begin(), end = children.end(); it!= end; ++it)
-			{
-				// TODO: performance?
 				convertASTObjectToJSON(**it, childrenJSON.append(Json::Value(Json::objectValue)));
-			}
 		}
 
 		return objJSON;
 	}
 
+	// TODO: put into class
+	/** Converts the entries of the given logger to JSON array entries
+	 *
+	 * \param   logger    Logger to convert
+	 * \param   jsonObj   JSON Array to save entries into
+	 */
 	void convertLoggerToJSON(const Logger& logger, Json::Value& arrayValue)
 	{
 		auto& messages = logger.getMessages();
@@ -409,10 +419,9 @@ namespace CPPAnalyzer
 		convertLoggerToJSON(m_ast->getLogger(), logClang);
 		convertLoggerToJSON(exportLogger, logClang);
 
+		// exporting JSON to string
 		Json::StyledWriter writer;
 		str = writer.write( output );
-
-		//std::cout << str << std::endl;
 	}
 
 	void JSON_Converter::addASTObjectToExportedList(ASTObject& astObject)

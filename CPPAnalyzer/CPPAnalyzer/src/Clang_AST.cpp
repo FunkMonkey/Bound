@@ -128,6 +128,18 @@ namespace CPPAnalyzer
 		m_rootTreeNode->setVisibility(VISIBILITY_VISIBLE);
 	}
 
+	Clang_AST::~Clang_AST()
+	{
+		// cleaning tree
+		delete m_rootTreeNode;
+		
+		// cleaning types
+		for(auto it = m_typeMap.begin(), end = m_typeMap.end(); it != end; ++it)
+			delete it->second;
+
+		m_typeMap.clear();
+	}
+
 
 	void Clang_AST::setTranslationUnit(CXTranslationUnit TU)
 	{

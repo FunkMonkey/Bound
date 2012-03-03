@@ -1,4 +1,98 @@
 \chapter{Analysing C++ code}
 \label{chap:AnalysingCPP}
 
+To retrieve information about elements declared in C++ header files a shared library called \textbf{CPPAnalyzer} was written. The library uses \textbf{libclang} for parsing C++ files and accessing AST information. Internally a reduced syntax tree is built and exported as JSON (JavaScript Object Notation).\todo{explain json}
 
+\section{libclang}
+
+As explained in \todo{ref}, libclang is a C interface to Clang that can be used for accessing Clang's parsing functionality and internal AST.
+
+\todo{explain AST stuff}
+
+The two most important structs libclang provides, are CXCursor and CXType.
+\\\textbf{CXCursor} represents a single node in the AST. It holds an enum constant (named kind) that identifies the kind of the AST node - whether it is a namespace, function declaration, class declaration, etc. It also saves information about the according Clang data in an array of void pointers.
+\\\textbf{CXType} represents a C++ type. It holds the kind of the type, for example if it is a pointer, reference, builtin type (like int or float), record (class or struct), etc. Just like CXCursor, it also saves information about the Clang type representation.
+
+More information about cursors and types can be retrieved using the functions libclang provides.
+\\If the user, for example, wants to know if a member function is declared as ''virtual'', he will call \mySCName{clang\_isCXXMethodVirtual} and pass a cursor that represents a member function (e.g. with the kind \mySCName{CXCursor\_CXXMethod}) to it. \mySCName{clang\_getCursorType} on the other hand will return the type of a variable or parameter declaration as a CXType.
+
+clang\_createIndex
+clang\_parseTranslationUnit
+Diagnostics 
+clang\_visitChildren
+
+\subsection{Extending libclang}
+
+libclang does not expose all of the functionality Clang provides. Functionality missing in libclang is added on a per-need basis. 
+
+During this thesis it became clear that libclang needs to be extended by the author to expose AST information about templates. It seems, such information was not needed by other libclang users. The changes made to the libclang source code base will hopefully make its way back into the official Clang repository.
+
+Most of the functions added to libclang simply forward Clang's internals. Still, the Clang code base needed to be understood and used in a safe\todo{word} fashion.
+
+When turning Clang types into CXTypes, certain types were not exposed. libclang was altered to support template type parameter types (TemplateTypeParm), template specialization types and elaborated types (types that are sugared with a type keyword like ''class'' and/or a prefixed namespace identifier):
+
+\begin{lstlisting}[language=C++, caption=Examples of types now supported by libclang]
+template<class T>
+class TemplatedClass
+{
+	// NEW: type of kind TemplateTypeParm
+	T member; 
+};
+
+// NEW: type of kind TemplateSpecialization
+TemplatedClass<int> tempSpecInstance; 
+
+namespace SomeNamespace
+{	
+	class NormalClass{};
+	
+	// OLD: type of kind Record
+	NormalClass instance;
+	
+	// NEW: type of kind Elaborated
+	class NormalClass elaboratedInstance1;
+}
+
+// NEW: type of kind Elaborated
+SomeNamespace::NormalClass elaboratedInstance2; 
+\end{lstlisting}
+
+
+libclang already exposed template parameters as CXCursors when visiting the children of a class, struct or function cursor. Helper functions for accessing the template parameters directly from a template-supporting cursor, were added to libclang:
+
+\begin{itemize}\addtolength{\itemsep}{-0.5\baselineskip}
+\item unsigned clang\_getTemplateNumParameters(CXCursor C);
+\item CXCursor clang\_getTemplateParameter(CXCursor C, unsigned Index);
+\end{itemize}
+
+libclang did not expose any information about template arguments. Template arguments are the actual types used for template parameters, when instantiating a template. Functions for retrieving template arguments and their values (as type, integral, etc.) were added:
+
+\begin{itemize}\addtolength{\itemsep}{-0.5\baselineskip}
+\item Added cursor kinds\begin{itemize}\addtolength{\itemsep}{-0.5\baselineskip}
+	\item CXCursor\_TemplateNullArgument
+	\item CXCursor\_TemplateTypeArgument
+	\item CXCursor\_TemplateDeclarationArgument
+	\item CXCursor\_TemplateIntegralArgument
+	\item CXCursor\_TemplateTemplateArgument
+	\item CXCursor\_TemplateTemplateExpansionArgument
+	\item CXCursor\_TemplateExpressionArgument
+	\item CXCursor\_TemplatePackArgument
+	\end{itemize}
+\item Added functions\begin{itemize}\addtolength{\itemsep}{-0.5\baselineskip}
+	\item unsigned clang\_isTemplateArgument(CXCursor C);
+	\item unsigned clang\_getTemplateSpecializationNumArguments(CXCursor C);
+	\item CXCursor clang\_getTemplateSpecializationArgument(CXCursor C, unsigned Index);
+	\item CXType clang\_getTemplateArgumentValueAsType(CXCursor C);
+	\item long long clang\_getTemplateArgumentValueAsIntegral(CXCursor C);
+	\item CXCursor clang\_getTemplateArgumentValueAsDeclaration(CXCursor C);
+	\item CXCursor clang\_getTemplateArgumentValueAsTemplate(CXCursor C);
+	\item CXCursor clang\_getTemplateArgumentValueAsExpression(CXCursor C);
+	\end{itemize}
+\end{itemize}
+
+Also a utility function for retrieving the access (private, protected or public) of a C++ member field/function/subclass was added:
+\begin{itemize}\addtolength{\itemsep}{-0.5\baselineskip}
+\item CX\_CXXAccessSpecifier clang\_getCXXMemberAccessSpecifier(CXCursor)
+\end{itemize}
+
+Before, access needed to be tracked while analysing a class/struct cursor's children, by finding special child cursors that represent the C++ access specifiers.
