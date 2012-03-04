@@ -104,17 +104,34 @@ var TemplateManager = {
 			newTemplate.name = templateName;
 			this._templates[templateName] = newTemplate;
 			
-			if("customFunctionsSource" in template)
+			// compiling the functions
+			if("functions" in template)
 			{
-				var funcs = {};
-				for(var funcName in template.customFunctionsSource)
-					funcs[funcName] = Function.apply(null, template.customFunctionsSource[funcName]);
-				
-				newTemplate.userdata.customFunctions = funcs;
+				for(var funcName in template.functions)
+				{
+					if(funcName in template)
+						throw new Error("Function redefines property of template: " + funcName);
+						
+					template[funcName] = Function.apply(null, template.customFunctionsSource[funcName]);
+				}
 			}
 			
-			newTemplate._fetch = newTemplate.fetch;
-			newTemplate.fetch = this._templateFetch;
+			// updating the fetch function
+			if(("onFetchBefore" in template) || ("onFetchAfter" in template))
+			{
+				newTemplate._fetch = newTemplate.fetch;
+				newTemplate.fetch = this._templateFetch;
+			}
+			
+			// calling onLoad functions
+			if("onLoad" in template)
+			{
+				if(typeof(template.onLoad) === "string")
+					templData[template.onLoad]();
+				else
+					for (var i = 0, len = template.onLoad.length; i != len; ++i)
+						newTemplate.userdata[template.onLoad[i]]();
+			}
 			
 			return newTemplate;
 		}
@@ -127,14 +144,32 @@ var TemplateManager = {
 	
 	_templateFetch: function fetch(data)
 	{
-		if("customFunctions" in this.userdata)
+		var templData = this.userdata;
+		
+		// calling functions before
+		if("onFetchBefore" in templData)
 		{
-			for(var funcName in this.userdata.customFunctions)
-			{
-				this.userdata.customFunctions[funcName](data);
-			}
+			if(typeof(templData.onFetchBefore) === "string")
+				templData[templData.onFetchBefore](data);
+			else
+				for (var i = 0, len = templData.onFetchBefore.length; i != len; ++i)
+					templData[templData.onFetchBefore[i]](data);
 		}
-		return this._fetch(data);
+		
+		// fetching the data
+		var result = this._fetch(data);
+		
+		// calling functions after
+		if("onFetchAfter" in templData)
+		{
+			if(typeof(templData.onFetchAfter) === "string")
+				templData[templData.onFetchAfter](data);
+			else
+				for (var i = 0, len = templData.onFetchAfter.length; i != len; ++i)
+					templData[templData.onFetchAfter[i]](data, result);
+		}
+		
+		return result;
 	},
 	
 	/**

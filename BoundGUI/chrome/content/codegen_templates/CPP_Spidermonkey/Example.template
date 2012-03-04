@@ -1,0 +1,21 @@
+{
+
+"description":"",
+	
+"includes": ["#include \"example.hpp\""],
+	
+"templateCode":
+"{$param_type} {$param_name} = {if $cast}($param_type){/if}jsval_to_double_x(cx, args[{$param_index}]);"
+
+"onLoad":        ["_onLoad"],
+"onFetchBefore": ["_onFetchBefore"],
+"onFetchAfter":  ["_onFetchAfter"],
+
+"functions": {
+	"_onLoad":        ["data", "log('onLoad')"],
+	"_onFetchBefore": ["data", "log('onFetchBefore')"],
+	"_onFetchAfter":  ["data", "fetchResult", "log('onFetchAfter')"],
+	"doWhatever":     ["data", "log('doWhatever');"]
+}
+
+}
