@@ -60,12 +60,14 @@ A buffer overflow occurs when a program writes data outside the bounds of alloca
 
 An integer overflow occurs when an integral value is increased or decreased beyond its capacity\footnote{\citep[235]{SecureProgramming}}. The following example demonstrates how this can lead to an infinite loop:
 
+\SingleSpacing
 \begin{lstlisting}[language=C++, caption=Integer ''underflow'' in C++]
 for(unsigned int i = 200; i >= 0; --i)
 {
 	// ...
 }
 \end{lstlisting}
+\OnehalfSpacing
 
 A static analysis tool will detect that the expression \textbf{i \textgreater= 0} will always be true for \textbf{unsigned} integer types like \textbf{i}, as i will be set to the highest possible unsigned integer when being 0 and decreased by 1.
 

@@ -3,6 +3,8 @@
 
 To retrieve information about elements declared in C++ header files a shared library called \textbf{CPPAnalyzer} was written. The library uses \textbf{libclang} for parsing C++ files and accessing AST information. Internally a reduced syntax tree is built and exported as JSON (JavaScript Object Notation).\todo{explain json}
 
+\todo{C++11 - auto and regex, tested on windows with VS 2010}
+
 \section{libclang}
 
 As explained in \todo{ref}, libclang is a C interface to Clang that can be used for accessing Clang's parsing functionality and internal AST.
@@ -16,10 +18,11 @@ The two most important structs libclang provides, are CXCursor and CXType.
 More information about cursors and types can be retrieved using the functions libclang provides.
 \\If the user, for example, wants to know if a member function is declared as ''virtual'', he will call \mySCName{clang\_isCXXMethodVirtual} and pass a cursor that represents a member function (e.g. with the kind \mySCName{CXCursor\_CXXMethod}) to it. \mySCName{clang\_getCursorType} on the other hand will return the type of a variable or parameter declaration as a CXType.
 
-clang\_createIndex
-clang\_parseTranslationUnit
-Diagnostics 
-clang\_visitChildren
+\mySCName{clang\_parseTranslationUnit} is the starting point for parsing C++ files. The function ''accepts a set of command-line arguments so that the compilation can be configured in the same way that the compiler is configured on the command line''\todo{ref}. These options commonly contain the path to the file to be parsed. The function returns a translation unit, which holds all the AST information and is also the root node of the AST. While parsing, Clang produces diagnostic information, for example when mal-formed C++ code was provided or other errors occur. libclang provides functionality to access these diagnostics.
+
+To traverse the abstract syntax tree (recursively), \mySCName{clang\_visitChildren} is used. As arguments, it takes the cursor to be visited, a function pointer, which serves as a callback that is called for every child, and a void pointer for user data. The callback function will be called from Clang, passing the visited cursor, its parent and the user data as parameters. The callback function is normally used to inspect and analyse the given cursor. The return value of the function tells Clang, if it should go on recursively with the first child of the cursor, go on with the next sibling or if it should end the call to clang\_visitChildren at this point.
+
+libclang provides more than 50 functions that deal with AST inspection - far too much, to be covered in this thesis. A complete overview is given at the libclang doxygen documentation.\footnote{\url{http://clang.llvm.org/doxygen/group\_\_CINDEX.html}}
 
 \subsection{Extending libclang}
 
@@ -29,8 +32,9 @@ During this thesis it became clear that libclang needs to be extended by the aut
 
 Most of the functions added to libclang simply forward Clang's internals. Still, the Clang code base needed to be understood and used in a safe\todo{word} fashion.
 
-When turning Clang types into CXTypes, certain types were not exposed. libclang was altered to support template type parameter types (TemplateTypeParm), template specialization types and elaborated types (types that are sugared with a type keyword like ''class'' and/or a prefixed namespace identifier):
+When turning Clang types into CXTypes, certain C++ types were not exposed. libclang was altered to support template type parameter types (TemplateTypeParm), template specialization types and elaborated types (types that are sugared with a type keyword like ''class'' and/or a prefixed namespace identifier):
 
+\SingleSpacing
 \begin{lstlisting}[language=C++, caption=Examples of types now supported by libclang]
 template<class T>
 class TemplatedClass
@@ -56,7 +60,7 @@ namespace SomeNamespace
 // NEW: type of kind Elaborated
 SomeNamespace::NormalClass elaboratedInstance2; 
 \end{lstlisting}
-
+\OnehalfSpacing
 
 libclang already exposed template parameters as CXCursors when visiting the children of a class, struct or function cursor. Helper functions for accessing the template parameters directly from a template-supporting cursor, were added to libclang:
 
@@ -96,3 +100,9 @@ Also a utility function for retrieving the access (private, protected or public)
 \end{itemize}
 
 Before, access needed to be tracked while analysing a class/struct cursor's children, by finding special child cursors that represent the C++ access specifiers.
+
+\section{Building a simplified AST}
+
+\section{Exporting AST to JSON}
+
+\section{libclang and the C++ standard library}

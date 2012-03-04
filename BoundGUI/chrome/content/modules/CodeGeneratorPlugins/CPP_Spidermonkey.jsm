@@ -48,7 +48,7 @@ Plugin_CPP_Spidermonkey.prototype = {
 	
 	context: "CPP_Spidermonkey",
 	
-	typeTemplates_from_script: {
+	typeTemplates_to_script: {
 		"bool":                "CPP_Spidermonkey/return_boolean",
 		"char":                "CPP_Spidermonkey/return_int", // ???
 		"unsigned char":       "CPP_Spidermonkey/return_int",
@@ -68,10 +68,12 @@ Plugin_CPP_Spidermonkey.prototype = {
 		"__int128":            "CPP_Spidermonkey/return_int",
 		"float":               "CPP_Spidermonkey/return_float",
 		"double":              "CPP_Spidermonkey/return_float",
-		"long double":         "CPP_Spidermonkey/return_float"
+		"long double":         "CPP_Spidermonkey/return_float",
+		
+		"void":                "CPP_Spidermonkey/return_void"
 	},
 	
-	typeTemplates_to_script: {
+	typeTemplates_from_script: {
 		"bool":                "CPP_Spidermonkey/param_jsval_to_boolean",
 		"char":                "CPP_Spidermonkey/param_jsval_to_int", // ???
 		"unsigned char":       "CPP_Spidermonkey/param_jsval_to_uint",
@@ -234,55 +236,7 @@ CodeGenerator_Function.isCompatible = Plugin_CPP_Spidermonkey.prototype._isCompa
 
 CodeGenerator_Function.prototype = {
 	constructor: CodeGenerator_Function,
-	
-	parameterTemplates: {
-		"Bool":      "CPP_Spidermonkey/param_jsval_to_boolean",
-		"Char_U":    "CPP_Spidermonkey/param_jsval_to_int", // ???
-		"UChar":     "CPP_Spidermonkey/param_jsval_to_uint",
-		"Char16":    "CPP_Spidermonkey/param_jsval_to_int",
-		"Char32":    "CPP_Spidermonkey/param_jsval_to_int",
-		"UShort":    "CPP_Spidermonkey/param_jsval_to_uint",
-		"UInt":      "CPP_Spidermonkey/param_jsval_to_uint",
-		"ULong":     "CPP_Spidermonkey/param_jsval_to_uint",
-		"ULongLong": "CPP_Spidermonkey/param_jsval_to_uint",
-		"UInt128":   "CPP_Spidermonkey/param_jsval_to_uint",
-		"Char_S":    "CPP_Spidermonkey/param_jsval_to_int", // ???
-		"SChar":     "CPP_Spidermonkey/param_jsval_to_int",
-		"WChar":     "CPP_Spidermonkey/param_jsval_to_int", // TODO: may change
-		"Short":     "CPP_Spidermonkey/param_jsval_to_int",
-		"Int":       "CPP_Spidermonkey/param_jsval_to_int",
-		"Long":      "CPP_Spidermonkey/param_jsval_to_int",
-		"LongLong":  "CPP_Spidermonkey/param_jsval_to_int",
-		"Int128":    "CPP_Spidermonkey/param_jsval_to_int",
-		"Float":     "CPP_Spidermonkey/param_jsval_to_float",
-		"Double":    "CPP_Spidermonkey/param_jsval_to_float",
-		"LongDouble":"CPP_Spidermonkey/param_jsval_to_float"
-	},
-	
-	returnTemplates: {
-		"Bool":      "CPP_Spidermonkey/return_boolean",
-		"Char_U":    "CPP_Spidermonkey/return_int", // ???
-		"UChar":     "CPP_Spidermonkey/return_int",
-		"Char16":    "CPP_Spidermonkey/return_int",
-		"Char32":    "CPP_Spidermonkey/return_int",
-		"UShort":    "CPP_Spidermonkey/return_int",
-		"UInt":      "CPP_Spidermonkey/return_int",
-		"ULong":     "CPP_Spidermonkey/return_int",
-		"ULongLong": "CPP_Spidermonkey/return_int",
-		"UInt128":   "CPP_Spidermonkey/return_int",
-		"Char_S":    "CPP_Spidermonkey/return_int", // ???
-		"SChar":     "CPP_Spidermonkey/return_int",
-		"WChar":     "CPP_Spidermonkey/return_int", // TODO: may change
-		"Short":     "CPP_Spidermonkey/return_int",
-		"Int":       "CPP_Spidermonkey/return_int",
-		"Long":      "CPP_Spidermonkey/return_int",
-		"LongLong":  "CPP_Spidermonkey/return_int",
-		"Int128":    "CPP_Spidermonkey/return_int",
-		"Float":     "CPP_Spidermonkey/return_float",
-		"Double":    "CPP_Spidermonkey/return_float",
-		"LongDouble":"CPP_Spidermonkey/return_float"
-	},
-	
+		
 	get isStatic()
 	{
 		return this.exportObject.sourceObject.isStatic;
@@ -328,8 +282,8 @@ CodeGenerator_Function.prototype = {
 			call_parameters: call_parameters,
 			parent_qualifier: parent_qualifier,
 			wrapper_funcName: "wrapper_" + this.exportObject.name,
-			funcName: this.exportObject.sourceObject.name,
-		}
+			funcName: this.exportObject.sourceObject.name
+		};
 		
 		//var defineData = {
 		//	wrapper_funcName: data.wrapper_funcName,
@@ -337,7 +291,14 @@ CodeGenerator_Function.prototype = {
 		//	num_params: astFunc.parameters.length
 		//}
 		
-		if(astFunc.returnTypeCanonical.kind !== "Void")
+		// return type
+		var returnTemplateInfo = this._getTypeHandlingTemplate(astFunc.returnType, ScriptCodeGen.TYPE_TO_SCRIPT);
+		data.return_type = astFunc.returnType.getAsCPPCode(); // TODO: use printer
+		var tReturnCode = TemplateManager.getTemplate(returnTemplateInfo.templateName);
+		usedTemplates.push(tReturnCode);
+		data.returnCode = tReturnCode.fetch({ type: astFunc.returnType, typeLib: returnTemplateInfo.typeLib});
+		
+		/*if(astFunc.returnTypeCanonical.kind !== "Void")
 		{
 			data.return_type = astFunc.returnTypeCanonical.getAsCPPCode();
 			var tReturnCode = TemplateManager.getTemplate(this.returnTemplates[astFunc.returnTypeCanonical.kind]);
@@ -349,7 +310,7 @@ CodeGenerator_Function.prototype = {
 			var tReturnVoid = TemplateManager.getTemplate("CPP_Spidermonkey/return_void");
 			usedTemplates.push(tReturnVoid);
 			data.returnCode = tReturnVoid.fetch({});
-		}
+		}*/
 		
 		var includeFiles = [];
 		for(var i = 0; i < usedTemplates.length; ++i)

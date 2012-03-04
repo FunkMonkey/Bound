@@ -29,9 +29,11 @@ multiple, class-based vs prototype-based
 
 \subsection{Function pointers and callbacks}
 
+\SingleSpacing
 \begin{lstlisting}[language=C++, caption=C++ function that takes a function pointer]
 void someFunc(float (*funcPointer)(int));
 \end{lstlisting}
+\OnehalfSpacing
 
 C++ functions that take function pointers, often referred to as callbacks, are a problematic topic.\\
 Two cases need to be distinguished:
@@ -48,6 +50,7 @@ The first case is unproblematic. A pointer to a C++ function can be wrapped insi
 
 When passing a JavaScript function as a callback, a wrapper function that has the same function type as the pointer has to be created. This is the C++ function that will then be passed to the function that takes the function pointer. Inside, the C++ arguments must be converted to types that JavaScript understands. The JavaScript callback-function has to be called and its return value converted to the C++ type that the function type expects. Thus, such a wrapper function works the exact other way around than wrapper functions presented earlier in this chapter:
 
+\SingleSpacing
 \begin{lstlisting}[language=C++, caption=Wrapper code for handling methods that take function pointers \#1]
 float wrapper_callback(int param)
 {
@@ -62,6 +65,7 @@ JSBool wrapper_someFunc(JSContext *cx, uintN argc, jsval *vp)
 	someFunc(&wrapper_callback);
 }
 \end{lstlisting}
+\OnehalfSpacing
 
 This approach comes with one big problem, when calling \mySCName{someFunc} multiple times with different JavaScript callbacks: As \mySCName{wrapper\_callback} is a simple C++ function created at compile-time, it has no notion of state and as such no information about which JavaScript function to use as the callback.
 
@@ -73,6 +77,7 @@ Without run-time function creation (more about that later), a function callback 
 
 State information can be provided by extending \mySCName{someFunc} and the function type to take an additional void pointer for user data. The script function is then passed as user data to \mySCName{someFunc}, which will use/save it along with the function pointer. The user data will be passed as the void pointer to the C callback function and as such can be used in \mySCName{wrapper\_callback} to retrieve the script function to call.
 
+\SingleSpacing
 \begin{lstlisting}[language=C++, caption=Wrapper code for handling methods that take function pointers \#2]
 void someFunc(float (*funcPointer)(int, void*), void* data);
 
@@ -94,6 +99,7 @@ JSBool wrapper_someFunc(JSContext *cx, uintN argc, jsval *vp)
 	someFunc(&wrapper_callback, funcPtr);
 }
 \end{lstlisting}
+\OnehalfSpacing
 
 Another way to modify the original \mySCName{someFunc} is to let it take functors that contain state information instead of a function pointer. Instead of passing the JSFunction as an additional void pointer, it would be saved in the functor object.
 
