@@ -97,77 +97,115 @@ var TemplateManager = {
 			this._templates[templateName] = newTemplate;
 			return newTemplate;
 		}
-		else if(template && "templateCode" in template)
+		else /*if(template && "templateCode" in template)*/
 		{
-			var newTemplate = new jSmart(template.templateCode);
+			var newTemplate = null;
+			if(template.templateCode)
+			{
+				try
+				{
+					newTemplate = new jSmart(template.templateCode);
+				}
+				catch(e)
+				{
+					throw new Error("Could not compile template: " + templateName);
+				}
+			}
+			else
+			{
+				// TODO: log
+				newTemplate = new jSmart("");
+			}
 			newTemplate.userdata = template;
 			newTemplate.name = templateName;
 			this._templates[templateName] = newTemplate;
 			
 			// compiling the functions
-			if("functions" in template)
+			if(template.functions)
 			{
 				for(var funcName in template.functions)
 				{
 					if(funcName in template)
 						throw new Error("Function redefines property of template: " + funcName);
-						
-					template[funcName] = Function.apply(null, template.customFunctionsSource[funcName]);
+					
+					try {
+						template[funcName] = Function.apply(null, template.functions[funcName]);
+					}catch(e){
+						throw new Error("Error compiling '" + funcName + "' in " + templateName + "(" + e.lineNumber + ": " + e.message + ")");
+					}
+					
+				}
+			}
+			
+			if(template.onFetchBefore)
+			{
+				try {
+					template.onFetchBefore = Function.apply(null, template.onFetchBefore);
+				}catch(e){
+					throw new Error("Error compiling 'onFetchBefore' in " + templateName + "(" + e.lineNumber + ": " + e.message + ")");
+				}
+			}
+				
+			if(template.onFetchAfter)
+			{
+				try {
+					template.onFetchAfter = Function.apply(null, template.onFetchAfter);
+				}catch(e){
+					throw new Error("Error compiling 'onFetchAfter' in " + templateName + "(" + e.lineNumber + ": " + e.message + ")");
 				}
 			}
 			
 			// updating the fetch function
-			if(("onFetchBefore" in template) || ("onFetchAfter" in template))
+			if(template.onFetchBefore || template.onFetchAfter)
 			{
 				newTemplate._fetch = newTemplate.fetch;
 				newTemplate.fetch = this._templateFetch;
 			}
 			
-			// calling onLoad functions
-			if("onLoad" in template)
+			// check requirements
+			if(template.requires)
 			{
-				if(typeof(template.onLoad) === "string")
-					templData[template.onLoad]();
-				else
-					for (var i = 0, len = template.onLoad.length; i != len; ++i)
-						newTemplate.userdata[template.onLoad[i]]();
+				// TODO: prevent cyclic dependencies
+				for(var member in template.requires)
+				{
+					template.requires[member] = this.getTemplate(template.requires[member]);
+				}
 			}
 			
+			if(template.onLoad)
+			{
+				try {
+					template.onLoad = Function.apply(null, template.onLoad);
+				}catch(e){
+					throw new Error("Error compiling 'onLoad' in " + templateName + "(" + e.lineNumber + ": " + e.message + ")");
+				}
+				
+				template.onLoad();
+			}
+				
 			return newTemplate;
 		}
-		else
+		/*else
 		{
 			// TODO: throw exception
 			return null;
-		}
+		}*/
 	},
 	
 	_templateFetch: function fetch(data)
 	{
 		var templData = this.userdata;
 		
-		// calling functions before
-		if("onFetchBefore" in templData)
-		{
-			if(typeof(templData.onFetchBefore) === "string")
-				templData[templData.onFetchBefore](data);
-			else
-				for (var i = 0, len = templData.onFetchBefore.length; i != len; ++i)
-					templData[templData.onFetchBefore[i]](data);
-		}
+		// calling onFetchBefore
+		if(templData.onFetchBefore)
+			templData.onFetchBefore(data);
 		
 		// fetching the data
 		var result = this._fetch(data);
 		
-		// calling functions after
-		if("onFetchAfter" in templData)
-		{
-			if(typeof(templData.onFetchAfter) === "string")
-				templData[templData.onFetchAfter](data);
-			else
-				for (var i = 0, len = templData.onFetchAfter.length; i != len; ++i)
-					templData[templData.onFetchAfter[i]](data, result);
-		}
+		// calling onFetchAfter
+		if(templData.onFetchAfter)
+			result = templData.onFetchAfter(data, result);
 		
 		return result;
 	},
@@ -182,6 +220,7 @@ var TemplateManager = {
 	 */
 	loadTemplateFromFile: function loadTemplateFromFile(searchTerm, alternativeName)
 	{
+		
 		var searchSplit = searchTerm.split(/[\/\\]/);
 		searchSplit[searchSplit.length-1] += ".template";
 		
@@ -207,8 +246,15 @@ var TemplateManager = {
 			throw new TemplateFileNotExistingException(searchTerm);
 			
 		var templateJSONStr = readFile(fileToLoad);
-		var templateData = this._templateStringToJSON(templateJSONStr);
-		
+		try
+		{
+			var templateData = this._templateStringToJSON(templateJSONStr);
+		}
+		catch(e)
+		{
+			throw new Error("Could not parse template file: " + searchTerm + " (" + e.message + ")");
+		}
+
 		searchTerm = searchTerm.replace(/\\/, "/");
 		return this.addTemplate((alternativeName == null) ? searchTerm : alternativeName, templateData);
 	},

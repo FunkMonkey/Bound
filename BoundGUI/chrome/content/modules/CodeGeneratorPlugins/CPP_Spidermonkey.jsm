@@ -49,51 +49,51 @@ Plugin_CPP_Spidermonkey.prototype = {
 	context: "CPP_Spidermonkey",
 	
 	typeTemplates_to_script: {
-		"bool":                "CPP_Spidermonkey/return_boolean",
-		"char":                "CPP_Spidermonkey/return_int", // ???
-		"unsigned char":       "CPP_Spidermonkey/return_int",
-		"char16_t":            "CPP_Spidermonkey/return_int",
-		"char32_t":            "CPP_Spidermonkey/return_int",
-		"unsigned short":      "CPP_Spidermonkey/return_int",
-		"unsigned int":        "CPP_Spidermonkey/return_int",
-		"unsigned long":       "CPP_Spidermonkey/return_int",
-		"unsigned long long":  "CPP_Spidermonkey/return_int",
-		"unsigned __int128":   "CPP_Spidermonkey/return_int",
-		"signed char":         "CPP_Spidermonkey/return_int",
-		"wchar_t":             "CPP_Spidermonkey/return_int", // TODO: may change
-		"short":               "CPP_Spidermonkey/return_int",
-		"int":                 "CPP_Spidermonkey/return_int",
-		"long":                "CPP_Spidermonkey/return_int",
-		"long long":           "CPP_Spidermonkey/return_int",
-		"__int128":            "CPP_Spidermonkey/return_int",
-		"float":               "CPP_Spidermonkey/return_float",
-		"double":              "CPP_Spidermonkey/return_float",
-		"long double":         "CPP_Spidermonkey/return_float",
+		"bool":                "CPP_Spidermonkey/bool_to_jsval",
+		"char":                "CPP_Spidermonkey/int_to_jsval", // ???
+		"unsigned char":       "CPP_Spidermonkey/int_to_jsval",
+		"char16_t":            "CPP_Spidermonkey/int_to_jsval",
+		"char32_t":            "CPP_Spidermonkey/int_to_jsval",
+		"unsigned short":      "CPP_Spidermonkey/int_to_jsval",
+		"unsigned int":        "CPP_Spidermonkey/int_to_jsval",
+		"unsigned long":       "CPP_Spidermonkey/int_to_jsval",
+		"unsigned long long":  "CPP_Spidermonkey/int_to_jsval",
+		"unsigned __int128":   "CPP_Spidermonkey/int_to_jsval",
+		"signed char":         "CPP_Spidermonkey/int_to_jsval",
+		"wchar_t":             "CPP_Spidermonkey/int_to_jsval", // TODO: may change
+		"short":               "CPP_Spidermonkey/int_to_jsval",
+		"int":                 "CPP_Spidermonkey/int_to_jsval",
+		"long":                "CPP_Spidermonkey/int_to_jsval",
+		"long long":           "CPP_Spidermonkey/int_to_jsval",
+		"__int128":            "CPP_Spidermonkey/int_to_jsval",
+		"float":               "CPP_Spidermonkey/float_to_jsval",
+		"double":              "CPP_Spidermonkey/float_to_jsval",
+		"long double":         "CPP_Spidermonkey/float_to_jsval",
 		
-		"void":                "CPP_Spidermonkey/return_void"
+		"void":                "CPP_Spidermonkey/void_to_jsval"
 	},
 	
 	typeTemplates_from_script: {
-		"bool":                "CPP_Spidermonkey/param_jsval_to_boolean",
-		"char":                "CPP_Spidermonkey/param_jsval_to_int", // ???
-		"unsigned char":       "CPP_Spidermonkey/param_jsval_to_uint",
-		"char16_t":            "CPP_Spidermonkey/param_jsval_to_int",
-		"char32_t":            "CPP_Spidermonkey/param_jsval_to_int",
-		"unsigned short":      "CPP_Spidermonkey/param_jsval_to_uint",
-		"unsigned int":        "CPP_Spidermonkey/param_jsval_to_uint",
-		"unsigned long":       "CPP_Spidermonkey/param_jsval_to_uint",
-		"unsigned long long":  "CPP_Spidermonkey/param_jsval_to_uint",
-		"unsigned __int128":   "CPP_Spidermonkey/param_jsval_to_uint",
-		"signed char":         "CPP_Spidermonkey/param_jsval_to_int",
-		"wchar_t":             "CPP_Spidermonkey/param_jsval_to_int", // TODO: may change
-		"short":               "CPP_Spidermonkey/param_jsval_to_int",
-		"int":                 "CPP_Spidermonkey/param_jsval_to_int",
-		"long":                "CPP_Spidermonkey/param_jsval_to_int",
-		"long long":           "CPP_Spidermonkey/param_jsval_to_int",
-		"__int128":            "CPP_Spidermonkey/param_jsval_to_int",
-		"float":               "CPP_Spidermonkey/param_jsval_to_float",
-		"double":              "CPP_Spidermonkey/param_jsval_to_float",
-		"long double":         "CPP_Spidermonkey/param_jsval_to_float"
+		"bool":                "CPP_Spidermonkey/jsval_to_bool",
+		"char":                "CPP_Spidermonkey/jsval_to_int", // ???
+		"unsigned char":       "CPP_Spidermonkey/jsval_to_uint",
+		"char16_t":            "CPP_Spidermonkey/jsval_to_int",
+		"char32_t":            "CPP_Spidermonkey/jsval_to_int",
+		"unsigned short":      "CPP_Spidermonkey/jsval_to_uint",
+		"unsigned int":        "CPP_Spidermonkey/jsval_to_uint",
+		"unsigned long":       "CPP_Spidermonkey/jsval_to_uint",
+		"unsigned long long":  "CPP_Spidermonkey/jsval_to_uint",
+		"unsigned __int128":   "CPP_Spidermonkey/jsval_to_uint",
+		"signed char":         "CPP_Spidermonkey/jsval_to_int",
+		"wchar_t":             "CPP_Spidermonkey/jsval_to_int", // TODO: may change
+		"short":               "CPP_Spidermonkey/jsval_to_int",
+		"int":                 "CPP_Spidermonkey/jsval_to_int",
+		"long":                "CPP_Spidermonkey/jsval_to_int",
+		"long long":           "CPP_Spidermonkey/jsval_to_int",
+		"__int128":            "CPP_Spidermonkey/jsval_to_int",
+		"float":               "CPP_Spidermonkey/jsval_to_float",
+		"double":              "CPP_Spidermonkey/jsval_to_float",
+		"long double":         "CPP_Spidermonkey/jsval_to_float"
 	},
 	
 	/**
@@ -230,6 +230,8 @@ function getAndUseTemplate(templateName, usedTemplates)
 function CodeGenerator_Function(plugin)
 {
 	ScriptCodeGen.call(this, plugin);
+	
+	this.templateFunction = "CPP_Spidermonkey/function";
 }
 
 CodeGenerator_Function.isCompatible = Plugin_CPP_Spidermonkey.prototype._isCompatible;
@@ -249,93 +251,80 @@ CodeGenerator_Function.prototype = {
 	 */
 	generate: function generate()
 	{
-		var usedTemplates = [];
+		// keeps track of used templates
+		var templateUser = new TemplateUser();
 		
-		var tFunction = TemplateManager.getTemplate("CPP_Spidermonkey/function");
-		//var tFunctionDefine = TemplateManager.getTemplate("CPP_Spidermonkey/function_define");
-		usedTemplates.push(tFunction);
-		//usedTemplates.push(tFunctionDefine);
-		
+		// getting the source object
 		var astFunc = this.exportObject.sourceObject;
 		
-		var parameters_init = "";
-		var call_parameters = "";
+		// setting up the result object
+		var result = {
+			type: "Function",
+			codeGen: this,
+			isStatic: this.isStatic,
+			numParams: astFunc.parameters.length,
+			name: this.exportObject.name,
+			wrapperFunction: {
+				code: "",
+				name: "wrapper_" + this.exportObject.name
+			},
+			includeFiles: null
+		};
+		
+		// the main template for the function
+		var tFunction = templateUser.use(this.templateFunction);
+		
+		// parameters
+		var params = [];
 		for(var i = 0; i < astFunc.parameters.length; ++i)
 		{
 			var param = astFunc.parameters[i];
-			var name = "p__" + param.name;
+			var tInfoParam = this.getTypeHandlingTemplate(param, ScriptCodeGen.TYPE_FROM_SCRIPT);
+			tInfoParam.declareResultVar = true;
+			tInfoParam.finishStatement = true;
+			tInfoParam.input_jsval = tFunction.userdata.getParameter(i);
+			tInfoParam.resultVarName = "p" + i + "__" + param.name;
 			
-			var tParamInit = TemplateManager.getTemplate(this.parameterTemplates[param.typeCanonical.kind]);
-			usedTemplates.push(tParamInit);
-			
-			parameters_init += tParamInit.fetch({param_name: name, param_type: param.typeCanonical.getAsCPPCode(), param_index: i}) + "\n";
-		
-			call_parameters += name + ((i != astFunc.parameters.length - 1) ? ", " : "");
+			params.push( { initCode: templateUser.fetch(tInfoParam.templateName, tInfoParam),
+			               name: tInfoParam.resultVarName});
 		}
-		
-		var parent_qualifier = astFunc.parent.cppLongName;
-		
-		var data = {
-			is_instance_call: (astFunc.kind === ASTObject.KIND_MEMBER_FUNCTION && !astFunc.isStatic),
-			numParams: astFunc.parameters.length,
-			parameters_init: parameters_init,
-			call_parameters: call_parameters,
-			parent_qualifier: parent_qualifier,
-			wrapper_funcName: "wrapper_" + this.exportObject.name,
-			funcName: this.exportObject.sourceObject.name
-		};
-		
-		//var defineData = {
-		//	wrapper_funcName: data.wrapper_funcName,
-		//	funcName: this.exportObject.name,
-		//	num_params: astFunc.parameters.length
-		//}
 		
 		// return type
-		var returnTemplateInfo = this._getTypeHandlingTemplate(astFunc.returnType, ScriptCodeGen.TYPE_TO_SCRIPT);
-		data.return_type = astFunc.returnType.getAsCPPCode(); // TODO: use printer
-		var tReturnCode = TemplateManager.getTemplate(returnTemplateInfo.templateName);
-		usedTemplates.push(tReturnCode);
-		data.returnCode = tReturnCode.fetch({ type: astFunc.returnType, typeLib: returnTemplateInfo.typeLib});
+		var tInfoReturn = this.getTypeHandlingTemplate(astFunc.returnType, ScriptCodeGen.TYPE_TO_SCRIPT);
+		tInfoReturn.finishStatement = true;		
+		tInfoReturn.jsvalName = tFunction.userdata.getReturnJSVAL();
+		tInfoReturn.inputVar = tFunction.userdata.getCPPReturnValue();
+		var returnTypeCode = templateUser.fetch(tInfoReturn.templateName, tInfoReturn);
 		
-		/*if(astFunc.returnTypeCanonical.kind !== "Void")
-		{
-			data.return_type = astFunc.returnTypeCanonical.getAsCPPCode();
-			var tReturnCode = TemplateManager.getTemplate(this.returnTemplates[astFunc.returnTypeCanonical.kind]);
-			usedTemplates.push(tReturnCode);
-			data.returnCode = tReturnCode.fetch({});
-		}
-		else
-		{
-			var tReturnVoid = TemplateManager.getTemplate("CPP_Spidermonkey/return_void");
-			usedTemplates.push(tReturnVoid);
-			data.returnCode = tReturnVoid.fetch({});
-		}*/
+		// create the function code
+		var parentQualifier = astFunc.parent.cppLongName;
 		
-		var includeFiles = [];
-		for(var i = 0; i < usedTemplates.length; ++i)
-		{
-			if(usedTemplates[i].userdata.includes)
-				includeFiles.push.apply(includeFiles, usedTemplates[i].userdata.includes);
-		}
+		var funcData = {
+			isInstanceCall: (astFunc.kind === ASTObject.KIND_MEMBER_FUNCTION && !astFunc.isStatic),
+			params: params,
+			returnType: {
+				code: returnTypeCode,
+				cppTypeStr: "" }, // TODO 
+			parentQualifier: parentQualifier,
+			wrapperFunctionName: result.wrapperFunction.name,
+			cppFuncionName: this.exportObject.sourceObject.name
+		};
 		
+		result.wrapperFunction.code = tFunction.fetch(funcData);
+		
+		// include resolution
+		result.includeFiles = templateUser.aggregateIncludes();
 		var location = (astFunc.isDefinition == true) ? astFunc.definition : astFunc.declarations[0];
-		
 		if(location)
 		{
 			var fixedPath = location.fileName.replace(astFunc.AST.TUPath, "");
-			includeFiles.push('#include "{$CPP_TU_DIR}' + fixedPath + '"');
+			result.includeFiles.push('#include "{$CPP_TU_DIR}' + fixedPath + '"');
 		}
 		
-		return {  isFunction: true,
-				  isStatic: astFunc.isStatic,
-				  numParams: astFunc.parameters.length,
-		  		  wrapper_function_code: tFunction.fetch(data),
-				  wrapper_function_name: data.wrapper_funcName,
-				  funcName: this.exportObject.name,
-		          //define_code:           tFunctionDefine.fetch(defineData),
-				  includeFiles:          includeFiles}; // TODO: return as the data itself (name, etc)
+		return result;
 	},
+	
+	
 	
 	/**
 	 * Returns the generator as a JSON compatible savable object

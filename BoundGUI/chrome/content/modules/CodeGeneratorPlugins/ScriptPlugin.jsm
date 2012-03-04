@@ -1,10 +1,15 @@
-var EXPORTED_SYMBOLS = ["ScriptCodeGenPlugin", "ScriptCodeGen", "ASTTypeLibraryEntry"];
+var EXPORTED_SYMBOLS = ["ScriptCodeGenPlugin",
+						"ScriptCodeGen",
+						"ASTTypeLibraryEntry",
+						"TemplateUser"];
 
 Components.utils.import("chrome://bound/content/modules/CodeGeneratorPlugins/BasePlugin.jsm");
 Components.utils.import("chrome://bound/content/modules/AST/CPP_TypePrinter.jsm");
 
 Components.utils.import("chrome://bound/content/modules/Utils/Extension.jsm");
 Components.utils.import("chrome://bound/content/modules/Utils/ObjectHelpers.jsm");
+
+Components.utils.import("chrome://bound/content/modules/Templates/TemplateManager.jsm");
 
 //======================================================================================
 
@@ -13,7 +18,7 @@ var normalTypePolicy = new CPP_TypePrinterPolicy();
 var normalTypePrinter = new CPP_TypePrinter(normalTypePolicy);
 
 var unqualifiedTypePolicy = new CPP_TypePrinterPolicy();
-policy.suppressQualifiers = true;
+unqualifiedTypePolicy.suppressQualifiers = true;
 
 var unqualifiedTypePrinter = new CPP_TypePrinter(unqualifiedTypePolicy);
 
@@ -267,4 +272,72 @@ Object.defineProperty(ScriptCodeGen.prototype, "constructor", {value: ScriptCode
 
 Extension.inherit(ScriptCodeGen, BaseCodeGen);
 
+//======================================================================================
+
+/**
+ * 
+ *
+ * @constructor
+ * @this {TemplateUser}
+ */
+function TemplateUser()
+{
+	this.usedTemplates = [];
+}
+
+TemplateUser.prototype = {
+	/**
+	 * Fetches the given template and returns the result string
+	 * 
+	 * @param   {String}   templateName   Name of template to fetch
+	 * @param   {Object}   data           Data to pass on fetching
+	 * 
+	 * @returns {String}   Result of the template fetching
+	 */
+	fetch: function fetch(templateName, data)
+	{
+		var template = TemplateManager.getTemplate(templateName);
+		this.usedTemplates.push(template);
+		
+		return template.fetch(data);
+	},
+	
+	/**
+	 * Uses the template with the given name
+	 * 
+	 * @param   {String}   templateName   Name of template to use
+	 * 
+	 * @returns {jSmart}   Template found and used
+	 */
+	use: function use(templateName)
+	{
+		var template = TemplateManager.getTemplate(templateName);
+		this.usedTemplates.push(template);
+		
+		return template;
+	},
+	
+	/**
+	 * Gets all includes used in the templates
+	 * 
+	 * @returns {Array}   Array of include directives found in used templates
+	 */
+	aggregateIncludes: function aggregateIncludes()
+	{
+		var includeFiles = [];
+		for(var i = 0; i < this.usedTemplates.length; ++i)
+		{
+			var template = this.usedTemplates[i];
+			if(template.userdata && template.userdata.includes)
+				includeFiles.push.apply(includeFiles, template.userdata.includes);
+		}
+		
+		return includeFiles;
+	}, 
+	
+	
+	
+};
+
+Object.defineProperty(TemplateUser.prototype, "constructor", {value: TemplateUser});
 

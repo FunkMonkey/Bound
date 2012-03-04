@@ -18,7 +18,7 @@ namespace jswrap
 		{
 			JSWRAP_TRY_START
 				void_param0();
-				JS_SET_RVAL(cx, vp, JSVAL_VOID);
+				JS_RVAL(cx, vp) = JSVAL_VOID;
 
 			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "void_param0")
 
@@ -41,7 +41,7 @@ namespace jswrap
 				bool x = jsval_to_boolean_convert_x(cx, args[0]);
 				void_param1_bool(x);
 
-				JS_SET_RVAL(cx, vp, JSVAL_VOID);
+				JS_RVAL(cx, vp) = JSVAL_VOID;
 
 			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "void_param1_bool")
 
@@ -59,7 +59,7 @@ namespace jswrap
 				char x = jsval_to_int32_x(cx, args[0]);
 				void_param1_char(x);
 
-				JS_SET_RVAL(cx, vp, JSVAL_VOID);
+				JS_RVAL(cx, vp) = JSVAL_VOID;
 
 			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "void_param1_char")
 
@@ -78,7 +78,7 @@ namespace jswrap
 				signed char x = jsval_to_int32_x(cx, args[0]);
 				void_param1_signed_char(x);
 
-				JS_SET_RVAL(cx, vp, JSVAL_VOID);
+				JS_RVAL(cx, vp) = JSVAL_VOID;
 
 			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "void_param1_signed_char")
 
@@ -96,7 +96,7 @@ namespace jswrap
 				unsigned char x = jsval_to_uint32_x(cx, args[0]);
 				void_param1_unsigned_char(x);
 
-				JS_SET_RVAL(cx, vp, JSVAL_VOID);
+				JS_RVAL(cx, vp) = JSVAL_VOID;
 
 			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "void_param1_signed_char")
 
@@ -114,7 +114,7 @@ namespace jswrap
 				short x = jsval_to_int32_x(cx, args[0]);
 				void_param1_short(x);
 
-				JS_SET_RVAL(cx, vp, JSVAL_VOID);
+				JS_RVAL(cx, vp) = JSVAL_VOID;
 
 			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "void_param1_short")
 
@@ -132,7 +132,7 @@ namespace jswrap
 				unsigned short x = jsval_to_uint32_x(cx, args[0]);
 				void_param1_unsigned_short(x);
 
-				JS_SET_RVAL(cx, vp, JSVAL_VOID);
+				JS_RVAL(cx, vp) = JSVAL_VOID;
 
 			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "void_param1_unsigned_short")
 
@@ -150,7 +150,7 @@ namespace jswrap
 				int x = jsval_to_int32_x(cx, args[0]);
 				void_param1_int(x);
 
-				JS_SET_RVAL(cx, vp, JSVAL_VOID);
+				JS_RVAL(cx, vp) = JSVAL_VOID;
 
 			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "void_param1_int")
 
@@ -168,7 +168,7 @@ namespace jswrap
 				unsigned int x = jsval_to_uint32_x(cx, args[0]);
 				void_param1_unsigned_int(x);
 
-				JS_SET_RVAL(cx, vp, JSVAL_VOID);
+				JS_RVAL(cx, vp) = JSVAL_VOID;
 
 			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "void_param1_unsigned_int")
 
@@ -186,7 +186,7 @@ namespace jswrap
 				long x = jsval_to_int32_x(cx, args[0]);
 				void_param1_long(x);
 
-				JS_SET_RVAL(cx, vp, JSVAL_VOID);
+				JS_RVAL(cx, vp) = JSVAL_VOID;
 
 			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "void_param1_long")
 
@@ -204,7 +204,7 @@ namespace jswrap
 				unsigned long x = jsval_to_uint32_x(cx, args[0]);
 				void_param1_unsigned_long(x);
 
-				JS_SET_RVAL(cx, vp, JSVAL_VOID);
+				JS_RVAL(cx, vp) = JSVAL_VOID;
 
 			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "void_param1_unsigned_long")
 
@@ -222,7 +222,7 @@ namespace jswrap
 				float x = (float)jsval_to_double_x(cx, args[0]);
 				void_param1_float(x);
 
-				JS_SET_RVAL(cx, vp, JSVAL_VOID);
+				JS_RVAL(cx, vp) = JSVAL_VOID;
 
 			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "void_param1_float")
 
@@ -240,7 +240,7 @@ namespace jswrap
 				double x = jsval_to_double_x(cx, args[0]);
 				void_param1_double(x);
 
-				JS_SET_RVAL(cx, vp, JSVAL_VOID);
+				JS_RVAL(cx, vp) = JSVAL_VOID;
 
 			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "void_param1_double")
 
@@ -258,7 +258,7 @@ namespace jswrap
 				long double x = jsval_to_double_x(cx, args[0]);
 				void_param1_long_double(x);
 
-				JS_SET_RVAL(cx, vp, JSVAL_VOID);
+				JS_RVAL(cx, vp) = JSVAL_VOID;
 
 			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "void_param1_long_double")
 
@@ -276,7 +276,7 @@ namespace jswrap
 				wchar_t x = jsval_to_wchar_t_x(cx, args[0]);
 				void_param1_wchar_t(x);
 
-				JS_SET_RVAL(cx, vp, JSVAL_VOID);
+				JS_RVAL(cx, vp) = JSVAL_VOID;
 
 			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "void_param1_wchar_t")
 			
@@ -293,7 +293,7 @@ namespace jswrap
 			JSWRAP_TRY_START
 				bool cppResult = bool_param0();
 
-			JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(cppResult));
+			JS_RVAL(cx, vp) = BOOLEAN_TO_JSVAL(cppResult);
 
 			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "bool_param0")
 
@@ -473,7 +473,7 @@ namespace jswrap
 				float y = (float) jsval_to_double_x(cx, args[1]);
 				void_param1_int_float(x, y);
 
-				JS_SET_RVAL(cx, vp, JSVAL_VOID);
+				JS_RVAL(cx, vp) = JSVAL_VOID;
 
 			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "void_param1_int_float")
 

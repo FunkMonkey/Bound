@@ -1,0 +1,10 @@
+{
+
+"description":"",
+		
+"templateCode":
+"{if $declare_jsval}jsval {$jsvalName};
+{/if}int_to_jsval_x(cx, {$inputVar}, &{$jsvalName}){if $finishStatement};{/if}"
+
+}
+

@@ -7,14 +7,15 @@
 "templateCode":
 "{$param_type} {$param_name} = {if $cast}($param_type){/if}jsval_to_double_x(cx, args[{$param_index}]);"
 
-"onLoad":        ["_onLoad"],
-"onFetchBefore": ["_onFetchBefore"],
-"onFetchAfter":  ["_onFetchAfter"],
+"onLoad":        ["data", "log('onLoad')"],
+"onFetchBefore": ["data", "log('onFetchBefore')"],
+"onFetchAfter":  ["data", "fetchResult", "log('onFetchAfter'); return fetchResult;"],
 
-"functions": {
-	"_onLoad":        ["data", "log('onLoad')"],
-	"_onFetchBefore": ["data", "log('onFetchBefore')"],
-	"_onFetchAfter":  ["data", "fetchResult", "log('onFetchAfter')"],
+"requires": {
+		"otherTemplate": "PathToOtherTemplate"
+	},
+
+"functions": { 
 	"doWhatever":     ["data", "log('doWhatever');"]
 }
 

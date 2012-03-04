@@ -1,14 +1,13 @@
 {
 	"description":
-	"(String)  wrapper_funcName: name of the wrapper-function
-	(String)  parent_qualifier: full name of parent (with namespaces and class name)
-	(String)  funcName        : name of the function to call
+	"(String)  wrapperFunctionName: name of the wrapper-function
+	(String)  parentQualifier: full name of parent (with namespaces and class name)
+	(String)  cppFuncionName        : name of the function to call
 
-	(boolean) is_instance_call: true if it is a call to a function of an instance, otherwise false
+	(boolean) isInstanceCall  : true if it is a call to a function of an instance, otherwise false
 
-	(String)  parameters_init : initialization code for parameter variables
+	(String)  params : Array of parameter information (holding initCode and name)
 	(String)  call_parameters : parameter names given to the function (comma-separated list)
-	(String)  return_type     : return type of the called function
 	(String)  returnCode      : code for setting the resturn value
 
 	(String)  error_source    : source name that will be part of the error message",
@@ -16,27 +15,42 @@
 "includes": ["#include \"{$cpp_spidermonkey_lib_include_dir}wrap_helpers/wrap_helpers_x.hpp\""],
 	
 "templateCode":
-"JSBool {$wrapper_funcName}(JSContext *cx, uintN argc, jsval *vp)
+"JSBool {$wrapperFunctionName}(JSContext *cx, uintN argc, jsval *vp)
 {
 	JSWRAP_TRY_START
 	
-{if $is_instance_call}		{$parent_qualifier}& inst = getThisPrivateRef<{$parent_qualifier}>(cx, vp);
+{if $isInstanceCall}		{$parentQualifier}& inst = getThisPrivateRef<{$parentQualifier}>(cx, vp);
 		
 {/if}{if $numParams > 0}
 		checkMinNumberOfArguments_x(argc, {$numParams});
 		jsval* args = JS_ARGV(cx, vp);
 
-{/if}{$parameters_init|indent:2:\"\\t\"}
-		{if $return_type}{$return_type} cpp__result = {/if}{if $is_instance_call}inst.{else}{$parent_qualifier}::{/if}{$funcName}({$call_parameters});
+{/if}{$paramsInit|indent:2:\"\\t\"}
+		{if $returnType.cppTypeStr}{$returnType.cppTypeStr} cpp__result = {/if}{if $isInstanceCall}inst.{else}{$parentQualifier}::{/if}{$cppFuncionName}({$callParamList});
 	
-		{$returnCode}
-	JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, \"{$error_source}\")
+		{$returnType.code}
+	JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, \"{$errorSource}\")
 	
 	return true;
 }",
 
-"customFunctionsSource": {
-	"doWhatever":	["param", "return {name: 'foo'};"]
+"onFetchBefore": ["data", "
+		data.paramsInit = '';
+		data.callParamList = '';
+		for(var i = 0, end = data.params.length; i != end; ++i)
+		{
+			data.paramsInit += data.params[i].initCode + '\\n';
+			data.callParamList += data.params[i].name;
+		
+			if(i != (end-1))
+				data.callParamList += ', ';
+		}
+	"],
+
+"functions": {
+	"getParameter":	     ["index", "return 'args[' + index + ']';"],
+	"getReturnJSVAL":    ["return 'JS_RVAL(cx, vp)';"],
+	"getCPPReturnValue": ["return 'cpp__result';"]
 }
 
 }

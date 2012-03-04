@@ -81,6 +81,15 @@ var ResultTabbox = {
 	
 };
 
+function objToString(obj)
+{
+	var str = "";
+	for(var member in obj)
+		str += member + ":\n\n" + obj[member] + "\n\n";
+		
+	return str;
+}
+
 /**
  * Removes all elements from the given element
  * 

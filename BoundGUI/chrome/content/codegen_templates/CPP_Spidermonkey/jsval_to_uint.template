@@ -1,0 +1,10 @@
+{
+
+"description":"",
+
+"includes": ["#include \"{$cpp_spidermonkey_lib_include_dir}wrap_helpers/int_x.hpp\""],
+	
+"templateCode":
+"{if $declareResultVar}unsigned {/if}{$resultVarName} = jsval_to_uint32_x({$input_jsval}){if $finishStatement};{/if}"
+
+}
