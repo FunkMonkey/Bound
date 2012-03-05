@@ -9,6 +9,7 @@ namespace CPPAnalyzer
 	class ASTObject_TemplateParameter;
 	class ASTObject_TemplateArgument;
 
+	// TODO: rename to AST_TemplateInfo
 	/** Represents template information for classes and functions
 	*/
 	class ASTObjectHelper_Template
