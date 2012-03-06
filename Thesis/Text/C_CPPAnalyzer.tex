@@ -155,14 +155,20 @@ Depending on the kind of node, the visibility of the children will be checked re
 
 \todo{current filtering vs future}
 
-\section{The final AST}
+\subsection{The final AST}
 
 The final simplified AST is a tree structure made of classes that inherit from
 \mySCName{ASTObject}. A single class exists for every kind of AST node. Only linkage specifiers will not appear in the final AST. The descendants of \mySCName{ASTObject} hold information according to their kind. \mySCName{ASTObject\_Function}, for example, holds information about its return type and parameters. Clang treats static data members as variable declarations. The simplified AST will treat them as instances of \mySCName{ASTObject\_Field} that have the static-member set to true.\\
-An overview over the existing subclasses of \mySCName{ASTObject} can be found in \todo{figure}.
+An overview over the existing subclasses of \mySCName{ASTObject} can be found in \myRefFigure{fig:ASTObjectUML}.
 
-\todo{hierarchy diagram and members of ASTObject}
+\begin{figure}[p] % h = here
+	\centering
+		\includegraphics[scale=0.2]{Images/ASTObjectUML.png}
+	\caption{ASTObject classes and ASTType (not all associations shown)}
+	\label{fig:ASTObjectUML}
+\end{figure}
 
+\newpage
 Just like \mySCName{Clang\_AST\_CXTreeNode}s, the \mySCName{ASTObject}s store a pointer to their parent and children and thus form a tree that can be traversed in both directions.
 
 \mySCName{ASTObject}s are created whenever an intermediate tree node is marked \textbf{visible} or \textbf{referenced}.
@@ -180,7 +186,7 @@ The final simplified AST is now finished and ready for further use in the applic
 There are AST nodes and types that are not exposed by libclang. If such a node or type is detected, a warning message is stored in a logger that belongs to the \mySCName{Clang\_AST}.
 
 \newpage
-\section{From source code to AST}
+\subsection{From source code to simplified AST}
 \SingleSpacing
 \begin{lstlisting}[language=C++, caption=Example input code for CPPAnalyzer]
 namespace SomeNamespace
@@ -206,12 +212,14 @@ extern "C"
 \end{lstlisting}
 \OnehalfSpacing
 
+\vspace{15pt}
 \begin{figure}[h] % h = here
 	\centering
 		\includegraphics[scale=0.45]{Images/TreeExample.png}
 	\caption{Comparison of generated ASTs}
 	\label{fig:TreeExample}
 \end{figure}
+
 
 As can be seen in \myRefFigure{fig:TreeExample}, the AST clang produces contains a lot of unnecessary information. The intermediate AST removes many kinds of cursors and combines multiple declarations for the same entity. The final AST filters based on user-given options. In the example the function \mySCName{dontFilter} is the only node that was marked \textbf{visible}, because it is the only node that matched the symbol name filter. \mySCName{pInstance} is referenced as a parameter of \mySCName{dontFilter}. \mySCName{SomeClass} is referenced by the \mySCName{ASTType} used in \mySCName{pInstance}. Thus \mySCName{SomeClass} and its parent \mySCName{SomeNamespace} are marked as \textbf{referenced} and as such are visible in the final tree. Note that the children of \mySCName{SomeClass} are not visible.
 
