@@ -10,12 +10,21 @@
 #include "Clang_AST.hpp"
 #include "JSON_Converter.hpp"
 
+// temp
+#include "SelfDisposingCXString.hpp"
+
 using namespace CPPAnalyzer;
 
 	void free_ParserInfo(ParserInfo* pi)
 	{
 		delete[] (pi->astTreeJSON);
 		pi->astTreeJSON = NULL;
+	}
+
+	CXChildVisitResult temp_printVisitor(CXCursor cursor, CXCursor parent, CXClientData client_data)
+	{
+		std::cout << SelfDisposingCXString(clang_getCursorKindSpelling(cursor.kind)).c_str() << ": " << SelfDisposingCXString(clang_getCursorSpelling(cursor)).c_str() << "---- (" << SelfDisposingCXString(clang_getCursorSpelling(parent)).c_str() << ")"  << "\n";
+		return CXChildVisit_Recurse;
 	}
 
 	ParserInfo* parse_header(int argc, char *argv[], const char* filterFile, const char* filterName, int filterAccess)
@@ -42,6 +51,7 @@ using namespace CPPAnalyzer;
 		}
 		else
 		{
+			//clang_visitChildren(clang_getTranslationUnitCursor(TU), temp_printVisitor, nullptr);
 			try
 			{
 				// setting the filter

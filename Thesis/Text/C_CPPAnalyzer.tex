@@ -103,16 +103,117 @@ Before, access needed to be tracked while analysing a class/struct cursor's chil
 
 \section{Building a simplified AST}
 
-The creation of the simplified AST happens inside the \mySCName{Clang\_AST} class. Different data structures have been written to hold information about AST nodes and types. All AST nodes inherit from the class \mySCName{ASTObject}. The simplified AST will only contain information about the following AST objects: global variable declarations, unions, typedefs, structs, (templated) classes, (templated) functions, function parameters, member functions, constructors, destructors, fields (data members), enums, enum constants, namespaces, template parameters and template arguments.
+libclang provides an AST that contains a lot of information, which is not needed for language binding purposes. Thus, a simplified abstract syntax tree is created that holds all necessary information in form of a tree structure.
 
-\todo{diagram}
+The creation of the simplified AST is processed inside the \mySCName{Clang\_AST} class and happens roughly in the following steps:
 
-Clang treats static data members as variable declarations. The simplified AST will treat them as instances of
- ASTObject\_Field that have the static-member set to true.
+\begin{enumerate}\addtolength{\itemsep}{-0.5\baselineskip}
+\item Create an intermediate AST that closely resembles the cursor tree that Clang generates, filtering based on the cursor kind
+\item Filter the intermediate tree based on user-given filters for file- and symbol name
+\item For the nodes that are left, create data structures (of type \mySCName{ASTObject}) that hold information about the AST node and retrieve its properties using the libclang API. Create data structures that hold type information (\mySCName{ASTType}) along the way.
+\item Connect the \mySCName{ASTObject}s to form the final simplified AST 
+\end{enumerate}
+
+\subsection{The intermediate AST}
+
+In C++, the same object (a function or class) can be declared multiple times, but only defined once. This property is sometimes used to eliminate unnecessary includes or avoid cyclic file dependencies, by providing forward declarations.\\
+In Clang, every declaration is a single AST node. This information is mostly unnecessary for glue code generation, thus AST nodes that represent the same C++ entity are combined in the intermediate AST. libclang provides this functionality with the concept of a \textbf{canonical cursor} - a single cursor that represents the underlying entity.
+
+The intermediate tree is build using instances of \mySCName{Clang\_AST\_CXTreeNode}, which can be seen in \myRefFigure{fig:CXTreeNode}. 
+
+\begin{figure}[h] % h = here
+	\centering
+		\includegraphics[scale=0.3]{Images/CXTreeNode.png}
+	\caption{Members of an intermediate tree node}
+	\label{fig:CXTreeNode}
+\end{figure}
+
+Every node holds a pointer to its parent and all of its children, resulting in a tree structure that can be traversed in both directions. 
+The \mySCName{Clang\_AST} holds a reference to the root tree node and a map that links canonical cursors to intermediate tree nodes (for faster access).
+
+After the translation unit has been parsed using \mySCName{clang\_parseTranslationUnit}, all the children of the translation unit cursor will be visited with the help of \mySCName{clang\_visitChildren}. Every visited child cursor is checked, whether an intermediate tree node has already been created for it - based on the child's canonical cursor. If so, the tree node is retrieved, the visited cursor added to its list of cursors and the children are visited. Visiting the children for an already existing tree node is necessary, as the the new found cursor may contain more children (for example if it is a class definition).\\
+If no tree node is existing for the canonical cursor, then, depending on the cursor's kind, a new tree node is created, inserted into the tree and added to the map that links canonical cursors and tree nodes. A lot of AST nodes are not needed for language binding. Thus, the first filtering happens at this stage and tree nodes for the intermediate AST will only be created for the following C++ entities:\\global and static variables, unions, typedefs, structs, (templated) classes, (templated) functions, function parameters, member functions, constructors, destructors, fields (data members), enums, enum constants, namespaces, template parameters, template arguments and linkage specifiers (e.g. 'extern ''C''').\\
+From this list, it is obvious, that the intermediate AST will only have details up to function-level. Source code inside functions is not considered. 
+
+\subsection{User-based filtering}
+
+Parsing code that includes heavy libraries, like the C++ standard library or Boost\todo{ref}, results in a massive AST containing classes and other entities that the end-user might not want to create language bindings for and can as such be considered noise. With the help of different user-provided filters, the amount of nodes in the AST can be vastly reduced. 
+
+At the time of creation, every tree node has been marked as \textbf{not visible}. Only nodes that are marked \textbf{visible} or \textbf{referenced} will appear in the final simplified AST. Referenced nodes are AST nodes that were initially filtered out, but are used by other nodes as a parent or for type information. As such, these nodes are an integral part of a consistent AST, where every node is a) supposed to be reachable while traversing the tree and b) expected to exist in the final tree when being referenced by an another node.
+
+In the filtering step every node of the intermediate tree will be checked.
+
+First the filename is checked with the help of a user-given regular expression. As a tree node may combine multiple cursors, the filenames of all these cursors are retrieved and matched against the regular expression. If none succeeds, the node and all its children are considered \textbf{not visible}.
+
+The second filter matches the complete symbol name of a node (mangled with all parent names added upfront) against a regular expression. Some nodes, like linkage specifiers, will not be checked, as they do not have a name. If the symbol name check fails, then - depending on the kind of node (for example namespace) - the algorithm will still check the visibility of the children as the symbol name filter may apply to those.
+
+The third filter will check the member access of a node - whether it is private, protected, public or any combination of those. For language binding, non-public members are not needed as they can not be referenced by glue code.
+
+If the tree node passes all three filters, it will be marked as \textbf{visible}. As explained in more detail in the next section, an \mySCName{ASTObject} - a node of the final AST - will be created and stored in the intermediate tree node. Also, all parent nodes (that are marked as \textbf{not visible}) will be marked as \textbf{referenced} and thus appear in the final AST.
+
+Depending on the kind of node, the visibility of the children will be checked recursively.
+
+\todo{current filtering vs future}
+
+\section{The final AST}
+
+The final simplified AST is a tree structure made of classes that inherit from
+\mySCName{ASTObject}. A single class exists for every kind of AST node. Only linkage specifiers will not appear in the final AST. The descendants of \mySCName{ASTObject} hold information according to their kind. \mySCName{ASTObject\_Function}, for example, holds information about its return type and parameters. Clang treats static data members as variable declarations. The simplified AST will treat them as instances of \mySCName{ASTObject\_Field} that have the static-member set to true.\\
+An overview over the existing subclasses of \mySCName{ASTObject} can be found in \todo{figure}.
 
 \todo{hierarchy diagram and members of ASTObject}
 
-\todo{comparison: source-code, CXCursor-AST, ASTObject AST}
+Just like \mySCName{Clang\_AST\_CXTreeNode}s, the \mySCName{ASTObject}s store a pointer to their parent and children and thus form a tree that can be traversed in both directions.
+
+\mySCName{ASTObject}s are created whenever an intermediate tree node is marked \textbf{visible} or \textbf{referenced}.
+
+When creating the specific \mySCName{ASTObject}s, the information belonging to the nodes is retrieved using the functions provided by libclang. This includes template information, base information, member access, function parameters, type information and much more.
+
+Type information - exposed by libclang as CXType - will be saved as instances of \mySCName{ASTType}. Apart from the kind of type (int, float, pointer, reference, record, typedef, etc.), \mySCName{ASTType} also stores information about the declaration \mySCName{ASTObject} it refers to (for record and typedef types), the pointee-type (for pointer and reference types) and whether the type is declared as ''const''. It also stores a pointer to the canonical type, which is the same type in its completely desugared form (all typedefs removed). \mySCName{ASTFunctionType} stores the return type as well as the types of all parameters of a function type.
+
+While creating \mySCName{ASTObject}s and \mySCName{ASTType}s other \mySCName{ASTObject}s and \mySCName{ASTType}s will be referenced. In case the belonging intermediate tree nodes are marked as \textbf{not visible}, these nodes and all their parent nodes have to be marked as \textbf{referenced} and their \mySCName{ASTObject}s created, so they can be referenced. In some cases, for example for implicit template specializations, the intermediate tree nodes are also not existing and have to be created and inserted before creating the according \mySCName{ASTObject}.
+
+In the final step, the intermediate tree is traversed from top to bottom and the existing \mySCName{ASTObject}s are connected with the next existing \mySCName{ASTObject} up in the parent chain. Remember: for some nodes, like linkage specifiers, no \mySCName{ASTObject}s have been created.
+
+The final simplified AST is now finished and ready for further use in the application. From this point on, libclang is not used any more.
+
+There are AST nodes and types that are not exposed by libclang. If such a node or type is detected, a warning message is stored in a logger that belongs to the \mySCName{Clang\_AST}.
+
+\newpage
+\section{From source code to AST}
+\SingleSpacing
+\begin{lstlisting}[language=C++, caption=Example input code for CPPAnalyzer]
+namespace SomeNamespace
+{
+	class SomeClass;
+	
+	class SomeClass
+	{
+		int member;
+	};
+	
+	int aFunction(float param)
+	{
+		float res = param * 3;
+		return res;
+	}
+}
+
+extern "C"
+{
+	void dontFilter(SomeClass pInstance){};
+}
+\end{lstlisting}
+\OnehalfSpacing
+
+\begin{figure}[h] % h = here
+	\centering
+		\includegraphics[scale=0.45]{Images/TreeExample.png}
+	\caption{Comparison of generated ASTs}
+	\label{fig:TreeExample}
+\end{figure}
+
+As can be seen in \myRefFigure{fig:TreeExample}, the AST clang produces contains a lot of unnecessary information. The intermediate AST removes many kinds of cursors and combines multiple declarations for the same entity. The final AST filters based on user-given options. In the example the function \mySCName{dontFilter} is the only node that was marked \textbf{visible}, because it is the only node that matched the symbol name filter. \mySCName{pInstance} is referenced as a parameter of \mySCName{dontFilter}. \mySCName{SomeClass} is referenced by the \mySCName{ASTType} used in \mySCName{pInstance}. Thus \mySCName{SomeClass} and its parent \mySCName{SomeNamespace} are marked as \textbf{referenced} and as such are visible in the final tree. Note that the children of \mySCName{SomeClass} are not visible.
 
 \section{Exporting AST to JSON}
 

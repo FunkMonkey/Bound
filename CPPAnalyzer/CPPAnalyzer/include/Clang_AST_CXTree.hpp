@@ -136,6 +136,8 @@ namespace CPPAnalyzer
 			std::vector<CXCursor> m_cursors;
 
 			CXTreeNode_Visibility m_visibility;
+
+			// TODO: rename to m_symbolName
 			std::string           m_fullName;
 
 			std::set<std::string> m_fileNames;
