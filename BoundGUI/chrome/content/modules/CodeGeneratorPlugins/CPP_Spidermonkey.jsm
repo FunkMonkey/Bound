@@ -195,8 +195,25 @@ Plugin_CPP_Spidermonkey.prototype = {
 	 */
 	getExportFiles: function getExportFiles(codeGenResult)
 	{
+		if(codeGenResult.type !== "Object" && codeGenResult.type !== "Class")
+			throw new Error("Can only export code generator results of type 'Object' or 'Class'");
+		
+		var hppFiles = [];
+		var cppFiles = [];
+	},
+	
+	/**
+	 * Exports a code generator result recursively
+	 * 
+	 * @param   {Object}   parentInfo   Information used for export
+	 * 
+	 * @returns {Object}   Information exported from this code generator
+	 */
+	_exportCodeGen: function _exportCodeGen(parentInfo)
+	{
 		
 	}, 
+	
 	
 	
 };
