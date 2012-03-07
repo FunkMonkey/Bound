@@ -225,4 +225,123 @@ As can be seen in \myRefFigure{fig:TreeExample}, the AST clang produces contains
 
 \section{Exporting AST to JSON}
 
+As the AST will be used from within another application, it needs to be serialized into a string for passing the data across application borders. As will be shown in \myRefChapter{chap:GUIApplication}, the GUI application is based heavily on JavaScript.\\
+Thus, it is only logical that the AST will be serialized into a string conforming the JavaScript Object Notation (JSON). JSON  is a lightweight data-interchange format, based on a subset of the JavaScript programming language. The format is easy for humans to read and write, but also for machines to parse and generate.\todo{ref json web}
+
+The class \mySCName{JSON\_Converter} was written to perform this task given an instance of \mySCName{Clang\_AST}.
+
+The first version of the converter was written without any additional libraries and handled the concatenation of the JSON string itself. This was cumbersome and lead to code that was hard to maintain and error-prone. The JSON-producing code was rewritten to use the library \textbf{JsonCpp}\footnote{\url{http://jsoncpp.sourceforge.net/}}.
+
+The export is straight forward and the tree structure can basically be exported as is. \mySCName{ASTType}s and \mySCName{ASTObject}s, as well as their members, need to be converted into JSON objects. All \mySCName{ASTType}s and \mySCName{ASTObject}s contain a unique id, which will be used for cross-referencing. In both cases, the ids are numbers starting at 1.
+
+The list of \mySCName{ASTType}s will be converted first, followed by the tree of \mySCName{ASTObject}s. Logger messages produced during AST creation will also be exported. The produced JSON does not necessarily follow that order, as members of JSON objects are sorted alphabetically in JsonCpp.
+
+\SingleSpacing
+\begin{lstlisting}[language=C++, caption=Example AST for JSON conversion]
+class SomeClass
+{
+	public:
+		int member;
+};
+
+SomeClass instance;
+\end{lstlisting}
+\OnehalfSpacing
+
+\newpage
+\SingleSpacing
+\begin{lstlisting}[language=JavaScript, caption=AST converted to JSON (reduced example), label=listing:JSON]
+{
+   "AST" : {
+      "rootASTObject" : {
+         "id" : 1,
+         "kind" : "Namespace",
+         "name" : ""
+         "children" : [{
+               "id" : 2,
+               "name" : "SomeClass",
+               "kind" : "Class",
+               "children" : [{
+                     "id" : 3,
+                     "name" : "member",
+                     "kind" : "Field",
+                     "access" : "public",
+                     "type" : 1
+                  }],
+            },{
+               "id" : 4,
+               "name" : "instance",
+               "kind" : "VariableDeclaration",
+               "type" : 2
+            }],
+      }, // end of "rootASTObject"
+      "types" : [{
+            "id" : 1,
+            "kind" : "Int"
+            "isConst" : false,
+         },{
+            "id" : 2,
+            "kind" : "Record"		 
+            "declaration" : 2,
+            "isConst" : false,
+         }] // end of "types"
+   }, // end of "AST"
+   "log" : {
+      "Clang" : [{
+            "message" : "warning: 'linker' input unused when '-fsyntax-only' is present", "type" : "Warning" }]
+   }
+}
+\end{lstlisting}
+\OnehalfSpacing
+
+As can be seen in \myRefListing{listing:JSON}, the field \mySCName{member} references the type with the id 1, while the type 2 used by \mySCName{instance} references the AST node with the id 2, which is \mySCName{SomeClass}.
+
+\newpage
+\section{Calling the CPPAnalyzer}
+
+The CPPAnalyzer application provides a C interface through which it can be called.
+
+\SingleSpacing
+\begin{lstlisting}[language=C++, caption=Example AST for JSON conversion]
+struct ParserInfo
+{
+	char* astTreeJSON;
+};
+
+extern "C"
+{
+	/** Frees the given parser info */
+	CPPANALYZER_API void free_ParserInfo(ParserInfo* pi);
+
+	/** Parses a header file and returns the filtered AST as JSON
+	 *
+	 * \param   argc           Number of arguments passed to Clang
+	 * \param   argv           Command-line arguments passed to Clang
+	 * \param   filterFile     Filename used for filtering
+	 * \param   filterName     String used for symbol name filtering
+	 * \param   filterAccess   Access filter
+	 *
+	 * \return   Parser information with AST in JSON
+	 */
+	CPPANALYZER_API ParserInfo* parse_header(int argc, char *argv[], 
+				const char* filterFile, const char* filterName, 
+				int filterAccess);
+}
+\end{lstlisting}
+\OnehalfSpacing
+
+The function \mySCName{parse\_header} takes all necessary arguments (including user-given filters), creates a \mySCName{Clang\_AST}, converts it to JSON and returns the JSON string in form of a \mySCName{ParserInfo} instance.
+
 \section{libclang and the C++ standard library}
+
+During the development, problems occurred concerning the C++ standard library.
+
+When compiling Clang itself on Windows using Visual C++, it will always use the Microsoft standard library. The LLVM project website states that ''Clang mostly works on Windows, but does not currently understand all of the Microsoft extensions to C and C++. Because of this, clang cannot parse the C++ standard library included with Visual Studio (...)''\todo{ref}. Testing the Clang  compiler executable locally confirmed that errors where generated during compilation.
+
+A few mailing list entries and message board threads\todo{ref} deal with this problem and advice to build Clang on Windows using the MinGW\todo{ref} build environment - a port of the GNU compiler collection (GCC) to Windows. Clang will then use the standard library coming with MinGW, which it is able to parse.
+
+This indeed works for Clang, but results in run-time errors when using the libclang shared library (built with MinGW) in the CPPAnalyzer project built with Visual C++. Looking at the assembly, it became clear that the \textbf{cdecl} calling convention, which among other things specifies who cleans the stack (the caller or the callee), is handled differently by VC++ and GCC, resulting in a crash. This only applies, if the called function returns objects bigger than 8 bytes. This is a bug in GCC\footnote{Bug 36834 - structure return ABI for windows targets differs from native MSVC:\\ \url{http://gcc.gnu.org/bugzilla/show_bug.cgi?id=36834}} that will be fixed in coming versions.
+
+Only by incident, it was discovered that \textbf{libclang} built with VC++ \textbf{can} parse files that include the Microsoft C++ standard library. This probably has to do with the fact that libclang - in comparison to the Clang compiler executable - does not do full compilation, but only syntax checking.
+
+If this would not have worked, the only work-around would have been to force libclang to not use the standard library by passing the ''-nostdinc++'' commandline argument and pass a Clang-compatible standard library path using the ''-I'' option.
