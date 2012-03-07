@@ -1,0 +1,3 @@
+{$namespacesStart}
+	JSBool init(JSContext* cx, JSObject* scope);
+{$namespacesEnd}

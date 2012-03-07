@@ -1,7 +1,8 @@
 var EXPORTED_SYMBOLS = ["ScriptCodeGenPlugin",
 						"ScriptCodeGen",
 						"ASTTypeLibraryEntry",
-						"TemplateUser"];
+						"TemplateUser",
+						"normalTypePrinter"];
 
 Components.utils.import("chrome://bound/content/modules/CodeGeneratorPlugins/BasePlugin.jsm");
 Components.utils.import("chrome://bound/content/modules/AST/CPP_TypePrinter.jsm");
@@ -324,12 +325,12 @@ TemplateUser.prototype = {
 	 */
 	aggregateIncludes: function aggregateIncludes()
 	{
-		var includeFiles = [];
+		var includeFiles = {};
 		for(var i = 0; i < this.usedTemplates.length; ++i)
 		{
 			var template = this.usedTemplates[i];
-			if(template.userdata && template.userdata.includes)
-				includeFiles.push.apply(includeFiles, template.userdata.includes);
+			if(template.includes)
+				ObjectHelpers.mergeKeys(includeFiles, template.includes)
 		}
 		
 		return includeFiles;

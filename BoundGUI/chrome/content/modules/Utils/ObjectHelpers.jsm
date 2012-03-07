@@ -1,4 +1,4 @@
-var EXPORTED_SYMBOLS = ["ArrayHelpers"];
+var EXPORTED_SYMBOLS = ["ArrayHelpers", "ObjectHelpers"];
 
 var ArrayHelpers = {
 	
@@ -32,4 +32,25 @@ var ArrayHelpers = {
 	{
 		return ArrayHelpers._removeHashableDuplicates(arr, true);
 	}
+	
+	
+	
+};
+
+var ObjectHelpers = {
+	
+	/**
+	 * Adds the keys from the given array to the object
+	 * 
+	 * @param   {Object}   obj    Object to merge keys into
+	 * @param   {Array}    keys   Keys to merge into
+	 */
+	mergeKeys: function mergeKeys(obj, keys)
+	{
+		for(var i = 0, len = keys.length; i < len; ++i)
+		{
+			obj[keys[i]] = keys[i];
+		}
+	},
+	
 };

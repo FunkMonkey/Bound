@@ -11,10 +11,11 @@ Components.utils.import("resource://gre/modules/Services.jsm");
  * @constructor
  * @this {MetaDataHandler}
  */
-function MetaDataHandler(sourceObject, readOnly)
+function MetaDataHandler(sourceObject, readOnly, testMultiline)
 {
 	this.sourceObject = sourceObject;
 	this.readOnly = (readOnly == true)? true : false;
+	this.testMultiline = (testMultiline == true)? true : false;
 	
 	this.props = [];
 	
@@ -44,6 +45,9 @@ function MetaDataHandler(sourceObject, readOnly)
 						readOnly : readOnly
 					};
 					
+				if(type === "string" && testMultiline && sourceObject[propName].match(/\n/))
+					prop.multiline = true;
+					
 				this.props.push(prop);
 			}
 			
@@ -63,6 +67,9 @@ function MetaDataHandler(sourceObject, readOnly)
 					type: (sourceProp && (MetaData.hasMetaData(sourceProp) || typeof(sourceProp) === "object")) ? "KeyValueMap" : typeof(sourceProp),
 					readOnly : readOnly
 				}
+				
+			if(prop.type === "string" && testMultiline && sourceObject[propName].match(/\n/))
+				prop.multiline = true;
 				
 			this.props.push(prop);
 		}
@@ -116,7 +123,7 @@ MetaDataHandler.prototype = {
 	 */
 	getPropertyDataHandler: function getPropertyDataHandler(propertyName)
 	{
-		return new MetaDataHandler(this.sourceObject[propertyName], this.readOnly);
+		return new MetaDataHandler(this.sourceObject[propertyName], this.readOnly, this.testMultiline);
 	},
 	
 	/**

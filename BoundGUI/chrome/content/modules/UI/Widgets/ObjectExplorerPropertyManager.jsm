@@ -56,7 +56,11 @@ function PropertyFactoryString($row)
 	
 	$row.classList.add("objexp-prop-string");
 	
-	$row.$textbox = DOMHelper.createDOMNodeOn($row, "textbox", {flex: "1"});
+	var attr = {flex: "1"};
+	if($row.propData.multiline)
+		attr.multiline = "true";
+	
+	$row.$textbox = DOMHelper.createDOMNodeOn($row, "textbox", attr);
 	if($row.propData.readOnly)
 		$row.$textbox.readOnly = true;
 	else

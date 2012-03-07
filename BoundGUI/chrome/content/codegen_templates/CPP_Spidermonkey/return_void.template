@@ -1,8 +1,0 @@
-{
-
-"description":"",
-	
-"templateCode":
-"JS_SET_RVAL(cx, vp, JSVAL_VOID);"
-
-}

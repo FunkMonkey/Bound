@@ -187,13 +187,17 @@ Plugin_CPP_Spidermonkey.prototype = {
 	}, 
 	
 	/**
-	 * Generates wrapper code for the connected function
+	 * Returns the files available for export for the given code generator result (must be "Class" or "Object")
 	 * 
-	 * @returns {Object}   Wrapper code for the different places
+	 * @param   {Object}   codeGenResult   codeGenResult to export
+	 * 
+	 * @returns {Object}   Object with filenames and content
 	 */
-	generate: function generate()
+	getExportFiles: function getExportFiles(codeGenResult)
 	{
-	}
+		
+	}, 
+	
 	
 };
 
@@ -241,7 +245,7 @@ CodeGenerator_Function.prototype = {
 		
 	get isStatic()
 	{
-		return this.exportObject.sourceObject.isStatic;
+		return (this.exportObject.sourceObject.isStatic == true);
 	},
 	
 	/**
@@ -266,7 +270,7 @@ CodeGenerator_Function.prototype = {
 			name: this.exportObject.name,
 			wrapperFunction: {
 				code: "",
-				name: "wrapper_" + this.exportObject.name
+				name: "wrapper_" + this.exportObject.name // todo: retrieve from function template
 			},
 			includeFiles: null
 		};
@@ -279,10 +283,10 @@ CodeGenerator_Function.prototype = {
 		for(var i = 0; i < astFunc.parameters.length; ++i)
 		{
 			var param = astFunc.parameters[i];
-			var tInfoParam = this.getTypeHandlingTemplate(param, ScriptCodeGen.TYPE_FROM_SCRIPT);
+			var tInfoParam = this.getTypeHandlingTemplate(param.type, ScriptCodeGen.TYPE_FROM_SCRIPT);
 			tInfoParam.declareResultVar = true;
 			tInfoParam.finishStatement = true;
-			tInfoParam.input_jsval = tFunction.userdata.getParameter(i);
+			tInfoParam.input_jsval = tFunction.getParameter(i);
 			tInfoParam.resultVarName = "p" + i + "__" + param.name;
 			
 			params.push( { initCode: templateUser.fetch(tInfoParam.templateName, tInfoParam),
@@ -292,34 +296,38 @@ CodeGenerator_Function.prototype = {
 		// return type
 		var tInfoReturn = this.getTypeHandlingTemplate(astFunc.returnType, ScriptCodeGen.TYPE_TO_SCRIPT);
 		tInfoReturn.finishStatement = true;		
-		tInfoReturn.jsvalName = tFunction.userdata.getReturnJSVAL();
-		tInfoReturn.inputVar = tFunction.userdata.getCPPReturnValue();
+		tInfoReturn.jsvalName = tFunction.getReturnJSVAL();
+		tInfoReturn.inputVar = tFunction.getCPPReturnValue();
 		var returnTypeCode = templateUser.fetch(tInfoReturn.templateName, tInfoReturn);
 		
 		// create the function code
 		var parentQualifier = astFunc.parent.cppLongName;
-		
+		var cppTypeStr = (astFunc.returnType.kind === "Void") ? "" : normalTypePrinter.getAsString(astFunc.returnType);
 		var funcData = {
 			isInstanceCall: (astFunc.kind === ASTObject.KIND_MEMBER_FUNCTION && !astFunc.isStatic),
 			params: params,
 			returnType: {
 				code: returnTypeCode,
-				cppTypeStr: "" }, // TODO 
+				cppTypeStr:  cppTypeStr},
 			parentQualifier: parentQualifier,
 			wrapperFunctionName: result.wrapperFunction.name,
-			cppFuncionName: this.exportObject.sourceObject.name
+			cppFuncionName: this.exportObject.sourceObject.name,
+			codeGen: this
 		};
 		
 		result.wrapperFunction.code = tFunction.fetch(funcData);
 		
 		// include resolution
-		result.includeFiles = templateUser.aggregateIncludes();
+		var tmpIncludeFiles = templateUser.aggregateIncludes();
 		var location = (astFunc.isDefinition == true) ? astFunc.definition : astFunc.declarations[0];
 		if(location)
 		{
 			var fixedPath = location.fileName.replace(astFunc.AST.TUPath, "");
-			result.includeFiles.push('#include "{$CPP_TU_DIR}' + fixedPath + '"');
+			var key = '#include "{$CPP_TU_DIR}' + fixedPath + '"';
+			tmpIncludeFiles[key] = key;
 		}
+		
+		result.includeFiles = Object.keys(tmpIncludeFiles);
 		
 		return result;
 	},
@@ -498,7 +506,9 @@ CodeGenerator_Object.prototype = {
 	 */
 	generate: function generate()
 	{
-		var usedTemplates = [];
+		// keeps track of used templates
+		var hppTemplateUser = new TemplateUser();
+		var cppTemplateUser = new TemplateUser();
 		
 		var scopeObj = this.exportObject;
 		var sourceObj = this.exportObject.sourceObject;
@@ -508,14 +518,20 @@ CodeGenerator_Object.prototype = {
 		
 		// ------ children ------
 		
-		var hppIncludes = [];
-		var cppIncludes = [];
-		var files = {};
-		
-		var childScopes = [];
-		var nonScopeElements = [];
-		var childFunctions = [];
-		
+		var result = {
+			type: "",
+			isInline: isInline,
+			hppIncludes: null,
+			cppIncludes: null,
+			children: [],
+			wrapper: {
+				hppCode: "",
+				cppCode: "",
+				name: this.exportObject.name
+			},
+			codeGen: this
+		};
+				
 		// adding children recursively
 		for(var i = 0; i < scopeObj.children.length; ++i)
 		{
@@ -523,100 +539,48 @@ CodeGenerator_Object.prototype = {
 			var childCodeGen = child.getCodeGenerator(this.context);
 			if(childCodeGen)
 			{
-				var childCode = childCodeGen.generate();
-				if(childCodeGen instanceof CodeGenerator_Object)
-				{
-					childScopes.push(childCode);
-					
-					if(childCode.isInline)
-					{
-						cppIncludes.push.apply(cppIncludes, childCode.cppIncludes);
-					}
-					else
-					{
-						cppIncludes.push('#include "' + childCode.hppFileName + '"');
-						for(var file in childCode.files)
-							files[file] = childCode.files[file];
-					}
-				}
-				else if(childCodeGen instanceof CodeGenerator_Function)
-				{
-					nonScopeElements.push(childCode);
-					cppIncludes.push.apply(cppIncludes, childCode.includeFiles);
-					
-					childFunctions.push(childCode);
-				}
+				var childResult = childCodeGen.generate();
+				result.children.push(childResult);
 			}
 		}
+				
+		// code creation
+		var templateData = {
+			codeGen: this,
+			children: result.children,
+			nameChain: nameChain,
+			defineOnParent: (scopeObj.parent == null)
+		}
 		
-		var tHPPTemplate = null;
-		var tCPPTemplate = null;
-		
+		var hppTemplateName = "";
+		var cppTemplateName = "";
 		if(sourceObj && (sourceObj.kind === ASTObject.KIND_STRUCT || sourceObj.kind === ASTObject.KIND_CLASS))
 		{
 			// ------ classes only ------
-			tHPPTemplate = getAndUseTemplate("CPP_Spidermonkey/hpp_scope_content_class", usedTemplates);
-			tCPPTemplate = getAndUseTemplate("CPP_Spidermonkey/cpp_scope_content_class", usedTemplates);
-			var fullName = sourceObj.cppLongName;
+			hppTemplateName = "CPP_Spidermonkey/hpp_scope_content_class";
+			cppTemplateName = "CPP_Spidermonkey/cpp_scope_content_class";
+			templateData.cppClassFullName = sourceObj.cppLongName;
+			result.type = "Class";
 		}
 		else
 		{
 			// ------ namespaces only ------
-			tHPPTemplate = getAndUseTemplate("CPP_Spidermonkey/hpp_scope_content_init", usedTemplates);
-			tCPPTemplate = getAndUseTemplate("CPP_Spidermonkey/cpp_scope_content_object", usedTemplates);
+			hppTemplateName = "CPP_Spidermonkey/hpp_scope_content_object";
+			cppTemplateName = "CPP_Spidermonkey/cpp_scope_content_object";
+			result.type = "Object";
 		}
-		
-		for(var i = 0; i < usedTemplates.length; ++i)
-		{
-			if(usedTemplates[i].userdata.includes)
-				cppIncludes.push.apply(cppIncludes, usedTemplates[i].userdata.includes);
-		}
-		cppIncludes = eliminateDuplicates(cppIncludes);
+
 		
 		// ------ hpp ------
+		result.wrapper.hppCode = hppTemplateUser.fetch(hppTemplateName, templateData);
+		result.hppIncludes = hppTemplateUser.aggregateIncludes();
 		
-		var hpp_scope_definition = tHPPTemplate.fetch({ codeGen: this,
-														childScopes: childScopes,
-														nameChain: nameChain});
 		// ------ cpp ------
+		result.wrapper.cppCode = hppTemplateUser.fetch(cppTemplateName, templateData);
+		result.cppIncludes = cppTemplateUser.aggregateIncludes();
 		
-		var cpp_scope_definition = tCPPTemplate.fetch({ codeGen: this,
-														childScopes: childScopes,
-														childFunctions: childFunctions,
-														nameChain: nameChain,
-														fullName: fullName,
-														newObjectName: (scopeObj.parent == null) ? null : scopeObj.name});	
-		// ------ result ------
-		if(isInline)
-		{
-			return { codeGen: this,
-					 isInline: true,
-			         hpp_scope_definition: hpp_scope_definition,
-					 cpp_scope_definition: cpp_scope_definition,
-					 scopeName: scopeObj.name,
-					 cppIncludes: cppIncludes};
-		}
-		else
-		{
-			var fileName = "";	
-			for(var i = nameChain.length - 1; i >= 0 ; --i)
-				fileName = nameChain[i] + ((i !== nameChain.length-1) ? "/" : "") + fileName;
-			
-			cppIncludes.push('#include "{$project_include_dir}' + fileName + '.hpp"');
-			
-			for(var i = 0; i < cppIncludes.length; ++i)
-				cppIncludes[i] = (new TemplateManager.jSmart(cppIncludes[i])).fetch({});
-			
-			// creating the files
-			files["include/" + fileName + ".hpp"] = TemplateManager.fetch("CPP_Spidermonkey/hpp_file_for_scope", {codeGen: this, includes: hppIncludes, scopeDefinition: hpp_scope_definition, nameChain: nameChain});
-			files["src/"     + fileName + ".cpp"] = TemplateManager.fetch("CPP_Spidermonkey/cpp_file_for_scope", {codeGen: this, includes: cppIncludes, scopeDefinition: cpp_scope_definition, nameChain: nameChain});
-			
-			return { codeGen: this,
-					 isInline: false,
-			         files: files,
-					 scopeName: scopeObj.name,
-					 hppFileName: fileName + ".hpp"};
-		}
+		// ----- result -----
+		return result;
 	},
 	
 	/**

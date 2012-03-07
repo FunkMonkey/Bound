@@ -6,8 +6,6 @@ Components.utils.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm"
 Components.utils.import("chrome://bound/content/modules/Utils/MetaDataHandler.jsm");
 Components.utils.import("chrome://bound/content/modules/Utils/Extension.jsm");
 
-// TEMP:
-Components.utils.import("chrome://bound/content/modules/AST/CPP_TypePrinter.jsm");
 
 var MainWindow = null;
 var document = null;
@@ -85,33 +83,6 @@ var CPPTreePrototype = {
 					for(var i = 0, len = this.selection.length; i < len; ++i)
 						data[i + ": " + this.selection[i].data.name] = this.selection[i].data;
 				}
-				
-				// TODO: remove temp
-				var policy = new CPP_TypePrinterPolicy();
-				//policy.suppressQualifiers = true;
-				//policy.suppressNonPointerConstQualifier = true;
-				
-				var printer = new CPP_TypePrinter(policy);
-				
-				var type = null;
-				if(data.type)
-				{
-					type = data.type
-				}
-				else if(data.returnType)
-					type = data.returnType;
-					
-				if(type)
-				{
-					log("normal: ");
-					LogUtils.logObject(printer.getAllStrings(type))
-					if(type.canonicalType)
-					{
-						log("canon: ");
-						LogUtils.logObject(printer.getAllStrings(type.canonicalType))
-					}
-				}
-				
 				
 				var handler = new MetaDataHandler(data, true);
 				handler.handleException = this._metaHandleException;

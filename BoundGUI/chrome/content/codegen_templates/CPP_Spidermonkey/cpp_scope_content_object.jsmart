@@ -1,0 +1,25 @@
+{$namespacesStart}
+	
+{if $functionsWrapperCode}{$functionsWrapperCode|indent:1:'\t'}
+	
+{/if}{if $functionsDefineCode}	JSFunctionSpec functionsDefs[] = {
+{$functionsDefineCode|indent:3:'\t'}
+			JS_FS_END
+		};
+	
+{/if}
+	JSBool init(JSContext* cx, JSObject* scope)
+	{ 
+	{if !$defineOnParent}	JSObject* newObj = JS_DefineObject(cx, scope, "{$newObjectName}", NULL, NULL, 0);
+		if(!newObj)
+			return false;
+			
+{/if}{if $functionsDefineCode}		if(!JS_DefineFunctions(cx, {$defScope}, functionsDefs))
+			return false;
+			
+{/if}{if $initCalls}{$initCalls|indent:2:'\t'}
+{/if}
+		return true;
+	}
+	
+{$namespacesEnd}

@@ -25,6 +25,8 @@ var DOMHelper = {
 		var node = this.createDOMNode(parent.ownerDocument, nodeName, attributes, members);
 		parent.appendChild(node);
 		
+		// TODO: members may be overridden when appending child (in case bindings are attached)
+		
 		return node;
 	},
 	

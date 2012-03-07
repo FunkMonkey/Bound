@@ -1,0 +1,1 @@
+var templateCode = "{if $declare_jsval}jsval {/if}{$jsvalName} = JSVAL_VOID{if $finishStatement};{/if}";

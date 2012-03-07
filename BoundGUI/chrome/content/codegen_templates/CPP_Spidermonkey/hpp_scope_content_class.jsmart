@@ -1,0 +1,5 @@
+{$namespacesStart}
+	extern JSObject* prototype;
+	extern JSClass jsClass;
+	JSBool init(JSContext* cx, JSObject* scope);
+{$namespacesEnd}

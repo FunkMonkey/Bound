@@ -4,6 +4,11 @@
 	max-width: 12em;
 }
 
+#resultObjectExplorer .objexp-prop-string > textbox[multiline]
+{
+	height: 15em;
+}
+
 #exportAddProperty
 {
 	list-style-image: url("chrome://bound/skin/AST/P.png");
@@ -40,3 +45,5 @@
 {
 	color: #FF0000;
 }
+
+

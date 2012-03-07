@@ -15,6 +15,63 @@ var TemplateAlreadyExistingException =           createExceptionClass("TemplateA
 var TemplateUnableToResolveSearchPathException = createExceptionClass("TemplateUnableToResolveSearchPath", "Cannot resolve the template search path: ");
 var TemplateFileNotExistingException =           createExceptionClass("TemplateFileNotExisting",           "The template file cannot be resolved within the search paths: ");
 
+var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"].getService(Components.interfaces.mozIJSSubScriptLoader);
+Components.utils.import("resource://gre/modules/Services.jsm");
+
+//======================================================================================
+
+/**
+ * 
+ *
+ * @constructor
+ * @this {Template}
+ */
+function Template()
+{
+	this.template = null;
+	this.templateCode = "";
+}
+
+Template.prototype = {
+	
+	/**
+	 * Initializes the template
+	 */
+	init: function init()
+	{
+		this.template = new jSmart(this.templateCode);
+	}, 
+	
+	
+	/**
+	 * Fetches the given template
+	 * 
+	 * @param   {Object}   data   Fetch data
+	 * 
+	 * @returns {String}   Result of template
+	 */
+	fetch: function fetch(data)
+	{
+		// calling onFetchBefore
+		if(this.onFetchBefore)
+			this.onFetchBefore(data);
+		
+		// fetching the result
+		var result = this.template.fetch(data);
+		
+		// calling onFetchAfter
+		if(this.onFetchAfter)
+			result = this.onFetchAfter(data, result);
+		
+		return result;
+	}, 
+	
+};
+
+Object.defineProperty(Template.prototype, "constructor", {value: Template});
+
+//======================================================================================
+
 var TemplateManager = {
 	_templates: {},
 	
@@ -68,147 +125,7 @@ var TemplateManager = {
 		
 		return file;
 	}, 
-	
-	
-	/**
-	 * Adds a template
-	 * 
-	 * @param   {String}                 templateName   Name to save the template
-	 * @param   {jSmart|String|Object}   template       jSmart template or String to construct it or Object with String in .templateCode
-	 *
-	 * @returns {jSmart}   Template, that was added and may have been constructed, String in .data.templateCode, Object in .data
-	 */
-	addTemplate: function addTemplate(templateName, template)
-	{
-		if(this._templates[templateName])
-			throw new TemplateAlreadyExistingException(templateName);
-			
-		if(template instanceof jSmart)
-		{
-			this._templates[templateName] = template;
-			return template;
-			
-		}
-		else if(typeof(template) === "String")
-		{
-			var newTemplate = new jSmart(template);
-			newTemplate.userdata = {templateCode: template};
-			newTemplate.name = templateName;
-			this._templates[templateName] = newTemplate;
-			return newTemplate;
-		}
-		else /*if(template && "templateCode" in template)*/
-		{
-			var newTemplate = null;
-			if(template.templateCode)
-			{
-				try
-				{
-					newTemplate = new jSmart(template.templateCode);
-				}
-				catch(e)
-				{
-					throw new Error("Could not compile template: " + templateName);
-				}
-			}
-			else
-			{
-				// TODO: log
-				newTemplate = new jSmart("");
-			}
-			newTemplate.userdata = template;
-			newTemplate.name = templateName;
-			this._templates[templateName] = newTemplate;
-			
-			// compiling the functions
-			if(template.functions)
-			{
-				for(var funcName in template.functions)
-				{
-					if(funcName in template)
-						throw new Error("Function redefines property of template: " + funcName);
-					
-					try {
-						template[funcName] = Function.apply(null, template.functions[funcName]);
-					}catch(e){
-						throw new Error("Error compiling '" + funcName + "' in " + templateName + "(" + e.lineNumber + ": " + e.message + ")");
-					}
-					
-				}
-			}
-			
-			if(template.onFetchBefore)
-			{
-				try {
-					template.onFetchBefore = Function.apply(null, template.onFetchBefore);
-				}catch(e){
-					throw new Error("Error compiling 'onFetchBefore' in " + templateName + "(" + e.lineNumber + ": " + e.message + ")");
-				}
-			}
-				
-			if(template.onFetchAfter)
-			{
-				try {
-					template.onFetchAfter = Function.apply(null, template.onFetchAfter);
-				}catch(e){
-					throw new Error("Error compiling 'onFetchAfter' in " + templateName + "(" + e.lineNumber + ": " + e.message + ")");
-				}
-			}
-			
-			// updating the fetch function
-			if(template.onFetchBefore || template.onFetchAfter)
-			{
-				newTemplate._fetch = newTemplate.fetch;
-				newTemplate.fetch = this._templateFetch;
-			}
-			
-			// check requirements
-			if(template.requires)
-			{
-				// TODO: prevent cyclic dependencies
-				for(var member in template.requires)
-				{
-					template.requires[member] = this.getTemplate(template.requires[member]);
-				}
-			}
-			
-			if(template.onLoad)
-			{
-				try {
-					template.onLoad = Function.apply(null, template.onLoad);
-				}catch(e){
-					throw new Error("Error compiling 'onLoad' in " + templateName + "(" + e.lineNumber + ": " + e.message + ")");
-				}
-				
-				template.onLoad();
-			}
-				
-			return newTemplate;
-		}
-		/*else
-		{
-			// TODO: throw exception
-			return null;
-		}*/
-	},
-	
-	_templateFetch: function fetch(data)
-	{
-		var templData = this.userdata;
-		
-		// calling onFetchBefore
-		if(templData.onFetchBefore)
-			templData.onFetchBefore(data);
-		
-		// fetching the data
-		var result = this._fetch(data);
-		
-		// calling onFetchAfter
-		if(templData.onFetchAfter)
-			result = templData.onFetchAfter(data, result);
-		
-		return result;
-	},
+
 	
 	/**
 	 * Loads a template from a file, directories will be split
@@ -222,9 +139,13 @@ var TemplateManager = {
 	{
 		
 		var searchSplit = searchTerm.split(/[\/\\]/);
-		searchSplit[searchSplit.length-1] += ".template";
+		var fileNameWOExt = searchSplit.pop();
 		
-		var fileToLoad = null;
+		var jsmartFile = null;
+		var jsFile = null;
+		
+		var jsmartExists = false;
+		var jsExists = false;
 		
 		for(var i = 0; i < this._templateSearchPaths.length; ++i)
 		{
@@ -234,16 +155,45 @@ var TemplateManager = {
 			{
 				path.append(searchSplit[j]);
 			}
-				
-			if(path.exists())
-			{
-				fileToLoad = path;
+			
+			jsmartFile = path.clone();
+			jsmartFile.append(fileNameWOExt + ".jsmart")
+			jsFile = path.clone();
+			jsFile.append(fileNameWOExt + ".js")
+			
+			jsmartExists = jsmartFile.exists();
+			jsExists = jsFile.exists();
+			
+			if(jsmartExists || jsExists)
 				break;
-			}
 		}
 		
-		if(!fileToLoad)
+		if(!jsmartExists && !jsExists)
 			throw new TemplateFileNotExistingException(searchTerm);
+		
+		var template = new Template();
+		template.name = (alternativeName == null) ? searchTerm : alternativeName;
+		
+		if(jsmartExists)
+		{
+			var jsmartText = readFile(jsmartFile);
+			template.templateCode = jsmartText;
+		}
+		
+		if(jsExists)
+		{
+			template.TemplateManager = TemplateManager;
+			var fileURL = Services.io.newFileURI(jsFile).spec;
+			loader.loadSubScript(fileURL, template);
+		}
+		
+		template.init();
+		
+		this._templates[template.name] = template;
+		
+		return template;
+			
+		/*
 			
 		var templateJSONStr = readFile(fileToLoad);
 		try
@@ -256,7 +206,7 @@ var TemplateManager = {
 		}
 
 		searchTerm = searchTerm.replace(/\\/, "/");
-		return this.addTemplate((alternativeName == null) ? searchTerm : alternativeName, templateData);
+		return this.addTemplate((alternativeName == null) ? searchTerm : alternativeName, templateData);*/
 	},
 	
 	/**
@@ -367,20 +317,6 @@ var TemplateManager = {
 		
 		return this._templates[templateName];
 	}, 
-	
-	/**
-	 * Calls a custom function from a template
-	 * 
-	 * @param   {String}   templateName   Name of the template
-	 * @param   {String}   funcName       Name of the function to call
-	 * @param   {Object}   data           Data to pass to the custom function
-	 */
-	callTemplateFunction: function callTemplateFunction(templateName, funcName, data)
-	{
-		var temp = this.getTemplate(templateName);
-		temp.userdata.customFunctions[funcName].call(null, data);
-	}, 
-	
 	
 };
 
