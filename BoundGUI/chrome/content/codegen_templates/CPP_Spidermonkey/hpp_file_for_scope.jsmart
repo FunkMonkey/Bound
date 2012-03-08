@@ -1,0 +1,15 @@
+#ifndef {$includeGuard}
+#define {$includeGuard}
+
+#include "jsapi.h"
+{section name=includeIdx loop=$includes.length}
+{$includes[includeIdx]}
+{/section}
+
+{section name=codeIdx loop=$codes.length}
+{$codes[codeIdx]}
+
+{/section}
+
+
+#endif // {$includeGuard}

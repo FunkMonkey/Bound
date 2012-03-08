@@ -15,6 +15,8 @@ Components.utils.import("chrome://bound/content/modules/CodeGeneratorPlugins/Cod
 Components.utils.import("chrome://bound/content/modules/Utils/MetaData.jsm");
 Components.utils.import("chrome://bound/content/modules/Utils/LoadSaveFromMetaData.jsm");
 
+Components.utils.import("chrome://bound/content/modules/Utils/ObjectHelpers.jsm");
+
 //======================================================================================
 
 /**
@@ -198,20 +200,111 @@ Plugin_CPP_Spidermonkey.prototype = {
 		if(codeGenResult.type !== "Object" && codeGenResult.type !== "Class")
 			throw new Error("Can only export code generator results of type 'Object' or 'Class'");
 		
-		var hppFiles = [];
-		var cppFiles = [];
+		var result = this._exportCodeGen(codeGenResult, "");
+		var files = {};
+		
+		for(var fileName in result.hppFiles)
+			files["include/" + fileName] = result.hppFiles[fileName];
+			
+		for(var fileName in result.cppFiles)
+			files["src/" + fileName] = result.cppFiles[fileName];
+			
+		return files;
 	},
 	
 	/**
 	 * Exports a code generator result recursively
-	 * 
-	 * @param   {Object}   parentInfo   Information used for export
+	 *
+	 * @param   {Object}   codeGenResult   codeGenResult to export
+	 * @param   {String}   parentPath      Path of the parent
 	 * 
 	 * @returns {Object}   Information exported from this code generator
 	 */
-	_exportCodeGen: function _exportCodeGen(parentInfo)
+	_exportCodeGen: function _exportCodeGen(codeGenResult, parentPath)
 	{
+		// current path
+		var path = ((parentPath === "") ? "" : (parentPath + "/")) + codeGenResult.wrapper.name;
 		
+		// gather children
+		var result = {
+			hppCodes: [],
+			cppCodes: [],
+			hppIncludes: null,
+			cppIncludes: null,
+			hppFiles: {},
+			cppFiles: {}
+		}
+		
+		var hppIncludes = {};
+		var cppIncludes = {};
+		
+		// get children data
+		for(var i = 0, len = codeGenResult.children.length; i < len; ++i)
+		{
+			var child = codeGenResult.children[i];
+			if(child.type === "Class" || child.type === "Object")
+			{
+				var childResult = this._exportCodeGen(child, path);
+				
+				if(childResult.isInline)
+				{
+					result.hppCodes.push.apply(result.hppCodes, childResult.hppCodes);
+					result.cppCodes.push.apply(result.cppCodes, childResult.cppCodes);
+				}
+				
+				for(var fileName in childResult.hppFiles)
+					result.hppFiles[fileName] = childResult.hppFiles[fileName];
+					
+				for(var fileName in childResult.cppFiles)
+					result.cppFiles[fileName] = childResult.cppFiles[fileName];
+				
+				// the same file should only be included once, thus we're using a map
+				ObjectHelpers.mergeKeys(hppIncludes, childResult.hppIncludes);
+				ObjectHelpers.mergeKeys(cppIncludes, childResult.cppIncludes);
+			}
+			else if(child.includeFiles)
+			{
+				ObjectHelpers.mergeKeys(cppIncludes, child.includeFiles);
+			}
+		}
+		
+		result.hppCodes.push(codeGenResult.wrapper.hppCode);
+		result.cppCodes.push(codeGenResult.wrapper.cppCode);
+		
+		// return appropriate code
+		if(parentPath !== "" && codeGenResult.isInline)
+		{
+			result.isInline = true;
+			result.hppIncludes = Object.keys(hppIncludes);
+			result.cppIncludes = Object.keys(cppIncludes);
+		}
+		else
+		{
+			var hppFileInclude = '#include "' + path + '.hpp"';
+			cppIncludes[hppFileInclude] = hppFileInclude;
+			
+			// cleaning up includes
+			hppIncludes = Object.keys(hppIncludes);
+			cppIncludes = Object.keys(cppIncludes);
+			
+			for(var i = 0, len = hppIncludes.length; i < len; ++i)
+				hppIncludes[i] = new jSmart(hppIncludes[i]).fetch({});
+				
+			for(var i = 0, len = cppIncludes.length; i < len; ++i)
+				cppIncludes[i] = new jSmart(cppIncludes[i]).fetch({});
+			
+			// create hpp and cpp file
+			result.hppFiles[path + ".hpp"] = TemplateManager.getTemplate("CPP_Spidermonkey/hpp_file_for_scope").fetch({path: path, includes: hppIncludes, codes: result.hppCodes});
+			result.cppFiles[path + ".cpp"] = TemplateManager.getTemplate("CPP_Spidermonkey/cpp_file_for_scope").fetch({path: path, includes: cppIncludes, codes: result.cppCodes});
+			
+			// clean up
+			result.hppCodes.length = 0;
+			result.cppCodes.length = 0;
+			result.hppIncludes = [];
+			result.cppIncludes = [hppFileInclude];
+		}
+		
+		return result;
 	}, 
 	
 	

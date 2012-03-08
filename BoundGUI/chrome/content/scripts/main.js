@@ -30,12 +30,14 @@ function exportFiles()
 		var dir = fp.file;
 		
 		// save the files
-		var genResult = MainWindow.ExportTree.exportAST.root.getCodeGenerator(Bound.currentContext).generate();
+		var codeGen = MainWindow.ExportTree.exportAST.root.getCodeGenerator(Bound.currentContext);
+		var genResult = codeGen.generate();
+		var exportFiles = codeGen.plugin.getExportFiles(genResult);
 		
-		if(!("files" in genResult))
+		if(!exportFiles)
 			return;
 		
-		for(var fileName in genResult.files)
+		for(var fileName in exportFiles)
 		{
 			var file = dir.clone();
 			var split = fileName.split("/");
@@ -47,7 +49,7 @@ function exportFiles()
 			if(!file.exists())
 				file.create(nsIFile.NORMAL_FILE_TYPE, FileIO.PERMS_FILE);
 			
-			FileIO.writeTextFile(genResult.files[fileName], file);
+			FileIO.writeTextFile(exportFiles[fileName], file);
 		}
 	}
 }

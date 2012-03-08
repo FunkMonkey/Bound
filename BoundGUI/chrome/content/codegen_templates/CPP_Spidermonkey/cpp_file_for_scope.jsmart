@@ -1,0 +1,8 @@
+{section name=includeIdx loop=$includes.length}
+{$includes[includeIdx]}
+{/section}
+
+{section name=codeIdx loop=$codes.length}
+{$codes[codeIdx]}
+
+{/section}
