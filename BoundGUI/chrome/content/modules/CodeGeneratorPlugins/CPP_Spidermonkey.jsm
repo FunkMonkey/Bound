@@ -287,6 +287,7 @@ Plugin_CPP_Spidermonkey.prototype = {
 			hppIncludes = Object.keys(hppIncludes);
 			cppIncludes = Object.keys(cppIncludes);
 			
+			// TODO: add correct fetch data for replacement
 			for(var i = 0, len = hppIncludes.length; i < len; ++i)
 				hppIncludes[i] = new jSmart(hppIncludes[i]).fetch({});
 				
@@ -432,6 +433,7 @@ CodeGenerator_Function.prototype = {
 		var location = (astFunc.isDefinition == true) ? astFunc.definition : astFunc.declarations[0];
 		if(location)
 		{
+			// TODO: fix path
 			var fixedPath = location.fileName.replace(astFunc.AST.TUPath, "");
 			var key = '#include "{$CPP_TU_DIR}' + fixedPath + '"';
 			tmpIncludeFiles[key] = key;
@@ -671,6 +673,8 @@ CodeGenerator_Object.prototype = {
 			cppTemplateName = "CPP_Spidermonkey/cpp_scope_content_class";
 			templateData.cppClassFullName = sourceObj.cppLongName;
 			result.type = "Class";
+			
+			// TODO: add include file
 		}
 		else
 		{

@@ -55,8 +55,8 @@ It is important to understand that static binding is only possible in programmin
 Binding one language to another is a non-trivial task. The binding language needs to understand the calling conventions, type system, data structures, memory allocation mechanisms and linking strategy of the target language, just to get things working. The task is to carefully align the semantics of both languages, so that both languages can understand the data that passes between them.\footnote{\citep{RealWorldHaskell}}
 \end{quotation}
 
-When binding a scripting language to a system programming language, the scripting language usually comes in form of a library exposing an interface that can be used from the system programming language to interact with the scripting language.\\
-The code written to bind both languages together is often referred to as ''glue code'' or ''foreign interface''. The process of creating such code is called ''wrapping''.
+When binding a scripting language to a system programming language, the scripting language usually comes in the form of a shared library. The library's API can be used by the system programming language to interact with the scripting language.\\
+The code written to bind both languages together is often referred to as \textbf{glue code} or \textbf{foreign interface}. The process of creating such code is called \textbf{wrapping}.
 
 \begin{quotation}
 A foreign interface is a piece of glue code, intended to make it possible to use functionality written in one language (often C) available to programs written in another (usually high-level) language. Such glue code involves low-level details that users of high-level languages usually take for granted. For example:
@@ -75,19 +75,19 @@ A foreign interface is a piece of glue code, intended to make it possible to use
 \item writing glue code in the scripting language itself using the scripting language's dynamic \textbf{foreign \underline{function} interface} (FFI)
 \end{itemize}
 
-The terminology concerning foreign \underline{function} interfaces (FFIs) is somewhat confusing. This thesis will use the following definition:
+Because the terminology concerning foreign \underline{function} interfaces (FFIs) can be somewhat confusing, I decided to use the following definition for this thesis:
 
 \begin{quotation}
 A foreign function interface is originally a lisp term for dynamically defining and calling functions in outside shared libraries (''foreign function'', ''call-out') and as additional option also creating functions which can be called from outside functions (''callback'', ''foreign-callable'', ''call-in'').\footnote{\citep{DesignFFI}}
 \end{quotation}
 
-To express the dynamic nature of the given definition, this thesis will stick to the term ''\textbf{dynamic} foreign \underline{function} interface''.
+To express the dynamic nature of the given definition, the term ''\textbf{dynamic} foreign \underline{function} interface'' will be used in this thesis.
 
 The different ways of creating foreign interfaces will be explained in more detail in the following sections.
 
 \subsection{Static foreign interfaces}
 
-Both Python and Mozilla's JavaScript implementation Spidermonkey are accessible in form of a library exposing a C-API. Thus glue code for binding C or C++ functionality to one of these languages has to be written in C / C++ using the given API.
+Both Python and Spidermonkey (Mozilla's implementation of the ECMAScript standard, also known as JavaScript) are accessible in form of a library exposing a C-API. Thus glue code for binding C or C++ functionality to one of these languages has to be written in C / C++ using the given API.
 
 \SingleSpacing
 \begin{lstlisting}[language=C++, caption=Exposing a C function to Spidermonkey]
@@ -110,20 +110,20 @@ JS_DefineFunctions(cx, global, myjs_global_functions);
 \OnehalfSpacing
 
 \SingleSpacing
-\begin{lstlisting}[language=JavaScript, caption=Using a C function from SpiderMonkey]
+\begin{lstlisting}[language=JavaScript, caption=Using a C function from Spidermonkey]
 var r = rand();	// r is a random number
 \end{lstlisting}
 \OnehalfSpacing
 
 Example taken from the Mozilla Developer Network\footnote{\url{https://developer.mozilla.org/En/SpiderMonkey/JSAPI_User_Guide}}.
 
-In the given example ()that the glue code is responsible for converting between the types of the system programming language and the scripting language for arguments and return value, as well as calling the wrapped function in between. When converting arguments from script types to the expected types of the function, type-checking needs to be performed. This happens at run-time as the number and types of arguments (stored in in \textbf{argc} and \textbf{vp}) passed to this wrapper function is not known at compile-time.
+As can be seen in the given example, the glue code is responsible for the conversion between the types of the system programming language and the scripting language for arguments and return value, as well as calling the wrapped function in between. When converting arguments from script types to the expected types of the function, type-checking needs to be performed. This happens at run-time as the number and types of arguments (stored in in \textbf{argc} and \textbf{vp}) passed to this wrapper function is not known at compile-time.
 
-The call of the \underline{native} function \textbf{rand} itself uses static binding or when working with virtual classes (for calling methods) dynamic binding using RTTI. As JavaScript itself is a weakly typed language, the call to the \underline{wrapper} function \textbf{myjs\_rand} itself is in fact dynamically bound and its address looked up using the string ''rand''.
+The call of the \underline{native} function \textbf{rand} itself uses static binding or when working with virtual classes (for calling methods) dynamic binding using RTTI. As JavaScript itself is a weakly typed language, the call to the \underline{wrapper} function \textbf{myjs\_rand} itself is in fact dynamically bound and its address is looked up using the string ''rand''.
 
-Looking at the given example, it is obvious that even the wrapping of a simple C function that does nothing but return a double value without taking any argument, requires an amount of glue code that must not be underestimated and which is most-likely error-prone and hard to maintain.
+Looking at the given example, it is obvious that even the wrapping of a simple C function, which does nothing but return a double value without taking any argument, requires an amount of glue code that must not be underestimated and which is most-likely error-prone and hard to maintain.
 
-\myLBHighlight{Thus, the purpose of this thesis is to develop an application that assists in the creation of glue code for binding different scripting languages to C++ using a static foreign interface as presented above for Mozilla Spidermonkey.}
+\myLBHighlight{Thus, the main subject of this thesis is to develop an application that assists in the creation of glue code for binding different scripting languages to C++ using a static foreign interface as presented above for Mozilla Spidermonkey.}
 
 \subsection{Dynamic foreign interfaces and dynamic method invocation}
 \label{sec:DynamicForeignInterfaces}
