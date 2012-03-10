@@ -161,6 +161,27 @@ ScriptCodeGen.prototype = {
 		return true;
 	},
 	
+	/**
+	 * Prepares the content of the children and validates them
+	 *
+	 * @param   {boolean}   recurse   Prepare and diagnose recursively
+	 * 
+	 * @returns {boolean}   True if children valid, otherwise false
+	 */
+	prepareAndDiagnoseChildren: function prepareAndDiagnose(recurse)
+	{
+		var result = true;
+		for(var i = 0, len = this.exportObject.children.length; i < len; ++i)
+		{
+			var codeGen = this.exportObject.children[i].getCodeGenerator(this.plugin.context);
+			if(codeGen)
+			{
+				if(!codeGen.prepareAndDiagnose(recurse))
+					result = false;
+			}
+		}
+		return result;
+	},
 	
 	/**
 	 * Returns the template with the given name
@@ -213,7 +234,7 @@ ScriptCodeGen.prototype = {
 	 * @param   {CPP_ASTType}   astType   ASTType to find template for
 	 * @param   {Number}        usage     Usage of the type
 	 * 
-	 * @returns {String}   ID of the template
+	 * @returns {Object}   ID of the template
 	 */
 	_getTypeHandlingTemplateFromTypeMaps: function _getTypeHandlingTemplateFromTypeMaps(astType, usage)
 	{
@@ -223,7 +244,10 @@ ScriptCodeGen.prototype = {
 		{
 			var template = this.getTypeHandlingTemplateFromMapsByString(typeStrings[i], usage);
 			if(template !== "")
-				return template;
+				return {templateName: template,
+						typeStringFound: typeStrings[i],
+						astType: astType,	
+						kind: ScriptCodeGen.TYPE_RESULT_TYPEMAP};
 		}
 		
 		// try with const removed
@@ -232,7 +256,10 @@ ScriptCodeGen.prototype = {
 		{
 			var template = this.getTypeHandlingTemplateFromMapsByString(unqualifiedTypeStrings[i], usage);
 			if(template !== "")
-				return template;
+				return {templateName: template,
+						typeStringFound: unqualifiedTypeStrings[i],
+						astType: astType,	
+						kind: ScriptCodeGen.TYPE_RESULT_TYPEMAP};
 		}
 		
 		return "";
@@ -249,7 +276,7 @@ ScriptCodeGen.prototype = {
 	_getTypeUSR: function _getTypeUSR(astType, useCanonical)
 	{
 		if(useCanonical)
-			astType = astType.canonicalType;
+			astType = astType.getCanonicalType();
 		
 		if(astType.declaration)
 			return astType.declaration.USR;
@@ -280,19 +307,30 @@ ScriptCodeGen.prototype = {
 			kind: ScriptCodeGen.TYPE_RESULT_TYPELIB,
 		};
 		
+		switch(usage)
+		{
+			case ScriptCodeGen.TYPE_TO_SCRIPT:
+				result.templateName = "CPP_Spidermonkey/typelib_to_jsval"; // TODO: make configurable
+				break;
+				
+			case ScriptCodeGen.TYPE_FROM_SCRIPT:
+				result.templateName = "CPP_Spidermonkey/jsval_to_typelib"; // TODO: make configurable
+				break;
+		}
 		
 		// using the canonical type
-		astType = astType.canonicalType;
+		//astType = astType.getCanonicalType();
 		
-		if(astType.declaration)
+		/*if(astType.declaration)
 		{
-			//
+			result.type = "Object"
 		}
 		// ---- do we have a pointer type? TODO: shared pointers
 		else if(astType.pointsTo && astType.pointsTo.declaration)
 		{
-			
-		}
+			//if(astType.kind === "Pointer")
+			//	result.type = "
+		}*/
 		
 		return result;
 	}, 
@@ -311,18 +349,13 @@ ScriptCodeGen.prototype = {
 	{
 		// throw exception, when TemplateParameterType
 		
-		
-		
 		// == 1. check the type
 		// --- 1a) check type maps
-		var templateName = this._getTypeHandlingTemplateFromTypeMaps(astType, usage);
-		if(templateName !== "")
+		var typeMapResult = this._getTypeHandlingTemplateFromTypeMaps(astType, usage);
+		if(typeMapResult)
 		{
-			var result = {};
-			result.templateName = templateName;
-			result.astType = astType;	
-			result.kind = ScriptCodeGen.TYPE_RESULT_TYPEMAP;
-			return result;
+			typeMapResult.typeStringCanonical = normalTypePrinter.getAsString(astType.getCanonicalType());
+			return typeMapResult;
 		}
 		
 		// --- 1b)check type libraries
@@ -330,6 +363,7 @@ ScriptCodeGen.prototype = {
 		if(typeLib)
 		{
 			var result = this._getTypeHandlingTemplateFromTypeLibrary(astType, typeLib, usage);
+			result.typeStringCanonical = normalTypePrinter.getAsString(astType.getCanonicalType());
 			return result;
 		}
 		
@@ -391,12 +425,12 @@ TemplateUser.prototype = {
 	/**
 	 * Fetches the given template and returns the result string
 	 * 
-	 * @param   {String}   templateName   Name of template to fetch
-	 * @param   {Object}   data           Data to pass on fetching
+	 * @param   {String|Template}   templateOrName   Name of template to fetch, or template itself
+	 * @param   {Object}            data             Data to pass on fetching
 	 * 
 	 * @returns {String}   Result of the template fetching
 	 */
-	fetch: function fetch(templateName, data)
+	fetch: function fetch(templateOrName, data)
 	{
 		if(typeof templateOrName === "string")
 			templateOrName = TemplateManager.getTemplate(templateOrName);
@@ -409,7 +443,7 @@ TemplateUser.prototype = {
 	/**
 	 * Uses the template with the given name
 	 * 
-	 * @param   {String}   templateName   Name of template to use
+	 * @param   {String|Template}   templateOrName   Name of template to fetch, or template itself
 	 * 
 	 * @returns {jSmart}   Template found and used
 	 */

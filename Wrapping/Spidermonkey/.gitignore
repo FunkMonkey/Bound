@@ -1,7 +1,10 @@
 
 /Debug/*
+/Debug Xulrunner/*
+/SpidermonkeyWrapper/Debug Xulrunner/*
 /SpidermonkeyWrapper/Debug/*
 /WrappingTest/Debug/*
+/WrappingTest/Debug Xulrunner/*
 /ipch/*
 /_UpgradeReport_Files/*
 /UpgradeLog.xml

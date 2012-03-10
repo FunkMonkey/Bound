@@ -9,9 +9,9 @@
 	void finalize(JSContext *cx, JSObject *obj)
 	{
 		{$cppClassFullName}* inst = static_cast<{$cppClassFullName}*>(JS_GetPrivate(cx, obj));
-		if(inst != NULL)
+{if $typeLib.ownership == "Script"}		if(inst != NULL)
 			delete inst;
-	}
+{/if}	}
 
 	//---------------------------------------------------
 	// JSClass

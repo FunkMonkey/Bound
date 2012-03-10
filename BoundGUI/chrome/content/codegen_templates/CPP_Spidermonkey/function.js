@@ -13,6 +13,13 @@ function onFetchBefore(data)
 		if(i != (end-1))
 			data.callParamList += ', ';
 	}
+	
+	data.returnTypePost = "";
+	var typeCanonical = data.returnType.astType;
+	if(typeCanonical.kind === "Record")
+	{
+		data.returnTypePost = "&";
+	}
 }
 
 function getParameter(index){return 'args[' + index + ']';}

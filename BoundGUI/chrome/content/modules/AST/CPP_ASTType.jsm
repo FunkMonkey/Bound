@@ -153,6 +153,11 @@ CPP_ASTType.prototype = {
 	
 	get isCanonical(){ return (this.canonicalType == null);},
 	
+	getCanonicalType: function getCanonicalType()
+	{
+		return (this.canonicalType == null) ? this : this.canonicalType;
+	},
+	
 	/**
 	 * Returns the type as its C++ code
 	 * 

@@ -30,9 +30,16 @@ var ResultTabbox = {
 	
 	displayCodeGenResult: function displayCodeGenResult(exportASTObject)
 	{
-		var genResult = exportASTObject.getCodeGenerator(Bound.currentContext).generate();
+		var codeGen = exportASTObject.getCodeGenerator(Bound.currentContext);
+		var isValid = codeGen.prepareAndDiagnose(true);
 		
-		var handler = new MetaDataHandler(genResult, true, true);
+		var result = null;
+		if(!isValid)
+			result = codeGen._genInput;
+		else
+			result = codeGen.generate();
+		
+		var handler = new MetaDataHandler(result, true, true);
 		this.$resultObjectExplorer.setDataHandler(handler);
 		
 		// to delete

@@ -516,9 +516,15 @@ CPP_AST.prototype = {
 				break;
 		}
 		
-		astObject.isDefinition = (jsonObject.isDefinition == null) ? false : true;
 		if(jsonObject.isDefinition)
+		{
+			astObject.isDefinition = true;
 			astObject.definition = jsonObject.definition;
+		}
+		else
+		{
+			astObject.isDefinition = false;
+		}
 		
 		if(jsonObject.declarations)
 			for(var i = 0, len = jsonObject.declarations.length; i < len; ++i)

@@ -57,7 +57,7 @@
 				
 			</vbox>-->
 			<vbox id="resultObjectExplorer" flex="1" />
-			<vbox id="propertyExplorer" width="220" />
+			<vbox id="propertyExplorer" flex="1" />
 		</hbox>
 		<vbox id="logBox" />
 	</vbox>
