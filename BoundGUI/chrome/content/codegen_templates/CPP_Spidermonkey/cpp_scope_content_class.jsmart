@@ -1,6 +1,7 @@
 {$namespacesStart}
 
-	JSObject* prototype = NULL;
+	JSObject* jsPrototype = NULL;
+	JSObject* jsConstructor = NULL;
 
 	//---------------------------------------------------
 	// finalize
@@ -47,23 +48,24 @@
 	//---------------------------------------------------
 	JSBool constructor(JSContext *cx, uintN argc, jsval *vp)
 	{
-		JSObject* obj = JS_NewObject(cx, &jsClass, prototype, NULL);
-		if (!obj)
-			return false;
+		JSWRAP_TRY_START
+{if $typeLib.allowConstruction)			JSObject* obj = JS_NewObject(cx, &jsClass, jsPrototype, NULL);
+			if (!obj)
+				return false;
 
-		if(!JS_SetPrivate(cx, obj, new {$cppClassFullName}()))
-		{
-			// TODO: throw js-exception
-		}
-
-		JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(obj));
+			if(!JS_SetPrivate(cx, obj, new {$cppClassFullName}()))
+				throw exception("Could not set private data");
+				
+			JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(obj));
+{else}			throw exception("Cannot construct instances of {$newObjectName}");
+{/if}		JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "{$newObjectName}")
 
 		return true;
 	}
 
 	JSBool init(JSContext* cx, JSObject* scope)
 	{ 
-		prototype = JS_InitClass(cx, scope, 
+		jsPrototype = JS_InitClass(cx, scope, 
 
 			// parent proto
 			NULL, 
@@ -85,9 +87,30 @@
 			// static functions
 			{if $staticFunctionsDefineCode}static_functions{else}NULL{/if});
 			
+		jsConstructor = JS_GetConstructor(cx, jsPrototype);
+			
 {if $initCalls}{$initCalls|indent:2:'\t'}
 {/if}
 		return true;
 	}
+	
+{if $typeLib.allowWrappingInstances}	JSObject* wrapInstance(JSContext* cx, const {$cppClassFullName}* ptr)
+	{
+		{if !$typeLib.allowNullValues}if(!ptr)
+			throw exception("{$cppClassFullName}: wrapper does not support null values");
+
+		{/if}return jswrap::wrapPtr(cx, ptr, &jsClass, jsPrototype);
+	}
+
+{/if}{if $typeLib.allowWrappingCopies}	JSObject* wrapCopy(JSContext* cx, const {$cppClassFullName}& ref)
+	{
+		return jswrap::wrapCopy(cx, ref, &jsClass, jsPrototype);
+	}
+
+{/if}{if $typeLib.allowUnwrapping}	{$cppClassFullName}* getFromJSValue(JSContext* cx, jsval val)
+	{
+		return getPrivateAsPtr<{$cppClassFullName}>(cx, val, jsConstructor);
+	}
+{/if}
 	
 {$namespacesEnd}

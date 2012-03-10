@@ -21,6 +21,16 @@ namespace jswrap
 
 		}
 	};
+
+	class PendingException: public std::exception
+		{
+		public:
+			PendingException(const char* text)
+				:std::exception(text)
+			{
+
+			}
+	};
 }
 
 #endif // WRAP_HELPERS_EXCEPTIONS_HPP

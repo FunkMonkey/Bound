@@ -1,6 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug Xulrunner|Win32">
+      <Configuration>Debug Xulrunner</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
@@ -20,6 +24,11 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Xulrunner|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
@@ -30,6 +39,9 @@
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug Xulrunner|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -48,6 +60,20 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)../../../Dependencies/xulrunner/lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>mozjs.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug Xulrunner|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>D:\ProjekteTest\Mozilla\xulrunner-debug\dist\include;$(ProjectDir)include;$(SolutionDir)SpidermonkeyWrapper/include;$(ProjectDir)wrap_example/include;$(ProjectDir)wrap_autogen/include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);XP_WIN;JS_THREADSAFE;DEBUG</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)/%(RelativeDir)</ObjectFileName>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>D:\ProjekteTest\Mozilla\xulrunner-debug\dist\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>mozjs.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -74,22 +100,22 @@
     <ClInclude Include="include\GlobalFunctions.hpp" />
     <ClInclude Include="include\SimpleClass.hpp" />
     <ClInclude Include="include\test.hpp" />
-    <ClInclude Include="wrap_autogen\include\wrap_Test.hpp" />
-    <ClInclude Include="wrap_autogen\include\wrap_Test\SimpleClass.hpp" />
+    <ClInclude Include="include\UsingSimpleClass.hpp" />
     <ClInclude Include="wrap_example\include\Functions_BasicTypes_wrap.hpp" />
     <ClInclude Include="wrap_example\include\Functions_Strings_wrap.hpp" />
     <ClInclude Include="wrap_example\include\SimpleClass_wrap.hpp" />
+    <ClInclude Include="wrap_example\include\UsingSimpleClass_wrap.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\GlobalFunctions.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\SimpleClass.cpp" />
     <ClCompile Include="src\test.cpp" />
-    <ClCompile Include="wrap_autogen\src\wrap_Test.cpp" />
-    <ClCompile Include="wrap_autogen\src\wrap_Test\SimpleClass.cpp" />
+    <ClCompile Include="src\UsingSimpleClass.cpp" />
     <ClCompile Include="wrap_example\src\Functions_BasicTypes_wrap.cpp" />
     <ClCompile Include="wrap_example\src\Functions_Strings_wrap.cpp" />
     <ClCompile Include="wrap_example\src\SimpleClass_wrap.cpp" />
+    <ClCompile Include="wrap_example\src\UsingSimpleClass_wrap.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

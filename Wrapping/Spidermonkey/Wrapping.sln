@@ -7,14 +7,19 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WrappingTest", "WrappingTes
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug Xulrunner|Win32 = Debug Xulrunner|Win32
 		Debug|Win32 = Debug|Win32
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5F9250DA-E5F9-4A84-993C-F0A07B594C17}.Debug Xulrunner|Win32.ActiveCfg = Debug Xulrunner|Win32
+		{5F9250DA-E5F9-4A84-993C-F0A07B594C17}.Debug Xulrunner|Win32.Build.0 = Debug Xulrunner|Win32
 		{5F9250DA-E5F9-4A84-993C-F0A07B594C17}.Debug|Win32.ActiveCfg = Debug|Win32
 		{5F9250DA-E5F9-4A84-993C-F0A07B594C17}.Debug|Win32.Build.0 = Debug|Win32
 		{5F9250DA-E5F9-4A84-993C-F0A07B594C17}.Release|Win32.ActiveCfg = Release|Win32
 		{5F9250DA-E5F9-4A84-993C-F0A07B594C17}.Release|Win32.Build.0 = Release|Win32
+		{AAE7A59E-A64D-4DC9-8FFB-34CE07E23421}.Debug Xulrunner|Win32.ActiveCfg = Debug Xulrunner|Win32
+		{AAE7A59E-A64D-4DC9-8FFB-34CE07E23421}.Debug Xulrunner|Win32.Build.0 = Debug Xulrunner|Win32
 		{AAE7A59E-A64D-4DC9-8FFB-34CE07E23421}.Debug|Win32.ActiveCfg = Debug|Win32
 		{AAE7A59E-A64D-4DC9-8FFB-34CE07E23421}.Debug|Win32.Build.0 = Debug|Win32
 		{AAE7A59E-A64D-4DC9-8FFB-34CE07E23421}.Release|Win32.ActiveCfg = Release|Win32

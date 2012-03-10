@@ -5,8 +5,15 @@ class SimpleClass
 {
 public:
 	SimpleClass()
-		: m_intProp(7), floatPropField(9.0f)
+		: floatPropField(9.0f)
 	{
+		m_intProp = count++;
+	}
+
+	SimpleClass(const SimpleClass& rhs)
+		: floatPropField(rhs.floatPropField)
+	{
+		m_intProp = count++;
 	}
 
 	void void_param0();
@@ -23,10 +30,14 @@ public:
 	float floatPropField;
 	static float staticFloatPropField;
 
+
 protected:
 	int m_intProp;
 	static int m_staticIntProp;
-	
+
+// for testing only
+public:
+	static int count;
 
 };
 

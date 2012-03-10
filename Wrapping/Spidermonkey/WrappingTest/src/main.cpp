@@ -6,12 +6,16 @@
 //#endif
 
 #include <iostream>
+#include <typeinfo>
 #include "jsapi.h"
 #include "SimpleClass_wrap.hpp"
+#include "UsingSimpleClass_wrap.hpp"
 #include "Functions_BasicTypes_wrap.hpp"
-#include "wrap_Test.hpp"
+//#include "wrap_Test.hpp"
 #include "Functions_Strings_wrap.hpp"
 #include "GlobalFunctions.hpp"
+
+#include <fstream>
 
 /* The class of the global object. */
 static JSClass global_class = {
@@ -30,8 +34,34 @@ void reportError(JSContext *cx, const char *message, JSErrorReport *report)
             message);
 }
 
+std::string loadStringFromFile(const std::string& filename)
+{
+	std::ifstream inputStream(filename.c_str(), std::ifstream::in);
+
+	if(!inputStream)
+	{
+		std::cout << "File " << filename.c_str() << " does not exist" << std::endl;
+		return "";
+	}
+
+	std::string result;
+
+	inputStream.seekg(0, std::ios::end);   
+	result.reserve(inputStream.tellg());
+	inputStream.seekg(0, std::ios::beg);
+
+	result.assign((std::istreambuf_iterator<char>(inputStream)), std::istreambuf_iterator<char>());
+
+	inputStream.close();
+
+	return result;
+}
+
+
 int main(int argc, const char *argv[])
 {
+	//testTypeID();
+
     /* JS variables. */
     JSRuntime *rt;
     JSContext *cx;
@@ -49,6 +79,7 @@ int main(int argc, const char *argv[])
     JS_SetOptions(cx, JSOPTION_VAROBJFIX | JSOPTION_JIT | JSOPTION_METHODJIT);
     JS_SetVersion(cx, JSVERSION_LATEST);
     JS_SetErrorReporter(cx, reportError);
+	JS_BeginRequest(cx); 
 
     /* Create the global object in a new compartment. */
     global = JS_NewCompartmentAndGlobalObject(cx, &global_class, NULL);
@@ -68,22 +99,26 @@ int main(int argc, const char *argv[])
 	jswrap::SimpleClass::init(cx, global);
 	
 	//jswrap::Functions_BasicTypes::init(cx, global);
-	jswrap::wrap_Test::init(cx, global);
+	//jswrap::wrap_Test::init(cx, global);
 	jswrap::Functions_Strings::init(cx, global);
+	jswrap::SimpleClass::init(cx, global);
+	jswrap::UsingSimpleClass::init(cx, global);
 
 	jsval rval;
 	JSBool ok;
-	//char *source = "var test = new SimpleClass(); test.voidFunc0();";
-	char *source = "new SimpleClass();";
 
-	ok = JS_EvaluateScript(cx, global, source, strlen(source),
-                       "foo", 4, &rval);
+	std::string src = "";
+	if(argc > 1)
+		src = loadStringFromFile(argv[1]);
+
+	ok = JS_EvaluateScript(cx, global, src.c_str(), src.length(), "foo", 0, &rval);
 
 	int i;
 	std::cin >> i;
 
 	// -----------------------------------------------------------
     /* Cleanup. */
+	JS_EndRequest(cx); 
     JS_DestroyContext(cx);
     JS_DestroyRuntime(rt);
     JS_ShutDown();

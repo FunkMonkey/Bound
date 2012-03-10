@@ -316,23 +316,6 @@ Extension.inherit(Plugin_CPP_Spidermonkey, ScriptCodeGenPlugin);
 
 CodeGeneratorPluginManager.registerPlugin(Plugin_CPP_Spidermonkey.prototype.context, Plugin_CPP_Spidermonkey);
 
-//======================================================================================
-
-/**
- * Returns a template and adds it to the used templates array
- * 
- * @param   {String}   templateName    Name of the template to get
- * @param   {Array}    usedTemplates   Array of used templates
- * 
- * @returns {jSmart}   Template
- */
-function getAndUseTemplate(templateName, usedTemplates)
-{
-	var template = TemplateManager.getTemplate(templateName);
-	usedTemplates.push(template);
-	
-	return template;
-}
 
 //======================================================================================
 
@@ -358,6 +341,118 @@ CodeGenerator_Function.prototype = {
 	{
 		return (this.exportObject.sourceObject.isStatic == true);
 	},
+	
+	_diagnosisReports: {
+		"NoSourceObject": {
+			name: "NoSourceObject",
+			message: "Export_ASTObject does not have a source ASTObject",
+			type: "ERROR"
+		}
+	},
+	
+	/**
+	 * Prepares the content for code generation and saves it in this._genInput.
+	 * Saves problems in this._genInput.diagnosis
+	 *    - returns if the code generator will produce valid results
+	 * 
+	 * @returns {boolean}   True if valid, otherwise false
+	 */
+	prepareAndDiagnose: function prepareAndDiagnose(recurse)
+	{
+		// clean previous data
+		var genInput = this._genInput = {};
+		var diagnosis = this._genInput.diagnosis = new CodeGenDiagnosis();
+		
+		genInput.templateFunction = this._getTemplate(this.templateFunction);
+		
+		// checking the name TODO: regex name check
+		genInput.name = this.exportObject.name;
+		
+		// checking the sourceObject
+		var astFunc = this.exportObject.sourceObject
+		if(!astFunc)
+		{
+			diagnosis.addReport(this._diagnosisReports["NoSourceObject"]);
+		}
+		else
+		{
+			genInput.isStatic = this.isStatic;
+			
+			// checking params
+			genInput.numParams = astFunc.parameters.length;
+			genInput.params = [];
+			
+			for(var i = 0; i < astFunc.parameters.length; ++i)
+			{
+				var param = astFunc.parameters[i];
+				var tInfoParam = this.getTypeHandlingTemplate(param.type, ScriptCodeGen.TYPE_FROM_SCRIPT);
+				
+				var paramInput = {
+					name: "p" + i + "__" + param.name,
+					templateInfo: tInfoParam
+				}
+				
+				if(tInfoParam)
+				{
+					paramInput.template = this._getTemplate(tInfoParam.templateName);
+					
+					// check restrictions
+					if(tInfoParam.typeLib && !tInfoParam.typeLib.allowUnwrapping)
+						diagnosis.addReport({ name: "ErrorParamTypeRestriction", message: "Parameter type does not allow unwrapping: " + param.name, type: "ERROR"});
+				}
+				else
+					diagnosis.addReport({ name: "ErrorResolvingParamTemplate", message: "Could not resolve parameter template: " + param.name, type: "ERROR"});
+				
+				params.push(paramInput);
+			}
+			
+			// checking return type
+			genInput.returnType = {}
+			var tInfoReturn = this.getTypeHandlingTemplate(astFunc.returnType, ScriptCodeGen.TYPE_TO_SCRIPT);
+			if(tInfoReturn)
+			{
+				genInput.returnType.templateInfo = tInfoReturn;
+				genInput.returnType.template = this._getTemplate(tInfoReturn.templateName);
+				
+				// check restrictions
+				if(tInfoReturn.typeLib)
+				{
+					var canonicalType = tInfoReturn.astType;
+					if(canonicalType.declaration)
+					{
+						if(!tInfoReturn.typeLib.allowWrappingCopies)
+							diagnosis.addReport({ name: "ErrorReturnTypeRestriction", message: "Return type does not allow wrapping copies", type: "ERROR"});
+					}
+					else if(canonicalType.pointsTo)
+					{
+						if(!tInfoReturn.typeLib.allowWrappingInstances)
+							diagnosis.addReport({ name: "ErrorReturnTypeRestriction", message: "Return type does not allow wrapping instances", type: "ERROR"});
+					}
+				}
+			}
+			else
+				diagnosis.addReport({ name: "ErrorResolvingReturnTemplate", message: "Could not resolve return type template", type: "ERROR"});
+			
+			genInput.returnType.isVoid = (astFunc.returnType.kind === "Void");
+			
+			// instance call
+			genInput.isInstanceCall = (astFunc.kind === ASTObject.KIND_MEMBER_FUNCTION && !astFunc.isStatic);
+			genInput.parentQualifier = astFunc.parent.cppLongName;
+			
+			// include resolution
+			var location = (astFunc.isDefinition == true) ? astFunc.definition : astFunc.declarations[0];
+			if(location)
+			{
+				// TODO: fix path
+				var fixedPath = location.fileName.replace(astFunc.AST.TUPath, "");
+				genInput.includeFile = '#include "{$CPP_TU_DIR}' + fixedPath + '"';
+			}
+			else
+				diagnosis.addReport({ name: "ErrorResolvingIncludeFilename", message: "Could not resolve filename for include", type: "ERROR"});
+		}
+		
+		return !diagnosis.hasErrors;
+	}, 
 	
 	/**
 	 * Generates wrapper code for the connected function

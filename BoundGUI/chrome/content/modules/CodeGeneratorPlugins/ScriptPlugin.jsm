@@ -2,6 +2,7 @@ var EXPORTED_SYMBOLS = ["ScriptCodeGenPlugin",
 						"ScriptCodeGen",
 						"ASTTypeLibraryEntry",
 						"TemplateUser",
+						"CodeGenDiagnosis",
 						"normalTypePrinter"];
 
 Components.utils.import("chrome://bound/content/modules/CodeGeneratorPlugins/BasePlugin.jsm");
@@ -102,6 +103,20 @@ ScriptCodeGenPlugin.prototype = {
 		return (entry == null) ? null : entry;
 	}, 
 	
+	/**
+	 * Returns the constructor of a code generator given the ASTObject and
+	 * an Export_ASTObject. This function is likely called when trying to add
+	 * a new Export_ASTObject to the given parent
+	 * 
+	 * @param   {ASTObject}          astObject      ASTObject to get codeGen for
+	 * @param   {Export_ASTObject}   exportParent   Export ASTObject it will the 
+	 * 
+	 * @returns {Function}   Constructor function of code generator
+	 */
+	getCodeGenConstructor: function getCodeGenConstructor(astObject, exportParent)
+	{
+		return null;
+	}, 
 	
 	
 	
@@ -126,9 +141,46 @@ function ScriptCodeGen(plugin)
 	// typeTemplates can include the templates of the plugin
 	this.typeTemplates_to_script   = Object.create(this.plugin.typeTemplates_to_script);
 	this.typeTemplates_from_script = Object.create(this.plugin.typeTemplates_from_script);
+	
+	this._genInput = {};
 }
 
 ScriptCodeGen.prototype = {
+	
+	/**
+	 * Prepares the content for code generation and saves it in this._genInput.
+	 * Saves problems in this._genInput.diagnosis
+	 *    - returns if the code generator will produce valid results
+	 *
+	 * @param   {boolean}   recurse   Prepare and diagnose recursively
+	 * 
+	 * @returns {boolean}   True if valid, otherwise false
+	 */
+	prepareAndDiagnose: function prepareAndDiagnose(recurse)
+	{
+		return true;
+	},
+	
+	
+	/**
+	 * Returns the template with the given name
+	 *   - if template does not exist, then it sets an error in the diagnostic
+	 * 
+	 * @param   {String}             templateName   Template to get
+	 * @param   {CodeGenDiagnosis}   diagnosis      Diagnosis for error reporting
+	 * 
+	 * @returns {Template}   Template or null if not found
+	 */
+	_getTemplate: function _getTemplate(templateName, diagnosis)
+	{
+		try{
+			return TemplateManager.getTemplate(templateName);
+		} catch(e){
+			diagnosis.addReport({ name: "ErrorResolvingTemplate", message: "Could not resolve template: " + templateName + ", " + e.message, type: "ERROR"});
+		}
+		
+		return null;
+	}, 
 	
 	/**
 	 * Returns the id of the template for the given type by searching the type maps
@@ -207,7 +259,44 @@ ScriptCodeGen.prototype = {
 			return astType.pointsTo.declaration.USR;
 		
 		return "";
+	},
+	
+	/**
+	 * Returns the template that handles the given type for the given usage (TYPE_TO_SCRIPT, TYPE_FROM_SCRIPT)
+	 *       from the given type library
+	 * 
+	 * @param   {CPP_ASTType}           astType   ASTType to find template for
+	 * @param   {ASTTypeLibraryEntry}   typeLib   Type library with more information
+	 * @param   {Number}                usage     Usage of the type
+	 * 
+	 * @returns {Object}   Template with information
+	 */
+	_getTypeHandlingTemplateFromTypeLibrary: function _getTypeHandlingTemplateFromTypeLibrary(astType, typeLib, usage)
+	{
+		var result = {
+			templateName: "",
+			astType: astType,	
+			typeLib: typeLib,
+			kind: ScriptCodeGen.TYPE_RESULT_TYPELIB,
+		};
+		
+		
+		// using the canonical type
+		astType = astType.canonicalType;
+		
+		if(astType.declaration)
+		{
+			//
+		}
+		// ---- do we have a pointer type? TODO: shared pointers
+		else if(astType.pointsTo && astType.pointsTo.declaration)
+		{
+			
+		}
+		
+		return result;
 	}, 
+	
 	
 	
 	/**
@@ -222,15 +311,16 @@ ScriptCodeGen.prototype = {
 	{
 		// throw exception, when TemplateParameterType
 		
-		var result = {};
-		result.templateName = "";
-		result.astType = astType;
+		
 		
 		// == 1. check the type
 		// --- 1a) check type maps
-		result.templateName = this._getTypeHandlingTemplateFromTypeMaps(astType, usage);
-		if(result.templateName !== "")
+		var templateName = this._getTypeHandlingTemplateFromTypeMaps(astType, usage);
+		if(templateName !== "")
 		{
+			var result = {};
+			result.templateName = templateName;
+			result.astType = astType;	
 			result.kind = ScriptCodeGen.TYPE_RESULT_TYPEMAP;
 			return result;
 		}
@@ -239,13 +329,9 @@ ScriptCodeGen.prototype = {
 		var typeLib = this.plugin.getTypeLibraryEntry(this._getTypeUSR(astType, true)); // TODO: support non-canonical types
 		if(typeLib)
 		{
-			result.templateName = ""; // TODO: get template name based on usage
-			result.typeLib = typeLib;
-			result.kind = ScriptCodeGen.TYPE_RESULT_TYPELIB;
-			
+			var result = this._getTypeHandlingTemplateFromTypeLibrary(astType, typeLib, usage);
 			return result;
 		}
-		
 		
 		// == 2. check base types
 		// --- 2a) check type maps
@@ -258,6 +344,21 @@ ScriptCodeGen.prototype = {
 		return null;
 	}, 	
 };
+
+/**
+ * Returns compatibility information of the code generator given
+ * an ASTObject and a possible exportParent
+ * 
+ * @param   {ASTObject}          astObject      ASTObject to check compatibility for
+ * @param   {Export_ASTObject}   exportParent   ExportParent to check compatibility for
+ * 
+ * @returns {Object}   Compatibility information, if empty, then it is compatible
+ */
+ScriptCodeGen.getCompatibilityInformation = function getCompatibilityInformation(astObject, exportParent)
+{
+	
+}, 
+
 
 ScriptCodeGen.TYPE_TO_SCRIPT   = 1;
 ScriptCodeGen.TYPE_FROM_SCRIPT = 2;
@@ -297,10 +398,12 @@ TemplateUser.prototype = {
 	 */
 	fetch: function fetch(templateName, data)
 	{
-		var template = TemplateManager.getTemplate(templateName);
-		this.usedTemplates.push(template);
+		if(typeof templateOrName === "string")
+			templateOrName = TemplateManager.getTemplate(templateOrName);
 		
-		return template.fetch(data);
+		this.usedTemplates.push(templateOrName);
+		
+		return templateOrName.fetch(data);
 	},
 	
 	/**
@@ -310,12 +413,14 @@ TemplateUser.prototype = {
 	 * 
 	 * @returns {jSmart}   Template found and used
 	 */
-	use: function use(templateName)
+	use: function use(templateOrName)
 	{
-		var template = TemplateManager.getTemplate(templateName);
-		this.usedTemplates.push(template);
+		if(typeof templateOrName === "string")
+			templateOrName = TemplateManager.getTemplate(templateOrName);
 		
-		return template;
+		this.usedTemplates.push(templateOrName);
+		
+		return templateOrName;
 	},
 	
 	/**
@@ -341,4 +446,38 @@ TemplateUser.prototype = {
 };
 
 Object.defineProperty(TemplateUser.prototype, "constructor", {value: TemplateUser});
+
+//======================================================================================
+
+/**
+ * 
+ *
+ * @constructor
+ * @this {CodeGenDiagnosis}
+ */
+function CodeGenDiagnosis()
+{
+	this.reports = {};
+	this.hasErrors = false;
+	this.hasWarnings = false;
+}
+
+CodeGenDiagnosis.prototype = {
+	/**
+	 * Adds a report to the diagnosis
+	 * 
+	 * @param   {Object}   diagnosisReport   Report to add
+	 */
+	addReport: function addReport(diagnosisReport)
+	{
+		this.reports[diagnosisReport.name] = diagnosisReport;
+		if(diagnosisReport.type === "ERROR")
+			this.hasErrors = true;
+		else if(diagnosisReport.type === "WARNING")
+			this.hasWarnings = true;
+	}, 
+	
+};
+
+Object.defineProperty(CodeGenDiagnosis.prototype, "constructor", {value: CodeGenDiagnosis});
 

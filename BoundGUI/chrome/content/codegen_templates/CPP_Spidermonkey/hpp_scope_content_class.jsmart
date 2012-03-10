@@ -1,5 +1,10 @@
 {$namespacesStart}
-	extern JSObject* prototype;
+	extern JSObject* jsPrototype;
+	extern JSObject* jsConstructor;
 	extern JSClass jsClass;
 	JSBool init(JSContext* cx, JSObject* scope);
+	
+{if $typeLib.allowWrappingInstances}	JSObject* wrapInstance(JSContext* cx, const {$cppClassFullName}* ptr);
+{/if}{if $typeLib.allowWrappingCopies}	JSObject* wrapCopy(JSContext* cx, const {$cppClassFullName}& ref);
+{/if}{if $typeLib.allowUnwrapping}	{$cppClassFullName}* getFromJSValue(JSContext* cx, jsval val);
 {$namespacesEnd}

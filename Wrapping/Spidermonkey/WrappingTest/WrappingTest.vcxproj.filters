@@ -10,15 +10,6 @@
     <Filter Include="wrap_example">
       <UniqueIdentifier>{87e546a2-feaf-4109-baaa-7a137e77b051}</UniqueIdentifier>
     </Filter>
-    <Filter Include="wrap_autogen">
-      <UniqueIdentifier>{68125506-57ec-4448-9aed-2d706e8b313c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="wrap_autogen\include">
-      <UniqueIdentifier>{ae11b3fe-fd80-4b5f-99d4-4ee42a1f1a7e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="wrap_autogen\src">
-      <UniqueIdentifier>{d5772e3d-3c94-4f98-9b56-e73e333becab}</UniqueIdentifier>
-    </Filter>
     <Filter Include="wrap_example\include">
       <UniqueIdentifier>{70541deb-dadf-44d4-aaea-bada6107bb9e}</UniqueIdentifier>
     </Filter>
@@ -51,11 +42,11 @@
     <ClInclude Include="include\test.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="wrap_autogen\include\wrap_Test.hpp">
-      <Filter>wrap_autogen\include</Filter>
+    <ClInclude Include="include\UsingSimpleClass.hpp">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="wrap_autogen\include\wrap_Test\SimpleClass.hpp">
-      <Filter>wrap_autogen\include</Filter>
+    <ClInclude Include="wrap_example\include\UsingSimpleClass_wrap.hpp">
+      <Filter>wrap_example\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -80,11 +71,11 @@
     <ClCompile Include="src\test.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="wrap_autogen\src\wrap_Test.cpp">
-      <Filter>wrap_autogen\src</Filter>
+    <ClCompile Include="src\UsingSimpleClass.cpp">
+      <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="wrap_autogen\src\wrap_Test\SimpleClass.cpp">
-      <Filter>wrap_autogen\src</Filter>
+    <ClCompile Include="wrap_example\src\UsingSimpleClass_wrap.cpp">
+      <Filter>wrap_example\src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
