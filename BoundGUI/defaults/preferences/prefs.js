@@ -42,3 +42,4 @@ pref("bound.lastProject.clangArguments", "");
 pref("bound.lastProject.fileNameFilter", ".*");
 pref("bound.lastProject.symbolNameFilter", ".*");
 pref("bound.lastProject.accessFilter", 8);
+pref("bound.plugin.CPP_Spidermonkey.lastExportFolder", "");

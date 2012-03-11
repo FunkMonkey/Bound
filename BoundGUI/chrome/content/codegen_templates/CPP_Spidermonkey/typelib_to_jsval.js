@@ -4,6 +4,11 @@ OBJECT_TO_JSVAL({$funcName}(cx, {$inputVarPre}{$inputVar})){if $finishStatement}
 
 //var includes = ["#include \"{$cpp_spidermonkey_lib_include_dir}wrap_helpers/int_x.hpp\""];
 
+function getIncludes(data)
+{
+	return ['#include "' + data.typeLib.includeFile + '"'];
+}
+
 function onFetchBefore(data)
 {
 	data.inputVarPre = "";

@@ -101,6 +101,9 @@
     <ClInclude Include="include\SimpleClass.hpp" />
     <ClInclude Include="include\test.hpp" />
     <ClInclude Include="include\UsingSimpleClass.hpp" />
+    <ClInclude Include="wrap_autogen\include\ProjectName.hpp" />
+    <ClInclude Include="wrap_autogen\include\ProjectName\SimpleClass.hpp" />
+    <ClInclude Include="wrap_autogen\include\ProjectName\UsingSimpleClass.hpp" />
     <ClInclude Include="wrap_example\include\Functions_BasicTypes_wrap.hpp" />
     <ClInclude Include="wrap_example\include\Functions_Strings_wrap.hpp" />
     <ClInclude Include="wrap_example\include\SimpleClass_wrap.hpp" />
@@ -112,6 +115,9 @@
     <ClCompile Include="src\SimpleClass.cpp" />
     <ClCompile Include="src\test.cpp" />
     <ClCompile Include="src\UsingSimpleClass.cpp" />
+    <ClCompile Include="wrap_autogen\src\ProjectName.cpp" />
+    <ClCompile Include="wrap_autogen\src\ProjectName\SimpleClass.cpp" />
+    <ClCompile Include="wrap_autogen\src\ProjectName\UsingSimpleClass.cpp" />
     <ClCompile Include="wrap_example\src\Functions_BasicTypes_wrap.cpp" />
     <ClCompile Include="wrap_example\src\Functions_Strings_wrap.cpp" />
     <ClCompile Include="wrap_example\src\SimpleClass_wrap.cpp" />

@@ -378,7 +378,7 @@ DOMTree.prototype =
 		if(!$row.$parentRow)
 			this.removeChild($row);
 		else
-			$row.$parentRow.container.removeChild($row);
+			$row.$parentRow.$container.removeChild($row);
 	}, 
 	
 	

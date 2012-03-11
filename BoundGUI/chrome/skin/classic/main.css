@@ -6,7 +6,8 @@
 
 #resultObjectExplorer .objexp-prop-string > textbox[multiline]
 {
-	height: 15em;
+	/*height: 15em;*/
+	overflow: auto;
 }
 
 #exportAddProperty
@@ -46,4 +47,6 @@
 	color: #FF0000;
 }
 
-
+#propertyExplorer{
+	overflow: auto;
+}

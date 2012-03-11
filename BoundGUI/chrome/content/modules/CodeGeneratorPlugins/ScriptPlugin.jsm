@@ -201,7 +201,34 @@ ScriptCodeGen.prototype = {
 		}
 		
 		return null;
+	},
+	
+	/**
+	 * Returns the include of the source object or sets an error in the diagnosis
+	 *
+	 * @param   {CodeGenDiagnosis}   diagnosis      Diagnosis for error reporting
+	 * 
+	 * @returns {String}   Filename or empty string
+	 */
+	_getSourceObjectIncludeDirective: function _getSourceObjectIncludeDirective(diagnosis)
+	{
+		var sourceObj = this.exportObject.sourceObject
+		
+		if(sourceObj)
+		{
+			var location = (sourceObj.isDefinition == true) ? sourceObj.definition : sourceObj.declarations[0];
+			if(location)
+			{
+				// TODO: fix path
+				var fixedPath = location.fileName.replace(sourceObj.AST.TUPath, "");
+				return '#include <{$CPP_TU_DIR}' + fixedPath + '>';
+			}	
+		}
+		
+		diagnosis.addReport({ name: "ResolvingIncludeFilename", message: "Could not resolve filename for include", type: "ERROR"});
+		return "";
 	}, 
+	
 	
 	/**
 	 * Returns the id of the template for the given type by searching the type maps
@@ -419,6 +446,7 @@ Extension.inherit(ScriptCodeGen, BaseCodeGen);
 function TemplateUser()
 {
 	this.usedTemplates = [];
+	this.fetchedIncludes = [];
 }
 
 TemplateUser.prototype = {
@@ -436,6 +464,10 @@ TemplateUser.prototype = {
 			templateOrName = TemplateManager.getTemplate(templateOrName);
 		
 		this.usedTemplates.push(templateOrName);
+		
+		
+		if(templateOrName.getIncludes)
+			this.fetchedIncludes.push.apply(this.fetchedIncludes, templateOrName.getIncludes(data));
 		
 		return templateOrName.fetch(data);
 	},
@@ -460,7 +492,7 @@ TemplateUser.prototype = {
 	/**
 	 * Gets all includes used in the templates
 	 * 
-	 * @returns {Array}   Array of include directives found in used templates
+	 * @returns {Object}   Object of include directives found in used templates
 	 */
 	aggregateIncludes: function aggregateIncludes()
 	{
@@ -469,8 +501,11 @@ TemplateUser.prototype = {
 		{
 			var template = this.usedTemplates[i];
 			if(template.includes)
-				ObjectHelpers.mergeKeys(includeFiles, template.includes)
+				ObjectHelpers.mergeKeys(includeFiles, template.includes);
 		}
+		
+		for(var i = 0, len = this.fetchedIncludes.length; i < len; ++i)
+			ObjectHelpers.mergeKeys(includeFiles, this.fetchedIncludes);
 		
 		return includeFiles;
 	}, 

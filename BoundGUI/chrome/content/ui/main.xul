@@ -56,8 +56,13 @@
 				</tabbox>
 				
 			</vbox>-->
-			<vbox id="resultObjectExplorer" flex="1" />
-			<vbox id="propertyExplorer" flex="1" />
+			<hbox flex="1">
+				<vbox id="resultObjectExplorer" flex="1"/>
+				<splitter collapse="before" resizeafter="farthest" state="">
+					<grippy width="4"/>
+				</splitter>
+				<vbox id="propertyExplorer" flex="1" width="300"/>
+			</hbox>
 		</hbox>
 		<vbox id="logBox" />
 	</vbox>

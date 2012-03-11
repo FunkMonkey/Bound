@@ -46,7 +46,7 @@ var LoadSaveFromMetaData = {
 		//if(propMetaData.type)
 		if(propMetaData.load_save.load)
 			propMetaData.load_save.load(obj, fromJSON, propName, propMetaData);
-		else
+		else if(fromJSON[propName])
 			obj[propName] = fromJSON[propName];
 	},
 	

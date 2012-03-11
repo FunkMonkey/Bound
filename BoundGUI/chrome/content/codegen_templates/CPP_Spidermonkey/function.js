@@ -1,4 +1,5 @@
-var includes = ["#include \"{$cpp_spidermonkey_lib_include_dir}wrap_helpers/wrap_helpers_x.hpp\""];
+var includes = ['#include <{$cpp_spidermonkey_lib_include_dir}wrap_helpers/private_data_x.hpp>',
+                '#include <{$cpp_spidermonkey_lib_include_dir}wrap_helpers/wrap_helpers_x.hpp>'];
 
 
 function onFetchBefore(data)

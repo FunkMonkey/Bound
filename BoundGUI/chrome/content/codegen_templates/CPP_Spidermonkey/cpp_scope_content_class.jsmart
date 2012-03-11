@@ -49,7 +49,7 @@
 	JSBool constructor(JSContext *cx, uintN argc, jsval *vp)
 	{
 		JSWRAP_TRY_START
-{if $typeLib.allowConstruction)			JSObject* obj = JS_NewObject(cx, &jsClass, jsPrototype, NULL);
+{if $typeLib.allowConstruction}			JSObject* obj = JS_NewObject(cx, &jsClass, jsPrototype, NULL);
 			if (!obj)
 				return false;
 

@@ -23,14 +23,33 @@ function exportFiles()
 
 	var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
 	fp.init(window, "Open directory", nsIFilePicker.modeGetFolder);
+
+	// TODO: don't use spidermonkey path	
+	var lastFolder = Services.prefs.getCharPref("bound.plugin.CPP_Spidermonkey.lastExportFolder");
+	if(lastFolder)
+	{
+		var localFile = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
+		localFile.initWithPath(lastFolder);
+		fp.displayDirectory = localFile;
+	}
 	
 	var rv = fp.show();
 	if (rv == nsIFilePicker.returnOK || rv == nsIFilePicker.returnReplace)
 	{
 		var dir = fp.file;
+		Services.prefs.setCharPref("bound.plugin.CPP_Spidermonkey.lastExportFolder", fp.file.path);
 		
 		// save the files
 		var codeGen = MainWindow.ExportTree.exportAST.root.getCodeGenerator(Bound.currentContext);
+		
+		if(!codeGen.prepareAndDiagnose(true))
+		{
+			alert("Error exporting!");
+			return;
+		}
+		
+		// TODO: remove the second prepareAndDiagnose
+		codeGen.prepareAndDiagnose(true);
 		var genResult = codeGen.generate();
 		var exportFiles = codeGen.plugin.getExportFiles(genResult);
 		
@@ -61,6 +80,8 @@ function saveProject()
 
 	var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
 	fp.init(window, "Open directory", nsIFilePicker.modeSave);
+	fp.defaultExtension = "json";
+	fp.appendFilter("JSON project file", "*.json");
 	
 	var rv = fp.show();
 	if (rv == nsIFilePicker.returnOK || rv == nsIFilePicker.returnReplace)
@@ -76,6 +97,8 @@ function loadProject()
 
 	var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
 	fp.init(window, "Open directory", nsIFilePicker.modeOpen);
+	fp.defaultExtension = "json";
+	fp.appendFilter("JSON project file", "*.json");
 	
 	var rv = fp.show();
 	if (rv == nsIFilePicker.returnOK || rv == nsIFilePicker.returnReplace)

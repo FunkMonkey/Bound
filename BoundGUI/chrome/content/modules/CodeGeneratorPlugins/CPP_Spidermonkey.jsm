@@ -222,6 +222,9 @@ Plugin_CPP_Spidermonkey.prototype = {
 	 */
 	_exportCodeGen: function _exportCodeGen(codeGenResult, parentPath)
 	{
+		// IMPORTANT: when changing this function, adjust CodeGenerator._updateTypeLibraryEntry()
+		//              and CodeGenerator._getFileName() if necessary!!
+		
 		// current path
 		var path = ((parentPath === "") ? "" : (parentPath + "/")) + codeGenResult.wrapper.name;
 		
@@ -268,8 +271,11 @@ Plugin_CPP_Spidermonkey.prototype = {
 			}
 		}
 		
+		// add the own stuff
 		result.hppCodes.push(codeGenResult.wrapper.hppCode);
 		result.cppCodes.push(codeGenResult.wrapper.cppCode);
+		ObjectHelpers.mergeKeys(hppIncludes, codeGenResult.hppIncludes);
+		ObjectHelpers.mergeKeys(cppIncludes, codeGenResult.cppIncludes);
 		
 		// return appropriate code
 		if(parentPath !== "" && codeGenResult.isInline)
@@ -286,6 +292,8 @@ Plugin_CPP_Spidermonkey.prototype = {
 			// cleaning up includes
 			hppIncludes = Object.keys(hppIncludes);
 			cppIncludes = Object.keys(cppIncludes);
+			
+			// TODO: remove null's and undefines
 			
 			// TODO: add correct fetch data for replacement
 			for(var i = 0, len = hppIncludes.length; i < len; ++i)
@@ -381,7 +389,7 @@ CodeGenerator_Function.prototype = {
 			// TODO: check parent for member functions
 			
 			// checking params
-			genInput.numParams = astFunc.parameters.length;
+			//genInput.numParams = astFunc.parameters.length;
 			genInput.params = [];
 			
 			for(var i = 0; i < astFunc.parameters.length; ++i)
@@ -443,7 +451,8 @@ CodeGenerator_Function.prototype = {
 			genInput.cppFuncionName = astFunc.name;
 			
 			// include resolution
-			var location = (astFunc.isDefinition == true) ? astFunc.definition : astFunc.declarations[0];
+			genInput.includeFile = this._getSourceObjectIncludeDirective(diagnosis);
+			/*var location = (astFunc.isDefinition == true) ? astFunc.definition : astFunc.declarations[0];
 			if(location)
 			{
 				// TODO: fix path
@@ -451,7 +460,7 @@ CodeGenerator_Function.prototype = {
 				genInput.includeFile = '#include "{$CPP_TU_DIR}' + fixedPath + '"';
 			}
 			else
-				diagnosis.addReport({ name: "ResolvingIncludeFilename", message: "Could not resolve filename for include", type: "ERROR"});
+				diagnosis.addReport({ name: "ResolvingIncludeFilename", message: "Could not resolve filename for include", type: "ERROR"});*/
 		}
 		
 		return !diagnosis.hasErrors;
@@ -474,7 +483,7 @@ CodeGenerator_Function.prototype = {
 			codeGen: this,
 			type: "Function",
 			isStatic: genInput.isStatic,
-			numParams: genInput.params.numParams,
+			numParams: genInput.params.length,
 			name: genInput.name,
 			wrapperFunction: {
 				code: "",
@@ -698,12 +707,44 @@ CodeGenerator_Object.prototype = {
 				this._typeLibraryEntry.unwrapFunction       = typeInfoFromTemplate.unwrapFunction;
 				this._typeLibraryEntry.wrapInstanceFunction = typeInfoFromTemplate.wrapInstanceFunction;
 				this._typeLibraryEntry.wrapCopyFunction     = typeInfoFromTemplate.wrapCopyFunction;
+				
+				// TODO: customize file ending
+				// TODO: add project_dir
+				this._typeLibraryEntry.includeFile = this._getFileName() + ".hpp"; 
 			}
 			
 			
 			this.plugin.addTypeLibraryEntry(this._typeLibraryEntry.id, this._typeLibraryEntry);
 		}
 	},
+		
+	get isInline()
+	{
+		return (this.exportObject.children.length === 0) && (this.exportObject.parent !== null);
+	},
+	
+	/**
+	 * Returns the filename (without extension)
+	 * 
+	 * @returns {String}   Filename
+	 */
+	_getFileName: function _getFileName()
+	{
+		var fileName = "";
+		var obj = this.exportObject;
+		while(obj)
+		{
+			var codeGen = obj.getCodeGenerator(this.context);
+			if(codeGen && !codeGen.isInline)
+				fileName = ((obj.parent == null) ? "" : "/") + obj.name + fileName;
+			
+			obj = obj.parent
+		}
+		
+		return fileName;
+	}, 
+	
+	
 	
 	/**
 	 * Prepares the content for code generation and saves it in this._genInput.
@@ -727,7 +768,7 @@ CodeGenerator_Object.prototype = {
 		// TODO: check parent
 		
 		// the other stuff
-		genInput.isInline = (scopeObj.children.length === 0) && (scopeObj.parent !== null);
+		genInput.isInline = this.isInline;
 		genInput.nameChain = this.getNameChain();
 		genInput.defineOnParent = (scopeObj.parent == null);
 		
@@ -750,8 +791,7 @@ CodeGenerator_Object.prototype = {
 					diagnosis.addReport({ name: "IncompatibleOptions", message: "allowWrappingCopies and ownership 'Native' are incompatible, as they will likely result in memory leaks.", type: "ERROR"});
 			}
 			
-			
-			// TODO: add include file
+			genInput.includeFile = this._getSourceObjectIncludeDirective(diagnosis);
 		}
 		else
 		{
@@ -818,11 +858,13 @@ CodeGenerator_Object.prototype = {
 		
 		// ------ hpp ------
 		result.wrapper.hppCode = hppTemplateUser.fetch(genInput.hppTemplate, templateData);
-		result.hppIncludes = hppTemplateUser.aggregateIncludes();
+		result.hppIncludes = Object.keys(hppTemplateUser.aggregateIncludes());
+		if(genInput.includeFile)
+			result.hppIncludes.push(genInput.includeFile);
 		
 		// ------ cpp ------
 		result.wrapper.cppCode = hppTemplateUser.fetch(genInput.cppTemplate, templateData);
-		result.cppIncludes = cppTemplateUser.aggregateIncludes();
+		result.cppIncludes = Object.keys(cppTemplateUser.aggregateIncludes());
 		
 		// ----- result -----
 		return result;
@@ -866,8 +908,19 @@ CodeGenerator_Object.prototype = {
 
 Extension.inherit(CodeGenerator_Object, ScriptCodeGen);
 
-//MetaData.initMetaDataOn(CodeGenerator_Object.prototype)
-//   .addPropertyData("hppTemplate", {view: {}, load_save: {}})
+MetaData.initMetaDataOn(CodeGenerator_Object.prototype)
+   .addPropertyData("_typeLibraryEntry", { type: "KeyValueMap", view: {}})
+   .addPropertyData("_genInput", {type: "KeyValueMap", view: {}})
+   .addPropertyData("hppTemplateNameClass", {view: {}, load_save: {}})
+   .addPropertyData("cppTemplateNameClass", {view: {}, load_save: {}})
+   .addPropertyData("hppTemplateNameObject", {view: {}, load_save: {}})
+   .addPropertyData("cppTemplateNameObject", {view: {}, load_save: {}})
+   .addPropertyData("ownership", {view: {}, load_save: {}})
+   .addPropertyData("allowWrappingInstances", {view: {}, load_save: {}})
+   .addPropertyData("allowWrappingCopies", {view: {}, load_save: {}})
+   .addPropertyData("allowUnwrapping", {view: {}, load_save: {}})
+   .addPropertyData("allowNullValues", {view: {}, load_save: {}})
+   .addPropertyData("allowConstruction", {view: {}, load_save: {}})
 
 /**
  * Creates the code generator from the given save object
