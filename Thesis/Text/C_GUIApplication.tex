@@ -1,7 +1,13 @@
 \chapter{GUI application}
 \label{chap:GUIApplication}
 
-xulrunner
+The GUI application is based on \myProperNameImp{XULRunner}\footnote{\url{https://developer.mozilla.org/en/XULRunner}}, an application framework developed by \myProperName{Mozilla} and as such also known as the Mozilla Framework. \myProperName{XULRunner} also serves as the foundation of popular applications like \myProperName{Mozilla Firefox}\footnote{\url{http://www.mozilla.org/en-US/firefox/}} and \myProperName{Thunderbird}\footnote{\url{http://www.mozilla.org/projects/thunderbird/}}. 
+
+\myProperName{XULRunner} applications are mainly created using \myProperNameImp{XUL}\footnote{\url{https://developer.mozilla.org/en/XUL}} (XML User Interface Language - a markup-language similar to \myProperNameImp{HTML}\footnote{\url{http://www.w3.org/html/}}), \myProperNameImp{CSS}\footnote{\url{http://www.w3.org/Style/CSS/Overview.en.html}}(Cascading Style Sheets) and \myProperNameImp{JavaScript} (\myProperNameImp{ECMAScript}\footnote{\url{http://www.ecmascript.org/}}). \myProperName{XUL} can seamlessly be replaced with \myProperName{HTML} for markup, thus \myProperName{XULRunner} applications can be build using the same technologies as web pages. Unlike web pages though, \myProperName{XULRunner} is a full featured desktop application framework and as such provides functionality to access the operating system, for example for file manipulation. Most of this functionality can be accessed from \myProperName{JavaScript} using \myProperNameImp{XPCOM} (see \myRefSection{sec:ComponentModels}). \myProperName{XULRunner} can be extended with native code through \myProperName{XPCOM} binary components or access of shared libraries using \myProperNameImp{js-ctypes} (see \myRefSection{sec:DynamicFFI}).
+
+The decision to create the GUI application using \myProperName{XULRunner} is mostly based on its easy extendability and customizability - both stated as design goals in \myRefChapter{chap:DesignGoals}. Similar to the \myProperName{Firefox} browser, users will be able to write extensions to provide support for new features, for example glue code generators for scripting languages not supported by the main application.\\
+Being based on web technologies, especially \myProperName{JavaScript}, development with  \myProperName{XULRunner} is very fast.
+\\Personal preference and experience with the framework have also been major factors.
 
 \section{GUI overview}
 
@@ -21,7 +27,7 @@ code generators, templates,
     Templates
         templating using jSmart
         templates in JSON for additional data
-        problem with escaping \n and \t
+        problem with escaping newline and tab
         includes
         custom functions (die auch auf alles zugreifen können, z.b. log) -> fungieren genauso als return-values!
 

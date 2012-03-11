@@ -141,6 +141,7 @@ Dynamic method invocation though has the advantage that type information of the 
 \myLBHighlight{The developed application should be designed in a way that it can later be extended to allow the creation of type libraries based on C++ source code.}
 
 \subsection{Dynamic foreign function interfaces}
+\label{sec:DynamicFFI}
 
 Some scripting languages allow the use of public symbols from shared libraries, such as calling functions and accessing data types, without the need to write glue code in the system programming language. The scripting language provides an API (the dynamic foreign function interface) for writing the glue code in the scripting language itself.
 
@@ -181,6 +182,7 @@ As a side note, most FFI implementations use the same library, \textbf{libffi}\f
 As the need for connecting different programming languages arises in many projects - especially in the computer games industry the embedding of scripting languages is very popular - there are already systems and tools existing for automating the binding-process, creating glue code or providing dynamic access to native code. Some will be explained in further detail.
 
 \subsection{Component models}
+\label{sec:ComponentModels}
 
 \begin{quotation}
 Component-based software engineering is a reuse-based approach to defining, implementing and composing loosely coupled independent components into systems.\footnote{\citep[460]{Sommerville}}
