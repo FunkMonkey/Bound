@@ -99,6 +99,11 @@ Plugin_CPP_Spidermonkey.prototype = {
 	},
 	
 	/**
+	 * Number of times prepareAndDiagnose will be called
+	 */
+	numPrepareRounds: 2,
+	
+	/**
 	 * Returns a code generator that is compatible with the given ASTObject
 	 * 
 	 * @param   {ASTObject|ASTOverloadContainer}          astObject      ASTObject to find codegen for
@@ -360,101 +365,112 @@ CodeGenerator_Function.prototype = {
 	
 	/**
 	 * Prepares the content for code generation and saves it in this._genInput.
+	 * This happens in multiple rounds (what only makes sense when being recursive).
 	 * Saves problems in this._genInput.diagnosis
 	 *    - returns if the code generator will produce valid results
+	 *
+	 * @param   {Number}    round     Round of preparation
+	 * @param   {boolean}   recurse   Prepare and diagnose recursively
 	 * 
 	 * @returns {boolean}   True if valid, otherwise false
 	 */
-	prepareAndDiagnose: function prepareAndDiagnose(recurse)
+	prepareAndDiagnoseRound: function prepareAndDiagnoseRound(round, recurse)
 	{
-		// clean previous data
-		var genInput = this._genInput = { codeGen: this };
-		var diagnosis = this._genInput.diagnosis = new CodeGenDiagnosis();
-		
-		genInput.template = this._getTemplate(this.templateFunction, diagnosis);
-		
-		// checking the name TODO: regex name check
-		genInput.name = this.exportObject.name;
-		
-		// checking the sourceObject
-		var astFunc = this.exportObject.sourceObject
-		if(!astFunc)
+		switch(round)
 		{
-			diagnosis.addReport(this._diagnosisReports["NoSourceObject"]);
-		}
-		else
-		{
-			genInput.isStatic = this.isStatic;
-			
-			// TODO: check parent for member functions
-			
-			// checking params
-			//genInput.numParams = astFunc.parameters.length;
-			genInput.params = [];
-			
-			for(var i = 0; i < astFunc.parameters.length; ++i)
-			{
-				var param = astFunc.parameters[i];
-				var tInfoParam = this.getTypeHandlingTemplate(param.type, ScriptCodeGen.TYPE_FROM_SCRIPT);
+			// Round 2: currently there is no other round, we are in 2 because we may need typelib information
+			case 2:
+				// clean previous data
+				var genInput = this._genInput = { codeGen: this };
+				var diagnosis = this._genInput.diagnosis = new CodeGenDiagnosis();
 				
-				var paramInput = {
-					name: "p" + i + "__" + param.name,
-					templateInfo: tInfoParam
-				}
+				genInput.template = this._getTemplate(this.templateFunction, diagnosis);
 				
-				if(tInfoParam)
+				// checking the name TODO: regex name check
+				genInput.name = this.exportObject.name;
+				
+				// checking the sourceObject
+				var astFunc = this.exportObject.sourceObject
+				if(!astFunc)
 				{
-					paramInput.template = this._getTemplate(tInfoParam.templateName, diagnosis);
-					
-					// check restrictions
-					if(tInfoParam.typeLib && !tInfoParam.typeLib.allowUnwrapping)
-						diagnosis.addReport({ name: "ParamTypeRestriction", message: "Parameter type does not allow unwrapping: " + param.name, type: "ERROR"});
+					diagnosis.addReport(this._diagnosisReports["NoSourceObject"]);
 				}
 				else
-					diagnosis.addReport({ name: "ResolvingParamTemplate", message: "Could not resolve parameter template: " + param.name, type: "ERROR"});
-				
-				genInput.params.push(paramInput);
-			}
-			
-			// checking return type
-			genInput.returnType = {}
-			var tInfoReturn = this.getTypeHandlingTemplate(astFunc.returnType, ScriptCodeGen.TYPE_TO_SCRIPT);
-			if(tInfoReturn)
-			{
-				genInput.returnType.templateInfo = tInfoReturn;
-				genInput.returnType.template = this._getTemplate(tInfoReturn.templateName, diagnosis);
-				
-				// check restrictions
-				if(tInfoReturn.typeLib)
 				{
-					var canonicalType = tInfoReturn.astType.getCanonicalType();
-					if(canonicalType.declaration)
+					genInput.isStatic = this.isStatic;
+					
+					// TODO: check parent for member functions
+					
+					// checking params
+					//genInput.numParams = astFunc.parameters.length;
+					genInput.params = [];
+					
+					for(var i = 0; i < astFunc.parameters.length; ++i)
 					{
-						if(!tInfoReturn.typeLib.allowWrappingCopies)
-							diagnosis.addReport({ name: "ReturnTypeRestriction", message: "Return type does not allow wrapping copies", type: "ERROR"});
+						var param = astFunc.parameters[i];
+						var tInfoParam = this.getTypeHandlingTemplate(param.type, ScriptCodeGen.TYPE_FROM_SCRIPT);
+						
+						var paramInput = {
+							name: "p" + i + "__" + param.name,
+							templateInfo: tInfoParam
+						}
+						
+						if(tInfoParam)
+						{
+							paramInput.template = this._getTemplate(tInfoParam.templateName, diagnosis);
+							
+							// check restrictions
+							if(tInfoParam.typeLib && !tInfoParam.typeLib.allowUnwrapping)
+								diagnosis.addReport({ name: "ParamTypeRestriction", message: "Parameter type does not allow unwrapping: " + param.name, type: "ERROR"});
+						}
+						else
+							diagnosis.addReport({ name: "ResolvingParamTemplate", message: "Could not resolve parameter template: " + param.name, type: "ERROR"});
+						
+						genInput.params.push(paramInput);
 					}
-					else if(canonicalType.pointsTo)
+					
+					// checking return type
+					genInput.returnType = {}
+					var tInfoReturn = this.getTypeHandlingTemplate(astFunc.returnType, ScriptCodeGen.TYPE_TO_SCRIPT);
+					if(tInfoReturn)
 					{
-						if(!tInfoReturn.typeLib.allowWrappingInstances)
-							diagnosis.addReport({ name: "ReturnTypeRestriction", message: "Return type does not allow wrapping instances", type: "ERROR"});
+						genInput.returnType.templateInfo = tInfoReturn;
+						genInput.returnType.template = this._getTemplate(tInfoReturn.templateName, diagnosis);
+						
+						// check restrictions
+						if(tInfoReturn.typeLib)
+						{
+							var canonicalType = tInfoReturn.astType.getCanonicalType();
+							if(canonicalType.declaration)
+							{
+								if(!tInfoReturn.typeLib.allowWrappingCopies)
+									diagnosis.addReport({ name: "ReturnTypeRestriction", message: "Return type does not allow wrapping copies", type: "ERROR"});
+							}
+							else if(canonicalType.pointsTo)
+							{
+								if(!tInfoReturn.typeLib.allowWrappingInstances)
+									diagnosis.addReport({ name: "ReturnTypeRestriction", message: "Return type does not allow wrapping instances", type: "ERROR"});
+							}
+						}
 					}
+					else
+						diagnosis.addReport({ name: "ResolvingReturnTemplate", message: "Could not resolve return type template", type: "ERROR"});
+					
+					genInput.returnType.isVoid = (astFunc.returnType.kind === "Void");
+					
+					// instance call
+					genInput.isInstanceCall = (astFunc.kind === ASTObject.KIND_MEMBER_FUNCTION && !astFunc.isStatic);
+					genInput.parentQualifier = astFunc.parent.cppLongName;
+					genInput.cppFuncionName = astFunc.name;
+					
+					// include resolution
+					genInput.includeFile = this._getSourceObjectIncludeDirective(diagnosis);
 				}
-			}
-			else
-				diagnosis.addReport({ name: "ResolvingReturnTemplate", message: "Could not resolve return type template", type: "ERROR"});
-			
-			genInput.returnType.isVoid = (astFunc.returnType.kind === "Void");
-			
-			// instance call
-			genInput.isInstanceCall = (astFunc.kind === ASTObject.KIND_MEMBER_FUNCTION && !astFunc.isStatic);
-			genInput.parentQualifier = astFunc.parent.cppLongName;
-			genInput.cppFuncionName = astFunc.name;
-			
-			// include resolution
-			genInput.includeFile = this._getSourceObjectIncludeDirective(diagnosis);
+				
+				return !diagnosis.hasErrors;
 		}
 		
-		return !diagnosis.hasErrors;
+		return true;
 	}, 
 	
 	/**
@@ -739,62 +755,72 @@ CodeGenerator_Object.prototype = {
 	
 	/**
 	 * Prepares the content for code generation and saves it in this._genInput.
+	 * This happens in multiple rounds (what only makes sense when being recursive).
 	 * Saves problems in this._genInput.diagnosis
 	 *    - returns if the code generator will produce valid results
+	 *
+	 * @param   {Number}    round     Round of preparation
+	 * @param   {boolean}   recurse   Prepare and diagnose recursively
 	 * 
 	 * @returns {boolean}   True if valid, otherwise false
 	 */
-	prepareAndDiagnose: function prepareAndDiagnose(recurse)
+	prepareAndDiagnoseRound: function prepareAndDiagnoseRound(round, recurse)
 	{
-		// clean previous data
-		var genInput = this._genInput = { codeGen: this };
-		var diagnosis = this._genInput.diagnosis = new CodeGenDiagnosis();
-		
-		var scopeObj = this.exportObject;
-		var sourceObj = this.exportObject.sourceObject;
-		
-		// TODO: check name with regex
-		genInput.name = scopeObj.name;
-		
-		// TODO: check parent
-		
-		// the other stuff
-		genInput.isInline = this.isInline;
-		genInput.nameChain = this.getNameChain();
-		genInput.defineOnParent = (scopeObj.parent == null);
-		
-		if(sourceObj && (sourceObj.kind === ASTObject.KIND_STRUCT || sourceObj.kind === ASTObject.KIND_CLASS))
+		switch(round)
 		{
-			genInput.hppTemplate = this._getTemplate(this.hppTemplateNameClass, diagnosis);
-			genInput.cppTemplate = this._getTemplate(this.cppTemplateNameClass, diagnosis);
-			genInput.cppClassFullName = sourceObj.cppLongName;
-			genInput.type = "Class";
-			genInput.typeLib = this._typeLibraryEntry;
-			
-			// validating type library
-			this._updateTypeLibraryEntry(genInput.hppTemplate);
-			if(this._typeLibraryEntry.ownership === "Script")
-			{
-			}
-			else if(this._typeLibraryEntry.ownership === "Native")
-			{
-				if(this._typeLibraryEntry.allowWrappingCopies)
-					diagnosis.addReport({ name: "IncompatibleOptions", message: "allowWrappingCopies and ownership 'Native' are incompatible, as they will likely result in memory leaks.", type: "ERROR"});
-			}
-			
-			genInput.includeFile = this._getSourceObjectIncludeDirective(diagnosis);
-		}
-		else
-		{
-			genInput.hppTemplate = this._getTemplate(this.hppTemplateNameObject, diagnosis);
-			genInput.cppTemplate = this._getTemplate(this.cppTemplateNameObject, diagnosis);
-			genInput.type = "Object";
+			// Round 1: currently there is no other round
+			case 1:
+				// clean previous data
+				var genInput = this._genInput = { codeGen: this };
+				var diagnosis = this._genInput.diagnosis = new CodeGenDiagnosis();
+				
+				var scopeObj = this.exportObject;
+				var sourceObj = this.exportObject.sourceObject;
+				
+				// TODO: check name with regex
+				genInput.name = scopeObj.name;
+				
+				// TODO: check parent
+				
+				// the other stuff
+				genInput.isInline = this.isInline;
+				genInput.nameChain = this.getNameChain();
+				genInput.defineOnParent = (scopeObj.parent == null);
+				
+				if(sourceObj && (sourceObj.kind === ASTObject.KIND_STRUCT || sourceObj.kind === ASTObject.KIND_CLASS))
+				{
+					genInput.type = "Class";
+					genInput.hppTemplate = this._getTemplate(this.hppTemplateNameClass, diagnosis);
+					genInput.cppTemplate = this._getTemplate(this.cppTemplateNameClass, diagnosis);
+					genInput.cppClassFullName = sourceObj.cppLongName;
+					
+					
+					
+					// validating type library
+					this._updateTypeLibraryEntry(genInput.hppTemplate);
+					if(this._typeLibraryEntry.ownership === "Script")
+					{
+					}
+					else if(this._typeLibraryEntry.ownership === "Native")
+					{
+						if(this._typeLibraryEntry.allowWrappingCopies)
+							diagnosis.addReport({ name: "IncompatibleOptions", message: "allowWrappingCopies and ownership 'Native' are incompatible, as they will likely result in memory leaks.", type: "ERROR"});
+					}
+					genInput.typeLib = this._typeLibraryEntry;
+					genInput.includeFile = this._getSourceObjectIncludeDirective(diagnosis);
+				}
+				else
+				{
+					genInput.type = "Object";
+					genInput.hppTemplate = this._getTemplate(this.hppTemplateNameObject, diagnosis);
+					genInput.cppTemplate = this._getTemplate(this.cppTemplateNameObject, diagnosis);
+				}
 		}
 		
 		if(recurse)
-			return !diagnosis.hasErrors && this.prepareAndDiagnoseChildren(recurse);
+			return !this._genInput.diagnosis.hasErrors && this.prepareAndDiagnoseRoundChildren(round, recurse);
 		else
-			return !diagnosis.hasErrors;
+			return !this._genInput.diagnosis.hasErrors;
 	},
 	
 	/**

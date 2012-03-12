@@ -48,8 +48,6 @@ function exportFiles()
 			return;
 		}
 		
-		// TODO: remove the second prepareAndDiagnose
-		codeGen.prepareAndDiagnose(true);
 		var genResult = codeGen.generate();
 		var exportFiles = codeGen.plugin.getExportFiles(genResult);
 		

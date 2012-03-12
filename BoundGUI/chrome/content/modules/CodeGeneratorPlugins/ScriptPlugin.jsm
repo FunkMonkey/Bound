@@ -13,6 +13,8 @@ Components.utils.import("chrome://bound/content/modules/Utils/ObjectHelpers.jsm"
 
 Components.utils.import("chrome://bound/content/modules/Templates/TemplateManager.jsm");
 
+Components.utils.import("chrome://bound/content/modules/log.jsm");
+
 //======================================================================================
 
 // type printers
@@ -64,6 +66,11 @@ function ScriptCodeGenPlugin()
 }
 
 ScriptCodeGenPlugin.prototype = {
+	
+	/**
+	 * Number of times prepareAndDiagnose will be called
+	 */
+	numPrepareRounds: 1,
 	
 	/**
 	 * Registers a type library entry
@@ -147,8 +154,26 @@ function ScriptCodeGen(plugin)
 
 ScriptCodeGen.prototype = {
 	
+	
 	/**
 	 * Prepares the content for code generation and saves it in this._genInput.
+	 * This happens in multiple rounds (what only makes sense when being recursive).
+	 * Saves problems in this._genInput.diagnosis
+	 *    - returns if the code generator will produce valid results
+	 *
+	 * @param   {Number}    round     Round of preparation
+	 * @param   {boolean}   recurse   Prepare and diagnose recursively
+	 * 
+	 * @returns {boolean}   True if valid, otherwise false
+	 */
+	prepareAndDiagnoseRound: function prepareAndDiagnoseRound(round, recurse)
+	{
+		return true;
+	},
+	
+	/**
+	 * Prepares the content for code generation and saves it in this._genInput.
+	 * This happens in multiple rounds (what only makes sense when being recursive).
 	 * Saves problems in this._genInput.diagnosis
 	 *    - returns if the code generator will produce valid results
 	 *
@@ -158,17 +183,25 @@ ScriptCodeGen.prototype = {
 	 */
 	prepareAndDiagnose: function prepareAndDiagnose(recurse)
 	{
-		return true;
+		var result = true;
+		for(var i = 1, len = this.plugin.numPrepareRounds; i <= len; ++i)
+		{
+			if(!this.prepareAndDiagnoseRound(i, recurse))
+				result = false;
+		}
+		
+		return result;
 	},
 	
 	/**
 	 * Prepares the content of the children and validates them
 	 *
+	 * @param   {Number}    round     Round of preparation
 	 * @param   {boolean}   recurse   Prepare and diagnose recursively
 	 * 
 	 * @returns {boolean}   True if children valid, otherwise false
 	 */
-	prepareAndDiagnoseChildren: function prepareAndDiagnose(recurse)
+	prepareAndDiagnoseRoundChildren: function prepareAndDiagnoseRoundChildren(round, recurse)
 	{
 		var result = true;
 		for(var i = 0, len = this.exportObject.children.length; i < len; ++i)
@@ -176,7 +209,7 @@ ScriptCodeGen.prototype = {
 			var codeGen = this.exportObject.children[i].getCodeGenerator(this.plugin.context);
 			if(codeGen)
 			{
-				if(!codeGen.prepareAndDiagnose(recurse))
+				if(!codeGen.prepareAndDiagnoseRound(round, recurse))
 					result = false;
 			}
 		}
