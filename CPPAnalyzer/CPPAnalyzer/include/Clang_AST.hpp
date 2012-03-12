@@ -424,6 +424,12 @@ namespace CPPAnalyzer
 			const Logger& getLogger() const { return m_logger; }
 			Logger& getLogger(){ return m_logger; }
 
+			/** Returns the name of the file that translation unit is based on
+			 *
+			 * \return  Filename
+	         */
+			const std::string& getTranlationUnitFilename() const { return m_tranlationUnitFilename; }
+
 		protected:
 
 			// Helper functions
@@ -531,6 +537,8 @@ namespace CPPAnalyzer
 
 			VisibilityFilter m_filter;
 
+			std::string m_tranlationUnitFilename;
+			
 			Logger m_logger;
 	};
 }

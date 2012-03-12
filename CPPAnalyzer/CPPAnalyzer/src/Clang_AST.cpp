@@ -152,6 +152,8 @@ namespace CPPAnalyzer
 		m_rootTreeNode->setASTObject(new ASTObject_Namespace(""));
 		m_rootTreeNode->setVisibility(VISIBILITY_VISIBLE);
 
+		m_tranlationUnitFilename = SelfDisposingCXString(clang_getTranslationUnitSpelling(TU)).c_str();
+
 		// Diagnostics, TODO: put into diagnostics-logger!
 		for (unsigned i = 0, numDiag = clang_getNumDiagnostics(TU); i != numDiag; ++i)
 		{

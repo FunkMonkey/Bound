@@ -220,7 +220,7 @@ ScriptCodeGen.prototype = {
 			if(location)
 			{
 				// TODO: fix path
-				var fixedPath = location.fileName.replace(sourceObj.AST.TUPath, "");
+				var fixedPath = location.fileName.replace(sourceObj.AST.translationUnitDirectory, "");
 				return '#include <{$CPP_TU_DIR}' + fixedPath + '>';
 			}	
 		}

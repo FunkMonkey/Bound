@@ -52,7 +52,8 @@ function CPP_AST()
 	
 	this.astTypesByID = {};
 	
-	this.TUPath = "";
+	this.translationUnitFilename = "";
+	this.translationUnitDirectory = "";
 }
 
 /**
@@ -66,23 +67,36 @@ CPP_AST.createFromSaveObject = function createFromSaveObject(saveObj)
 {
 	var result = new CPP_AST();
 	
-	var types = saveObj.rootJSON.AST.types;
+	result.translationUnitFilename = saveObj.AST_JSON.AST.translationUnitFilename;
+	result.translationUnitDirectory = result.translationUnitFilename;
+	
+	var lastIndex = result.translationUnitFilename.lastIndexOf("/");
+	if(lastIndex != -1)
+		result.translationUnitDirectory = result.translationUnitFilename.substring(0, lastIndex + 1);
+	else
+	{
+		var lastIndex = result.translationUnitFilename.lastIndexOf("\\");
+		if(lastIndex != -1)
+			result.translationUnitDirectory = result.translationUnitFilename.substring(0, lastIndex + 1);
+	}
+	
+	var types = saveObj.AST_JSON.AST.types;
 	for(var i = 0; i < types.length; ++i)
 		result.astTypesByID[types[i].id] = result._addASTTypeFromJSON(types[i]);
 	
-	result.root = result._addASTObjectFromJSON(null, saveObj.rootJSON.AST.root);
+	result.root = result._addASTObjectFromJSON(null, saveObj.AST_JSON.AST.root);
 	
 	result._initASTObject(result.root);
 	for(var typeID in result.astTypesByID)
 		result._initASTType(result.astTypesByID[typeID]);
 	
 	result.root._AST = result;
-	result.TUPath = saveObj.TUPath;
+	
 	
 	result._toSave = saveObj._toSave;
 	
-	result.rootJSON = saveObj.rootJSON;
-	result.logMessages = saveObj.rootJSON.log;
+	result.AST_JSON = saveObj.AST_JSON;
+	result.logMessages = saveObj.AST_JSON.log;
 	
 	return result;
 }
@@ -98,12 +112,12 @@ CPP_AST.prototype = {
 	toSaveObject: function toSaveObject()
 	{
 		var result = {};
-		result.rootJSON = this.rootJSON;
-		result.TUPath = this.TUPath;
+		result.AST_JSON = this.AST_JSON;
+		//result.translationUnitFilename = this.translationUnitFilename;
 		
 		return result;
 	},
-
+	
 	/**
 	* Creates an ASTType from JSON-data
 	* 
@@ -515,11 +529,11 @@ CPP_AST.prototype = {
 				astObject.name = "TemplateArgument";
 				break;
 		}
-		
+			
 		if(jsonObject.isDefinition)
 		{
 			astObject.isDefinition = true;
-			astObject.definition = jsonObject.definition;
+			astObject.definition = { fileName: jsonObject.definition.fileName };
 		}
 		else
 		{
@@ -528,19 +542,20 @@ CPP_AST.prototype = {
 		
 		if(jsonObject.declarations)
 			for(var i = 0, len = jsonObject.declarations.length; i < len; ++i)
-				astObject.declarations.push(jsonObject.declarations[i]);
+				astObject.declarations.push({ fileName: jsonObject.declarations[i].fileName});
 		
 		// removing it, as it was only temporary
 		delete astObject._jsonObject;
 		
 		for(var i = 0; i < astObject.children.length; ++i)
 			this._initASTObject(astObject.children[i]);
-	}, 
+	},
 	
 }
 
 MetaData.initMetaDataOn(CPP_AST.prototype)
-   .addPropertyData("TUPath", {view: {}})
+   .addPropertyData("translationUnitFilename", {view: {}})
+   .addPropertyData("translationUnitDirectory", {view: {}})
 	
 //======================================================================================
 

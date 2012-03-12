@@ -57,11 +57,10 @@ var CPPAnalyzer =
 		var jsonStr = result.contents.astTreeJSON.readString();
 		//log(jsonStr);
 		
-		var ASTJSON = JSON.parse(jsonStr);
+		var AST_JSON = JSON.parse(jsonStr);
 		
 		var obj = {
-			TUPath: tuPath,
-			rootJSON: ASTJSON,
+			AST_JSON: AST_JSON,
 			_toSave: true
 		}
 		

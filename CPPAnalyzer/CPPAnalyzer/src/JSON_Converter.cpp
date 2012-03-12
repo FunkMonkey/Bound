@@ -384,6 +384,8 @@ namespace CPPAnalyzer
 		Json::Value output(Json::objectValue);
 		auto& AST = output["AST"] = Json::Value(Json::objectValue);
 
+		AST["translationUnitFilename"] = m_ast->getTranlationUnitFilename();
+
 		//converting ASTTypes
 		auto& jsonTypes = AST["types"] = Json::Value(Json::arrayValue);
 		auto& types = m_ast->getASTTypes();

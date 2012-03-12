@@ -1,7 +1,7 @@
 #include <wrap_helpers/private_data_x.hpp>
 #include <wrap_helpers/wrap_helpers_x.hpp>
 #include "ProjectName/SimpleClass.hpp"
-#include <D:/Data/Projekte/Bound/src/CPPAnalyzer/Test/UsingSimpleClass.hpp>
+#include <UsingSimpleClass.hpp>
 #include "ProjectName/UsingSimpleClass.hpp"
 
 namespace jswrap { namespace ProjectName { namespace UsingSimpleClass { 

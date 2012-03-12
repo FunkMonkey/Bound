@@ -2,7 +2,7 @@
 #define JSWRAP_PROJECTNAME_USINGSIMPLECLASS_HPP
 
 #include "jsapi.h"
-#include <D:/Data/Projekte/Bound/src/CPPAnalyzer/Test/UsingSimpleClass.hpp>
+#include <UsingSimpleClass.hpp>
 
 namespace jswrap { namespace ProjectName { namespace UsingSimpleClass { 
 	extern JSObject* jsPrototype;

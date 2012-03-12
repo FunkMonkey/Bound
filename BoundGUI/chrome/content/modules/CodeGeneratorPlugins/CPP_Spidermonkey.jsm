@@ -452,15 +452,6 @@ CodeGenerator_Function.prototype = {
 			
 			// include resolution
 			genInput.includeFile = this._getSourceObjectIncludeDirective(diagnosis);
-			/*var location = (astFunc.isDefinition == true) ? astFunc.definition : astFunc.declarations[0];
-			if(location)
-			{
-				// TODO: fix path
-				var fixedPath = location.fileName.replace(astFunc.AST.TUPath, "");
-				genInput.includeFile = '#include "{$CPP_TU_DIR}' + fixedPath + '"';
-			}
-			else
-				diagnosis.addReport({ name: "ResolvingIncludeFilename", message: "Could not resolve filename for include", type: "ERROR"});*/
 		}
 		
 		return !diagnosis.hasErrors;
