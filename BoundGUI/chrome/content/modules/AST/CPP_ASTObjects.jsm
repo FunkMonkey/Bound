@@ -56,6 +56,7 @@ function CPP_AST()
 	this.translationUnitDirectory = "";
 }
 
+// TODO: rename to loadFromSaveObject and put into the prototype
 /**
  * Creates a CPP_AST given a JSON compatible object
  * 

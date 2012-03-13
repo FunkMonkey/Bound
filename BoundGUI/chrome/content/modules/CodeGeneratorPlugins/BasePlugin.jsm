@@ -1,4 +1,4 @@
-var EXPORTED_SYMBOLS = ["BaseCodeGenPlugin", "BaseCodeGen"];
+var EXPORTED_SYMBOLS = ["BaseCodeGenPlugin", "BaseEntityCodeGen"];
 
 //======================================================================================
 
@@ -11,15 +11,6 @@ var EXPORTED_SYMBOLS = ["BaseCodeGenPlugin", "BaseCodeGen"];
 function BaseCodeGenPlugin()
 {
 }
-
-/**
- * Creates a CodeGenPlugin from the given JSON-compatible save-object
- * 
- * @param   {Object}   saveObj   Save-object
- * 
- * @returns {BaseCodeGenPlugin}   New instance of CodeGenPlugin
- */
-BaseCodeGenPlugin.createFromSaveObject = function createFromSaveObject(saveObj){};
 
 
 BaseCodeGenPlugin.prototype = {
@@ -37,12 +28,22 @@ BaseCodeGenPlugin.prototype = {
 	},
 	
 	/**
+	* Loads from the given JSON-compatible save-object
+	* 
+	* @param   {Object}   saveObj   Save-object
+	*/
+	loadFromSaveObject: function loadFromSaveObject(saveObj)
+	{
+		
+	},
+	
+	/**
 	 * Creates a code generator from the given save object
 	 * 
 	 * @param   {Object}             saveObj        Save object with data
 	 * @param   {Export_ASTObject}   exportASTObj   ASTObject the generator will belong to
 	 * 
-	 * @returns {BaseCodeGen}   The CodeGen instance
+	 * @returns {BaseEntityCodeGen}   The CodeGen instance
 	 */
 	createCodeGeneratorFromSaveObject: function createCodeGeneratorFromSaveObject(saveObj, exportASTObj)
 	{
@@ -58,15 +59,15 @@ Object.defineProperty(BaseCodeGenPlugin.prototype, "constructor", {value: BaseCo
  * 
  *
  * @constructor
- * @this {BaseCodeGen}
+ * @this {BaseEntityCodeGen}
  */
-function BaseCodeGen(plugin)
+function BaseEntityCodeGen(plugin)
 {
 	this.plugin = plugin;
 	this._exportObject = null;
 }
 
-BaseCodeGen.prototype = {
+BaseEntityCodeGen.prototype = {
 	
 	get context(){ return this.plugin.context; },	
 	
@@ -80,9 +81,19 @@ BaseCodeGen.prototype = {
 		return {};
 	},
 	
+	/**
+	* Loads from the given JSON-compatible save-object
+	* 
+	* @param   {Object}   saveObj   Save-object
+	*/
+	loadFromSaveObject: function loadFromSaveObject(saveObj)
+	{
+		
+	},
+	
 	get exportObject(){ return this._exportObject; },
 	set exportObject(val) {this._exportObject = val; },
 	
 };
 
-Object.defineProperty(BaseCodeGen.prototype, "constructor", {value: BaseCodeGen});
+Object.defineProperty(BaseEntityCodeGen.prototype, "constructor", {value: BaseEntityCodeGen});

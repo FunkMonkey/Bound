@@ -4,7 +4,7 @@ var EXPORTED_SYMBOLS = ["Plugin_CPP_Spidermonkey"];
 
 Components.utils.import("chrome://bound/content/modules/log.jsm");
 Components.utils.import("chrome://bound/content/modules/Utils/Extension.jsm");
-Components.utils.import("chrome://bound/content/modules/CodeGeneratorPlugins/ScriptPlugin.jsm");
+Components.utils.import("chrome://bound/content/modules/CodeGeneratorPlugins/LanguageBindingPlugin.jsm");
 
 Components.utils.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm");
 Components.utils.import("chrome://bound/content/modules/AST/CPP_ASTObjects.jsm");
@@ -27,23 +27,10 @@ Components.utils.import("chrome://bound/content/modules/Utils/ObjectHelpers.jsm"
  */
 function Plugin_CPP_Spidermonkey()
 {
-	ScriptCodeGenPlugin.call(this);
+	LanguageBindingCodeGenPlugin.call(this);
 	
 	this.AST = null;
 }
-
-/**
- * Creates the code generator plugin from the given save object
- * 
- * @param   {Object}                    saveObj        Save object with data
- * 
- * @returns {CodeGenerator}   The created generator
- */
-Plugin_CPP_Spidermonkey.createFromSaveObject =  function createFromSaveObject(saveObj)
-{
-	var result = new Plugin_CPP_Spidermonkey();
-	return result;
-};
 
 Plugin_CPP_Spidermonkey.prototype = {
 	constructor: Plugin_CPP_Spidermonkey,
@@ -180,6 +167,15 @@ Plugin_CPP_Spidermonkey.prototype = {
 	},
 	
 	/**
+	* Loads from the given JSON-compatible save-object
+	* 
+	* @param   {Object}     saveObj        Save object with data
+	*/
+	loadFromSaveObject: function loadFromSaveObject(saveObj)
+	{
+	},
+	
+	/**
 	 * Creates a code generator from the given save object
 	 * 
 	 * @param   {Object}             saveObj        Save object with data
@@ -189,8 +185,11 @@ Plugin_CPP_Spidermonkey.prototype = {
 	 */
 	createCodeGeneratorFromSaveObject: function createCodeGeneratorFromSaveObject(saveObj, exportASTObj)
 	{
-		var codeGen = this.getCodeGeneratorByASTObject(exportASTObj.sourceObject, exportASTObj.parent);
-		return codeGen.createFromSaveObject(saveObj, this, exportASTObj);
+		var CodeGenConstructor = this.getCodeGeneratorByASTObject(exportASTObj.sourceObject, exportASTObj.parent);
+		var codeGen = new CodeGenConstructor(this);
+		codeGen.loadFromSaveObject(saveObj);
+		
+		return codeGen;
 	}, 
 	
 	/**
@@ -325,7 +324,7 @@ Plugin_CPP_Spidermonkey.prototype = {
 	
 };
 
-Extension.inherit(Plugin_CPP_Spidermonkey, ScriptCodeGenPlugin);
+Extension.inherit(Plugin_CPP_Spidermonkey, LanguageBindingCodeGenPlugin);
 
 CodeGeneratorPluginManager.registerPlugin(Plugin_CPP_Spidermonkey.prototype.context, Plugin_CPP_Spidermonkey);
 
@@ -340,7 +339,7 @@ CodeGeneratorPluginManager.registerPlugin(Plugin_CPP_Spidermonkey.prototype.cont
  */
 function CodeGenerator_Function(plugin)
 {
-	ScriptCodeGen.call(this, plugin);
+	LanguageBindingEntityCodeGen.call(this, plugin);
 	
 	this.templateFunction = "CPP_Spidermonkey/function";
 }
@@ -408,7 +407,7 @@ CodeGenerator_Function.prototype = {
 					for(var i = 0; i < astFunc.parameters.length; ++i)
 					{
 						var param = astFunc.parameters[i];
-						var tInfoParam = this.getTypeHandlingTemplate(param.type, ScriptCodeGen.TYPE_FROM_SCRIPT);
+						var tInfoParam = this.getTypeHandlingTemplate(param.type, LanguageBindingEntityCodeGen.TYPE_FROM_SCRIPT);
 						
 						var paramInput = {
 							name: "p" + i + "__" + param.name,
@@ -431,7 +430,7 @@ CodeGenerator_Function.prototype = {
 					
 					// checking return type
 					genInput.returnType = {}
-					var tInfoReturn = this.getTypeHandlingTemplate(astFunc.returnType, ScriptCodeGen.TYPE_TO_SCRIPT);
+					var tInfoReturn = this.getTypeHandlingTemplate(astFunc.returnType, LanguageBindingEntityCodeGen.TYPE_TO_SCRIPT);
 					if(tInfoReturn)
 					{
 						genInput.returnType.templateInfo = tInfoReturn;
@@ -557,9 +556,18 @@ CodeGenerator_Function.prototype = {
 	{
 		return {};
 	},
+	
+	/**
+	* Loads from the given JSON-compatible save-object
+	* 
+	* @param   {Object}     saveObj        Save object with data
+	*/
+	loadFromSaveObject: function loadFromSaveObject(saveObj)
+	{
+	},
 };
 
-Extension.inherit(CodeGenerator_Function, ScriptCodeGen);
+Extension.inherit(CodeGenerator_Function, LanguageBindingEntityCodeGen);
 
 /**
  * Creates the code generator from the given save object
@@ -586,7 +594,7 @@ CodeGenerator_Function.createFromSaveObject =  function createFromSaveObject(sav
  */
 function CodeGenerator_Property(plugin)
 {
-	ScriptCodeGen.call(this, plugin);
+	LanguageBindingEntityCodeGen.call(this, plugin);
 }
 
 CodeGenerator_Property.isCompatible = Plugin_CPP_Spidermonkey.prototype._isCompatible;
@@ -618,9 +626,18 @@ CodeGenerator_Property.prototype = {
 	{
 		return {};
 	},
+	
+	/**
+	* Loads from the given JSON-compatible save-object
+	* 
+	* @param   {Object}     saveObj        Save object with data
+	*/
+	loadFromSaveObject: function loadFromSaveObject(saveObj)
+	{
+	},
 };
 
-Extension.inherit(CodeGenerator_Property, ScriptCodeGen);
+Extension.inherit(CodeGenerator_Property, LanguageBindingEntityCodeGen);
 
 //======================================================================================
 
@@ -632,7 +649,7 @@ Extension.inherit(CodeGenerator_Property, ScriptCodeGen);
  */
 function CodeGenerator_Object(plugin)
 {
-	ScriptCodeGen.call(this, plugin);
+	LanguageBindingEntityCodeGen.call(this, plugin);
 	
 	this.hppTemplateNameClass = "CPP_Spidermonkey/hpp_scope_content_class";
 	this.cppTemplateNameClass = "CPP_Spidermonkey/cpp_scope_content_class";
@@ -921,9 +938,19 @@ CodeGenerator_Object.prototype = {
 		return result;
 	},
 	
+	/**
+	* Loads from the given JSON-compatible save-object
+	* 
+	* @param   {Object}     saveObj        Save object with data
+	*/
+	loadFromSaveObject: function loadFromSaveObject(saveObj)
+	{
+		LoadSaveFromMetaData.loadFrom(this, saveObj);
+	},
+	
 };
 
-Extension.inherit(CodeGenerator_Object, ScriptCodeGen);
+Extension.inherit(CodeGenerator_Object, LanguageBindingEntityCodeGen);
 
 MetaData.initMetaDataOn(CodeGenerator_Object.prototype)
    .addPropertyData("_typeLibraryEntry", { type: "KeyValueMap", view: {}})
@@ -938,19 +965,3 @@ MetaData.initMetaDataOn(CodeGenerator_Object.prototype)
    .addPropertyData("allowUnwrapping", {view: {}, load_save: {}})
    .addPropertyData("allowNullValues", {view: {}, load_save: {}})
    .addPropertyData("allowConstruction", {view: {}, load_save: {}})
-
-/**
- * Creates the code generator from the given save object
- * 
- * @param   {Object}                    saveObj        Save object with data
- * @param   {Plugin_CPP_Spidermonkey}   plugin         The plugin the generator will belong to
- * @param   {Export_ASTObject}          exportASTObj   ASTObject the generator will belong to
- * 
- * @returns {CodeGenerator}   The created generator
- */
-CodeGenerator_Object.createFromSaveObject =  function createFromSaveObject(saveObj, plugin, exportASTObj)
-{
-	var result = new CodeGenerator_Object(plugin);
-	LoadSaveFromMetaData.loadFrom(result, saveObj);
-	return result;
-}

@@ -40,12 +40,6 @@ var Bound = {
 		var projectOptions = this.currentProject.options;
 		var cppAST = CPPAnalyzer.parse_header("", projectOptions.clangArguments, projectOptions.fileNameFilter, projectOptions.symbolNameFilter, projectOptions.accessFilter);
 	
-		//var path = "D:/Data/Projekte/Bound/src/Wrapping/Spidermonkey/WrappingTest/include/";
-		//var cppAST = CPPAnalyzer.parse_header(path, ["supertest", path + "SimpleClass.hpp"]);
-		
-		//var path = "D:/Data/Projekte/Bound/src/Wrapping/Spidermonkey/WrappingTest/include/";
-		//var cppAST = CPPAnalyzer.parse_header(path, ["supertest", path + "Functions_BasicTypes.hpp"]);
-		
 		this.currentProject.cppAST = cppAST;
 	}, 
 	

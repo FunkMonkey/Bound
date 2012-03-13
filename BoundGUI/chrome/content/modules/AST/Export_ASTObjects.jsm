@@ -30,6 +30,7 @@ function Export_AST(rootNodeName)
 	this.codeGeneratorPlugins = {};
 }
 
+// TODO: rename to loadFromSaveObject and put into the prototype
 /**
  * Creates a CPP_AST given a JSON compatible object
  * 
@@ -46,8 +47,10 @@ Export_AST.createFromSaveObject = function createFromSaveObject(saveObj, sourceA
 	// load code generator plugins
 	for(var context in saveObj.codeGeneratorPlugins)
 	{
-		var Plugin = CodeGeneratorPluginManager.getPlugin(context);
-		result.addCodeGeneratorPlugin(Plugin.createFromSaveObject(saveObj.codeGeneratorPlugins[context]));
+		var PluginConstructor = CodeGeneratorPluginManager.getPlugin(context);
+		var plugin = new PluginConstructor();
+		plugin.loadFromSaveObject(saveObj.codeGeneratorPlugins[context]);
+		result.addCodeGeneratorPlugin(plugin);
 	}
 	
 	result.root = Export_ASTObject.createFromSaveObject(saveObj.root, null, result);
