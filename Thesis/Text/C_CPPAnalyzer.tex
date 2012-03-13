@@ -224,6 +224,7 @@ extern "C"
 As can be seen in \myRefFigure{fig:TreeExample}, the AST \myProperName{Clang} produces contains a lot of unnecessary information. The intermediate AST removes many kinds of cursors and combines multiple declarations for the same entity. The final AST filters based on user-given options. In the example the function \mySCName{dontFilter} is the only node that was marked \textbf{visible}, because it is the only node that matched the symbol name filter. \mySCName{pInstance} is referenced as a parameter of \mySCName{dontFilter}. \mySCName{SomeClass} is referenced by the \mySCName{ASTType} used in \mySCName{pInstance}. Thus \mySCName{SomeClass} and its parent \mySCName{SomeNamespace} are marked as \textbf{referenced} and as such are visible in the final tree. Note that the children of \mySCName{SomeClass} are not visible.
 
 \section{Exporting AST to JSON}
+\label{sec:ExportJSON}
 
 As the AST will be used from within another application, it needs to be serialized into a string for passing the data across application borders. As will be shown in \myRefChapter{chap:GUIApplication}, the GUI application is based heavily on \myProperName{JavaScript}.\\
 Thus, it is only logical that the AST will be serialized into a string conforming the \myProperNameImp{JavaScript Object Notation (JSON)}. \myProperName{JSON}  is a lightweight data-interchange format, based on a subset of the \myProperName{JavaScript} programming language. The format is easy for humans to read and write, but also for machines to parse and generate.\todo{ref json web}
@@ -298,6 +299,7 @@ As can be seen in \myRefListing{listing:JSON}, the field \mySCName{member} refer
 
 \newpage
 \section{Calling the \myProperName{CPPAnalyzer}}
+\label{sec:CallingCPPAnalyzer}
 
 The \myProperName{CPPAnalyzer} application provides a \myProperName{C} interface through which it can be called.
 
