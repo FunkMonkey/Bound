@@ -139,12 +139,12 @@ var result = template.fetch({jsvalName: "jsBool",
 
 As can be seen in \myRefListing{lst:TemplateBool}, the template code contains the placeholders \mySCName{\{\$jsvalName\}} and \mySCName{\{\$inputVar\}}. After creating the \myProperName{jSmart} template by calling the \mySCName{jSmart} constructor, the \mySCName{fetch} function can be used to process the template. The function requires an argument that contains the values to be inserted for the placeholders (''jsBool'' and ''cppBool'').
 
-Thus, the entity code generator's main task is to collect all the information needed, checking it for validity and passing it on to the template(s) for creating the final glue code.
+Thus, the entity code generator's main task is to collect all the information needed, checking it for validity and passing it on to the template(s) for creating the final glue code. The code generator should thus be agnostic to different styles of glue code.
 
 Template manager: paths and shadowing\todo{here}
 
 
-Using templates for glue code generation categorizes the developers/users into four groups: besides the \myProperName{Bound} main developers and language plugin developers, there are language plugin template developers that create complete sets of templates (e.g. one set that creates glue code in plain \myProperName{C}, another that uses \myProperName{C++} features, etc.). End-users will decide for a set and only shadow single templates for customizing the export of specific kinds of entities or change a code generator to use a different template for the connected \mySCName{Export\_ASTObject} only.
+Using templates for glue code generation categorizes the developers/users into four groups: besides the \myProperName{Bound} main developers and language plugin developers, there are language plugin template developers that create complete sets of templates (e.g. one set that creates glue code in plain \myProperName{C}, another that uses \myProperName{C++} features, etc.). End-users will decide for a set and only shadow single templates for customizing the export of specific kinds of entities or change a code generator to use a different template for its connected \mySCName{Export\_ASTObject} only.
 
 
 
