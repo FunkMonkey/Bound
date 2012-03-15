@@ -39,11 +39,11 @@ The type of information retrieved depends on the context and purpose of the stat
 
 Static analysis tools that are concerned with program correctness try to detect defects at compile-time so that those do not manifest in run-time errors, such as crashes, data corruption and program malfunctioning. Thus these tools, which are mostly concerned with \textbf{software quality}, are often referred to as \textbf{bug finders}.
 
-Bug finders point out places in the source code, where the program will behave in a way that the programmer did not intend. Most tools are easy to use because they come pre-stocked with a set of ''bug idioms'' (rules) that describe patterns in code that often indicate bugs.\footnote{\citep[32]{SecureProgramming}} They help to find these often hard-to-spot defects early in the software development life-cycle, reducing the cost, time, and risk of software errors.\footnote{\citep{CovertySA}}
+Bug finders point out places in the source code, where the program will behave in a way that the programmer did not intend. Most tools are easy to use because they come pre-stocked with a set of \mySlang{bug idioms} (rules) that describe patterns in code that often indicate bugs.\footnote{\citep[32]{SecureProgramming}} They help to find these often hard-to-spot defects early in the software development life-cycle, reducing the cost, time, and risk of software errors.\footnote{\citep{CovertySA}}
 
 A prominent example of preventing run-time errors at compile-time is type checking. In this sense, compilers themselves can be seen as static analysis tools and - as we will see later - both have much in common.
 
-''The lint program for C programs is generally considered the first widely used static analysis tool for defect detection.''\footnote{\citep[1]{UsingSAToFindBugs}}
+\myInlineQuote{The lint program for C programs is generally considered the first widely used static analysis tool for defect detection.}\footnote{\citep[1]{UsingSAToFindBugs}}
 
 \subsubsection{Generic and context-specific defects}
 
@@ -61,7 +61,7 @@ A buffer overflow occurs when a program writes data outside the bounds of alloca
 An integer overflow occurs when an integral value is increased or decreased beyond its capacity\footnote{\citep[235]{SecureProgramming}}. The following example demonstrates how this can lead to an infinite loop:
 
 \SingleSpacing
-\begin{lstlisting}[language=C++, caption=Integer ''underflow'' in \myProperName{C++}]
+\begin{lstlisting}[language=C++, caption=Integer \mySlang{underflow} in \myProperName{C++}]
 for(unsigned int i = 200; i >= 0; --i)
 {
 	// ...
@@ -138,7 +138,7 @@ Being major factors of software quality, companies put a lot of effort into impr
 
 All these techniques follow a defensive mindset about writing applications, knowing that every programmer, no matter how experienced, will make mistakes that lead to undefined program behaviour. All in all these techniques aim at reducing the rate of errors that go unnoticed.
 
-\textbf{Static analysis} is another technique in the programmers toolbox serving this goal, during and after code creation. Compared to dynamic testing and code review, it reduces the human factor, programatically applying ''checks thoroughly and consistently, without any of the bias that a programmer might have about which pieces of code are 'interesting' (...) or which pieces of code are easy to exercise through dynamic testing.''\footnote{\citep[22]{SecureProgramming}} Static analysis tools accumulate the knowledge of experienced programmers and as \myAuthorName{Brian Chess} and \myAuthorName{Jacob West} point out, the feedback given by these tools acts as a means of knowledge transfer by showing the programmer types of errors he was not aware of.\footnote{\citep[22]{SecureProgramming}} In this way, a "static analysis tool can make the code review process faster and more fruitful by hypothesizing a set of potential problems for consideration during a code review."\footnote{\citep[13]{SecureProgramming}}
+\textbf{Static analysis} is another technique in the programmers toolbox serving this goal, during and after code creation. Compared to dynamic testing and code review, it reduces the human factor, programatically applying \myInlineQuote{checks thoroughly and consistently, without any of the bias that a programmer might have about which pieces of code are 'interesting' (...) or which pieces of code are easy to exercise through dynamic testing.}\footnote{\citep[22]{SecureProgramming}} Static analysis tools accumulate the knowledge of experienced programmers and as \myAuthorName{Brian Chess} and \myAuthorName{Jacob West} point out, the feedback given by these tools acts as a means of knowledge transfer by showing the programmer types of errors he was not aware of.\footnote{\citep[22]{SecureProgramming}} In this way, a "static analysis tool can make the code review process faster and more fruitful by hypothesizing a set of potential problems for consideration during a code review."\footnote{\citep[13]{SecureProgramming}}
 
 As with dynamic testing and code review, static analysis can not verify the absence of errors, but is a technique to reduce the amount of bugs before release.
 
@@ -146,7 +146,7 @@ As with dynamic testing and code review, static analysis can not verify the abse
 
 As every technique, static analysis has drawbacks. 
 
-Depending on how well a tool works and how good it is balanced, static analysis tools may produce a lot of \textbf{false positives}, meaning pointing out an error where none exists. Too much ''noise'' is problematic, as it costs the programmer valuable time to check if a result is really a bug or not. Also, real problems may be overseen, when false positives dominate the tools output.
+Depending on how well a tool works and how good it is balanced, static analysis tools may produce a lot of \textbf{false positives}, meaning pointing out an error where none exists. Too much \mySlang{noise} is problematic, as it costs the programmer valuable time to check if a result is really a bug or not. Also, real problems may be overseen, when false positives dominate the tools output.
 
 \textbf{False negatives}, on the other hand, are real bugs that a tool did not discover. It has already been said, that complete absence of errors can not be proven with any tool - so, using static analysis tools may give the programmer a false sense of security.\footnote{\citep[23]{SecureProgramming}}
 
@@ -178,7 +178,7 @@ Bug finders additionally need to populate their model with information about the
 
 \subsection{Applying rules}
 
-After creating a model, static analysis tools that check for correctness, will perform checks on the model using a set of rules that are delivered with the tool. These rules may search for common ''bug idioms'' like memory leaks, buffer overflows or may define the characteristics of a special security related problem.
+After creating a model, static analysis tools that check for correctness, will perform checks on the model using a set of rules that are delivered with the tool. These rules may search for common \mySlang{bug idioms} like memory leaks, buffer overflows or may define the characteristics of a special security related problem.
 
 Some tools allow the user to extend the set of rules to search for bugs that may be specific to the user's codebase or that are not found by the rules delivered with the tool.\footnote{\citep[97]{SecureProgramming}}
 
@@ -214,7 +214,7 @@ Dehydra is a lightweight, scriptable, general purpose static analysis tool capab
 
 When compiling a project with \myProperName{GCC} and \myProperName{Dehydra}, the user provides a script file along with the command-line arguments. As the compilation happens, functions in the given script are called to inform about found types, functions and other symbols. This way the script can build its own AST representation, filtering symbols on the fly when necessary.
 
-An example function that a script may provide is ''process\_type(t)'', which is called by \myProperName{Dehydra} whenever a new type was found in the compiling code.
+An example function that a script may provide is \mySCName{process\_type(t)}, which is called by \myProperName{Dehydra} whenever a new type was found in the compiling code.
 
 The biggest drawback of \myProperName{Dehydra} is that it is currently only supported on \myProperName{Linux} based operating systems.
 
@@ -227,7 +227,7 @@ The biggest drawback of \myProperName{Dehydra} is that it is currently only supp
 Clang is an ''LLVM native'' C/C++/Objective-C compiler, which aims to deliver amazingly fast compiles (...), extremely useful error and warning messages and to provide a platform for building great source level tools. The Clang Static Analyzer is a tool that automatically finds bugs in your code, and is a great example of the sort of tool that can be built using the Clang frontend as a library to parse C/C++ code.\footnote{\citep{LLVMHP}}
 \end{quotation}
 
-''The LLVM Project is a collection of modular and reusable compiler and toolchain technologies''. The \myProperName{LLVM} compiler framework includes multiple compiler front-ends, like \myProperName{Clang} for the \myProperName{C} language family, an optimizer and code generation support for many popular CPUs.\footnote{\citep{LLVMHP}}
+\myInlineQuote{The LLVM Project is a collection of modular and reusable compiler and toolchain technologies}. The \myProperName{LLVM} compiler framework includes multiple compiler front-ends, like \myProperName{Clang} for the \myProperName{C} language family, an optimizer and code generation support for many popular CPUs.\footnote{\citep{LLVMHP}}
 
 The open-source \myProperName{Clang} project is not only concerned with developing a compiler that produces high-performance code, but also with developing software that can be used in utilities like IDE's and bug finders to perform source code analysis and indexing.
 
@@ -239,4 +239,4 @@ There are two approaches of how an application can integrate \myProperName{Clang
 
 \subsubsection{\myProperName{Emscripten}}
 
-In the context of this thesis, another interesting \myProperName{LLVM}-based project should be mentioned. ''Emscripten is an LLVM-to-JavaScript compiler. It takes LLVM bitcode (which can be generated from C/C++ using Clang, or any other language that can be converted into LLVM bitcode) and compiles that into JavaScript, which can be run on the web.''\footnote{\citep{EmscriptenHP} - taken from front page} Instead of accessing C++ through glue code, the C++ code itself is completely compiled to \myProperName{JavaScript}. This may sound very slow in the first place, but with the current performance of \myProperName{JavaScript} virtual machines and the reduced cost of type-conversion (as all is \myProperName{JavaScript}), code generated by \myProperName{Emscripten} is only 3 to 4 times slower than native code generated with \myProperName{GCC}.\footnote{\citep{EmscriptenHP} - taken from FAQ section}
+In the context of this thesis, another interesting \myProperName{LLVM}-based project should be mentioned. \myInlineQuote{Emscripten is an LLVM-to-JavaScript compiler. It takes LLVM bitcode (which can be generated from C/C++ using Clang, or any other language that can be converted into LLVM bitcode) and compiles that into JavaScript, which can be run on the web.}\footnote{\citep{EmscriptenHP} - taken from front page} Instead of accessing C++ through glue code, the C++ code itself is completely compiled to \myProperName{JavaScript}. This may sound very slow in the first place, but with the current performance of \myProperName{JavaScript} virtual machines and the reduced cost of type-conversion (as all is \myProperName{JavaScript}), code generated by \myProperName{Emscripten} is only 3 to 4 times slower than native code generated with \myProperName{GCC}.\footnote{\citep{EmscriptenHP} - taken from FAQ section}
