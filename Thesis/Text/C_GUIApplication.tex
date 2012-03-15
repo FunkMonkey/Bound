@@ -200,7 +200,7 @@ Glue code for converting between \myProperName{C++} and \myProperName{JavaScript
 
 Types can generally converted from \myProperName{C++} to the scripting language and verse visa.
 
-There are templates for converting fundamental types like \mySCName{int}, \mySCName{bool} or \mySCName{float}, but it would be complicated to have a template for every single type, especially as all classes are wrapped in a similar way. That is the reason type libraries exist in \myProperName{Bound}. Type library entries are created by the class code generator and exist for every wrapped class. A type library entry contains information about the type, most importantly an identifier for it (the class' USR) and the include file needed when wrapping the type. Type library entries also provide restrictions, which define in which way a wrapped class can be used. Some types may not allow being passed as a parameter, others do not allow being created from a returned copy and similar. All type libraries use the same templates for conversion. The type library entry is passed to the templates, so they can create glue code for the specific type.\\
+There are templates for converting fundamental types like \mySCName{int}, \mySCName{bool} or \mySCName{float}, but it would be complicated to have a template for every single type, especially as all classes are wrapped in a similar way. That is the reason \textbf{type libraries} exist in \myProperName{Bound}. \textbf{Type library entries} are created by the class code generator and exist for every wrapped class. A type library entry contains information about the type, most importantly an identifier for it (the class' USR) and the include file needed when wrapping the type. Type library entries also provide restrictions, which define in which way a wrapped class can be used. Some types may not allow being passed as a parameter, others do not allow being created from a returned copy and similar. All type libraries use the same templates for conversion. The type library entry is passed to the templates, so they can create glue code for the specific type.\todo{all restrictions}\\
 The plugin manages a type library -  a collection of all existing type library entries.
 
 \mySCName{LanguageBindingEntityCodeGen} contains functions for retrieving the correct template for a given \mySCName{CPP\_ASTType}. The templates are retrieved using type maps and type library entries.\\
@@ -244,7 +244,7 @@ The basic idea is that the generation process is split into multiple steps: firs
 
 \mySCName{prepareAndDiagnose} will accumulate all data that is necessary for the generation process. Most of the data will be retrieved from the \mySCName{Export\_ASTObject}, the \mySCName{sourceObject} and the options set for the entity code generator itself. All data is saved in a property named \mySCName{\_genInput}. While the data is accumulated, it is checked for various sources of errors. If errors or warnings occur, these are stored in \mySCName{\_genInput.diagnosis}.\\
 The range of checks is broad.\\
-The existence of templates that are referenced by the code generator (e.g. ''CPP\_Spidermonkey/function'') needs to be verified.\\
+The existence of templates that are referenced by the code generator (e.g. ''CPP\_Spider-monkey/function'') needs to be verified.\\
 A function code generator that creates glue code for a member function needs to check if its \mySCName{Export\_ASTObject}'s parent is creating the glue code for the class that the member function belongs to. If not, the glue code will call the function on an instance of a totally different class, probably resulting in a run-time crash.\\
 The name of the \mySCName{Export\_ASTObject}, which will serve as the name of the function in the target language, needs to be checked for signs that can not be used for identifiers in the scripting language.\\
 Types need to be checked if they can be handled (by trying to retrieve the according type handling template). If a type from the type library is detected, it also needs to be verified that the type is used within the limitations/restrictions mandated by the type library. A specific class may, for example, not be allowed to use as a parameter due to memory ownership problems.\\
@@ -260,13 +260,42 @@ The final source code generation will only be executed, if there are no errors i
 
 To give a more practical example of the given information, the language plugin for \myProperName{Spidermonkey} and its code generators are explained in greater detail in this section.
 
-\mySCName{CPPSM\_FunctionCodeGen}
-\mySCName{CPPSM\_ObjectCodeGen}
+The plugin, \mySCName{CPPSM\_Plugin}, contains two type maps for converting types between \myProperName{C++} and \myProperName{Spidermonkey}. These maps initially contain the templates for the conversion of fundamental types like \mySCName{int}, \mySCName{float} and \mySCName{bool}, but also for the conversion of strings (\mySCName{const char*} or \mySCName{std::string}) as string is a fundamental type in \myProperName{JavaScript}. The function \mySCName{getCodeGeneratorByASTObject} takes a \mySCName{CPP\_ASTObject} as an argument and returns the constructor for the appropriate entity code generator. For functions and member functions it returns the \mySCName{CPPSM\_FunctionCodeGen} constructor; for namespaces, classes and structs it returns the \mySCName{CPPSM\_ObjectCodeGen} constructor. Other \myProperName{C++} entities are currently not supported, but can easily be extended in a similar fashion.
+
+\subsubsection{\mySCName{CPPSM\_FunctionCodeGen}}
+
+As explained, \mySCName{CPPSM\_FunctionCodeGen} gathers all important information inside \mySCName{prepare}-\mySCName{AndDiagnoseRound}. As it uses type information, this is done in the second round. Nothing happens in the first.
+
+The function first creates a new object for \mySCName{\_genInput} for a fresh start. It stores the name of the \mySCName{Export\_ASTObject}, as it will be used as the name of the \myProperName{JavaScript} function. Also the template that will be used for the function is retrieved by its name (standard is ''CPP\_Spidermonkey/function''). As all failed checks, an error message will be saved in the \mySCName{diagnosis} if the template cannot be found.\\
+The method then checks if the according \mySCName{Export\_ASTObject} does have a \mySCName{sourceObject} and if that is a kind of function. For member functions, it will test if the parent \mySCName{Export\_ASTObject} wraps the according class. Information is stored about the function being declared as \mySCName{static} or if it is a call to an instance function. The name of the called \myProperName{C++} function and a string qualifying the scope of the function (f.ex. the class name) need to be stored as well. \\
+Next, parameters will be added to the \mySCName{\_genInput}. For every parameter type the correct template information and type string are retrieved using \mySCName{getTypeHandlingTemplate} defined in \mySCName{LanguageBindingEntityCodeGen}. \mySCName{TYPE\_FROM\_SCRIPT} is passed for specifying the direction of type conversion. Templates are tested for existence. If the template information contains a type library entry, it will be tested if the type library entry allows the passing as a parameter (\mySCName{allowUnwrapping}).\\
+The return type information is retrieved afterwards in a similar fashion, but with \mySCName{TYPE\_TO\_SCRIPT} as the direction. If the return type is a pointer or reference and a type library entry was found, it is checked if the wrapping of \myProperName{C++} instances is allowed (\mySCName{allowWrappingInstances}). If the type is a declaration, it is tested, if wrapping of copies is allowed (\mySCName{allowWrappingCopies}).\\
+At the end, the necessary include file is retrieved based on the location information of the wrapped \mySCName{CPP\_ASTObject}. Without this file, the produced code could not be compilable as it would reference an undefined function.\\
+If no errors were detected, the function returns \mySCName{true}.
+
+For generation only information stored in \mySCName{\_genInput} is used. The \mySCName{generate} function returns an object containing all information needed for further assembling the generated glue code. This object contains a \mySCName{type} property, which is set to ''Function''. The object also stores information about the number of parameters, whether the function is static and the name under which the function should appear in script. Based on the parameter information in \mySCName{\_genInput}, the given templates for the parameters will be fetched to create the glue code for those. The same happens for the return type. In the next step, these glue code pieces and other information from \mySCName{\_genInput} are passed to the \mySCName{fetch} method of the template that creates the glue code of the whole function. The generated glue code, as well as the name of the wrapper function are stored in the result object.\\
+All used templates (for parameters, return type and the function itself), will be checked if they provide include dependencies. All includes are collected, duplicates eliminated and the list stored in the result object, which is then returned.
+
+\subsubsection{\mySCName{CPPSM\_ObjectCodeGen}}
+
+\mySCName{CPPSM\_ObjectCodeGen} gathers all important information inside \mySCName{prepare}-\mySCName{AndDiagnoseRound}. As it creates type library entries, this is done in the first round. Nothing happens in the second.
+
+First the name for the class or scope is stored in \mySCName{\_genInput}. The names of all \mySCName{Export\_ASTObject}s in the parent chain is retrieved as it can be used by the plugin. Also, depending on whether the \mySCName{exportObject} has children, the \mySCName{isInline} property will be set. Scopes or classes without children will not be saved in their own files.\\
+\mySCName{CPPSM\_ObjectCodeGen} handles namespaces and \mySCName{Export\_ASTObject}s that do not have a \mySCName{sourceObject} different than classes. The glue code for the first group will only create a simple \myProperName{JavaScript} object and add functions to it. For classes, the glue code will create a complete \myProperName{JavaScript} class prototype and constructor function from which instances can be created. But as both groups share a lot of code, they are written in the same code generator.\\
+For the first group, the \mySCName{type} property will be set to \mySCString{Object}. The templates for generating the header- and the source-file code will be retrieved. When not being adjusted by the user, these default to \mySCString{CPP\_Spidermonkey/hpp\_scope\_content\_object} and \mySCString{CPP\_Spidermonkey/cpp\_scope\_content\_object}.\\
+For structs and classes the \mySCName{type} property will be set to \mySCString{Class} and the header and source-file templates will be retrieved defaulting to \mySCString{CPP\_Spidermonkey/hpp\_scope-\_content\_class} and \mySCString{CPP\_Spidermonkey/cpp\_scope\_content\_class}. Also, the full name including spaces is stored. A type library entry is created or updated and saved in the plugin based on the class' USR. The information for the type library is retrieved from the code generator and can be changed by the user from within the GUI. The type library entry is checked for incompatible options. For example, if the ownership is set to \mySCString{Native}, \mySCName{allowWrappingCopies} must be set to false, as wrapping copies returned from \myProperName{C++} functions would probably result in memory leaks, when memory is handled by the \myProperName{C++} side. The type library entry is also stored in \mySCName{\_genResult}, as is the include file in which the class was defined.\\
+Again, if no errors occured, \mySCName{prepareAndDiagnoseRound} will return true.
+
+The \mySCName{generate} function's first act is to call the \mySCName{generate} functions of all children resulting in a recursive generation. Thereby, the generation results of the children will be collected, as they will be passed to the templates. The templates are fetched. The templates for objects and classes internally iterate over the generation results of the children and if they find a result of \mySCName{type} \mySCString{Function}, the according glue code of the function will be inserted in the class' glue code.
+The final step is to collect all used include files, just as \mySCName{CPPSM\_FunctionCodeGen} does.  The children results, the glue code  of the class (for header and source-files) and the \mySCName{isInline} property are stored in the result object and as such returned. \\
+
 
 \subsubsection{Export}
 
-The plugin's \mySCName{getExportFiles} function is responsible for assembling the code for the files to be saved upon export. It takes the generation result of a \mySCName{CPPSM\_ObjectCodeGen} and tries to create complete files in a reasonable way. To do this, it traverses the generation results of the children recursively. If a child is marked \mySCName{inline} then its content will be included in the same header and source file. Non-inline children will get their own set of files.\\
-The content of the files will be assembled from the glue code and includes information found in the generator result and its inline children. 
+The \mySCName{CPPSM\_Plugin}'s \mySCName{getExportFiles} function is responsible for assembling the code for the files to be saved upon export. It takes the generation result of a \mySCName{CPPSM\_ObjectCodeGen} and tries to create complete files in a reasonable way. To do this, it traverses the generation results of the children recursively. If a child is marked \mySCName{inline}, then its content will be included in the same header and source file. Non-inline children will get their own set of files.\\
+The content of the files will be assembled from the glue code and includes information found in the given generator result and its inline children generator results. The filenames of the created files are of course integrated into the include resolution process, as the glue code of scopes needs to call the \mySCName{init} functions of the child scopes so all elements will be correctly registered to the script interpreter.
+
+The result of \mySCName{getExportFiles} is a map of filenames with their according source code.
 
 \section{The project}
 \label{sec:Project}
@@ -281,6 +310,8 @@ saving and loading, reparsing, metadata, etc., versioning
 \subsection{DOMTree}
 
 \section{GUI overview}
+
+workflow
 
 \section{Known Problems}
 

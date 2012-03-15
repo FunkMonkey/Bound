@@ -396,6 +396,8 @@ CodeGenerator_Function.prototype = {
 				}
 				else
 				{
+					// TODO: check if this is actually a function
+					
 					genInput.isStatic = this.isStatic;
 					
 					// TODO: check parent for member functions
@@ -810,8 +812,6 @@ CodeGenerator_Object.prototype = {
 					genInput.hppTemplate = this._getTemplate(this.hppTemplateNameClass, diagnosis);
 					genInput.cppTemplate = this._getTemplate(this.cppTemplateNameClass, diagnosis);
 					genInput.cppClassFullName = sourceObj.cppLongName;
-					
-					
 					
 					// validating type library
 					this._updateTypeLibraryEntry(genInput.hppTemplate);
