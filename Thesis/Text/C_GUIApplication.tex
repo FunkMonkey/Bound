@@ -236,7 +236,7 @@ For the return type of type \mySCName{int}, the type map for converting from \my
 \subsection{Preparation, diagnosis and generation}
 
 User customized auto-generated source code is just as error-prone as human-written code, especially when working across programming language borders. Producing non-compilable code makes a language binding generator useless - producing code that has undefined behaviour, leads to crashes, memory leaks or data corruption on the other hand is even worse as it may keep the user in a false sense of safety\todo{word}. This is especially true when looking at the set of potential problems that \textbf{can} arise due to memory management issues shown in \myRefChapter{chap:LanguageBindingCPPJS}.\\
-Thus, diagnosing potential error sources before generating glue code is an essential task of any language binding generator.
+Thus, diagnosing potential error sources before generating glue code is an essential task of any language binding generator. Not everything can be checked though. If there is a typo in a used template, the error can only be found upon compilation.
 
 As defined in \mySCName{BaseEntityCodeGen}, every entity code generator needs to provide two important functions: \mySCName{prepareAndDiagnose} (or more specifically \mySCName{prepareAndDiagnoseRound}) and \mySCName{generate}.
 
@@ -244,7 +244,7 @@ The basic idea is that the generation process is split into multiple steps: firs
 
 \mySCName{prepareAndDiagnose} will accumulate all data that is necessary for the generation process. Most of the data will be retrieved from the \mySCName{Export\_ASTObject}, the \mySCName{sourceObject} and the options set for the entity code generator itself. All data is saved in a property named \mySCName{\_genInput}. While the data is accumulated, it is checked for various sources of errors. If errors or warnings occur, these are stored in \mySCName{\_genInput.diagnosis}.\\
 The range of checks is broad.\\
-The existence of templates that are referenced by the code generator using their identifier (e.g. ''CPP\_Spidermonkey/function'') needs to be verified.\\
+The existence of templates that are referenced by the code generator (e.g. ''CPP\_Spidermonkey/function'') needs to be verified.\\
 A function code generator that creates glue code for a member function needs to check if its \mySCName{Export\_ASTObject}'s parent is creating the glue code for the class that the member function belongs to. If not, the glue code will call the function on an instance of a totally different class, probably resulting in a run-time crash.\\
 The name of the \mySCName{Export\_ASTObject}, which will serve as the name of the function in the target language, needs to be checked for signs that can not be used for identifiers in the scripting language.\\
 Types need to be checked if they can be handled (by trying to retrieve the according type handling template). If a type from the type library is detected, it also needs to be verified that the type is used within the limitations/restrictions mandated by the type library. A specific class may, for example, not be allowed to use as a parameter due to memory ownership problems.\\
@@ -254,11 +254,19 @@ When creating such a system, it is important to be able to alter the diagnosis i
 
 Preparation happens in multiple rounds, meaning that the whole tree is traversed multiple times and \mySCName{prepareAndDiagnoseRound} called with the current round passed as an argument. This is necessary for cross-referencing. A function that needs a type library entry of a class that comes later in traversal would issue wrong errors, just because the according type library has not been created yet or is not up to date. Thus type library entries are created in the first round, while the functions just start preparing in the second round when it is safe to use the type library entries.
 
-\todo{generation}
+The final source code generation will only be executed, if there are no errors in the whole project. The \mySCName{generate} function of an entity code generator is used for producing the glue code for the according entity.  It only uses information stored in \mySCName{\_genInput} - identifiers, templates and other data needed for glue code generation. As explained in more detail in the following section, the \mySCName{generate} function will fetch the templates with the data provided. The method will return a \myProperName{JavaScript} object containing all information needed for assembling the export files, most importantly the glue code for the object. The result of a function code generator will, for example, contain the code for the wrapper function, as well as its name and all necessary include files. If the function belongs to a class, the class' code generator's \mySCName{generate} function will use this information for assembling the glue code of the whole class.
 
 \subsection{The \myProperName{Spidermonkey} code generators}
 
-type libraries
+To give a more practical example of the given information, the language plugin for \myProperName{Spidermonkey} and its code generators are explained in greater detail in this section.
+
+\mySCName{CPPSM\_FunctionCodeGen}
+\mySCName{CPPSM\_ObjectCodeGen}
+
+\subsubsection{Export}
+
+The plugin's \mySCName{getExportFiles} function is responsible for assembling the code for the files to be saved upon export. It takes the generation result of a \mySCName{CPPSM\_ObjectCodeGen} and tries to create complete files in a reasonable way. To do this, it traverses the generation results of the children recursively. If a child is marked \mySCName{inline} then its content will be included in the same header and source file. Non-inline children will get their own set of files.\\
+The content of the files will be assembled from the glue code and includes information found in the generator result and its inline children. 
 
 \section{The project}
 \label{sec:Project}
