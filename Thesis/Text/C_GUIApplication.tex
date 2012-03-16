@@ -363,7 +363,29 @@ As the \myProperName{C++} projects for which glue code is created, may be under 
 
 \subsection{DOMTree}
 
+\begin{wrapfigure}{r}{0.4\textwidth}
+  \begin{center}
+    \includegraphics[scale=0.75]{Images/DOMTree.png}
+  \end{center}
+  \caption{Example of a \mySCName{DOMTree}}
+  \label{fig:DOMTree}
+   \vspace{-15pt}
+\end{wrapfigure}
 
+For displaying the \myProperName{C++} and export tree in the user interface a tree GUI widget has been written.
+
+\myProperName{XUL} already comes with a native tree widget, but it requires the user to manage the hierarchy of visible tree elements in form of a list. The user himself has to track whether nodes have been opened and child nodes are visible and adjust the list accordingly.
+
+As managing a tree structure in a list seemed rather complicated and styling a \myProperName{XUL} tree element works differently than styling any other \myProperName{XUL} or \myProperName{HTML} element (for performance reasons, it seems), I decided to create a new tree GUI widget, expressed in the class \mySCName{DOMTree}.
+
+The widget makes use of the hierarchical nature of the \myProperName{XUL} \myProperName{Document Object Model (DOM)}. Tree elements are created dynamically at run-time using the \linebreak\mySCName{document.createElement} function. The tree basically consists of \myProperName{XUL} \mySCName{box} objects, which are \mySlang{instances} of \mySCName{DOMTreeRow}. As the \mySCName{box} box objects are created by the \myProperName{DOM}, they are not real instances of \mySCName{DOMTreeRow}, but borrow all its functions and properties. Borrowing functions allows using these as if they were declared in the object itself.\\
+A \mySCName{DOMTreeRow} has a simple design. It is a vertical \mySCName{box} containing a title row (with twisty, symbol and label) and an initially empty vertical \mySCName{box} that serves as the child container. Child \mySCName{DOMTreeRow}s can be added to to the child container using the normal \myProperName{DOM} functions, e.g. \mySCName{element.appendChild}, resulting in a tree structure. The visual indentation is handled by \myProperName{CSS}.\\
+When collapsing/opening a tree row by using the twisty, the container \mySCName{box}'s visibility is changed using the \myProperName{CSS} \mySCName{display} property - effectively hiding or showing all child rows.
+
+Selection logic has been implemented for selecting individual or multiple tree rows. A \mySCName{selection} \mySCName{DOMEvent} is fired when the selection is changed.\\
+Dragging of tree nodes has also been implemented based on the \myProperName{HTML5} drag-and-drop capabilities. \mySCName{DOMTreeRow} contains a private data field that will serve as the drag-data.
+
+When creating a \mySCName{DOMTree} a callback function has to be passed. When creating a \mySCName{DOMTreeRow} this callback function is called to retrieve information about the GUI tree node, for example about the text label that should be used or styling attributes for setting the correct symbol.
 
 \section{Known Problems}
 
