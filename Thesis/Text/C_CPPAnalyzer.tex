@@ -131,7 +131,7 @@ The intermediate tree is build using instances of \mySCNameImp{Clang\_AST\_CXTre
 Every node holds a pointer to its parent and all of its children, resulting in a tree structure that can be traversed in both directions. 
 The \mySCName{Clang\_AST} holds a reference to the root tree node and a map that links canonical cursors to intermediate tree nodes (for faster access).
 
-After the translation unit has been parsed using \mySCName{clang\_parseTranslationUnit}, all the children of the translation unit cursor will be visited with the help of \mySCName{clang\_visitChildren}. Every visited child cursor is checked, whether an intermediate tree node has already been created for it - based on the child's canonical cursor. If so, the tree node is retrieved, the visited cursor added to its list of cursors and the children are visited. Visiting the children for an already existing tree node is necessary, as the the new found cursor may contain more children (for example if it is a class definition).\\
+After the translation unit has been parsed using \mySCName{clang\_parseTranslationUnit}, all the children of the translation unit cursor will be visited with the help of \linebreak\mySCName{clang\_visitChildren}. Every visited child cursor is checked, whether an intermediate tree node has already been created for it - based on the child's canonical cursor. If so, the tree node is retrieved, the visited cursor added to its list of cursors and the children are visited. Visiting the children for an already existing tree node is necessary, as the the new found cursor may contain more children (for example if it is a class definition).\\
 If no tree node is existing for the canonical cursor, then, depending on the cursor's kind, a new tree node is created, inserted into the tree and added to the map that links canonical cursors and tree nodes. A lot of AST nodes are not needed for language binding. Thus, the first filtering happens at this stage and tree nodes for the intermediate AST will only be created for the following \myProperName{C++} entities:\\global and static variables, \mySCName{union}, \mySCName{typedef}, \mySCName{struct}, \mySCName{namespace}, \mySCName{class} (including templated classes, partial specializations and explicit/implicit specializations), (templated) functions, function parameters, member functions, constructors, destructors, fields (data members), \mySCName{enum}, enum constants, namespaces, template parameters, template arguments and linkage specifiers (e.g. \mySCName{extern "C"}).\\
 From this list, it is obvious, that the intermediate AST will only have details up to function-level. Source code inside functions is not considered. 
 
@@ -158,7 +158,7 @@ Depending on the kind of node, the visibility of the children will be checked re
 \subsection{The final AST}
 
 The final simplified AST is a tree structure made of classes that inherit from
-\mySCNameImp{ASTObject}. A single class exists for every kind of AST node. Only linkage specifiers will not appear in the final AST. The descendants of \mySCName{ASTObject} hold information according to their kind. \mySCName{ASTObject\_Function}, for example, holds information about its return type and parameters. \myProperName{Clang} treats static data members as variable declarations. The simplified AST will treat them as instances of \mySCName{ASTObject\_Field} that have the static-member set to true.\\
+\mySCNameImp{ASTObject}. A single class exists for every kind of AST node. Only linkage specifiers will not appear in the final AST. The descendants of \mySCName{ASTObject} hold information according to their kind. \mySCName{ASTObject\_Function}, for example, holds information about its return type and parameters. \myProperName{Clang} treats static data members as variable declarations. The simplified AST will treat them as instances of \mySCName{ASTObject\_Field} that have the \mySCName{static} member set to \mySCName{true}.\\
 An overview over the existing subclasses of \mySCName{ASTObject} can be found in \myRefFigure{fig:ASTObjectUML}.
 
 \begin{figure}[p] % h = here
@@ -223,7 +223,7 @@ extern "C"
 
 As can be seen in \myRefFigure{fig:TreeExample}, the AST \myProperName{Clang} produces contains a lot of unnecessary information. The intermediate AST removes many kinds of cursors and combines multiple declarations for the same entity. The final AST filters based on user-given options. In the example the function \mySCName{dontFilter} is the only node that was marked \textbf{visible}, because it is the only node that matched the symbol name filter. \mySCName{pInstance} is referenced as a parameter of \mySCName{dontFilter}. \mySCName{SomeClass} is referenced by the \mySCName{ASTType} used in \mySCName{pInstance}. Thus \mySCName{SomeClass} and its parent \mySCName{SomeNamespace} are marked as \textbf{referenced} and as such are visible in the final tree. Note that the children of \mySCName{SomeClass} are not visible.
 
-\section{Exporting AST to JSON}
+\section{Exporting AST to \myProperName{JSON}}
 \label{sec:ExportJSON}
 
 As the AST will be used from within another application, it needs to be serialized into a string for passing the data across application borders. As will be shown in \myRefChapter{chap:GUIApplication}, the GUI application is based heavily on \myProperName{JavaScript}.\\

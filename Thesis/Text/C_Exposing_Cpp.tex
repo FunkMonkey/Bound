@@ -69,7 +69,7 @@ JSBool wrapper_someFunc(JSContext *cx, uintN argc, jsval *vp)
 
 This approach comes with one big problem, when calling \mySCName{someFunc} multiple times with different \myProperName{JavaScript} callbacks: As \mySCName{wrapper\_callback} is a simple \myProperName{C++} function created at compile-time, it has no notion of state and as such no information about which \myProperName{JavaScript} function to use as the callback.
 
-One way around this, is to save the \myProperName{JavaScript} callback function passed to \mySCName{wrapper\_someFunc} in a global variable, so it can be retrieved within \mySCName{wrapper\_callback}. This approach only works, when the callback is called during the execution of \mySCName{someFunc}. If it is called at a random point in program execution, \mySCName{wrapper\_callback} would use the last \myProperName{JavaScript} function that was saved in the global variable, which may not be the one the user intended to be called. Thus this work-around is highly suboptimal.
+One way around this, is to save the \myProperName{JavaScript} callback function passed to \linebreak\mySCName{wrapper\_someFunc} in a global variable, so it can be retrieved within \mySCName{wrapper\_callback}. This approach only works, when the callback is called during the execution of \mySCName{someFunc}. If it is called at a random point in program execution, \mySCName{wrapper\_callback} would use the last \myProperName{JavaScript} function that was saved in the global variable, which may not be the one the user intended to be called. Thus this work-around is highly suboptimal.
 
 \textbf{Passing state information}
 

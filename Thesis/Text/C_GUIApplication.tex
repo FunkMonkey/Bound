@@ -33,6 +33,10 @@ Every plugin comes with a set of code generators that handle the different kinds
 
 When performing the final export of a plugin, it traverses all the \mySCName{Export\_ASTObject}s in the tree, uses the associated code generators to produce glue code pieces that are then combined and saved in files. These files can be included in \myProperName{C++} projects and used in conjunction with the embedded script interpreter to add script-support for the wrapped classes and functions.
 
+\section{GUI overview}
+
+workflow \todo{All that stuff}
+
 \section{Architecture}
 
 The application mainly contains three different types of files:
@@ -52,6 +56,7 @@ The \mySCName{CPPAnalyzer} module provides access to the \myProperName{CPPAnalyz
 For easier maintenance, application logic and GUI logic is separated. All modules that provide logic for the user interface and specific GUI elements are in a subfolder called \mySCName{UI}. None of these modules is referenced from code outside of this folder, except by \myProperName{XUL} files and the \mySCName{Bound} module. This will make it easier to develop a command-line version of \myProperName{Bound} at some point in the future.
 
 \subsection{Meta data}
+\label{sec:MetaData}
 
 A meta data system has been developed to equip \myProperName{JavaScript} objects (and ''classes'') with additional information that can be used for dynamic GUI element creation and serialization/deserialization.
 
@@ -87,6 +92,7 @@ The meta data is usually not used in its raw state. As an instance of a class th
 The meta data system is a core component of the application and plays a grand role in the maintainability of the source code as well as the customizability of the generated output and the application itself.
 
 \section{The \myProperName{C++} AST}
+\label{sec:CPPAST}
 
 The \myProperName{C++} is retrieved by calling the \mySCName{parse\_header} function of the \myProperName{CPPAnalyzer} shared library (see \myRefSection{sec:CallingCPPAnalyzer}).
 
@@ -143,7 +149,7 @@ Leaving the actual glue code generation to templates, the entity code generator'
 
 \subsubsection{Template manager and template files}
 
-A \mySCName{TemplateManager} has been developed to manage and load templates from files based on string identifiers. Using the \mySCName{getTemplate} function passing \mySCString{CPP\_Spidermonkey/function} will iterate over all search-paths looking for a file named \mySCName{function} inside a folder named \mySCName{CPP\_Spidermonkey} (using \mySCName{.jsmart} or \mySCName{.js} as the file extension). If such a file is found, it is loaded and a \mySCName{jSmart} template created from it and cached for the session. The second call to \mySCName{getTemplate} with the same identifier will return the cached template.\\
+A \mySCName{TemplateManager} has been developed to manage and load templates from\linebreak files based on string identifiers. Using the \mySCName{getTemplate} function passing \linebreak\mySCString{CPP\_Spidermonkey/function} will iterate over all search-paths looking for a file named \mySCName{function} inside a folder named \mySCName{CPP\_Spidermonkey} (using \mySCName{.jsmart} or \mySCName{.js} as the file extension). If such a file is found, it is loaded and a \mySCName{jSmart} template created from it and cached for the session. The second call to \mySCName{getTemplate} with the same identifier will return the cached template.\\
 As the user can add new paths to the start of the search paths list (note: currently not exposed to the GUI), it is possible to shadow existing templates with custom versions.
 
 In the first versions, template files were plain text files containing the code a \mySCName{jSmart} template will be based on. Additional needs arose. Templates were, for example, needed to be able to contain information about what \myProperName{C++} header files would need to be included if the template is used. To move more style out of the code generator into the templates, the templates started to need scripting capabilities. With these capabilities provided it seemed useful to have dependencies between templates so they can share code.\\
@@ -178,7 +184,7 @@ function onFetchAfter(fetchData, fetchResult)
 When fetching the template with \mySCName{\{jsvalName: "jsBool", inputVar:  "cppBool"\}} the \mySCName{onFetchBefore} function will be called and add \mySCName{randomComment} to the data that will be passed to the \mySCName{jSmartTemplate}'s \mySCName{fetch} function. The final result may look something like this:
 
 \SingleSpacing
-\begin{lstlisting}[language=JavaScript, caption=Result of fetching a template, label=lst:TemplateBool]
+\begin{lstlisting}[language=JavaScript, caption=Result of fetching a template]
 jsval jsBool = BOOLEAN_TO_JSVAL(cppBool); // Gimme 0.342$ please
 \end{lstlisting}
 \OnehalfSpacing
@@ -221,7 +227,7 @@ When trying to retrieve the template for handling a type, the application will t
 This procedure should be illustrated with an example. The following function needs to be wrapped:
 
 \SingleSpacing
-\begin{lstlisting}[language=C++, caption=Example function illustrating type resolutino]
+\begin{lstlisting}[language=C++, caption=Example function illustrating type resolution]
 int wrapMe(const WrappedClass& p1, OtherSubClass* p2);
 \end{lstlisting}
 \OnehalfSpacing
@@ -238,7 +244,7 @@ For the return type of type \mySCName{int}, the type map for converting from \my
 User customized auto-generated source code is just as error-prone as human-written code, especially when working across programming language borders. Producing non-compilable code makes a language binding generator useless - producing code that has undefined behaviour, leads to crashes, memory leaks or data corruption on the other hand is even worse as it may keep the user in a false sense of safety\todo{word}. This is especially true when looking at the set of potential problems that \textbf{can} arise due to memory management issues shown in \myRefChapter{chap:LanguageBindingCPPJS}.\\
 Thus, diagnosing potential error sources before generating glue code is an essential task of any language binding generator. Not everything can be checked though. If there is a typo in a used template, the error can only be found upon compilation.
 
-As defined in \mySCName{BaseEntityCodeGen}, every entity code generator needs to provide two important functions: \mySCName{prepareAndDiagnose} (or more specifically \mySCName{prepareAndDiagnoseRound}) and \mySCName{generate}.
+As defined in \mySCName{BaseEntityCodeGen}, every entity code generator needs to provide two important functions: \mySCName{prepareAndDiagnose} (or more specifically \linebreak\mySCName{prepareAndDiagnoseRound}) and \mySCName{generate}.
 
 The basic idea is that the generation process is split into multiple steps: first preparation and diagnosis, then generation as the second step.
 
@@ -278,9 +284,9 @@ All used templates (for parameters, return type and the function itself), will b
 
 \subsubsection{\mySCName{CPPSM\_ObjectCodeGen}}
 
-\mySCName{CPPSM\_ObjectCodeGen} gathers all important information inside \mySCName{prepare}-\mySCName{AndDiagnoseRound}. As it creates type library entries, this is done in the first round. Nothing happens in the second.
+\mySCName{CPPSM\_ObjectCodeGen} gathers all important information inside \linebreak\mySCName{prepareAndDiagnoseRound}. As it creates type library entries, this is done in the first round. Nothing happens in the second.
 
-First the name for the class or scope is stored in \mySCName{\_genInput}. The names of all \mySCName{Export\_ASTObject}s in the parent chain is retrieved as it can be used by the plugin. Also, depending on whether the \mySCName{exportObject} has children, the \mySCName{isInline} property will be set. Scopes or classes without children will not be saved in their own files.\\
+First the name for the class or scope is stored in \mySCName{\_genInput}. The names of all \linebreak\mySCName{Export\_ASTObject}s in the parent chain is retrieved as it can be used by the plugin. Also, depending on whether the \mySCName{exportObject} has children, the \mySCName{isInline} property will be set. Scopes or classes without children will not be saved in their own files.\\
 \mySCName{CPPSM\_ObjectCodeGen} handles namespaces and \mySCName{Export\_ASTObject}s that do not have a \mySCName{sourceObject} different than classes. The glue code for the first group will only create a simple \myProperName{JavaScript} object and add functions to it. For classes, the glue code will create a complete \myProperName{JavaScript} class prototype and constructor function from which instances can be created. But as both groups share a lot of code, they are written in the same code generator.\\
 For the first group, the \mySCName{type} property will be set to \mySCString{Object}. The templates for generating the header- and the source-file code will be retrieved. When not being adjusted by the user, these default to \mySCString{CPP\_Spidermonkey/hpp\_scope\_content\_object} and \mySCString{CPP\_Spidermonkey/cpp\_scope\_content\_object}.\\
 For structs and classes the \mySCName{type} property will be set to \mySCString{Class} and the header and source-file templates will be retrieved defaulting to \mySCString{CPP\_Spidermonkey/hpp\_scope-\_content\_class} and \mySCString{CPP\_Spidermonkey/cpp\_scope\_content\_class}. Also, the full name including spaces is stored. A type library entry is created or updated and saved in the plugin based on the class' USR. The information for the type library is retrieved from the code generator and can be changed by the user from within the GUI. The type library entry is checked for incompatible options. For example, if the ownership is set to \mySCString{Native}, \mySCName{allowWrappingCopies} must be set to false, as wrapping copies returned from \myProperName{C++} functions would probably result in memory leaks, when memory is handled by the \myProperName{C++} side. The type library entry is also stored in \mySCName{\_genResult}, as is the include file in which the class was defined.\\
@@ -289,10 +295,9 @@ Again, if no errors occured, \mySCName{prepareAndDiagnoseRound} will return true
 The \mySCName{generate} function's first act is to call the \mySCName{generate} functions of all children resulting in a recursive generation. Thereby, the generation results of the children will be collected, as they will be passed to the templates. The templates are fetched. The templates for objects and classes internally iterate over the generation results of the children and if they find a result of \mySCName{type} \mySCString{Function}, the according glue code of the function will be inserted in the class' glue code.
 The final step is to collect all used include files, just as \mySCName{CPPSM\_FunctionCodeGen} does.  The children results, the glue code  of the class (for header and source-files) and the \mySCName{isInline} property are stored in the result object and as such returned. \\
 
-
 \subsubsection{Export}
 
-The \mySCName{CPPSM\_Plugin}'s \mySCName{getExportFiles} function is responsible for assembling the code for the files to be saved upon export. It takes the generation result of a \mySCName{CPPSM\_ObjectCodeGen} and tries to create complete files in a reasonable way. To do this, it traverses the generation results of the children recursively. If a child is marked \mySCName{inline}, then its content will be included in the same header and source file. Non-inline children will get their own set of files.\\
+The \mySCName{CPPSM\_Plugin}'s \mySCName{getExportFiles} function is responsible for assembling the code for the files to be saved upon export. It takes the generation result of a \linebreak\mySCName{CPPSM\_ObjectCodeGen} and tries to create complete files in a reasonable way. To do this, it traverses the generation results of the children recursively. If a child is marked \mySCName{inline}, then its content will be included in the same header and source file. Non-inline children will get their own set of files.\\
 The content of the files will be assembled from the glue code and includes information found in the given generator result and its inline children generator results. The filenames of the created files are of course integrated into the include resolution process, as the glue code of scopes needs to call the \mySCName{init} functions of the child scopes so all elements will be correctly registered to the script interpreter.
 
 The result of \mySCName{getExportFiles} is a map of filenames with their according source code.
@@ -300,7 +305,56 @@ The result of \mySCName{getExportFiles} is a map of filenames with their accordi
 \section{The project}
 \label{sec:Project}
 
+All project-related information is stored in a \mySCName{Project} object. The project basically stores a reference to the \mySCName{CPP\_AST} and the \mySCName{Export\_AST}. It also saves the options that were used for calling \myProperName{CPPAnalyzer}, in case the user needs to reparse the project with the same settings. The \mySCName{Project} class also contains functions for saving and loading a project.
+
+\subsection{Saving}
+
+A project is saved to two files: On the one hand there is the project file, which contains the \mySCName{Export\_AST} and other project settings in \myProperName{JSON}. The other file contains the \myProperName{JSON} of the \myProperName{C++} AST just as it was retrieved from \myProperName{CPPAnalyzer}.
+
+For saving the \mySCName{Export\_AST}, its \mySCName{toSaveObject} function is called The function returns a JSON-compatible object, which can then be serialized for saving using \mySCName{JSON.stringify}. \mySCName{toSaveObject} does nothing, but calling the \mySCName{toSaveObject} functions of the root \linebreak\mySCName{Export\_ASTObject} (for saving all nodes) and the code generator plugins and stores the results in the \mySlang{save object} that it returns.\\
+Upon saving, a \mySCName{Export\_ASTObject} needs to store the reference to its \mySCName{sourceObject} in a way that it can be retrieved again when loading. This is done by saving the \mySCName{CPP\_ASTObject}'s USR as an id. The export object also stores the save objects for all its children (thus saving recursively) and its own entity code generators associated with their \mySCName{context}. All of these different \myProperName{JavaScript} objects have their own \mySCName{toSaveObject} functions.
+
+Most of the objects in the GUI application have meta data associated. As explained in \myRefSection{sec:MetaData}, this meta data can be used for saving and loading information. A simple implementation of a \mySCName{toSaveObject} function could look like this:
+
+\SingleSpacing
+\begin{lstlisting}[language=JavaScript, caption=Saving using meta data, label=lst:MetaDataSave]
+function SomeClass()
+{
+	this.saveMe   = "Save me!";
+	this.dontSave = "Don't dare saving me!";
+}
+
+// setting up the meta data
+MetaData.initMetaDataOn(SomeClass.prototype)
+   .addPropertyData("saveMe",  { load_save: {}})
+
+// the toSaveObject function
+SomeClass.prototype.toSaveObject = function toSaveObject()
+{
+	var result = {};
+	
+	// this call does all the magic
+	LoadSaveFromMetaData.saveTo(result, this);
+	
+	return result;
+}
+\end{lstlisting}
+\OnehalfSpacing
+
+The result of calling \mySCName{toSaveObject} from \myRefListing{lst:MetaDataSave} would be the \myProperName{JavaScript} object \mySCName{\{ saveMe: "Save me!" \}}.
+
 saving and loading, reparsing, metadata, etc., versioning
+
+\subsection{Loading}
+
+Loading is saving in reverse. The project file and the \myProperName{C++} AST file are loaded from disk. The \myProperName{C++} is created in the same way, as explained in \myRefSection{sec:CPPAST}. The contents of the project file are deserialized into a \myProperName{JavaScript} object using \mySCName{JSON.parse}. This is the exact \mySlang{save object} that was saved previously and as such can be loaded in a similar manner.\\
+Some objects may have saved their type, so that the according instances can be created from the right class. Other objects may not have saved their type as it is retrieved by the given context. \mySCName{Export\_ASTObject}s need to set the correct \mySCName{CPP\_ASTObject} as their \mySCName{sourceObject}. This is done by querying the \mySCName{CPP\_AST} with the USR that was saved. If for whatever reason no \mySCName{CPP\_ASTObject} is found, the \mySCName{sourceObject} is set to \mySCName{null}, but the information about the correct object is stored for later in a property named \mySCName{\_sourceObjectSaveObject}. A warning may be issued in this case.\\
+Loading from meta data works similarly to saving.\\
+With the \mySCName{CPP\_AST} and the \mySCName{Export\_AST} instantiated, a new \mySCName{Project} instance is created for bundling the information again.
+
+\subsection{Reparsing}
+
+As the \myProperName{C++} projects for which glue code is created, may be under development, new functions or classes are likely to be added or removed. In such a case, the \myProperName{C++} AST has to be reparsed for the loaded project. A new \mySCName{CPP\_AST} is retrieved by calling \myProperName{CPPAnalyzer}. This invalidates all \mySCName{Export\_ASTObject}s as their \mySCName{sourceObject} properties still reference the old \mySCName{CPP\_ASTObject}s. Thus, the objects have to be reconnected to the new AST nodes by using the USRs of the old \mySCName{sourceObject}s. If the current \mySCName{sourceObject} is \mySCName{null}, the \mySCName{\_sourceObjectSaveObject} property is checked to recall information about the USR. If the \mySCName{sourceObject} is not \mySCName{null}, but the according USR is not in the new AST, then the old USR is stored in \mySCName{\_sourceObjectSaveObject} and the \mySCName{sourceObject} set to \mySCName{null}. This makes it possible to reconnect to the correct \mySCName{CPP\_ASTObject}, even if it got missing in a set reparse-operations, for example in case the \myProperName{C++} function/class/entity has been accidentally deleted in the source code and was readded later.
 
 \section{GUI widgets}
 
@@ -309,9 +363,7 @@ saving and loading, reparsing, metadata, etc., versioning
 
 \subsection{DOMTree}
 
-\section{GUI overview}
 
-workflow
 
 \section{Known Problems}
 
