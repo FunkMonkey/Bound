@@ -114,6 +114,8 @@ var ExportTreePrototype = {
 			handler.handleException = this._metaHandleException;
 			handler.getPropertyDataHandler = this._metaGetPropertyDataHandler;
 			MainWindow.PropertyExplorer.setDataHandler(handler);
+			
+			MainWindow.PropertyExplorer.$label.value = "Inspecting: " + this.selection[0].data.name;
 		}
 	},
 	

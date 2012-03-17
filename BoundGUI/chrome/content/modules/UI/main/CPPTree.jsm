@@ -82,12 +82,17 @@ var CPPTreePrototype = {
 					data = {};
 					for(var i = 0, len = this.selection.length; i < len; ++i)
 						data[i + ": " + this.selection[i].data.name] = this.selection[i].data;
+						
+					MainWindow.PropertyExplorer.$label.value = "Inspecting: <collection>";
 				}
+				else
+					MainWindow.PropertyExplorer.$label.value = "Inspecting: " + data.name;
 				
 				var handler = new MetaDataHandler(data, true);
 				handler.handleException = this._metaHandleException;
 				handler.getPropertyDataHandler = this._metaGetPropertyDataHandler;
 				MainWindow.PropertyExplorer.setDataHandler(handler);
+				
 			}
 		} catch(e){
 			//if(e.constructor)

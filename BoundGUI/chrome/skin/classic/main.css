@@ -1,13 +1,4 @@
 
-#resultTabbox tab
-{
-	max-width: 12em;
-}
-
-#resultObjectExplorer .objexp-prop-string > textbox[multiline]
-{
-	height: 15em;
-}
 
 #exportAddProperty
 {
@@ -19,37 +10,73 @@
 	list-style-image: url("chrome://bound/skin/AST/O.png");
 }
 
-#logBox
+#logBoxes
 {
 	height: 10em;
-	
+}
+
+.logger-output
+{
 	background-color: #fff;
 	overflow: auto;
-	margin: 2px 4px;
-    padding: 2px 2px 3px;
+/*	margin: 2px 4px;*/
+/*    padding: 2px 2px 3px;*/
 	
 	-moz-user-focus: normal;
+	overflow: auto;
 }
 
-#logBox > label[logType="Info"]
+.logger-output > label[logType="Info"]
 {
-	
+	color: #999;
 }
 
-#logBox > label[logType="Warning"]
+.logger-output > label[logType="Warning"]
 {
-	color: #008000;
+	color: #ffb80d;
 }
 
-#logBox > label[logType="Error"]
+.logger-output > label[logType="Error"]
 {
 	color: #FF0000;
 }
+
+#logBoxes > tabpanels
+{
+	border: 0px;
+	padding: 0px;
+}
+
+/* ===== Property explorer ===== */
 
 #propertyExplorer{
 	overflow: auto;
 }
 
+#propertyExplorerLabel{
+	font-size: 1.5em;
+	border-bottom: 1px solid #000;
+}
+
+/* ===== RESULT STUFF ===== */
+
 #resultObjectExplorer{
 	overflow: auto;
+}
+
+
+#resultTabbox tab
+{
+	max-width: 12em;
+}
+
+#resultLabel
+{
+	font-size: 1.5em;
+	border-bottom: 1px solid #000;
+}
+
+#resultObjectExplorer .objexp-prop-string > textbox[multiline]
+{
+	height: 15em;
 }

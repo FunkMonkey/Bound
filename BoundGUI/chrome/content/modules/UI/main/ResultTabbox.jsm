@@ -25,6 +25,7 @@ var ResultTabbox = {
 		//this.$resultTabPanels = document.getElementById("resultTabPanels");
 		this.$resultObjectExplorer = document.getElementById("resultObjectExplorer");
 		createObjectExplorer(this.$resultObjectExplorer);
+		this.$label = document.getElementById("resultLabel");
 		
 	},
 	
@@ -33,11 +34,21 @@ var ResultTabbox = {
 		var codeGen = exportASTObject.getCodeGenerator(Bound.currentContext);
 		var isValid = codeGen.prepareAndDiagnose(true);
 		
+		MainWindow.LogBox.codeGenLogger.addInfoMessage("=== Generating: " + exportASTObject.name + " ===");
 		var result = null;
 		if(!isValid)
+		{
+			this.$label.value = "Result: ERRORS DETECTED!!! Check diagnosis.";
 			result = codeGen._genInput;
+			MainWindow.LogBox.codeGenLogger.addInfoMessage("Errors detected. List follows.");
+			MainWindow.LogBox.showDiagnosisMessages(exportASTObject, Bound.currentContext, true);
+		}
 		else
+		{
+			this.$label.value = "Result: Success!";
+			MainWindow.LogBox.codeGenLogger.addInfoMessage("No errors detected");
 			result = codeGen.generate();
+		}
 		
 		var handler = new MetaDataHandler(result, true, true);
 		this.$resultObjectExplorer.setDataHandler(handler);

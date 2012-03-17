@@ -478,7 +478,7 @@ Object.defineProperty(TemplateUser.prototype, "constructor", {value: TemplateUse
  * @constructor
  * @this {CodeGenDiagnosis}
  */
-function CodeGenDiagnosis()
+function CodeGenDiagnosis() // TODO: inherit from Logger
 {
 	this.reports = {};
 	this.hasErrors = false;

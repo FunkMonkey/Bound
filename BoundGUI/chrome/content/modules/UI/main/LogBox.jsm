@@ -1,6 +1,9 @@
 var EXPORTED_SYMBOLS = ["LogBox"];
 
 Components.utils.import("chrome://bound/content/modules/Bound.jsm");
+Components.utils.import("chrome://bound/content/modules/log.jsm");
+Components.utils.import("chrome://bound/content/modules/UI/Widgets/LoggerOutput.jsm");
+Components.utils.import("chrome://bound/content/modules/Utils/Logger.jsm");
 
 var MainWindow = null;
 var document = null;
@@ -17,22 +20,52 @@ var LogBox = {
 		MainWindow = mainWindowModule;
 		document = MainWindow.$document;
 		
-		this.$logBox = document.getElementById("logBox");
+		this.$logBoxCPP = document.getElementById("logBoxCPP");
+		createLoggerOutputOn(this.$logBoxCPP);
 		
+		this.codeGenLogger = new Logger();
+		this.$logBoxCodeGen = document.getElementById("logBoxCodeGeneration");
+		createLoggerOutputOn(this.$logBoxCodeGen);
+		this.$logBoxCodeGen.setLogger(this.codeGenLogger);
 	},
 	
 	/**
-	 * Adds a log message entry
+	 * Adds the messages from diagnosis
 	 * 
-	 * @param   {Object}   entry   
+	 * @param   {ExportASTObject}   astObject   Object to retrieve diagnosis from
+	 * @param   {String}            context     Context to retrieve diagnosis from
+	 * @param   {boolean}           recursive   If true, do it recursively
 	 */
-	addLogMessageEntry: function addLogMessageEntry(entry, category)
+	showDiagnosisMessages: function showDiagnosisMessages(astObject, context, recursive)
 	{
-		var $row = document.createElement("label");
-		$row.setAttribute("value", category + " " + entry.type + ": " + entry.message);
-		$row.setAttribute("logType", entry.type);
-		this.$logBox.appendChild($row);
+		var codeGen = astObject.getCodeGenerator(context);
+		if(codeGen && codeGen._genInput && codeGen._genInput.diagnosis)
+		{
+			var messages = codeGen._genInput.diagnosis.reports;
+			for(propName in messages)
+			{
+				switch(messages[propName].type)
+				{
+					case "INFO":
+						this.codeGenLogger.addInfoMessage(messages[propName].name + ": " + messages[propName].message);
+						break;
+					case "WARNING":
+						this.codeGenLogger.addWarningMessage(messages[propName].name + ": " + messages[propName].message);
+						break;
+					case "ERROR":
+						this.codeGenLogger.addErrorMessage(messages[propName].name + ": " + messages[propName].message);
+						break;
+				}
+			}
+		}
+		
+		if(recursive)
+		{
+			for(var i = 0, len = astObject.children.length; i < len; ++i)
+				this.showDiagnosisMessages(astObject.children[i], context, true);
+		}
 	}, 
+	
 	
 	
 	/**
@@ -42,11 +75,7 @@ var LogBox = {
 	 */
 	showMessagesFromCPPAST: function showMessagesFromCPPAST(ast)
 	{
-		for(var i = 0; i < ast.logMessages.Clang.length; ++i)
-			this.addLogMessageEntry(ast.logMessages.Clang[i], "Clang");
-			
-		for(var i = 0; i < ast.logMessages.Export.length; ++i)
-			this.addLogMessageEntry(ast.logMessages.Export[i], "Export");
+		this.$logBoxCPP.setLogger(ast.logger, true);
 	}, 
 	
 }

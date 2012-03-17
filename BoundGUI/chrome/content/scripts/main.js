@@ -42,9 +42,12 @@ function exportFiles()
 		// save the files
 		var codeGen = MainWindow.ExportTree.exportAST.root.getCodeGenerator(Bound.currentContext);
 		
+		MainWindow.LogBox.codeGenLogger.addInfoMessage("=== Exporting: " + Bound.currentContext + " ===");
 		if(!codeGen.prepareAndDiagnose(true))
 		{
-			alert("Error exporting!");
+			MainWindow.LogBox.codeGenLogger.addInfoMessage("Errors detected. List follows.");
+			MainWindow.LogBox.showDiagnosisMessages(MainWindow.ExportTree.exportAST.root, Bound.currentContext, true);
+			alert("Error exporting! See log.");
 			return;
 		}
 		
@@ -68,6 +71,7 @@ function exportFiles()
 			
 			FileIO.writeTextFile(exportFiles[fileName], file);
 		}
+		MainWindow.LogBox.codeGenLogger.addInfoMessage("No errors detected");
 	}
 }
 

@@ -19,6 +19,7 @@ function initPropertyExplorer(mainWindowModule)
 	
 	$propertyExplorer = document.getElementById("propertyExplorer");
 	createObjectExplorer($propertyExplorer);
+	$propertyExplorer.$label = document.getElementById("propertyExplorerLabel");
 	
 	return $propertyExplorer;
 }

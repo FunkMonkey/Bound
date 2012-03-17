@@ -32,6 +32,7 @@ const Cu = Components.utils;
 
 Cu.import("chrome://bound/content/modules/log.jsm");
 Cu.import("chrome://bound/content/modules/Utils/Extension.jsm");
+Cu.import("chrome://bound/content/modules/Utils/Logger.jsm");
 Cu.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm");
 Cu.import("chrome://bound/content/modules/AST/CPP_ASTType.jsm");
 
@@ -54,6 +55,8 @@ function CPP_AST()
 	
 	this.translationUnitFilename = "";
 	this.translationUnitDirectory = "";
+	
+	this.logger = new Logger();
 }
 
 // TODO: rename to loadFromSaveObject and put into the prototype
@@ -97,9 +100,34 @@ CPP_AST.createFromSaveObject = function createFromSaveObject(saveObj)
 	result._toSave = saveObj._toSave;
 	
 	result.AST_JSON = saveObj.AST_JSON;
-	result.logMessages = saveObj.AST_JSON.log;
+	
+	// adding the log messages
+	_addLogMessages(result.logger, saveObj.AST_JSON.log.Clang);
+	_addLogMessages(result.logger, saveObj.AST_JSON.log.Export);
+	
+	//result.logMessages = saveObj.AST_JSON.log;
 	
 	return result;
+}
+
+function _addLogMessages(logger, messageArray)
+{
+	var currDate = new Date(); // they can all share the same timestamp
+	for(var i = 0, len = messageArray.length; i < len; ++i)
+	{
+		switch(messageArray[i].type)
+		{
+			case "Info":
+				logger.addInfoMessage(messageArray[i].message, currDate);
+				break;
+			case "Warning":
+				logger.addWarningMessage(messageArray[i].message, currDate);
+				break;
+			case "Error":
+				logger.addErrorMessage(messageArray[i].message, currDate);
+				break;
+		}
+	}
 }
 
 CPP_AST.prototype = {

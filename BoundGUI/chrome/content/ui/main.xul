@@ -57,14 +57,34 @@
 				
 			</vbox>-->
 			<hbox flex="1">
-				<vbox id="resultObjectExplorer" flex="1"/>
+				<vbox width="300" flex="1">
+					<label id="propertyExplorerLabel" value="Inspecting: " />
+					<vbox id="propertyExplorer" flex="1" />
+				</vbox>
 				<splitter collapse="before" resizeafter="farthest" state="">
 					<grippy width="4"/>
 				</splitter>
-				<vbox id="propertyExplorer" flex="1" width="300"/>
+				<vbox width="300" flex="1">
+					<label id="resultLabel" value="Result: " />
+					<vbox id="resultObjectExplorer" flex="1"/>
+				</vbox>
 			</hbox>
 		</hbox>
-		<vbox id="logBox" />
+		<tabbox id="logBoxes">
+			<tabs>
+				<tab label="C++" />
+				<tab label="Code generation" />
+			</tabs>
+			<tabpanels flex="1">
+				<tabpanel flex="1">
+					<vbox id="logBoxCPP" flex="1" />
+				</tabpanel>
+				<tabpanel flex="1">
+					<vbox id="logBoxCodeGeneration" flex="1" />
+				</tabpanel>
+			</tabpanels>
+		</tabbox>
+		
 	</vbox>
 </window>
 
