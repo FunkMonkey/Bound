@@ -361,6 +361,29 @@ As the \myProperName{C++} projects for which glue code is created, may be under 
 \subsection{ObjectExplorer}
 \label{sec:ObjectExplorer}
 
+\begin{wrapfigure}{r}{0.4\textwidth}
+  \vspace{-20pt}
+  \begin{center}
+    \includegraphics[scale=0.60]{Images/ObjectExplorer.png}
+  \end{center}
+  \caption{Example of an \mySCName{ObjectExplorer} showing the properties of an \mySCName{Export\_ASTObject}}
+  \label{fig:ObjectExplorer}
+  \vspace{-15pt}
+\end{wrapfigure}
+
+The \mySCName{ObjectExplorer} is a GUI widget for inspecting and manipulating \myProperName{JavaScript} objects. Based on the properties of an object, it will dynamically create GUI elements for showing and editing these properties.
+
+As can be seen in \myRefFigure{fig:ObjectExplorer}, these properties are generally arranged in a table with the property-name on the left side and a GUI element for manipulating it on the ride side. The type of GUI element created depends on the type of the property (it is a little more complicated than that). There are standard table rows for strings, numbers, booleans and referenced objects. The row for objects is special, as it does not have a left and a right side, but can be opened and collapsed to show/hide the object's properties by inserting another \mySCName{ObjectExplorer} instance. In the given example, the \mySCName{ObjectExplorer} is showing the properties of an \mySCName{Export\_ASTObject}, which are only \mySCName{sourceObject} and \mySCName{codeGenerators}. When opening \mySCName{codeGenerators} by clicking on its label, a new \mySCName{ObjectExplorer} is lazily created for showing its children, which is only \mySCName{CPP\_Spidermonkey}. Opening this, will again create a new \mySCName{ObjectExplorer} showing the properties of the code generator, including the names of the templates used and options for the type library entry.\\
+Extension developers can add new kinds of GUI elements for manipulating custom classes/types. For example, for handling colors, the GUI element created for the property could be a color chooser. The GUI element for a 2D vector could have two number-textboxes for setting the x and y components. This is done with \mySCName{GUIPropertyFactory}'s, which are responsible for creating the GUI elements. The \mySCName{ObjectExplorerPropertyManager} handles a list of which property factories are connected with which types (based on a string representation of the type). \mySCName{GUIPropertyFactoryString} would be associated with \mySCString{string}, \mySCName{GUIPropertyFactoryColor} with \mySCString{Color}, and so on. 
+
+The \mySCName{ObjectExplorer} retrieves all necessary information with the help of a \mySCName{DataHandler}. A data handler must expose three important functions. \mySCName{getProperties} will return the list of properties that should be displayed and thus for which GUI elements will be created. \mySCName{getPropertyValue} and \mySCName{setPropertyValue} will be called for retrieving or manipulating a property. Both take the name of a property, the setter also takes a value to set.\\
+The \mySCName{ObjectExplorer} has no knowledge of the specific \myProperName{JavaScript} object that it displays, as this is completely handled by the \mySCName{DataHandler}. This means, that a custom \mySCName{DataHandler} could combine the properties of multiple objects for showing them as a unit within an \mySCName{ObjectExplorer}.
+
+A \mySCName{MetaDataHandler} has been written to handle the inspection and manipulation of \myProperName{JavaScript} objects that have meta data. Despite the name, the \mySCName{MetaDataHandler} can also display objects without meta data.\\
+The constructor of \mySCName{MetaDataHandler} takes the object that is to be displayed as the argument. Based on its properties, a property list will be created. That is the one that will be returned by \mySCName{getProperties}. All properties of the given object will be traversed and if there is a meta data entry containing \mySCName{view} information (as explained in \myRefSection{sec:MetaData}) for the current property, then a property list entry will be created. Properties without an entry in the list will not be displayed, as they are not intended to be GUI exposed.\\
+A property entry has three important members: \mySCName{labelName}, \mySCName{readOnly} and \mySCName{type}. The first two are self-explanatory. The \mySCName{type} member is a string and will define, which property factory will be used for creating GUI elements. If the meta data for a property contains information about the type, then this information is used. Otherwise the type will be determined by the value of the property. If the value contains meta data, then the type is \mySCString{KeyValueMap}, which simply displays a new \mySCName{ObjectExplorer} for the property. Otherwise, the value is checked with the \myProperName{JavaScript} \mySCName{typeof} operator, whether it is a fundamental type (\mySCString{string}, \mySCString{boolean}, \mySCString{number}, \mySCString{undefined}) or a \myProperName{JavaScript} object (\mySCString{object}). If \mySCName{typeof} returns \mySCString{object} and the value is not \mySCName{null}, the \mySCName{constructor} attribute will be checked and \mySCName{type} set to the name of the constructor function (e.g. \mySCString{Color}, \mySCString{Vector2}, etc.).
+
+
 \subsection{DOMTree}
 
 \begin{wrapfigure}{r}{0.4\textwidth}
@@ -378,9 +401,9 @@ For displaying the \myProperName{C++} and export tree in the user interface a tr
 
 As managing a tree structure in a list seemed rather complicated and styling a \myProperName{XUL} tree element works differently than styling any other \myProperName{XUL} or \myProperName{HTML} element (for performance reasons, it seems), I decided to create a new tree GUI widget, expressed in the class \mySCName{DOMTree}.
 
-The widget makes use of the hierarchical nature of the \myProperName{XUL} \myProperName{Document Object Model (DOM)}. Tree elements are created dynamically at run-time using the \linebreak\mySCName{document.createElement} function. The tree basically consists of \myProperName{XUL} \mySCName{box} objects, which are \mySlang{instances} of \mySCName{DOMTreeRow}. As the \mySCName{box} box objects are created by the \myProperName{DOM}, they are not real instances of \mySCName{DOMTreeRow}, but borrow all its functions and properties. Borrowing functions allows using these as if they were declared in the object itself.\\
+The widget makes use of the hierarchical nature of the \myProperName{XUL} \myProperName{Document Object Model (DOM)}. Tree elements are created dynamically at run-time using the \linebreak\mySCName{document.createElement} function. The tree basically consists of \myProperName{XUL} \mySCName{box} objects, which are \mySlang{instances} of \mySCName{DOMTreeRow}. As the \mySCName{box} objects are created by the \myProperName{DOM}, they are not real instances of \mySCName{DOMTreeRow}, but borrow all its functions and properties. Borrowing functions allows using these as if they were declared in the object itself.\\
 A \mySCName{DOMTreeRow} has a simple design. It is a vertical \mySCName{box} containing a title row (with twisty, symbol and label) and an initially empty vertical \mySCName{box} that serves as the child container. Child \mySCName{DOMTreeRow}s can be added to to the child container using the normal \myProperName{DOM} functions, e.g. \mySCName{element.appendChild}, resulting in a tree structure. The visual indentation is handled by \myProperName{CSS}.\\
-When collapsing/opening a tree row by using the twisty, the container \mySCName{box}'s visibility is changed using the \myProperName{CSS} \mySCName{display} property - effectively hiding or showing all child rows.
+When collapsing/opening a tree row by clicking on the twisty, the container \mySCName{box}'s visibility is changed using the \myProperName{CSS} \mySCName{display} property - effectively hiding or showing all child rows.
 
 Selection logic has been implemented for selecting individual or multiple tree rows. A \mySCName{selection} \mySCName{DOMEvent} is fired when the selection is changed.\\
 Dragging of tree nodes has also been implemented based on the \myProperName{HTML5} drag-and-drop capabilities. \mySCName{DOMTreeRow} contains a private data field that will serve as the drag-data.
