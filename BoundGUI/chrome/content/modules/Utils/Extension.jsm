@@ -7,6 +7,24 @@ var Extension =
 		child.prototype.__proto__ = supertype.prototype;
 	},
 	
+	/**
+	 * Inherits
+	 * 
+	 * @param   {Object}   child   Child class
+	 * @param   {Object}   base    Base class
+	 */
+	inheritNew: function inheritNew(child, base)
+	{
+		var oldProto = child.prototype;
+		child.prototype = Object.create(base);
+		
+		// getting the correct properties
+		var propNames = Object.getOwnPropertyNames(oldProto);
+		for(var i = 0, len = propNames.length; i < len; ++i)
+			Object.defineProperty(child.prototype, propNames[i], Object.getOwnPropertyDescriptor(oldProto, propNames[i]));
+	}, 
+	
+	
 	borrow: function borrow(to, from, options)
 	{
 		if(!options)

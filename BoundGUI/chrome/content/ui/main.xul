@@ -5,7 +5,7 @@
 <?xml-stylesheet href="chrome://bound/skin/DOMTree.css" type="text/css"?>
 <?xml-stylesheet href="chrome://bound/skin/ObjectExplorer.css" type="text/css"?>
 
-<window id="main" title="My App" width="300" height="300" persist="screenX screenY width height" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<window id="main" title="Bound" width="300" height="300" persist="screenX screenY width height" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
 	<script type="application/javascript" src="chrome://bound/content/scripts/main.js"/>
   
@@ -27,11 +27,10 @@
 	</toolbox>
 	<toolbox>
 		<toolbar id = "mainToolbar">
-			<toolbarbutton id="TestButton" label="Testing"></toolbarbutton>
-			<toolbarbutton label="Export" oncommand="exportFiles();"></toolbarbutton>
-			<toolbarbutton label="Save Project" oncommand="saveProject();"></toolbarbutton>
-			<toolbarbutton label="Open Project" oncommand="loadProject();"></toolbarbutton>
-			<toolbarbutton label="Reparse C++" oncommand="reparseCurrentProject();"></toolbarbutton>
+			<toolbarbutton id="btnLoadProject" label="Open Project" oncommand="loadProject();"></toolbarbutton>
+			<toolbarbutton id="btnSaveProject" label="Save Project" oncommand="saveProject();"></toolbarbutton>
+			<toolbarbutton id="btnReparse" label="Reparse C++" oncommand="reparseCurrentProject();"></toolbarbutton>
+			<toolbarbutton id="btnExport" label="Export" oncommand="exportFiles();"></toolbarbutton>
 		</toolbar>
 	</toolbox>
 	

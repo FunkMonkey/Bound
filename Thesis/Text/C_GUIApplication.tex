@@ -33,9 +33,38 @@ Every plugin comes with a set of code generators that handle the different kinds
 
 When performing the final export of a plugin, it traverses all the \mySCName{Export\_ASTObject}s in the tree, uses the associated code generators to produce glue code pieces that are then combined and saved in files. These files can be included in \myProperName{C++} projects and used in conjunction with the embedded script interpreter to add script-support for the wrapped classes and functions.
 
+\newpage
 \section{GUI overview}
 
-workflow \todo{All that stuff}
+\begin{figure}[h!] % h = here
+	\centering
+		\includegraphics[scale=0.35]{Images/BoundGUI.png}
+	\caption{Screenshot of the GUI application}
+	\label{fig:BoundGUI}
+\end{figure}
+
+\begin{figure}[h!] % h = here
+	\centering
+		\includegraphics[scale=0.5]{Images/ProjectSettings.png}
+	\caption{Screenshot of the project settings dialog}
+	\label{fig:ProjectSettings}
+\end{figure}
+
+The main window consists of a handful of different GUI elements, each with a specific purpose. 
+
+The main menu (1) can be used to open the project settings dialog. This dialog defines the arguments that will be passed to \myProperName{CPPAnalyzer}, including the \myProperName{C++} file that needs to be parsed.\\
+The \mySCName{Tools} menu offers access to further configuration of \myProperName{XULRunner} (\mySCName{about:config}), the \myProperName{JavaScript} error console and the \myProperName{XULRunner} add-ons manager, which can be used to install extensions.\\
+The main toolbar, also (1), contains buttons for loading and saving a project, for parsing using \myProperName{CPPAnalyzer} and for exporting the glue code.
+
+The \myProperName{C++} tree (2) visualizes the \myProperName{C++} AST that was retrieved. Next to it is the export AST tree (3). For adding items to the export tree, the user needs to drag rows from the \myProperName{C++} tree element to the export tree GUI element. Also, there is a small toolbar above the export tree, which can be used to create additional items for the script side.
+
+When selecting a row in either one of the trees, its properties can be inspected and manipulated in the property explorer (4). This element can be used to change an \mySCName{Export\_ASTObject}'s name or edit the code generators and thus customize the glue code that the application will generate. 
+
+When selecting a row in the export tree, the result \mySCName{Object Explorer} (5) will be filled with the result of the code generation for that specific object and its children. This is handy for debugging. The result can be inspected and the generated glue code can be viewed. If the code generation fails, the result  \mySCName{Object Explorer} will show the input that was used for generation.
+
+The list boxes that can be seen at the lower bottom of the application (6) display logging information, for example warnings and errors that occur. The view is split. There is one list box for logging messages concerned with \myProperName{C++} parsing and another for errors that occur when generating glue code.
+
+The general workflow is to configure the correct settings using the project settings dialog and then press \mySCName{Reparse C++} (1) to create the \myProperName{C++} tree (2). The user will then set up the custom export tree (3) by dragging \myProperName{C++} entities over to the export tree element or creating entirely new items using the toolbar above it. After customizing the settings of the individual code generators using the property explorer (4), the project can be exported using the \mySCName{Export} button (1), which will open a directory chooser for selecting the output directory and generate the code. If errors occur, these are listed in the log list boxes (6). The user will generally also save the project, so he does not have to re-create and re-configure the export tree the next time.
 
 \section{Architecture}
 

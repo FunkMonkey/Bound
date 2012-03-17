@@ -10,6 +10,26 @@
 	list-style-image: url("chrome://bound/skin/AST/O.png");
 }
 
+#btnLoadProject
+{
+	list-style-image: url("chrome://bound/skin/Main/LoadProject.png");
+}
+
+#btnSaveProject
+{
+	list-style-image: url("chrome://bound/skin/Main/SaveProject.png");
+}
+
+#btnReparse
+{
+	list-style-image: url("chrome://bound/skin/Main/Reparse.png");
+}
+
+#btnExport
+{
+	list-style-image: url("chrome://bound/skin/Main/Export.png");
+}
+
 #logBoxes
 {
 	height: 10em;
