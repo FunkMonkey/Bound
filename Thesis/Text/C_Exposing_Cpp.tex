@@ -1,11 +1,225 @@
 \chapter{Language binding between C++ and Spidermonkey}\todo{properName}
 \label{chap:LanguageBindingCPPJS}
 
+This chapter shows how \myProperName{C++} elements like declarations and types can be exposed to \myProperName{Mozilla Spidermonkey} to be used from scripts. \myProperName{Spidermonkey} is the name of \myProperName{Mozilla}'s implementation of the \myProperName{ECMAScript} programming language standard, which is most commonly known as \myProperName{JavaScript}. The terms \myProperName{JavaScript} and \myProperName{ECMAScript} will be used interchangebly, whereas \myProperName{Spidermonkey} refers to the concrete \myProperName{Mozilla} implementation.\\
+Binding \myProperName{C++} elements to other programming languages like \myProperName{Python} or \myProperName{Lua} or other \myProperName{JavaScript} implementations, e.g. \myProperName{V8}\todo{ref}, will be similar in many aspects - depending on the elements existing in the target language.
+
+The information in this chapter presumes knowledge about the \myProperName{C++} programming language, its elements, class-based inheritance and type system.
+
+\section{\myProperName{JavaScript}/\myProperName{ECMAScript}}
+
+\myProperName{JavaScript} is a weakly typed object-oriented programming language with automatic garbage collection. 
+
+As it is a feature-rich language, only the most important aspects will be presented in this section. More information can be found in \myProperName{Mozilla}'s \myProperName{JavaScript} tutorial\todo{ref} or in various books like \myAuthorName{David Flanagan}'s \myBookName{JavaScript: The Definite Guide} or \myAuthorName{Douglas Crockford}'s \myBookName{JavaScript: The Good Parts}.
+
+There are 6 basic types that a value can be of: boolean, number, string, \mySCName{undefined}, \mySCName{null} and object.\\
+Number, string, and boolean are primitive types. So are \mySCName{null} and \mySCName{undefined}, which both represent the absence of value. All are immutable.\\
+Objects are basically mutable collections of name-value-pairs, known as properties or \mySlang{members}. They can be seen as hash-maps or associative arrays. Object properties can be accessed using bracket-syntax (e.g. \mySCName{var foo["bar"] = 3;}) or dot-notation (e.g. \mySCName{var foo.bar = 3;}). An \mySCName{Array} is a special type of \myProperName{JavaScript} object.\\
+Functions are special objects that have source code associated and thus can be invoked. Being objects, functions can have properties and can even be passed as parameters.
+
+\SingleSpacing
+\begin{lstlisting}[language=JavaScript, caption=Types in \myProperName{JavaScript}]
+// primitive types
+var aNumber = 34.9;
+var aBoolean = true;
+var aString = "Some text!";
+var aNullValue = null;
+var anUndefinedValue; // standard type for variables that have 
+                      // no value assigned
+var anotherUndefinedValue = undefined;
+
+// object types
+var anObject = {};
+anObject.foo = "bar";
+anObject.subObject = { foo: "bar"};
+
+var anArray = [];
+
+function aFunction(param)
+{
+	return param * 3;
+}
+
+aFunction.someProperty = "Functions are objects, too!";
+\end{lstlisting}
+\OnehalfSpacing
+
+When being passed as parameters or assigned to variables, primitive values are passed by value / copy-assigned, whereas objects (including functions) are passed/assigned by reference.\\
+\myProperName{JavaScript} thus has no notion of pointers and changes made to primitive values passed as function parameters will not have any effect on the original value.
+
+There are two kinds of properties: value properties and accessor properties. A value property simply contains any type of value (e.g. a number or function). Accessor properties have a getter and setter function associated that can perform additional computation when getting or setting a value. They are used just like normal data properties.
+
+\SingleSpacing
+\begin{lstlisting}[language=JavaScript, caption=Types in \myProperName{JavaScript}, label=JSTypes]
+var obj = {
+	// value properties
+	aValue: 3,
+	aValue_Function: function(){ this.aValue *= 2; },
+	
+	// an accessor property
+	get accessorProp(){ return this.aValue + 3; },
+	set accessorProp(val){ this.aValue = val - 3; }
+};
+
+obj.aValue = 4;        // --> obj.aValue is 4
+obj.aValue_Function(); // --> obj.aValue is 8
+obj.accessorProp = 6;  // --> obj.aValue is 3 (6-3)
+\end{lstlisting}
+\OnehalfSpacing
+
+Functions like \mySCName{aValue\_Function} in \myRefListing{JSTypes} do not strictly belong to the object they are declared on. Their execution context (which can be referred to using \mySCName{this} inside the function) is determined at run-time and usually refers the object through which the function is called. With the help of a function object's \mySCName{call} function, an execution context can be forced.
+
+\SingleSpacing
+\begin{lstlisting}[language=JavaScript, caption=Execution context of functions]
+// obj1 declares the function
+var obj1 = {
+	name: "Paul",
+	sayHello: function (){ return "Hello, I am " + this.name; }
+}
+
+// obj2 borrows the function (and additionally renames it)
+var obj2 = {};
+obj2.name = "John";
+obj2.sayHello_renamed = obj1.sayHello; 
+
+var obj3 = { name: "Ringo" };
+
+obj1.sayHello();          // --> "Hello, I am Paul"
+obj2.sayHello_Renamed();  // --> "Hello, I am John"
+
+// forcing the execution context
+obj1.sayHello.call(obj3); // --> "Hello, I am Ringo"
+
+\end{lstlisting}
+\OnehalfSpacing
+
+\subsection{Inheritance}
+
+The prototypical inheritance mechanism used in \myProperName{JavaScript} vastly differs from class-based inheritance known from \myProperName{C++} and \myProperName{Java}. In a class-based inheritance the class defines a design contract that created instances adhere too.\\
+\myProperName{JavaScript} uses prototypes instead. A prototype is a normal \myProperName{JavaScript} object from which other objects inherit the properties. When a property is looked up on an object, the object is checked if it does have an own property with the name. If not, its prototype is checked for the property. If this doesn't have it either, the prototype's prototype is checked on so on. This is also called the prototype chain.\\
+The prototype of an object is saved as an internal property ([[Prototype]]) that can not be set after object creation and can only be accessed using \linebreak\mySCName{Object.getPrototypeOf(anObject)}.\\
+If a property with the same name is set on an object that has a prototype, then it shadows the prototype's property.
+
+\SingleSpacing
+\begin{lstlisting}[language=JavaScript, caption=Prototypes]
+var aPrototype = { aProp: "Prop of prototype" };
+aPrototype.aProp; // --> "Prop of prototype"
+
+// creating an object with aPrototype as the prototype
+var anInstance = Object.create(aPrototype);
+Object.getPrototypeOf(anInstance) == aPrototype // --> true
+
+anInstance.aProp; // --> "Prop of prototype"
+
+// shadowing
+anInstance.aProp = "Prop of instance";
+anInstance.aProp; // --> "Prop of instance"
+\end{lstlisting}
+\OnehalfSpacing
+
+\subsubsection{Classes}
+
+Classes can be mimicked in \myProperName{JavaScript} with the help of constructor functions. Whenever a function is called with the \mySCName{new} operator, a new object (instance) is created. This object's internal [[Prototype]] property is set to the \mySCName{prototype} property of the function. These two are not to be confused. The \mySCName{this} keyword will refer to the created instance and can be used to define properties on the instance, for example \mySCName{name} in \myRefListing{JSClasses}. The \mySCName{sayHello} function will be shared by all instances, as it is defined on the prototype, whereas \mySCName{name} only exists on the instances themselves.
+
+\SingleSpacing
+\begin{lstlisting}[language=JavaScript, caption=Classes in \myProperName{JavaScript}, label=JSClasses]
+function Person(name)
+{
+	this.name = name;
+}
+
+Person.prototype.sayHello = function()
+{
+	return "Hi, my name is (what?), my name is " + this.name;
+}
+
+var anInstance = new Person("Slim Shady");
+anInstance.sayHello();
+// --> "Hi, my name is (what?), my name is Slim Shady"
+\end{lstlisting}
+\OnehalfSpacing
+
+For creating inheritance chains, the internal [[Prototype]] property of a function's \linebreak\mySCName{prototype} object must reference another function's \mySCName{prototype} object. If a base constructor function initializes members, then it must be called explicitly from the subclass constructor function with the help of the function object's \mySCName{call} function.
+
+\SingleSpacing
+\begin{lstlisting}[language=JavaScript, caption=Prototype-based inheritance in \myProperName{JavaScript}, label=JSClasses]
+function Base()
+{
+	this.baseMember = 3;
+}
+
+Base.prototype.doSomething = function(){ return this.baseMember * 3;}
+
+function SubClass()
+{
+	// call Base constructor with call (and without new)
+	Base.call(this);
+	this.subclassMember = "Another member";
+}
+
+// assigning a new prototype object with [[Prototype]] Base
+SubClass.prototype = Object.create(Base);
+// resetting the constructor property
+SubClass.prototype.constructor = SubClass;
+
+var instance = new SubClass();
+instance.doSomething(); // --> 9 (3 * 3)
+
+\end{lstlisting}
+\OnehalfSpacing
+
+\todo{proto chain illustration}
+
+\subsubsection{Mixins}
+
+Multiple inheritance is not supported in \myProperName{JavaScript}, but can be mimicked to a certain degree by borrowing functions. This concept is also called \textbf{mixin}.
+
+\SingleSpacing
+\begin{lstlisting}[language=JavaScript, caption=Mixins in \myProperName{JavaScript}, label=JSMixins]
+function BaseA(){}
+BaseA.prototype.funcA = function(){}
+
+function BaseB(){}
+BaseB.prototype.funcB = function(){}
+
+function SubClass()
+{
+	BaseA.call(this);
+	BaseB.call(this);
+}
+
+// borrowing functions / mixing in
+SubClass.prototype.funcA = BaseA.prototype.funcA;
+SubClass.prototype.funcB = BaseB.prototype.funcB;
+
+// creating an instance
+var instance = new SubClass();
+instance.funcA();
+instance.funcB();
+\end{lstlisting}
+\OnehalfSpacing
+
+\section{\myProperName{Spidermonkey}}
+
+Spidermonkey comes in form of a shared library exposing a \myProperName{C} API that can be used to interact with the \myProperName{JavaScript} interpreter. This API is also known as \myProperName{JSAPI}. 
+
+A \mySCName{JSRuntime} is an instance of the virtual machine. A \mySCName{JSContext} is a is a single world within a \mySCName{JSRuntime}, in which all objects and values live. One \mySCName{JSRuntime} can have multiple \mySCName{JSContext}s. Each context has a global object. Objects are exposed as \mySCName{JSObject}.
+
+A \myProperName{JavaScript} value is expressed as a \mySCName{jsval}. \mySCName{jsval} contains information about the type of the value (number, boolean, etc.). For strings and objects, the \mySCName{jsval} stores the pointer to the \mySCName{JSString} or \mySCName{JSObject}. For all other types, the data is saved in the \mySCName{jsval} itself. \mySCName{jsval}s occur at several places in \myProperName{JSAPI}, for example when defining properties, for parameter values or return values.\\
+\myProperName{Spidermonkey} provides utility functions for retrieving the type of a \mySCName{jsval} \linebreak(e.g. \mySCName{JSVAL\_IS\_OBJECT}) and its content (e.g. \mySCName{JSVAL\_TO\_OBJECT}) or for creating \mySCName{jsval}s from the according \myProperName{C++} types (e.g. \mySCName{OBJECT\_TO\_JSVAL}).
+
+A \mySCName{JSObject} has a \mySCName{void} pointer that \myProperName{JSAPI} users can use for storing any kind of private data. 
+
+
 \section{Items}
 
 Overview \myProperName{C++} and \myProperName{JavaScript}
 
-\subsection{Fundamental types}
+\subsection{Boolean values}
+
+\subsection{Number values}
+
+\subsection{Strings}
 
 \subsection{Functions}
 
@@ -15,7 +229,9 @@ Overview \myProperName{C++} and \myProperName{JavaScript}
 
 \subsection{Structs and classes}
 
-\subsubsection{Inheritence}
+garbage collection, private data and jsclass jsvals
+
+\subsubsection{Inheritance}
 
 multiple, class-based vs prototype-based
 
@@ -24,6 +240,8 @@ multiple, class-based vs prototype-based
 \subsubsection{Static members}
 
 \subsection{Namespaces}
+
+\subsection{Global variables}
 
 \subsection{Unions}
 
@@ -120,7 +338,7 @@ The creation of machine-code at run-time is the only way for completely supporti
 
 \subsection{Modules}
 
-\subsection{Properties}
+\subsection{Accessor Properties}
 
 fields treated as references
 
