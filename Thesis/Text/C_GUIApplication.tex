@@ -151,7 +151,7 @@ Every language plugin inherits from the class \mySCName{LanguageBindingCodeGenPl
 
 There are different ways of creating glue code for a target language. The generated glue code may make use of \myProperName{C++} features like namespaces, exceptions or templates. There a valid reasons, why an end-user might not want to or cannot use these features. If a scripting language provides a \myProperName{C}-API, it should be possible to create glue code in plain \myProperName{C}. Either way, the language plugin should not dictate the glue code style preferred by its developer.
 
-For this reason, entity code generators make use of templates (not to confuse with \myProperName{C++} templates). A template is basically a string of \mySlang{incomplete} source code. It is \mySlang{incomplete} in the sense that it contains placeholders that will be filled with proper code when processing the template with the template engine. The template engine used in this project is \myProperName{jSmart}\todo{ref}, a \myProperName{JavaScript} port of the \myProperName{PHP} template engine \myProperName{Smarty}\todo{ref}.
+For this reason, entity code generators make use of templates (not to confuse with \myProperName{C++} templates). A template is basically a string of \mySlang{incomplete} source code. It is \mySlang{incomplete} in the sense that it contains placeholders that will be filled with proper code when processing the template with the template engine. The template engine used in this project is \myProperName{jSmart}\footnote{\url{http://code.google.com/p/jsmart/}}, a \myProperName{JavaScript} port of the \myProperName{PHP} template engine \myProperName{Smarty}\footnote{\url{http://www.smarty.net/}}.
 
 \newpage
 \SingleSpacing
@@ -225,7 +225,7 @@ The new template approach only has one drawback: multiline strings used for big 
 
 Templates play a vital role in the ability to customize the application's output.
 
-Using templates for glue code generation categorizes the developers/users into four groups: besides the \myProperName{Bound} main developers and language plugin developers, there can be language plugin template developers that create complete sets of templates (e.g. one set that creates glue code in plain \myProperName{C}, another that uses \myProperName{C++} features, etc.).  End-users can decide for a set by adding the set directory at the start of the search paths, so it will shadow the standard templates. The end-user can also decide to only shadow single templates for customizing the export of specific kinds of entities or edit a code generator (via GUI) to use a different template for its connected \mySCName{Export\_ASTObject} only\todo{ref}.
+Using templates for glue code generation categorizes the developers/users into four groups: besides the \myProperName{Bound} main developers and language plugin developers, there can be language plugin template developers that create complete sets of templates (e.g. one set that creates glue code in plain \myProperName{C}, another that uses \myProperName{C++} features, etc.).  End-users can decide for a set by adding the set directory at the start of the search paths, so it will shadow the standard templates. The end-user can also decide to only shadow single templates for customizing the export of specific kinds of entities or edit a code generator (via GUI) to use a different template for its connected \mySCName{Export\_ASTObject} only.
 
 \subsection{Type resolution}
 

@@ -1,8 +1,8 @@
-\chapter{Language binding between C++ and Spidermonkey}\todo{properName}
+\chapter{Binding C++ and Spidermonkey}\todo{properName}
 \label{chap:LanguageBindingCPPJS}
 
 This chapter shows how \myProperName{C++} elements like declarations and types can be exposed to \myProperName{Mozilla Spidermonkey} to be used from scripts. \myProperName{Spidermonkey} is the name of \myProperName{Mozilla}'s implementation of the \myProperName{ECMAScript} programming language standard, which is most commonly known as \myProperName{JavaScript}. The terms \myProperName{JavaScript} and \myProperName{ECMAScript} will be used interchangebly, whereas \myProperName{Spidermonkey} refers to the concrete \myProperName{Mozilla} implementation.\\
-Binding \myProperName{C++} elements to other programming languages like \myProperName{Python} or \myProperName{Lua} or other \myProperName{JavaScript} implementations, e.g. \myProperName{V8}\todo{ref}, will be similar in many aspects - depending on the elements existing in the target language.
+Binding \myProperName{C++} elements to other programming languages like \myProperName{Python} or \myProperName{Lua} or other \myProperName{JavaScript} implementations, e.g. \myProperName{V8}\footnote{\url{http://code.google.com/p/v8/}}, will be similar in many aspects - depending on the elements existing in the target language.
 
 The information in this chapter presumes knowledge about the \myProperName{C++} programming language, its elements, class-based inheritance and type system.
 
@@ -10,7 +10,7 @@ The information in this chapter presumes knowledge about the \myProperName{C++} 
 
 \myProperName{JavaScript} is a weakly typed object-oriented programming language with automatic garbage collection. 
 
-As it is a feature-rich language, only the most important aspects will be presented in this section. More information can be found in \myProperName{Mozilla}'s \myProperName{JavaScript} tutorial\todo{ref} or in various books like \myAuthorName{David Flanagan}'s \myBookName{JavaScript: The Definite Guide} or \myAuthorName{Douglas Crockford}'s \myBookName{JavaScript: The Good Parts}.
+As it is a feature-rich language, only the most important aspects will be presented in this section. More information can be found in \myProperName{Mozilla}'s \myProperName{JavaScript} guide\footnote{\url{https://developer.mozilla.org/en/JavaScript/Guide}} or in various books like \myAuthorName{David Flanagan}'s \myBookName{JavaScript: The Definite Guide} or \myAuthorName{Douglas Crockford}'s \myBookName{JavaScript: The Good Parts}.
 
 There are 6 basic types that a value can be of: boolean, number, string, \mySCName{undefined}, \mySCName{null} and object.\\
 Number, string, and boolean are primitive types. So are \mySCName{null} and \mySCName{undefined}, which both represent the absence of value. All are immutable.\\
@@ -207,7 +207,7 @@ A \mySCName{JSRuntime} is an instance of the virtual machine. A \mySCName{JSCont
 
 A \myProperName{JavaScript} value is expressed as a \mySCName{jsval}. \mySCName{jsval} contains information about the type of the value (number, boolean, etc.). For strings and objects, the \mySCName{jsval} stores the pointer to the \mySCName{JSString} or \mySCName{JSObject}. For all other types, the data is saved in the \mySCName{jsval} itself. \mySCName{jsval}s occur at several places in \myProperName{JSAPI}, for example when defining properties, for parameter values or return values.\\
 \myProperName{Spidermonkey} provides utility macros/functions for retrieving the type of a \mySCName{jsval} \linebreak(e.g. \mySCName{JSVAL\_IS\_OBJECT}) and its content (e.g. \mySCName{JSVAL\_TO\_OBJECT}) or for creating \mySCName{jsval}s from the according \myProperName{Spidermonkey} \myProperName{C++} types (e.g. \mySCName{OBJECT\_TO\_JSVAL}).\\
-When converting between \mySCName{jsval}s and \myProperName{C++} types, type checking needs to be performed. The \myProperName{C++} compiler that compiles the glue code will perform this task, when converting \textbf{to} \mySCName{jsval}, as the conversion functions only accept the correct type. When converting a \mySCName{jsval} to a \myProperName{C++} type, the current type of the \mySCName{jsval} needs to be checked first. If the \myProperName{JSAPI} user for example tries to retrieve a \mySCName{JSObject} from a \mySCName{jsval} that contains a boolean value, the behaviour of the code is undefined and will probably lead to a run-time failure like a crash. Thus type checking and error handling play an important role and are explained in further detail in \todo{ref}.\\
+When converting between \mySCName{jsval}s and \myProperName{C++} types, type checking needs to be performed. The \myProperName{C++} compiler that compiles the glue code will perform this task, when converting \textbf{to} \mySCName{jsval}, as the conversion functions only accept the correct type. When converting a \mySCName{jsval} to a \myProperName{C++} type, the current type of the \mySCName{jsval} needs to be checked first. If the \myProperName{JSAPI} user for example tries to retrieve a \mySCName{JSObject} from a \mySCName{jsval} that contains a boolean value, the behaviour of the code is undefined and will probably lead to a run-time failure like a crash. Thus type checking and error handling play an important role and are explained in further detail in \myRefSection{sec:ErrorHandling}.\\
 \myProperName{Spidermonkey} also provides utility functions for automatic conversion of types according to the \myProperName{ECMAScript} standard. If, for example, a boolean is passed to a function that expects a string, the conversion would create a string from the boolean - either \mySCString{true} or \mySCString{false}. These conversion functions are less performant, but allow for a greater range of values without reporting errors. It has to be said though, that automatic conversion can lead to unexpected program behaviour in places where the user would expect an error.\\
 Most of the conversion functions take a \mySCName{JSContext} as the parameter.
 
@@ -301,27 +301,126 @@ The \myProperName{JSAPI} user has to do the conversion from his unicode characte
 \myProperName{C++}'s wide character type \mySCName{wchar\_t} is not well suited for this task, as its size is compiler specific. It is allowed to be at least 8 bit. On \myProperName{VC++} it is 16 bit, on GCC even 32 bit.\\
 \myProperName{C++11} introduces new character types for unicode characters: \mySCName{char16\_t} and \mySCName{char32\_t}. Having a fixed width, \mySCName{char16\_t} should be the same as a \mySCName{jschar} on all platforms and thus be best suited for conversion between unicode strings and \mySCName{JSString}.
 
-\section{Items}
+\newpage
+\section{Namespaces}
 
-Overview \myProperName{C++} and \myProperName{JavaScript}
+In \myProperName{C++} namespaces exist for grouping other elements. In \myProperName{JavaScript} the same task can be achieved by creating a hierarchy of \mySCName{JSObject} instances. \mySCName{JS\_DefineObject} can be used to define an object property on another object.
+
+\SingleSpacing
+\begin{lstlisting}[language=C++, caption=A simple wrapper function]
+namespace Outside {
+	namespace Inside {
+		// ... declare functions, classes, etc.
+	}
+}
+
+// somewhere in the glue code ...
+// defining jsOutside on the global object
+JSObject* jsOutside = JS_DefineObject(context, 
+                             globalObject, "Outside", NULL, NULL, 0);
+if(!jsOutside)
+	// error handling
+else {
+	// defining jsInside on jsOutside
+	JSObject* jsInside = JS_DefineObject(context, 
+                             jsOutside, "Inside", NULL, NULL, 0);
+	if(!jsInside)
+		// error handling
+	else {
+		// ... wrap content of "Inside": functions, classes, etc.
+	}
+}
+\end{lstlisting}
+\OnehalfSpacing
+
+\section{Functions}
+
+Functions are generally wrapped with the help of wrapper functions of the function type \mySCName{JSNative}. The wrapper function has to convert the parameters from \myProperName{JavaScript} values to \myProperName{C++} values, call the wrapped function and convert its return value to a \myProperName{JavaScript} value. If errors occur (for example if parameters of wrong types have been passed) or exceptions are thrown somewhere in the called \myProperName{C++} code, these have to be handled and the function will return \mySCName{false} to indicate a pending \myProperName{JavaScript} exception.
+
+\SingleSpacing
+\begin{lstlisting}[language=C++, caption=A simple wrapper function]
+float getFloat(bool param1, int param2);
+
+JSBool getFloat_wrapper(JSContext *cx, uintN argc, jsval *vp)
+{
+	if(argc < 2)
+		// throw JS exception: not enough parameters (return false)
+
+	// handling parameters
+	jsval* args = JS_ARGV(cx, vp);
+
+	bool param1;
+	if(!JS_ValueToBoolean(cx, args[0], &param1))
+		// throw JS exception: wrong parameter type (return false)
+	
+	int param2;
+	if(!JS_ValueToNumber(cx, args[1], &param2))
+		// throw JS exception: wrong parameter type (return false)
+
+	// calling function
+	try {	
+		int cppResult = getFloat(param1, param2);
+		
+		// setting return value
+		if(!JS_NewNumberValue(cx, cppResult, &JS_RVAL(cx, vp)))
+			// throw JS exception: could not create return value
+		
+	} catch (...) {
+		// forward C++ exception as JS exception and return false
+	}
+
+	// no errors occurred
+	return true;
+}
+\end{lstlisting}
+\OnehalfSpacing
+
+\mySCName{JSNative} gets three arguments. The \mySCName{JSContext} of the current call, the number of passed arguments (\mySCName{argc}) and an array of \mySCName{jsval}s named \mySCName{vp}. \mySCName{vp} contains the execution context (the \mySCName{this}), the passed arguments and a \mySCName{jsval} for the return value. The execution context can be retrieved using \mySCName{JS\_THIS(cx, vp)}. \mySCName{JS\_ARGV(cx, vp)} returns a pointer to the first parameter \mySCName{jsval}. \mySCName{JS\_RVAL(cx, vp)} retrieves the \mySCName{jsval} that will be the return value of the function call.
+
+Primitive types are converted as explained in the previous chapters. The conversion of class types is explained in \myRefSection{sec:StructsAndClasses}. \\
+Primitive types, including strings, are immutable. As such functions that take a reference or pointer to an immutable type (e.g. \mySCName{int\&} or \mySCName{char[]}) and try to change the value of the parameter during the call (sometimes referred to as \mySlang{out-parameter}) will not effect the actual \myProperName{JavaScript} parameter. The wrapper functions of such procedures must be written differently and the call from script-side will need to pass a mutable type (e.g. a \mySCName{JSObject}) whose members refer to the immutable parameters.
+
+The wrapper function needs to be defined on a \mySCName{JSObject} (e.g. the global object) so it can be used. There are multiple ways to do this, for example with \mySCName{JS\_DefineFunction}:
+
+\SingleSpacing
+\begin{lstlisting}[language=C++, caption=A simple wrapper function]
+JSFunction* func = JS_DefineFunction(context, 
+        someJSObject,      // the JSObject* to define on
+        "getFloat",        // name of the function
+        getFloat_Wrapper,  // wrapper function
+        2,                 // number of expected arguments 
+        JSPROP_ENUMERATE); // flags
+        
+if(!func)
+	// error handling
+\end{lstlisting}
+\OnehalfSpacing
 
 
+\subsection{Overloaded functions}
 
+\myProperName{JavaScript} does not support overloaded functions per se. Instead, a function can inspect the parameters it was called with and behave according to the number and types of parameters passed.
 
+When wrapping overloaded functions, the wrapper function can decide on the function to call by checking the \mySCName{argc} argument for the number of parameters. For overloaded functions with the same number of parameters, it can check the type of parameter with the functions \myProperName{JSAPI} provides (e.g. \mySCName{JSVAL\_IS\_NUMBER}, etc.).
 
+Problems can arise for functions that overload on a type that has the same representation in \myProperName{JavaScript}, for example \mySCName{float} and double. Given a number value, there is no way to decide on the right overload implementation in such a case.
 
+\subsection{Default arguments}
 
-\subsection{Functions}
+Similar to overloaded functions, the number of actually passed parameters needs to be checked to decide on how many can be converted and passed to the \myProperName{C++} function.
 
-out parameters
+It is open to debate what should happen if a wrong parameter type is passed for a parameter that has a default value. As a valid function call is technically possible, the wrong type could simply be ignored and the default value used. This silent fail may lead to unintended behaviour though and thus is highly questionable.
 
-\subsubsection{Overloaded functions}
-
-\subsubsection{Default arguments}
-
-\subsection{Structs and classes}
+\section{Structs and classes}
+\label{sec:StructsAndClasses}
 
 garbage collection, private data and jsclass jsvals
+
+\subsection{Fields}
+
+\subsection{Member functions}
+
+\subsection{Constructors}
 
 \subsubsection{Inheritance}
 
@@ -330,8 +429,6 @@ multiple, class-based vs prototype-based
 \subsubsection{Const}
 
 \subsubsection{Static members}
-
-\subsection{Namespaces}
 
 \subsection{Global variables}
 
@@ -417,12 +514,12 @@ Either way, passing state information demands modification of the original sourc
 
 \textbf{Run-time function creation and closures}
 
-\myProperName{C++11} allows the creation of functions at run-time with the help of lambda functions\todo{ref}. Lamdba functions can capture state and thus seem to be capable of solving the given problem. This concept is also known as a closure and, as a side note, is very common in \myProperName{JavaScript}.
+\myProperName{C++11} allows the creation of functions at run-time with the help of lambda functions\footnote{\url{http://www.cprogramming.com/c++11/c++11-lambda-closures.html}}. Lamdba functions can capture state and thus seem to be capable of solving the given problem. This concept is also known as a closure and, as a side note, is very common in \myProperName{JavaScript}.
 \\Unfortunately only state-less lamdba functions can be passed as function pointers. Lambda functions that capture state are only syntactic sugar for functors and as such can not be used to solve the given problem.
 
 The only other way of creating functions at run-time is to create the machine-code itself at run-time. This, of course, requires assembly and is thus outside of portable \myProperName{C++}. With this method, the memory address of the \myProperName{JavaScript} function to call could simply be stored in the machine-code itself.
 
-\textbf{libffi}\todo{ref} contains functionality for creating these types of closures at run-time. It is used by \myProperName{Mozilla}'s \myProperName{js-ctypes} for allowing \myProperName{JavaScript} functions to be passed as \myProperName{C} function pointers. \myProperName{Python}'s \myProperName{ctypes} uses it for the same reason. As the creation of closures is a highly machine-dependent operation it is indispensable to use a 3rd party like \myProperName{libffi}.
+\textbf{libffi}\footnote{\url{http://sourceware.org/libffi/}} contains functionality for creating these types of closures at run-time. It is used by \myProperName{Mozilla}'s \myProperName{js-ctypes} for allowing \myProperName{JavaScript} functions to be passed as \myProperName{C} function pointers. \myProperName{Python}'s \myProperName{ctypes} uses it for the same reason. As the creation of closures is a highly machine-dependent operation it is indispensable to use a 3rd party like \myProperName{libffi}.
 
 The creation of machine-code at run-time is the only way for completely supporting script functions as callbacks. It has the drawback of an additional library dependency and is also not supported on all platforms.
 
@@ -434,7 +531,8 @@ The creation of machine-code at run-time is the only way for completely supporti
 
 fields treated as references
 
-
+\section{Error handling}
+\label{sec:ErrorHandling}
 
 
 
