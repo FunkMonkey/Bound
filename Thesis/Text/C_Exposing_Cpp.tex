@@ -7,6 +7,7 @@ Binding \myProperName{C++} elements to other programming languages like \myPrope
 The information in this chapter presumes knowledge about the \myProperName{C++} programming language, its elements, class-based inheritance and type system.
 
 \section{\myProperName{JavaScript}/\myProperName{ECMAScript}}
+\label{sec:JavaScript}
 
 \myProperName{JavaScript} is a weakly typed object-oriented programming language with automatic garbage collection. 
 
@@ -383,7 +384,7 @@ Primitive types, including strings, are immutable. As such functions that take a
 The wrapper function needs to be defined on a \mySCName{JSObject} (e.g. the global object) so it can be used. There are multiple ways to do this, for example with \mySCName{JS\_DefineFunction}:
 
 \SingleSpacing
-\begin{lstlisting}[language=C++, caption=A simple wrapper function]
+\begin{lstlisting}[language=C++, caption=Defining a function]
 JSFunction* func = JS_DefineFunction(context, 
         someJSObject,      // the JSObject* to define on
         "getFloat",        // name of the function
@@ -411,10 +412,92 @@ Similar to overloaded functions, the number of actually passed parameters needs 
 
 It is open to debate what should happen if a wrong parameter type is passed for a parameter that has a default value. As a valid function call is technically possible, the wrong type could simply be ignored and the default value used. This silent fail may lead to unintended behaviour though and thus is highly questionable.
 
-\section{Structs and classes}
+\section{Classes}
 \label{sec:StructsAndClasses}
 
-garbage collection, private data and jsclass jsvals
+The wrapping of custom types and inheritance hierarchies comes with a lot of possible pitfalls.\\
+\myProperName{C++} classes can be best mapped to \myProperName{JavaScript} constructor functions, as explained in \myRefSection{sec:JavaScript}. \myProperName{SpiderMonkey} provides the structure \mySCName{JSClass} and the function \myProperName{JS\_InitClass} for performing this task.
+
+A \mySCName{JSClass} object contains the name of a class, some flags and a set of \mySlang{hooks} - functions that are called by the \myProperName{JavaScript} engine on specific events. One of these \mySlang{hooks} is the finalize operation, which will be called when a \mySCName{JSObject}, that was created from this class, is garbage collected. The most important flag to set on the \mySCName{JSClass} is \mySCName{JSCLASS\_HAS\_PRIVATE}, which allows the objects created from the class to have a private data field. This field of type \mySCName{void*} will be used to store the instances of a wrapped \myProperName{C++} class.\\
+\mySCName{JS\_InitClass} creates a prototype \mySCName{JSObject} from a given \mySCName{JSClass} and defines functions and properties on it. It defines the constructor function on the given scope object. It takes a constructor function, which will be called, when instances are created in script via \mySCName{new}. This constructor function is of type \mySCName{JSNative}. It usually creates an instance of the wrapped \myProperName{C++} class and saves it as the private data.
+
+\SingleSpacing
+\begin{lstlisting}[language=C++, caption=Initializing a class, label=lst:InitClass]
+void finalize(JSContext *cx, JSObject *obj)
+{
+	// called upon garbage collection
+}
+
+JSClass jsClass = {
+	"SampleClassWrap",        // Name of the class
+	JSCLASS_HAS_PRIVATE,  // Flags
+	JS_PropertyStub,      // Default hooks
+	JS_PropertyStub, 
+	JS_PropertyStub, 
+	JS_StrictPropertyStub,
+	JS_EnumerateStub, 
+	JS_ResolveStub, 
+	JS_ConvertStub, 
+	finalize              // finalize operation
+};
+
+JSObject* jsPrototype;
+
+// called when instance created via new
+JSBool constructor(JSContext *cx, uintN argc, jsval *vp)
+{
+	// create the JavaScript object
+	JSObject* obj = JS_NewObject(cx, &jsClass, jsPrototype, NULL);
+	if (!obj)
+		// error handling
+	else
+	{
+		// create instance of C++ class and save it as private data
+		if(!JS_SetPrivate(cx, obj, new ::SampleClass()))
+			// error handling
+		else
+			// set the object as the return value
+			JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(obj));
+	}
+	
+	return true;
+}
+
+// initializing the class on a given scope JSObject
+jsPrototype = JS_InitClass(context, scope, 
+			
+		NULL,        // parent prototype
+		&jsClass,    // the used JSClass
+		constructor, // constructor function
+		0,           // expected parameters of constructor
+		NULL,        // instance properties
+		NULL,        // instance functions
+		NULL,        // static properties
+		NULL         // static functions
+	);
+\end{lstlisting}
+\OnehalfSpacing
+
+\myRefListing{lst:InitClass} shows the initialization of the constructor function \mySCName{SampleClassWrap} along with its prototype. \mySCName{SampleClassWrap} wraps the \myProperName{C++} class \mySCName{SampleClass}. New instances can be created from script via \mySCName{new SampleClassWrap()}, which will lead to new instances of \mySCName{SampleClass} being created. The given code does not expose any members, as the call to \mySCName{JS\_InitClass} passes \mySCName{NULL} for all properties and functions.
+
+\subsection{Private data}
+
+When wrapping member functions and fields, the according wrapper code needs to retrieve the instance of the \myProperName{C++} class from the \mySCName{this} \mySCName{JSObject}'s private data. Within a \mySCName{JSNative} the \mySCName{this} \mySCName{JSObject} can be retrieved using \mySCName{JS\_THIS\_OBJECT}.
+
+As functions can be borrowed and execution context be forced in \myProperName{JavaScript}, there is no guarantee that the JSObject's private data contains an instance of the expected class. Thus type checking has to be performed to validate the correct type of the private data and convert it from the \mySCName{void*}. Calling instance functions on unchecked values can lead to crashes.
+
+When saving an instance as a private data \mySCName{void} pointer, type information is \mySlang{lost} and cannot be retrieved - not even using RTTI and \mySCName{dynamic\_cast}. \myProperName{C++} itself gives us no means of checking the data to be of a specific type. Thus, for performing type checking, the \mySCName{JSObject} itself is checked, whether it is of a specific \mySCName{JSClass}. An object of class \mySCName{SampleClassWrap} is guaranteed to hold an instance of \mySCName{SampleClass} as its private data - and nothing else. \myProperName{Spidermonkey} provides two important functions for performing such type checks.\\
+\mySCName{JS\_GetInstancePrivate} returns the private data of a \mySCName{JSObject}, but checks the object to be of a given \mySCName{JSClass}. If the check fails, it returns \mySCName{NULL}.\\
+\mySCName{JS\_HasInstance} checks a \mySCName{JSObject} (to be precise: a \mySCName{jsval}), whether it is an instance of a given constructor function. The function checks the whole prototype chain and as such is better suited for inheritance.\\
+If these checks succeed, a private data value can safely be converted to the correct \myProperName{C++} type using \mySCName{static\_cast}.
+
+Another possible way of type checking is to save the type information along with the private data. Such a concept will be presented in \myRefSection{sec:GenericWrapper}.
+
+\subsection{Memory management}
+
+garbage collection
+
+\subsection{Caching}
 
 \subsection{Fields}
 
@@ -422,19 +505,21 @@ garbage collection, private data and jsclass jsvals
 
 \subsection{Constructors}
 
-\subsubsection{Inheritance}
+\subsection{Inheritance}
 
 multiple, class-based vs prototype-based
 
-\subsubsection{Const}
+\subsection{Const}
 
-\subsubsection{Static members}
+\subsection{Static members}
 
-\subsection{Global variables}
+\section{Global variables}
 
-\subsection{Unions}
+\section{Unions}
 
-\subsection{Function pointers and callbacks}
+\section{Typedefs}
+
+\section{Function pointers and callbacks}
 
 \SingleSpacing
 \begin{lstlisting}[language=C++, caption=\myProperName{C++} function that takes a function pointer]
@@ -523,15 +608,18 @@ The only other way of creating functions at run-time is to create the machine-co
 
 The creation of machine-code at run-time is the only way for completely supporting script functions as callbacks. It has the drawback of an additional library dependency and is also not supported on all platforms.
 
-\subsection{Templates}
+\section{Templates}
 
-\subsection{Modules}
+\section{Accessor Properties}
 
-\subsection{Accessor Properties}
+\section{Generic wrapper}
+\label{sec:GenericWrapper}
 
 fields treated as references
 
 \section{Error handling}
+
+
 \label{sec:ErrorHandling}
 
 
