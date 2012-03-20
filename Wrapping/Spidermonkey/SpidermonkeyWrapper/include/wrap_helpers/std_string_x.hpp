@@ -18,12 +18,17 @@ namespace jswrap
 		if(!result)
 			throw exception("Could not convert JSString* to char*");
 
-		return std::string(result); // TODO: optimize
+		std::string strRes(result);
+		delete[] result;
+
+		return strRes; // TODO: optimize
 	}
 
 	static std::string jsval_to_stdString_convert_x(JSContext* cx, jsval val)
 	{
 		JSString* str = JS_ValueToString(cx, val);
+		if(!str)
+			throw exception("Could not convert jsval to char*");
 
 		JS::Anchor<JSString*> a_str(str); // protecting the string from GC
 
@@ -31,7 +36,10 @@ namespace jswrap
 		if(!result)
 			throw exception("Could not convert jsval to char*");
 
-		return std::string(result); // TODO: optimize
+		std::string strRes(result);
+		delete[] result;
+
+		return strRes; // TODO: optimize
 	}
 
 	static JSString* stdString_to_jsstring_x(JSContext* cx, const std::string& str)

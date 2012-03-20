@@ -206,22 +206,114 @@ Spidermonkey comes in form of a shared library exposing a \myProperName{C} API t
 A \mySCName{JSRuntime} is an instance of the virtual machine. A \mySCName{JSContext} is a is a single world within a \mySCName{JSRuntime}, in which all objects and values live. One \mySCName{JSRuntime} can have multiple \mySCName{JSContext}s. Each context has a global object. Objects are exposed as \mySCName{JSObject}.
 
 A \myProperName{JavaScript} value is expressed as a \mySCName{jsval}. \mySCName{jsval} contains information about the type of the value (number, boolean, etc.). For strings and objects, the \mySCName{jsval} stores the pointer to the \mySCName{JSString} or \mySCName{JSObject}. For all other types, the data is saved in the \mySCName{jsval} itself. \mySCName{jsval}s occur at several places in \myProperName{JSAPI}, for example when defining properties, for parameter values or return values.\\
-\myProperName{Spidermonkey} provides utility functions for retrieving the type of a \mySCName{jsval} \linebreak(e.g. \mySCName{JSVAL\_IS\_OBJECT}) and its content (e.g. \mySCName{JSVAL\_TO\_OBJECT}) or for creating \mySCName{jsval}s from the according \myProperName{C++} types (e.g. \mySCName{OBJECT\_TO\_JSVAL}).
+\myProperName{Spidermonkey} provides utility macros/functions for retrieving the type of a \mySCName{jsval} \linebreak(e.g. \mySCName{JSVAL\_IS\_OBJECT}) and its content (e.g. \mySCName{JSVAL\_TO\_OBJECT}) or for creating \mySCName{jsval}s from the according \myProperName{Spidermonkey} \myProperName{C++} types (e.g. \mySCName{OBJECT\_TO\_JSVAL}).\\
+When converting between \mySCName{jsval}s and \myProperName{C++} types, type checking needs to be performed. The \myProperName{C++} compiler that compiles the glue code will perform this task, when converting \textbf{to} \mySCName{jsval}, as the conversion functions only accept the correct type. When converting a \mySCName{jsval} to a \myProperName{C++} type, the current type of the \mySCName{jsval} needs to be checked first. If the \myProperName{JSAPI} user for example tries to retrieve a \mySCName{JSObject} from a \mySCName{jsval} that contains a boolean value, the behaviour of the code is undefined and will probably lead to a run-time failure like a crash. Thus type checking and error handling play an important role and are explained in further detail in \todo{ref}.\\
+\myProperName{Spidermonkey} also provides utility functions for automatic conversion of types according to the \myProperName{ECMAScript} standard. If, for example, a boolean is passed to a function that expects a string, the conversion would create a string from the boolean - either \mySCString{true} or \mySCString{false}. These conversion functions are less performant, but allow for a greater range of values without reporting errors. It has to be said though, that automatic conversion can lead to unexpected program behaviour in places where the user would expect an error.\\
+Most of the conversion functions take a \mySCName{JSContext} as the parameter.
 
-A \mySCName{JSObject} has a \mySCName{void} pointer that \myProperName{JSAPI} users can use for storing any kind of private data. 
+A \mySCName{JSObject} has a \mySCName{void} pointer that \myProperName{JSAPI} users can use for storing any kind of private data. This will be useful for storing pointers of \myProperName{C++} classes.
 
+\section{Boolean values}
+
+Boolean values can be converted between \mySCName{jsval}s and the \myProperName{C++} boolean type using \mySCName{JSVAL\_TO\_BOOLEAN} and \mySCName{BOOLEAN\_TO\_JSVAL}. \mySCName{JS\_ValueToBoolean} can be used for automatic conversion. If the function returns false, the given \mySCName{jsval} could not be converted.
+
+\SingleSpacing
+\begin{lstlisting}[language=C++, caption=Conversion of boolean values]
+bool cppValue = true;
+
+// A) to jsval
+jsval jsValue = BOOLEAN_TO_JSVAL(cppValue);
+
+// B) from jsval - strict
+if(JSVAL_IS_BOOLEAN(jsValue))
+	cppValue = JSVAL_TO_BOOLEAN(jsValue)
+else
+	// error handling
+	
+// C) from jsval - using automatic conversion
+if(!JS_ValueToBoolean(context, jsValue, &cppValue))
+	// error handling
+\end{lstlisting}
+\OnehalfSpacing
+
+\section{Number values}
+
+\myProperName{ECMAScript} supports only a single number type. There is no distinction between integers and floating point values.\\
+\myProperName{Spidermonkey} internally makes a difference and provides macros like \mySCName{JSVAL\_TO\_INTEGER}, which will result in an undefined result if the \mySCName{jsval} contains a double value. Thus, \myProperName{Spidermonkey} also provides generalized versions for converting between \myProperName{C++} types and the \myProperName{JavaScript} numbers, which should be used instead:
+
+\begin{itemize}\addtolength{\itemsep}{-0.5\baselineskip}
+	\item \mySCName{JS\_NewNumberValue}: creates a number \mySCName{jsval} from integer or floating point value
+	\item \mySCName{JSVAL\_IS\_NUMBER}
+	\item \mySCName{JS\_ValueToNumber}: converts to \mySCName{double}
+	\item \mySCName{JS\_ValueToECMAInt32}
+	\item \mySCName{JS\_ValueToECMAUint32}
+	\item \mySCName{JS\_ValueToUint16}
+	\end{itemize}
+
+When converting to integers, the number value is rounded according to the \myProperName{ECMAScript} standard.
+
+Usage of these macros and functions is similar to converting boolean values.
+
+\section{Strings}
+
+\mySCName{STRING\_TO\_JSVAL}, \mySCName{JSVAL\_IS\_STRING}, \mySCName{JSVAL\_TO\_STRING} and \mySCName{JS\_ValueToString} (with automatic conversion) can be used for converting between \mySCName{jsval} and \mySCName{JSString}.
+
+\myProperName{JavaScript} strings are sequences of 16 bit wide characters. In \myProperName{Spidermonkey} such a character is defined as a \mySCName{jschar} and \mySCName{JSString} is a sequence of \mySCName{jschar}s. A \mySCName{jschar} is UTF-16.
+
+\mySCName{JSString}s can be converted to null-terminated \myProperName{C++} character arrays using \mySCName{JS\_EncodeString}. The caller is responsible for handling the created memory. \mySCName{JS\_NewStringCopyZ} can be used to convert a null-terminated character array to a \mySCName{JSString}.
+
+\SingleSpacing
+\begin{lstlisting}[language=C++, caption=Conversion of strings]
+const char* cppStr = "This is a null-terminated string";
+
+// A) to jsval
+JSString* jsStrToScript = JS_NewStringCopyZ(context, cppStr);
+if(!jsStrToScript)
+	// error handling
+jsval jsValue = STRING_TO_JSVAL(jsStrToScript);
+
+// B) from jsval - using automatic conversion
+JSString* jsStrFromScript = JS_ValueToString(context, jsValue);
+if(!jsStrFromScript)
+	// error handling
+	
+char* cppStrFromScript = JS_EncodeString(context, jsStrFromScript);
+if(!cppStrFromScript)
+	// error handling
+	
+// ... using the char* ...
+// ...
+
+// cleaning up
+if(cppStrFromScript)
+	delete[] cppStrFromScript;
+\end{lstlisting}
+\OnehalfSpacing
+
+To handle \mySCName{std::string}, its \mySCName{c\_str} method needs to be used to retrieve a \mySCName{const char*}. \mySCName{std::string} can be constructed from character arrays.
+
+\subsection{Unicode}
+
+As \mySCName{jschar} is UTF-16, \mySCName{JSString}s can be created from and converted to 16-bit unicode strings.\\
+\mySCName{JS\_NewUCStringCopyZ} creates a \mySCName{JSString} from an array of \mySCName{jschar}s, whereas \linebreak\mySCName{JS\_GetStringCharsZ} returns an array of \mySCName{jschar}s from a \mySCName{JSString}.
+
+The \myProperName{JSAPI} user has to do the conversion from his unicode character type to \mySCName{jschar} and verse visa.\\
+\myProperName{C++}'s wide character type \mySCName{wchar\_t} is not well suited for this task, as its size is compiler specific. It is allowed to be at least 8 bit. On \myProperName{VC++} it is 16 bit, on GCC even 32 bit.\\
+\myProperName{C++11} introduces new character types for unicode characters: \mySCName{char16\_t} and \mySCName{char32\_t}. Having a fixed width, \mySCName{char16\_t} should be the same as a \mySCName{jschar} on all platforms and thus be best suited for conversion between unicode strings and \mySCName{JSString}.
 
 \section{Items}
 
 Overview \myProperName{C++} and \myProperName{JavaScript}
 
-\subsection{Boolean values}
 
-\subsection{Number values}
 
-\subsection{Strings}
+
+
+
 
 \subsection{Functions}
+
+out parameters
 
 \subsubsection{Overloaded functions}
 

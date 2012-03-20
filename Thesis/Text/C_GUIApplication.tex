@@ -134,8 +134,6 @@ The result object is traversed and \mySCName{CPP\_ASTObject}s and \mySCName{CPP\
 First, instances of the according classes are created, but only with information about the name, id and parent of the AST object. Thus the final tree is already formed, though lacking specific information about its members. Types are created in a similar way. For both, the newly created objects are kept track of with a map that associates ids and AST nodes.\\
 In the second step, the created objects are updated and missing information for all nodes and types is retrieved. If a cross-reference is found, the according AST node or type is looked up using the id-maps.
 
-\section{The Export AST}
-
 \section{Code generation}
 
 This section will explain the basic concept behind code generation plugins, especially for language bindings. Adding code generation support for a scripting language is exemplified with the code generation plugin written for \myProperName{Mozilla Spidermonkey}.
@@ -442,5 +440,6 @@ When creating a \mySCName{DOMTree} a callback function has to be passed. When cr
 \section{Known Problems}
 
 from which file was a symbol included: need include file hierarchy
+parameter cleanup
 
 
