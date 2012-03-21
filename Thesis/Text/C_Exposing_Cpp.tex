@@ -504,6 +504,30 @@ As a constructor is just a \mySCName{JSNative}, parameters can be passed to it l
 
 As can be seen in \myRefListing{lst:InitClass}, the constructor's task is to create a \mySCName{JSObject} instance that will be returned. The created \myProperName{C++} instance will be stored as the private data of the \mySCName{JSObject}.
 
+\subsection{Wrapping existing instances}
+
+Already existing instances of \myProperName{C++} classes that the user wants to access from script can be wrapped similarly to the creation within a constructor. A new \mySCName{JSObject} with the according \mySCName{JSClass} and prototype needs to be created and the existing instance stored as the private data.
+
+\SingleSpacing
+\begin{lstlisting}[language=C++, caption=Wrapping an instance]
+SampleClass instance = new SampleClass();
+
+JSObject* wrapObj = JS_NewObject(context, 
+			&sampleClass_JSClass,           // JSClass
+			 sampleClass_Prototype, NULL);  // Prototype JSObject
+			 
+if (!wrapObj)
+	// error handling
+else
+{
+	// store the instance
+	if(!JS_SetPrivate(context, wrapObj, instance))
+		// error handling
+}
+
+\end{lstlisting}
+\OnehalfSpacing
+
 \subsection{Member functions}
 
 Wrapping of member functions works similar to the wrapping of free functions as explained in \myRefSection{sec:Functions}.
@@ -547,7 +571,7 @@ This concept is not feasible, when caching \mySCName{JSObject}s. If a \myProperN
 
 \subsection{Static members}
 
-\subsection{Wrapping existing instances}
+Static data members and functions are wrapped similar to fields and functions. As they are static, they make no use of the \mySCName{this} object. When calling \mySCName{JS\_InitClass} static properties and functions can be passed. \myProperName{JavaScript} has no real concept of static members as there is no distinction between classes and instances. When declaring ''static'' properties using \mySCName{JS\_InitClass} these are simply defined on the created constructor function, so access to static members looks similar to \myProperName{C++}. Contrary to \myProperName{C++}, it is not possible to access a static member from within an instance using \mySCName{this} - static members always have to be accessed using the constructor function object.
 
 \section{Global variables}
 
@@ -657,7 +681,7 @@ As template instantiations (e.g. \mySCName{std::vector<int>}) are normal classes
 Glue code can be shared, by using templated wrapper functions though: 
 
 \SingleSpacing
-\begin{lstlisting}[language=C++, caption=A simple wrapper function]
+\begin{lstlisting}[language=C++, caption=A templated JSNative]
 template<T>
 float getFloat(T param1);
 
@@ -676,22 +700,77 @@ JSFunction* func = JS_DefineFunction(context, someJSObject,
 
 \section{Generic wrapper}
 \label{sec:GenericWrapper}
+Sometimes the user does not need class members to be exposed to script, but only wants to pass instances across the language border. The user might, f. ex. receive a wrapped instance from an exposed \myProperName{C++} function and pass it on to another \myProperName{C++} function, without using the \myProperName{JavaScript} object in between.
 
-fields treated as references
+As no members are exposed, it is possible to use the same \mySCName{JSClass} for all kinds of instances. This generic wrapper will leave ownership to \myProperName{C++}.\\
+Compared to the previously explained wrapping of classes, the \mySCName{JSClass} \mySCName{GenericWrapper} will not be bound to a specific type of private data and as such can not be used for type checking. Thus, type information needs to be stored along with the private data \mySCName{void*}.
+
+There are several ways to do this, for example the \myProperName{C++} \mySCName{typeid}\todo{ref} operator, which returns the type information of a given value. Though \mySCName{type\_info}s can be compared, they have no knowledge about inheritance chains.\\
+There is a proposal to support rich pointers\todo{ref} (pointers that also contain type information) in \mySCName{C++}, but it is uncertain if the idea of rich pointers will ever become part some \myProperName{C++} standard.
+
+During research I came across \myAuthorName{Cassio Neri}'s concept of an \mySCName{any\_ptr} - a class that holds a pointer and its type information. \mySCName{any\_ptr} allows casting up and down in inheritance chains at run-time without the possibility of crashes. If an \mySCName{any\_ptr} cannot be casted to a given type, its cast function simply returns \mySCName{NULL}. An important feature is its support for classes without RTTI.
+
+\begin{lstlisting}[language=C++, caption=Implementation of \mySCName{any\_ptr}]
+class any_ptr {
+    void* ptr_;
+    void (*thr_)(void*);
+ 
+    template <typename T>
+    static void thrower(void* ptr) { throw static_cast<T*>(ptr); }
+ 
+public:
+    template <typename T>
+    any_ptr(T* ptr) : ptr_(ptr), thr_(&thrower<T>) {}
+ 
+    template <typename U>
+    U* cast() const {
+        try { thr_(ptr_); }
+        catch (U* ptr) { return static_cast<U*>(ptr); }
+        catch (...) {}
+        return 0;
+    }
+};
+
+std::string str;
+any_ptr anyPtr(&str); // T is deduced from &str
+
+std::string* strPtr = anyPtr.cast<std::string>(); // --> points to str
+std::exception* ePtr = anyPtr.cast<std::exception>(); // --> NULL
+\end{lstlisting}
+\OnehalfSpacing
+
+The concept is simple, but clever. Along with the pointer, the \mySCName{any\_ptr} stores the address of a template function instantiation (\mySCName{thrower}) that was instantiated with the known type of the pointer (e.g. \mySCName{std::string}). This function does nothing but throw the pointer as an exception. The \mySCName{cast} function is another template function that takes the type that the pointer should be casted to as the template parameter \mySCName{U} (for example \mySCName{std::string} or \mySCName{std::exception}, \mySCName{int}, etc.). This type will be used in a catch clause to catch the pointer that was thrown in \mySCName{thrower}. If the \mySCName{catch} clause can catch the exception the cast is successful and the casted pointer returned. Otherwise \mySCName{NULL} is returned. Catching a \mySCName{U*} will also catch any subclass of the type used for \mySCName{U}.
+
+Instead of storing the instance pointer directly, \mySCName{GenericWrapper} will store an instance of \mySCName{any\_ptr}, which was created with \mySCName{new any\_ptr(instancePtr)}. 
+
+Using the run-time exception system is surely less performant and storing an \mySCName{any\_ptr} as the private data adds one level of indirection compared to storing the instance pointer itself. Nevertheless, \mySCName{any\_ptr} seems to be the only type-safe way of casting unknown private data.
+
+As \myProperName{C++} holds ownership, the generic wrapper should not be used for wrapping function return values that are copies, as the memory will be leaked.
 
 \section{Error handling}
-
-
 \label{sec:ErrorHandling}
 
+Errors can occur in a lot of places. Converting of a parameter to the expected type might fail. The \myProperName{C++} code that is called may throw an exception.
 
+The \myProperName{JavaScript} engine does not automatically handle exceptions. The \myProperName{JSAPI} user has to do this himself at the language border - meaning the glue code and the wrapper functions. When a wrapper function returns \mySCName{false}, it tells the virtual machine that an error occurred and an exception has been set. Setting exceptions can be done using \mySCName{JS\_ReportError}:
 
-
-
-\todo{TODO-List}
- - welche Sprachkonstrukte von C++ kann man auf andere Sprachen abbilden? 
- -- Klassen, Interfaces, virtuelle Methoden, Polymorphie, statische Methoden, Templates
- - Wie sieht es aus mit Sprachkonstrukten, die in C++ nicht existieren bzw. kompliziert sind?
- -- Properties? Umwandlung von Gettern und settern? Funktoren, Funktionspointer
- -- Übergang von klassen-basierter Vererbung (C++) zu Prototyp-basierter Vererbung (JS)
- - abstrahierung
+\SingleSpacing
+\begin{lstlisting}[language=C++, caption=Error handling at the language border]
+JSBool some_wrapper(JSContext *cx, uintN argc, jsval *vp)
+{
+	try {
+		// code that throws exception
+		
+	} catch(std::exception& e) {
+		JS_ReportError(cx, e.what());
+		return false;
+	} catch(...) {
+		JS_ReportError(cx, "some_wrapper: An unknown exception occurred");
+		return false;
+	}
+	
+	// no errors detected
+	return true;
+}
+\end{lstlisting}
+\OnehalfSpacing
