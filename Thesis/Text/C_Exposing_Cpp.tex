@@ -335,6 +335,7 @@ else {
 \OnehalfSpacing
 
 \section{Functions}
+\label{sec:Functions}
 
 Functions are generally wrapped with the help of wrapper functions of the function type \mySCName{JSNative}. The wrapper function has to convert the parameters from \myProperName{JavaScript} values to \myProperName{C++} values, call the wrapped function and convert its return value to a \myProperName{JavaScript} value. If errors occur (for example if parameters of wrong types have been passed) or exceptions are thrown somewhere in the called \myProperName{C++} code, these have to be handled and the function will return \mySCName{false} to indicate a pending \myProperName{JavaScript} exception.
 
@@ -399,6 +400,7 @@ if(!func)
 
 
 \subsection{Overloaded functions}
+\label{sec:OverloadedFunctions}
 
 \myProperName{JavaScript} does not support overloaded functions per se. Instead, a function can inspect the parameters it was called with and behave according to the number and types of parameters passed.
 
@@ -419,7 +421,7 @@ The wrapping of custom types and inheritance hierarchies comes with a lot of pos
 \myProperName{C++} classes can be best mapped to \myProperName{JavaScript} constructor functions, as explained in \myRefSection{sec:JavaScript}. \myProperName{SpiderMonkey} provides the structure \mySCName{JSClass} and the function \myProperName{JS\_InitClass} for performing this task.
 
 A \mySCName{JSClass} object contains the name of a class, some flags and a set of \mySlang{hooks} - functions that are called by the \myProperName{JavaScript} engine on specific events. One of these \mySlang{hooks} is the finalize operation, which will be called when a \mySCName{JSObject}, that was created from this class, is garbage collected. The most important flag to set on the \mySCName{JSClass} is \mySCName{JSCLASS\_HAS\_PRIVATE}, which allows the objects created from the class to have a private data field. This field of type \mySCName{void*} will be used to store the instances of a wrapped \myProperName{C++} class.\\
-\mySCName{JS\_InitClass} creates a prototype \mySCName{JSObject} from a given \mySCName{JSClass} and defines functions and properties on it. It defines the constructor function on the given scope object. It takes a constructor function, which will be called, when instances are created in script via \mySCName{new}. This constructor function is of type \mySCName{JSNative}. It usually creates an instance of the wrapped \myProperName{C++} class and saves it as the private data.
+\mySCName{JS\_InitClass} creates a prototype \mySCName{JSObject} from a given \mySCName{JSClass} and defines functions and properties on it. It defines the \myProperName{JavaScript} constructor function on the given scope object. It takes a constructor \mySCName{JSNative}, which will be called, when instances are created in script via \mySCName{new}. It usually creates an instance of the wrapped \myProperName{C++} class and saves it as the private data.
 
 \SingleSpacing
 \begin{lstlisting}[language=C++, caption=Initializing a class, label=lst:InitClass]
@@ -481,6 +483,7 @@ jsPrototype = JS_InitClass(context, scope,
 \myRefListing{lst:InitClass} shows the initialization of the constructor function \mySCName{SampleClassWrap} along with its prototype. \mySCName{SampleClassWrap} wraps the \myProperName{C++} class \mySCName{SampleClass}. New instances can be created from script via \mySCName{new SampleClassWrap()}, which will lead to new instances of \mySCName{SampleClass} being created. The given code does not expose any members, as the call to \mySCName{JS\_InitClass} passes \mySCName{NULL} for all properties and functions.
 
 \subsection{Private data}
+\label{sec:PrivateData}
 
 When wrapping member functions and fields, the according wrapper code needs to retrieve the instance of the \myProperName{C++} class from the \mySCName{this} \mySCName{JSObject}'s private data. Within a \mySCName{JSNative} the \mySCName{this} \mySCName{JSObject} can be retrieved using \mySCName{JS\_THIS\_OBJECT}.
 
@@ -493,31 +496,67 @@ If these checks succeed, a private data value can safely be converted to the cor
 
 Another possible way of type checking is to save the type information along with the private data. Such a concept will be presented in \myRefSection{sec:GenericWrapper}.
 
+\myProperName{SpiderMonkey} provides another way of storing private data. A \mySCName{JSClass} can be initialized to have a fixed number (between 0 and 255) of reserved slots for \mySCName{jsval}s. Though being subject to GC, these slots are not exposed so script and can be used for any purpose.
+
+\subsection{Constructors}
+
+As a constructor is just a \mySCName{JSNative}, parameters can be passed to it like to any other function. As explained in \myRefSection{sec:OverloadedFunctions}, the correct constructor implementation for creating the \myProperName{C++} instance can be chosen based on the number and types of arguments.
+
+As can be seen in \myRefListing{lst:InitClass}, the constructor's task is to create a \mySCName{JSObject} instance that will be returned. The created \myProperName{C++} instance will be stored as the private data of the \mySCName{JSObject}.
+
+\subsection{Member functions}
+
+Wrapping of member functions works similar to the wrapping of free functions as explained in \myRefSection{sec:Functions}.
+
+For the function call to work, the class instance needs to be retrieved from the private data of the \mySCName{this} \mySCName{JSObject} as explained in \myRefSection{sec:PrivateData}. Type checking has to be performed.
+
+\subsection{Fields}
+
+In \myProperName{C++}, data members (fields) are often not declared as \mySCName{public}, but will instead be accessed using getter and setter functions.
+
+In both cases, either a \myProperName{JavaScript} value property or accessor property can be created. Depending what kind of property is chosen, the behaviour may be different.
+
+Exposing getters and setters as properties (e.g. \mySCName{obj.setVal(x)} becomes \mySCName{obj.val = x}) will give the wrapped class a more natural feeling, when being used from the scripting language, as function call syntax is removed.
+
+\subsubsection{Accessor properties}
+
+\subsubsection{Value properties}
+
 \subsection{Memory management}
 
 garbage collection
 
 \subsection{Caching}
 
-\subsection{Fields}
 
-\subsection{Member functions}
-
-\subsection{Constructors}
 
 \subsection{Inheritance}
 
 multiple, class-based vs prototype-based
 
+problems with overwritten functions
+
 \subsection{Const}
+
+Being a weakly typed language, \myProperName{JavaScript} has no notion of \mySCName{const} values. As such, \mySCName{const} class instances are wrapped as non-\mySCName{const}. This removes security, when passing the language border and may lead to wrapped instances being used in an unexpected or unintended fashion.
+
+It is free to the \myProperName{JSAPI} user to only expose constant functions of a class.
+
+It is also possible to save a \mySCName{const} state in the \mySCName{JSObject} itself. Wrapper functions could check this state. If it is \mySCName{true} and a non-\mySCName{const} member function is used, a \myProperName{JavaScript} exception could be thrown.\\
+This concept is not feasible, when caching \mySCName{JSObject}s. If a \myProperName{C++} function returns an instance for which a cached \mySCName{JSObject} exists and sets its \mySCName{const} state to \mySCName{true}, then all other users that were previously using the \mySCName{JSObject} in a non-\mySCName{const} manner will suddenly receive exceptions. This has to do with the \mySCName{const} state being stored in the value (the object) instead of the variable.
 
 \subsection{Static members}
 
+\subsection{Wrapping existing instances}
+
 \section{Global variables}
 
-\section{Unions}
-
 \section{Typedefs}
+
+As one of the main purposes of typedefs is to assign a simple name for a \myProperName{C++} type to ease code writing, a typedef feature is less needed in weakly typed languages.
+
+To achieve a typedef-like effect in \myProperName{JavaScript}, constructor functions can be defined as properties on multiple objects, even with different property names.\\
+It has to be pointed out, that there is no equivalent of typedefs for primitive types (except for \mySCName{null} and \mySCName{undefined}, as they are a value and type at the same time).
 
 \section{Function pointers and callbacks}
 
@@ -610,7 +649,30 @@ The creation of machine-code at run-time is the only way for completely supporti
 
 \section{Templates}
 
-\section{Accessor Properties}
+Templates are an advanced feature of \myProperName{C++} for writing classes that can use arbitrary types. As such, templates are not really needed in weakly typed dynamic languages like \myProperName{JavaScript}.
+
+Templates are merely blueprints for classes (and functions) that are instantiated at compile-time with the given types. This happens either implicitly or or explicitly.\\
+Being a compile-time feature, generic templated classes like \mySCName{std::vector<T>} cannot be wrapped and thus made usable from script with arbitrary types set for the template parameters (e.g. \mySCName{T}).\\
+As template instantiations (e.g. \mySCName{std::vector<int>}) are normal classes, they can be wrapped like any other. This means that for any type that the \myProperName{Spidermonkey} user might want to use as a template parameter, the according template needs to be instantiated and wrapped in the glue code. Being individual classes, instantiated templates have no relationship to each other and as such each needs to be wrapped on its own.\\
+Glue code can be shared, by using templated wrapper functions though: 
+
+\SingleSpacing
+\begin{lstlisting}[language=C++, caption=A simple wrapper function]
+template<T>
+float getFloat(T param1);
+
+template<T>
+JSBool shared_getFloat_wrapper(JSContext *cx, uintN argc, jsval *vp)
+{
+	// code that uses T
+}
+
+JSFunction* func = JS_DefineFunction(context, someJSObject,
+        "getFloat",             // name of the function
+        getFloat_Wrapper<int>,  // wrapper function instantiation
+        1, JSPROP_ENUMERATE);
+\end{lstlisting}
+\OnehalfSpacing
 
 \section{Generic wrapper}
 \label{sec:GenericWrapper}
