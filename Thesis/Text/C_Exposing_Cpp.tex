@@ -1002,3 +1002,11 @@ JSBool some_wrapper(JSContext *cx, uintN argc, jsval *vp)
 }
 \end{lstlisting}
 \OnehalfSpacing
+
+\section{Accessing \myProperName{JavaScript} objects from \myProperName{C++}}
+
+This chapter mostly focused on exposing \myProperName{C++} functionality to \myProperName{JavaScript}.
+
+\myProperName{Spidermonkey} also provides functions for getting and accessing \myProperName{JavaScript} objects and values. Object properties can be inspected and functions called.
+
+\mySCName{JS\_GetProperty} can be used to access the property of a \mySCName{JSObject}. The values stored in properties can be unwrapped in the presented way to access the wrapped \myProperName{C++} instances. Type checking has to be performed to verify the data coming from \myProperName{JavaScript}.
