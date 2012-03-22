@@ -159,8 +159,8 @@ function SubClass()
 	this.subclassMember = "Another member";
 }
 
-// assigning a new prototype object with [[Prototype]] Base
-SubClass.prototype = Object.create(Base);
+// assigning a new prototype object with [[Prototype]] Base.prototype
+SubClass.prototype = Object.create(Base.prototype);
 // resetting the constructor property
 SubClass.prototype.constructor = SubClass;
 
