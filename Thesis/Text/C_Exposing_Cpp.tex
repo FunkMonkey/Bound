@@ -170,7 +170,13 @@ instance.doSomething(); // --> 9 (3 * 3)
 \end{lstlisting}
 \OnehalfSpacing
 
-\todo{proto chain illustration}
+\vspace{10pt}
+\begin{figure}[h] % h = here
+	\centering
+		\includegraphics[scale=0.32]{Images/PrototypeChain.png}
+	\caption{The prototype chain}
+	\label{fig:InheritanceWrapping}
+\end{figure}
 
 \subsubsection{Mixins}
 \label{sec:Mixins}
@@ -650,9 +656,14 @@ As type checking is only performed when defining the property and the holding in
 
 The inheritance mechanism described in \myRefSection{sec:JSInheritance} can also be used in glue code. \mySCName{JS\_InitClass} accepts a \mySCName{JSObject} that will be set as the internal [[Prototype]].
 
-The \myProperName{C++} class hierarchy does not necessarily need to be replicated on the \myProperName{JavaScript} side. \todo{ref} shows that base class members can also just be defined on the subclass wrapper.
+The \myProperName{C++} class hierarchy does not necessarily need to be replicated on the \myProperName{JavaScript} side. \myRefFigure{fig:InheritanceWrapping} shows that base class members can also just be defined on the subclass wrapper.
 
-\todo{illustration}
+\begin{figure}[h] % h = here
+	\centering
+		\includegraphics[scale=0.3]{Images/InheritanceWrapping.png}
+	\caption{Wrapping inheritance chains}
+	\label{fig:InheritanceWrapping}
+\end{figure}
 
 If base classes do not need to be exposed, multiple inheritance can be mimicked in the same way. Otherwise, if base classes are wrapped too, the subclass can inherit from one base class and borrow the properties from the others as explained in \myRefSection{sec:Mixins}.
 
@@ -933,8 +944,8 @@ Sometimes the user does not need class members to be exposed to script, but only
 As no members are exposed, it is possible to use the same \mySCName{JSClass} for all kinds of instances. This generic wrapper will leave ownership to \myProperName{C++}.\\
 Compared to the previously explained wrapping of classes, the \mySCName{JSClass} \mySCName{GenericWrapper} will not be bound to a specific type of private data and as such can not be used for type checking. Thus, type information needs to be stored along with the private data \mySCName{void*}.
 
-There are several ways to do this, for example the \myProperName{C++} \mySCName{typeid}\todo{ref} operator, which returns the type information of a given value. Though \mySCName{type\_info}s can be compared, they have no knowledge about inheritance chains.\\
-There is a proposal to support rich pointers\todo{ref} (pointers that also contain type information) in \mySCName{C++}, but it is uncertain if the idea of rich pointers will ever become part some \myProperName{C++} standard.
+There are several ways to do this, for example the \myProperName{C++} \mySCName{typeid}\footnote{Documentation: \url{http://www.cplusplus.com/reference/std/typeinfo/type_info/}} operator, which returns the type information of a given value. Though \mySCName{type\_info}s can be compared, they have no knowledge about inheritance chains.\\
+There is a proposal to support rich pointers\footnote{Rich pointer proposal: \url{http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3340.pdf}} (pointers that also contain type information) in \mySCName{C++}, but it is uncertain if the idea of rich pointers will ever become part some \myProperName{C++} standard.
 
 During research I came across \myAuthorName{Cassio Neri}'s concept of an \mySCName{any\_ptr} - a class that holds a pointer and its type information. \mySCName{any\_ptr} allows casting up and down in inheritance chains at run-time without the possibility of crashes. If an \mySCName{any\_ptr} cannot be casted to a given type, its cast function simply returns \mySCName{NULL}. An important feature is its support for classes without RTTI.
 
@@ -971,7 +982,7 @@ The concept is simple, but clever. Along with the pointer as \mySCName{void*}, t
 
 Instead of storing the instance pointer directly, \mySCName{GenericWrapper} will store an instance of \mySCName{any\_ptr}, which was created with \mySCName{new any\_ptr(instancePtr)}. 
 
-Using the run-time exception system is surely less performant and storing an \mySCName{any\_ptr} as the private data adds one level of indirection compared to storing the instance pointer itself. Nevertheless, \mySCName{any\_ptr} seems to be the only type-safe way of casting unknown private data.
+Using the run-time exception system has surely worse performance and storing an \mySCName{any\_ptr} as the private data adds one level of indirection compared to storing the instance pointer itself. Nevertheless, \mySCName{any\_ptr} seems to be the only type-safe way of casting unknown private data.
 
 As \myProperName{C++} holds ownership, the generic wrapper should not be used for wrapping function return values that are copies, as the memory will be leaked.
 
