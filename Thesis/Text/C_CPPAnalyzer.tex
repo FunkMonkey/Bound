@@ -28,7 +28,7 @@ To traverse the abstract syntax tree (recursively), \mySCName{clang\_visitChildr
 
 During this thesis it became clear that \myProperName{libclang} needed to be extended by the author to expose AST information about \myProperName{C++} templates. It seems, such information was not needed by other \myProperName{libclang} users. The changes made to the \myProperName{libclang} source code base will hopefully make its way back into the official \myProperName{Clang} repository.
 
-Most of the functions added to \myProperName{libclang} simply forward \myProperName{Clang}'s internals. Still, the \myProperName{Clang} code base needed to be understood and used in a safe\todo{word} fashion.
+Most of the functions added to \myProperName{libclang} simply forward \myProperName{Clang}'s internals. Still, the \myProperName{Clang} code base needed to be understood and used in a safe\todo{find other word}  fashion.
 
 When turning \myProperName{Clang} types into \mySCName{CXTypes}, certain \myProperName{C++} types were not exposed. \myProperName{libclang} was altered to support template type parameter types (\mySCName{TemplateTypeParm}), template specialization types and elaborated types (types that are sugared with a type keyword like \mySCName{class} and/or a prefixed namespace identifier):
 

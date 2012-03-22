@@ -95,6 +95,7 @@ obj1.sayHello.call(obj3); // --> "Hello, I am Ringo"
 \OnehalfSpacing
 
 \subsection{Inheritance}
+\label{sec:JSInheritance}
 
 The prototypical inheritance mechanism used in \myProperName{JavaScript} vastly differs from class-based inheritance known from \myProperName{C++} and \myProperName{Java}. In a class-based inheritance the class defines a design contract that created instances adhere too.\\
 \myProperName{JavaScript} uses prototypes instead. A prototype is a normal \myProperName{JavaScript} object from which other objects inherit the properties. When a property is looked up on an object, the object is checked if it does have an own property with the name. If not, its prototype is checked for the property. If this doesn't have it either, the prototype's prototype is checked on so on. This is also called the prototype chain.\\
@@ -172,6 +173,7 @@ instance.doSomething(); // --> 9 (3 * 3)
 \todo{proto chain illustration}
 
 \subsubsection{Mixins}
+\label{sec:Mixins}
 
 Multiple inheritance is not supported in \myProperName{JavaScript}, but can be mimicked to a certain degree by borrowing functions. This concept is also called \textbf{mixin}.
 
@@ -249,7 +251,7 @@ if(!JS_ValueToBoolean(context, jsValue, &cppValue))
 	\item \mySCName{JS\_ValueToECMAInt32}
 	\item \mySCName{JS\_ValueToECMAUint32}
 	\item \mySCName{JS\_ValueToUint16}
-	\end{itemize}
+\end{itemize}
 
 When converting to integers, the number value is rounded according to the \myProperName{ECMAScript} standard.
 
@@ -510,7 +512,8 @@ Already existing instances of \myProperName{C++} classes that the user wants to 
 
 \SingleSpacing
 \begin{lstlisting}[language=C++, caption=Wrapping an instance]
-SampleClass instance = new SampleClass();
+SampleClass* getInstance();
+SampleClass getInstanceCopy();
 
 JSObject* wrapObj = JS_NewObject(context, 
 			&sampleClass_JSClass,           // JSClass
@@ -521,12 +524,17 @@ if (!wrapObj)
 else
 {
 	// store the instance
-	if(!JS_SetPrivate(context, wrapObj, instance))
+	if(!JS_SetPrivate(context, wrapObj, getInstance()))
 		// error handling
 }
 
 \end{lstlisting}
 \OnehalfSpacing
+
+\subsubsection{Wrapping copies}
+\label{sec:WrappingCopies}
+
+Stack-allocated return values (e.g. the return of \mySCName{getInstanceCopy}) need to be wrapped differently, as they will be destroyed at the end of the current code block. A new instance has to be heap-allocated using the copy constructor. This instance will then be wrapped instead of the original return value.
 
 \subsection{Member functions}
 
@@ -535,6 +543,7 @@ Wrapping of member functions works similar to the wrapping of free functions as 
 For the function call to work, the class instance needs to be retrieved from the private data of the \mySCName{this} \mySCName{JSObject} as explained in \myRefSection{sec:PrivateData}. Type checking has to be performed.
 
 \subsection{Fields}
+\label{sec:Fields}
 
 In \myProperName{C++}, data members (fields) are often not declared as \mySCName{public}, but will instead be accessed using getter and setter functions.
 
@@ -544,21 +553,232 @@ Exposing getters and setters as properties (e.g. \mySCName{obj.setVal(x)} become
 
 \subsubsection{Accessor properties}
 
+For accessor properties, wrapper functions for getting and setting the property need to be provided. The setter function can be omitted, making the property read-only. The wrapper functions are of type \mySCName{JSPropertyOp} and work similarly to a \mySCName{JSNative}.\\
+The \myProperName{C++} instance needs to be retrieved from the given \mySCName{JSObject}'s private data. A getter would retrieve the field or call the \myProperName{C++} getter function and then set it as the return \mySCName{jsval}. A setter would set the field or call the \myProperName{C++} setter function.
+
+\SingleSpacing
+\begin{lstlisting}[language=C++, caption=Wrapping an instance]
+class SampleClass
+{
+	public:
+		bool m_member;
+		
+		bool getMember();
+		void setMember(bool val);
+};
+
+// glue code
+JSBool member_getter_wrap(JSContext* cx, JSObject* obj, jsid id, jsval* vp)
+{
+	// retrieving SampleClass* from obj's private data
+	// SampleClass* instance = ... (omitted from example)
+	
+	*vp = BOOLEAN_TO_JSVAL(instance->m_member);
+	// or via getter function: 		
+	// *vp = BOOLEAN_TO_JSVAL(instance->getMember());
+
+	return true;
+}
+
+JSBool member_setter_wrap(JSContext* cx, JSObject* obj, jsid id, JSBool strict, jsval* vp)
+{
+	// retrieving SampleClass* from obj's private data
+	// SampleClass* instance = ... (omitted from example)
+	if(JSVAL_IS_BOOLEAN(*vp))
+	{
+		instance->m_member = JSVAL_TO_BOOLEAN(*vp);
+		// or via setter function: 		
+		// instance->setMember(JSVAL_TO_BOOLEAN(*vp));
+	}
+	else
+		// error handling
+
+	return true;
+}
+\end{lstlisting}
+\OnehalfSpacing
+
+Accessor properties can be defined by passing them to \mySCName{JS\_InitFunction} or using \linebreak\mySCName{JS\_DefineProperty} on a \mySCName{JSObject}.
+
 \subsubsection{Value properties}
+\label{sec:ValueProperties}
 
-\subsection{Memory management}
+Non-primitive non-settable fields can be stored as value properties. This refers to struct/class instances that are completely stored inside a class and only have a getter function. This also applies to pointers that are guaranteed to not be replaced.
 
-garbage collection
+\SingleSpacing
+\begin{lstlisting}[language=C++, caption=Fields usable for value properties]
+class ClassA
+{
+	public:
+		ClassB& getUsable();   // usable for value properties
+	private:
+		ClassB  m_usable;  
+		ClassB* m_maybeUsable; // only if pointer is not changed
+		int m_primitive;       // not usable
 
-\subsection{Caching}
+};
+\end{lstlisting}
+\OnehalfSpacing
 
+When creating a value property, the field's actual value (e.g. the \mySCName{ClassB} instance) is wrapped into a \mySCName{JSObject} and defined as a property on the \mySCName{JSObject} that wraps the \mySCName{ClassA} instance. After property definition, the \mySCName{ClassA} instance is not used anymore for accessing the field. That is why the field needs to be non-replaceable. If the field's value could be replaced, the \myProperName{JavaScript} property would still refer to the old instance.
 
+In contrast to functions and accessor properties, value properties for non-static members are defined on the instance-wrapping \mySCName{JSObject} and not on the prototype. Thus \mySCName{JS\_DefineProperty} needs to be called, wherever the according \mySCName{JSObject} is created - for example in the constructor or a function that wraps an existing instance.
+
+\SingleSpacing
+\begin{lstlisting}[language=C++, caption=Defining a value property]
+ClassA* classA = new ClassA();
+JSObject* classAWrap = // (omitted): create JSObject, set private data
+
+JSObject* classBWrap = wrapClassBInstance(classA->getUsable());
+
+// defining the property
+if(!JS_DefineProperty(context, 
+           classAWrap,                  // JSObject to define on
+           "usable1",                   // property name
+           OBJECT_TO_JSVAL(classBWrap), // value to define
+           NULL, NULL,
+           JSPROP_ENUMERATE)            // flags
+	// error handling
+\end{lstlisting}
+\OnehalfSpacing
+
+Value properties can also be defined lazily with the help of the \mySCName{JSClass}'s resolve hook, which is called when a property is not found on an object.
+
+As type checking is only performed when defining the property and the holding instance (of \mySCName{ClassA}) is not needed afterwards, access to value properties has better performance than using accessor properties.
 
 \subsection{Inheritance}
 
-multiple, class-based vs prototype-based
+The inheritance mechanism described in \myRefSection{sec:JSInheritance} can also be used in glue code. \mySCName{JS\_InitClass} accepts a \mySCName{JSObject} that will be set as the internal [[Prototype]].
 
-problems with overwritten functions
+The \myProperName{C++} class hierarchy does not necessarily need to be replicated on the \myProperName{JavaScript} side. \todo{ref} shows that base class members can also just be defined on the subclass wrapper.
+
+\todo{illustration}
+
+If base classes do not need to be exposed, multiple inheritance can be mimicked in the same way. Otherwise, if base classes are wrapped too, the subclass can inherit from one base class and borrow the properties from the others as explained in \myRefSection{sec:Mixins}.
+
+problems with overwritten functions\todo{todo}
+
+\subsection{Memory management}
+
+When bridging two programming languages, memory is often shared. This especially applies to instances of \myProperName{C++} classes that are wrapped for use in \myProperName{JavaScript}.
+
+The \myProperName{JSAPI} user has to decide upon which side is responsible for freeing the memory - meaning which party holds the \textbf{ownership}. Depending on the application, this is not necessarily the party that allocated the memory.
+
+There are basically three kinds of ownership.\\
+For strict \textbf{script ownership}, the private data is always owned by the scripting language. The memory pointed to is freed, when the \mySCName{JSObject} is garbage collected (so, in the finalizer).\\
+For strict \textbf{native ownership}, the memory is owned by \myProperName{C++}, which is thus responsible for freeing the private data. When a \mySCName{JSObject} with native ownership is garbage collected, the memory the private data points to is left as unchanged.\\
+When using a \textbf{mixed} ownership, ownership can be changed at run-time. Therefore, the \mySCName{JSObject} has to store state about who currently owns the private data. Functions for changing this state are exposed to script. When the \mySCName{JSObject} is garbage collected, the state is checked. If it is set to script ownership, the private data is freed. The ownership state can be saved along with the private data (for example in a struct that holds a \mySCName{void*} to the real private data and the state member) or in a reserved slot.
+
+Each kind of ownership comes with its own set of potential problems, which may occur depending on how the wrapped class and its instances are used.
+
+\subsubsection{Potential problems}
+
+The two main problems are memory leaks and crashes/data-corruption because of dangling pointers (pointers that reference freed instances).
+
+For this and the following section, the term \mySlang{C++ code} refers to the code of the library or application that is being wrapped - \textbf{excluding} the glue code, even though it is also written in \myProperName{C++}.
+
+\textbf{Memory leaks}
+
+Memory leaks occur, when the ownership contract is not fulfilled. This happens mostly with classes that implement strict native ownership. Classes that implement a strict script ownership will delete the private data in the finalizer and thus will not lead to memory leak problems.
+
+For mixed ownership, memory leaks generally occur when ownership was falsely handed over to \myProperName{C++}, indicating a bug in the script code.
+
+A likely scenario for memory leaks to occur, are classes with native ownership that allow creating instances from script via \mySCName{new}. The constructor will allocate memory, but the finalizer will not free it. If such an instance is created from script, but the user forgets to pass it to the \myProperName{C++} code that is responsible for managing the memory, a leak will occur.\\
+With native ownership, memory leaks also occur for functions returning stack-allocated copies. As explained in \myRefSection{sec:WrappingCopies}, new instances will be heap-allocated for wrapping. As ownership lies in the hands of \myProperName{C++}, these will never be freed.
+
+\textbf{Dangling pointers}
+
+When using a dangling pointer, crashes (e.g. access violation) or data corruption are very likely - both of which cannot be caught or handled at run-time. Usage can happen in various ways: calling a member function, accessing a field or trying to free the memory again.
+
+It is not possible to detect a dangling pointer in \myProperName{C++}, as there is no way to check a non-\mySCName{NULL} pointer, whether it points to a valid instance in memory. Also, an instance has no knowledge about who references it, so it cannot inform the reference-holding entities about its deletion. If it could, these entities would simply set the reference to \mySCName{null}, which can be handled at run-time. But this is unfortunately not possible.\\
+Smart pointers have been developed to overcome this lack and tackle dangling pointer problems, but they are only useful, when the whole application uses them, and not just the glue code.
+
+Dangling pointers occur in several places. Deleted instances may be referenced by the \myProperName{C++} code of the wrapped library or by the private data of \mySCName{JSObject}s (thus, in the glue code). When using a dangling pointer, it makes no difference, which side falsely deleted or uses it.
+
+For classes that have native ownership or objects that have their mixed ownership state set to \myProperName{C++}, a dangling pointer always indicates a problem in the application logic. The general rule should be known by any \myProperName{C++} programmer: if you delete an instance in your \myProperName{C++} code, do not use it afterwards - neither from \myProperName{C++} nor from script. If you do, crashes or data corruption are likely.\\
+This rule applies equally to using a script owned instance in \mySCName{C++} code after the according \mySCName{JSObject} has been garbage collected.
+
+Another possible reason for a dangling pointer is the violation of the ownership contract. If a script owned object gets deleted by \myProperName{C++} code, the contract was ignored, indicating a bug in the program logic.
+
+In terms of language binding, the consequences of using dangling pointers are \mySlang{acceptable}, when the dangling pointers result from bugs in the application logic (\myProperName{C++} or script), as there is no way of prevention in the glue code.
+
+In certain situations, dangling pointers can occur, even though the user's code is correct on script and \myProperName{C++} side. Crashes and data-corruption in such cases is in no way acceptable (for the glue code writer), as it is not the user's fault. Systems have to be invented to prevent the existence or usage of such dangling pointers.\\
+The problem occurs, when implementing strict script ownership for wrapped classes and when using objects with their mixed ownership state set to script ownership. Given these prerequisites, dangling pointers can result from an existing \myProperName{C++} instance being wrapped by multiple \mySCName{JSObject}s (\mySlang{rewprapping}). When one of these \mySCName{JSObject}s is garbage collected and thus the \myProperName{C++} instance freed, the private data of all the other \mySCName{JSObject}s will point to an deleted object. A crash or data corruption will happen if one of the other \mySCName{JSObject}s is used or at the latest, when they are garbage collected and thus try to free the memory again.
+
+\myRefListing{lst:DanglingCPP} and \myRefListing{lst:DanglingJS} illustrate the problem. The class \mySCName{SampleClass} has been exposed to \myProperName{JavaScript} as \mySCName{SampleClassWrap}, implementing script ownership and allowing construction. The functions from \myRefListing{lst:DanglingCPP} have also been wrapped.
+
+\SingleSpacing
+\begin{lstlisting}[language=C++, caption=Example for dangling pointers (\myProperName{C++}), label=lst:DanglingCPP]
+SampleClass* cppSample = NULL;
+
+void setSample(SampleClass* instPtr){ cppSample = instPtr; }
+SampleClass* getSample()            { return  cppSample; }
+SampleClass  getSampleCopy()        { return *cppSample; }
+\end{lstlisting}
+\OnehalfSpacing
+
+\SingleSpacing
+\begin{lstlisting}[language=JavaScript, caption=Example for dangling pointers (\myProperName{JavaScript}), label=lst:DanglingJS]
+// creates new JSObject and C++ instance "cppInstance1"
+var jsObj1 = new SampleClassWrap(); // points to "cppInstance1"
+
+setSample(jsObj1); // cppSample points to "cppInstance1"
+
+// creates new JSObject
+var jsObj2 = getSample(); // points to "cppInstance1"
+
+// wraps a copy (new C++ instance will be heap-allocated)
+// creates JSObject and new C++ instance "cppInstance2"
+var jsObj3 = getSampleCopy(); // points to "cppInstance2"
+\end{lstlisting}
+\OnehalfSpacing
+
+In \myRefListing{lst:DanglingJS} \mySCName{jsObj1} and \mySCName{jsObj2} are two different \mySCName{JSObject}s pointing to the same \myProperName{C++} instance. One will hold a dangling pointer once the other has been garbage collected.\\
+Functions that return copies (e.g. \mySCName{getSampleCopy}) will not lead to rewrapping as a new heap-allocated copy will be created for wrapping.
+
+Looking at the given examples, it is clear that rewrapping can only happen when a \mySCName{JSObject} is retrieved from C++, either through a property or  a non-copying function return. If a class is never used as an exposed field or as a pointer or reference function return, this kind of dangling pointers will not become a problem. Passing instances of such classes as parameters is generally unproblematic.
+
+To prevent these dangling pointer problems, the glue code has to make sure that for every C++ instance that uses script ownership at most one \mySCName{JSObject} will be created. Rewrapping of script owned instances has to be prevented, for example by caching \mySCName{JSObject}s as explained in the next section.
+
+\textbf{\myProperName{JavaScript} private data \mySCName{NULL} pointer}
+
+A wrapped class may allow wrapping of \mySCName{NULL} pointers, resulting in the private data being set to \mySCName{NULL}. In such a case, the wrapper functions need to check the private data of the \mySCName{this} \mySCName{JSObject}. If it is \mySCName{NULL} a \myProperName{JavaScript} exception has to be thrown. Such a check is necessary, as calling a member function on a \mySCName{NULL} pointer produces undefined behaviour.
+
+\subsection{Caching}
+
+There are several ways of caching \mySCName{JSObject}s. Some are intrusive and require the original \myProperName{C++} code to be changed.
+
+There are other good reasons for performing caching, besides prevention of dangling pointers.\\
+Depending on the implementation, a caching system may be performing better than recreating \mySCName{JSObject}s for the same \myProperName{C++} instance all over again.\\
+Associating a single \mySCName{JSObject} with one \myProperName{C++} instance  also makes it possible to add information to the \mySCName{JSObject} that persists, when crossing the language border  multiple times in both directions. That way, the script user is able to add additional properties to the particular instance.
+
+\subsubsection{Value properties}
+
+As explained in \myRefSection{sec:ValueProperties} fields can be wrapped and defined on the \mySCName{JSObject} directly. If the same field is not exposed in any other way and the instance the field belongs to is never rewrapped, then the field's wrapper \mySCName{JSObject} is effectively cached.
+
+\subsubsection{Cache maps}
+
+One way of caching \mySCName{JSObject}s is to store the first created \mySCName{JSObject} in a map along with the memory address of the instance that is wrapped. Whenever the same instance needs to be wrapped, the map is checked for the memory address and if an entry exists, the according \mySCName{JSObject} will be used instead of rewrapping the \myProperName{C++} instance. This approach has several drawbacks.
+
+\mySCName{JSObject}s with script ownership can simply remove their according entry from the cache map, when they are garbage collected. But for objects that are wrapped with native ownership, the glue code has no notion of knowing, when the \myProperName{C++} instance has been deleted. Thus, all \mySCName{JSObject}s in the cache map need to be kept alive until the end of the application, wasting valuable memory. As native ownership doesn't result in the dangling pointer problem that occurs when rewrapping, the cache maps could safely be cleaned from time to time. With this approach, rewrapping can occur, but is less likely.\\
+Either way, problems with \mySlang{cuckoo pointers} are possible for wrapped classes that use native ownership. A cuckoo pointer was originally a normal pointer to an existing object. The object was deleted, turning the pointer into a dangled pointer. Coincidentally a new object of an arbitrary type was allocated at the same memory position. If a cache map contains an entry for the original pointer and a cuckoo pointer with the same memory position is looked up after the original instance has been destroyed, the cache map will return the old \mySCName{JSObject}, which still has a dangling pointer to the deleted instance. Using this \mySCName{JSObject} will result in undefined behaviour.
+
+When it comes to multiple inheritance, memory address and object do not have a 1 to 1 correlation. Because of pointer fixup, casting a subclass pointer to one of its base classes will result in different memory positions depending on which base class it was casted to. Though this is a very unlikely scenario, it is possible that due to different memory positions, multiple \mySCName{JSObject}s may be created for the same instance.
+
+\subsubsection{KnowledgeJS}
+
+\mySlang{KnowledgeJS}, what I call it, is another kind of caching that also stores a mixed ownership state.
+
+This caching system is intrusive, meaning that the C++ classes, that are wrapped, need to be modified by inheriting from the \mySCName{KnowledgeJS} class, which implements most features.
+
+In this system, the C++ instance stores a pointer to the JSObject that it is being wrapped by. At the same time, the \mySCName{JSObject} stores the \myProperName{C++} instance in its private data as usual. Thus, both have knowledge about each other, as they are in a 1 to 1 relationship.
+
+When the \myProperName{C++} instance needs to be wrapped, it is checked if it already has a \mySCName{JSObject} associated. If so, this \myProperName{JSObject} is used and can be handed to script. If not, a new \myProperName{JSObject} is created and both are connected.
+
+If the object has script ownership, it will delete the \myProperName{C++} instance upon garbage collection.\\
+For native ownership, the \mySCName{JSObject} has to be kept alive as long as the \myProperName{C++} instance is. \myProperName{Spidermonkey} provides functionality for rooting \myProperName{JSObject}s so that they are not garbage collected. Upon destruction of the \mySCName{C++} instance, the according \mySCName{JSObject} will be unrooted and its private data set to \mySCName{NULL}. As wrapped member functions check for private data being \mySCName{NULL}, \myProperName{JavaScript} exceptions will be thrown, when the \mySCName{JSObject} is used from script after the destruction of the C++ \mySCName{instance}. This is better than having a dangling pointer, which would lead to undefined behaviour.
+
+\mySlang{KnowledgeJS} is the most elegant way of wrapping and caching, as there are no restrictions of how a type can be used and no undefined behaviour to be expected. But because of its intrusiveness it can not be used to wrap already existing libraries without modification.
 
 \subsection{Const}
 
@@ -574,6 +794,8 @@ This concept is not feasible, when caching \mySCName{JSObject}s. If a \myProperN
 Static data members and functions are wrapped similar to fields and functions. As they are static, they make no use of the \mySCName{this} object. When calling \mySCName{JS\_InitClass} static properties and functions can be passed. \myProperName{JavaScript} has no real concept of static members as there is no distinction between classes and instances. When declaring ''static'' properties using \mySCName{JS\_InitClass} these are simply defined on the created constructor function, so access to static members looks similar to \myProperName{C++}. Contrary to \myProperName{C++}, it is not possible to access a static member from within an instance using \mySCName{this} - static members always have to be accessed using the constructor function object.
 
 \section{Global variables}
+
+Global variables are wrapped similarly to class fields as described in \myRefSection{sec:Fields}. Instead of defining the property on class prototype or instances, it is defined on the global \myProperName{JavaScript} object or the \mySCName{JSObject} that represents the according namespace.
 
 \section{Typedefs}
 
@@ -597,11 +819,11 @@ Two cases need to be distinguished:
 \item Passing script functions as callbacks
 \end{enumerate}
 
-\subsubsection{Passing C++ functions as callbacks}
+\subsection{Passing C++ functions as callbacks}
 
 The first case is unproblematic. A pointer to a \myProperName{C++} function can be wrapped inside a simple \mySCName{JSObject}, by casting the function pointer (function address) to a \mySCName{void} pointer and saving it as the private member of the \mySCName{JSObject}. The glue code for the function that takes the function pointer will retrieve the function pointer from the private data of the appropriate argument by casting it back to the appropriate function type.
 
-\subsubsection{Passing script functions as callbacks}
+\subsection{Passing script functions as callbacks}
 
 When passing a \myProperName{JavaScript} function as a callback, a wrapper function that has the same function type as the pointer has to be created. This is the \myProperName{C++} function that will then be passed to the function that takes the function pointer. Inside, the \myProperName{C++} arguments must be converted to types that \myProperName{JavaScript} understands. The \myProperName{JavaScript} callback-function has to be called and its return value converted to the \myProperName{C++} type that the function type expects. Thus, such a wrapper function works the exact other way around than wrapper functions presented earlier in this chapter:
 
@@ -671,6 +893,12 @@ The only other way of creating functions at run-time is to create the machine-co
 
 The creation of machine-code at run-time is the only way for completely supporting script functions as callbacks. It has the drawback of an additional library dependency and is also not supported on all platforms.
 
+\section{Arrays and collections}
+
+Arrays and collections like \mySCName{std::vector} can be converted to \myProperName{JavaScript} arrays. Maps, that use strings for the keys, can be converted to normal \myProperName{JavaScript} objects, which are basically hashmaps.
+
+When doing these conversions, the single members need to be wrapped and added to the according \myProperName{JavaScript} array. As a new \myProperName{JavaScript} container is created, changing this container (e.g. adding or removing elements) from script will not effect the original \myProperName{C++} container. If such a behaviour is necessary, the collection class (e.g. \mySCName{std::vector}) needs to be wrapped itself. To make it look more natural in \myProperName{JavaScript}, the interface can be created in a way that resembles \myProperName{JavaScript} arrays.
+
 \section{Templates}
 
 Templates are an advanced feature of \myProperName{C++} for writing classes that can use arbitrary types. As such, templates are not really needed in weakly typed dynamic languages like \myProperName{JavaScript}.
@@ -739,7 +967,7 @@ std::exception* ePtr = anyPtr.cast<std::exception>(); // --> NULL
 \end{lstlisting}
 \OnehalfSpacing
 
-The concept is simple, but clever. Along with the pointer, the \mySCName{any\_ptr} stores the address of a template function instantiation (\mySCName{thrower}) that was instantiated with the known type of the pointer (e.g. \mySCName{std::string}). This function does nothing but throw the pointer as an exception. The \mySCName{cast} function is another template function that takes the type that the pointer should be casted to as the template parameter \mySCName{U} (for example \mySCName{std::string} or \mySCName{std::exception}, \mySCName{int}, etc.). This type will be used in a catch clause to catch the pointer that was thrown in \mySCName{thrower}. If the \mySCName{catch} clause can catch the exception the cast is successful and the casted pointer returned. Otherwise \mySCName{NULL} is returned. Catching a \mySCName{U*} will also catch any subclass of the type used for \mySCName{U}.
+The concept is simple, but clever. Along with the pointer as \mySCName{void*}, the \mySCName{any\_ptr} stores the address of a template function instantiation (\mySCName{thrower}) that was instantiated with the known type of the pointer (e.g. \mySCName{std::string}). This function does nothing but throw the casted pointer as an exception. The \mySCName{cast} function is another template function that takes the type that the pointer should be casted to as the template parameter \mySCName{U} (for example \mySCName{std::string} or \mySCName{std::exception}, \mySCName{int}, etc.). This type will be used in a catch clause to catch the pointer that was thrown in \mySCName{thrower}. If the \mySCName{catch} clause can catch the exception the cast is successful and the casted pointer returned. Otherwise \mySCName{NULL} is returned. Catching a \mySCName{U*} will also catch any subclass of the type used for \mySCName{U}.
 
 Instead of storing the instance pointer directly, \mySCName{GenericWrapper} will store an instance of \mySCName{any\_ptr}, which was created with \mySCName{new any\_ptr(instancePtr)}. 
 
