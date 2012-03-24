@@ -3,13 +3,13 @@
 
 The term \textbf{language binding} refers to the process of establishing a bridge between two programming languages, so that functionality written in one programming language can be used from within the other and verse visa - for example exposing \myProperName{C++} functions for use in \myProperName{Python}. Consequently, language binding deals with the communication between code written in different programming languages within a single application.
 
-The need to combine different programming languages and exchange information between those may arise due to several reasons. A specific language may support a different set of programming paradigms and thus be better suited for solving a certain group of tasks. A project may also rely on a 3rd party library written in another language. In general, software-reuse is a common reason for binding multiple languages together.
+The need to combine different programming languages and to exchange information between those may arise due to several reasons. A specific language may support a different set of programming paradigms and thus be better suited for solving a certain group of tasks. A project may also rely on a 3rd party library written in another language. In general, software-reuse is a common reason for binding multiple languages together.
 
 Often, language binding is needed to connect a higher-level programming language (e.g. a scripting language like \myProperName{Python}) with a lower-level programming language (e.g. a system programming language like \myProperName{C}).
 
 \section{System programming languages and scripting languages}
 
-According to \myAuthorName{John Ousterhout}, the creator of the programming language \myProperName{TCL}, the terms \textbf{\mySlang{low(er)-level}} and \textbf{\mySlang{high(er)-level}} refer to the degree of abstraction a programming language provides in comparison to another language. Higher-level languages encapsulate more machine instructions per statement and thus usually need less code to be written to perform a given task. They are handling machine-oriented details like register allocation automatically, while omitting complexity. This leads to better code-maintainability and faster development at the cost of performance.\footnote{\citep{Ousterhout}}
+According to \myAuthorName{John Ousterhout}, the creator of the programming language \myProperName{TCL}, the terms \textbf{\mySlang{low(er)-level}} and \textbf{\mySlang{high(er)-level}} refer to the degree of abstraction a programming language provides in comparison to another language. Higher-level languages encapsulate more machine instructions per statement and thus usually need less code to be written to perform a given task. They handle machine-oriented details like register allocation automatically, while omitting complexity. This leads to better code-maintainability and faster development at the cost of performance.\footnote{\citep{Ousterhout}}
 
 \myAuthorName{Ousterhout} describes a \textbf{system programming language} as a strongly (statically) typed language designed to create applications from scratch, however offering a higher level of abstraction in doing so compared to assembly programming languages, which are considered very low-level. \myProperName{C}, \myProperName{C++} and \myProperName{Pascal} come to mind as popular system programming languages.
 
@@ -36,7 +36,7 @@ Before the process of binding different languages into one application is explai
 
 \textbf{Dynamic binding, dynamic dispatch} or \textbf{\mySlang{late} binding}, on the other hand, refers to the address of the code to be called being acquired dynamically at run-time. This can be done in various ways, and the definitions found in literature and online vary widely at this point\todo{word}.
 
-Looking at \myProperName{C++}, calls to virtual functions are bound at run-time, as the compiler cannot know which implementation a base class reference may point to and thus which function to call. Every class containing virtual functions has run-time type information (RTTI) for retrieving the correct implementation. The addresses of all virtual functions of a class and its base classes are stored in the \textbf{virtual table}. Instances of such classes hold a pointer to their classes' virtual table. For a virtual function call, the compiler stores the function's offset in the virtual table at the call position. When resolving the function call at run-time a pointer to the object's virtual table is retrieved and the stored offset used to call the appropriate function. Compared to a statically bound function call, there is one more level of indirection. For this kind of dynamic binding, the compiler is still able to do static type checking. Therefore, compile-time knowledge about the interface(s) and base class(es) of the object is needed. 
+In \myProperName{C++}, calls to virtual functions are bound at run-time, as the compiler cannot know which implementation a base class reference may point to and thus which function to call. Every class containing virtual functions has run-time type information (RTTI) for retrieving the correct implementation. The addresses of all virtual functions of a class and its base classes are stored in the \textbf{virtual table}. Instances of such classes hold a pointer to their classes' virtual table. For a virtual function call, the compiler stores the function's offset in the virtual table at the call position. When resolving the function call at run-time a pointer to the object's virtual table is retrieved and the stored offset used to call the appropriate function. Compared to a statically bound function call, there is one more level of indirection. For this kind of dynamic binding, the compiler is still able to do static type checking. Therefore, compile-time knowledge about the interface(s) and base class(es) of the object is needed. 
 
 Looking up the address of a function at run-time using a string or another type of identifier is also a kind of dynamic binding. This is sometimes also referred to as \textbf{dynamic method invocation}.\\
 The lookup of native functions may be trivial for programming languages that support reflection, like \myProperName{C\#} or \myProperName{Java}, where the language provides ways of calling functions using a string-identifier.\\
@@ -55,7 +55,7 @@ It is important to understand that static binding is only possible in programmin
 Binding one language to another is a non-trivial task. The binding language needs to understand the calling conventions, type system, data structures, memory allocation mechanisms and linking strategy of the target language, just to get things working. The task is to carefully align the semantics of both languages, so that both languages can understand the data that passes between them.\footnote{\citep{RealWorldHaskell}}
 \end{quotation}
 
-When binding a scripting language to a system programming language, the scripting language usually comes in the form of a shared library. The library's API can be used by the system programming language to interact with the scripting language.\\
+When binding a scripting language to a system programming language, the scripting language usually comes in form of a shared library. The library's API can be used by the system programming language to interact with the scripting language.\\
 The code written to bind both languages together is often referred to as \textbf{glue code} or \textbf{foreign interface}. The process of creating such code is called \textbf{wrapping}.
 
 \begin{quotation}
@@ -83,7 +83,7 @@ A foreign function interface is originally a lisp term for dynamically defining 
 
 To express the dynamic nature of the given definition, the term ''\textbf{dynamic} foreign \underline{function} interface'' will be used in this thesis.
 
-The different ways of creating foreign interfaces will be explained in more detail in the following sections.
+The different ways of creating foreign interfaces will be explained in greater detail in the following sections.
 
 \subsection{Static foreign interfaces}
 
