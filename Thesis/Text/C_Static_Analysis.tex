@@ -25,7 +25,7 @@ Complementary to static program analysis, there is \textbf{dynamic program analy
 
 The general purpose of static analysis is to extract useful information from source code or compiled code (like byte code or binary code).
 
-The type of information retrieved depends on the context and purpose of the static analysis and can be arranged into different categories:
+The type of information retrieved depends on the context and purpose of the static analysis and can be broken down into the following categories:
 
 \begin{itemize}\addtolength{\itemsep}{-0.5\baselineskip}
 \item Program correctness
@@ -47,7 +47,7 @@ A prominent example of preventing run-time errors at compile-time is type checki
 
 \subsubsection{Generic and context-specific defects}
 
-Defects can be categorized in generic and context-specific defects.
+Defects can be categorized into generic and context-specific defects.
 
 \textbf{Generic defects} are problems that can occur in almost any program written in the given programming language, such as buffer overflows and memory leaks.\\
 \textbf{Context-specific defects} on the other hand require specific knowledge about the semantics of the given program.\footnote{\citep[14]{SecureProgramming}} Applications that deal with atomic operations (like a program that handles money transfer) belong to the latter category.
@@ -75,7 +75,7 @@ A static analysis tool will detect that the expression \mySCName{i \textgreater=
 
 Resource leaks can be detected by tracking request (for example allocation of memory) and release of resources.
 
-If a program gives up all references to a resource while it is has not been released, the resource is leaked. On the other hand, using a resource that has not been requested properly or releasing an already released resource may lead to unexpected results or even crashes.
+If a program gives up all references to a resource that has not been released, the resource is leaked. On the other hand, using a resource that has not been requested properly or releasing an already released resource may lead to unexpected results or even crashes.
 
 The most prominent example of a resource leak is a memory leak. But there are other important resources like files and databases that may need to be locked before usage and released afterwards.
 
@@ -128,17 +128,17 @@ Compilers use static analysis to perform code optimization:
 A main application is to allow compilers to generate code avoiding redundant computations, e.g. by reusing available results or by moving loop invariant computations out of loops, or avoiding superfluous computations, e.g. of results known to be not needed or of results known already at compile-time.\footnote{\citep[1]{ProgramAnalysis}}
 \end{quotation}
 
-Apart from code optimization, compile-time optimization, for example by finding unnecessary include-files in \myProperName{C++} applications is another area that static analysis is used for. \myProperName{include-what-you-use}\footnote{\url{http://code.google.com/p/include-what-you-use/}} is a tool to perform this task. It internally uses the \myProperName{Clang} compiler.
+Apart from code optimization, compile-time optimization, for example by finding unnecessary include-files in \myProperName{C++} applications is another area that static analysis is used for. \myProperName{include-what-you-use}\footnote{\url{http://code.google.com/p/include-what-you-use/}} is a tool that performs this task. It internally uses the \myProperName{Clang} compiler.
 
-\section{Static analysis as part of a programmers workflow}
+\section{Static analysis as part of a programmer's workflow}
 
 Being major factors of software quality, companies put a lot of effort into improving and verifying \textbf{program correctness} and \textbf{software security}. Different techniques have been developed, each concerned with achieving this main goal, but taking varying routes and targeting different stages of the development.
 
 \textbf{Software engineering} and planning begin long before any program code is written, specifying program behaviour and design, and finding structural problems and security concerns before implementation. \textbf{Pair programming} aims at reducing coding errors and making design choices at the time of writing program code by using human experience and communication. \textbf{Code review} is similar, but happens at a later stage. \textbf{Dynamic testing}, including unit tests, has been invented to verify correct run-time program behaviour of written code programmatically, with the help of more program code that tests implementations and compares the results to the expected output.
 
-All these techniques follow a defensive mindset about writing applications, knowing that every programmer, no matter how experienced, will make mistakes that lead to undefined program behaviour. All in all these techniques aim at reducing the rate of errors that go unnoticed.
+All these techniques follow a defensive mindset about developing applications, knowing that every programmer, no matter how experienced, will make mistakes that lead to undefined program behaviour. All in all these techniques aim at reducing the rate of errors that go unnoticed.
 
-\textbf{Static analysis} is another technique in the programmers toolbox serving this goal, during and after code creation. Compared to dynamic testing and code review, it reduces the human factor, programatically applying \myInlineQuote{checks thoroughly and consistently, without any of the bias that a programmer might have about which pieces of code are 'interesting' (...) or which pieces of code are easy to exercise through dynamic testing.}\footnote{\citep[22]{SecureProgramming}} Static analysis tools accumulate the knowledge of experienced programmers and as \myAuthorName{Brian Chess} and \myAuthorName{Jacob West} point out, the feedback given by these tools acts as a means of knowledge transfer by showing the programmer types of errors he was not aware of.\footnote{\citep[22]{SecureProgramming}} In this way, a \myInlineQuote{static analysis tool can make the code review process faster and more fruitful by hypothesizing a set of potential problems for consideration during a code review.}\footnote{\citep[13]{SecureProgramming}}
+\textbf{Static analysis} is another technique in the programmer's toolbox serving this goal, during and after code creation. Compared to dynamic testing and code review, it reduces the human factor, programatically applying \myInlineQuote{checks thoroughly and consistently, without any of the bias that a programmer might have about which pieces of code are 'interesting' (...) or which pieces of code are easy to exercise through dynamic testing.}\footnote{\citep[22]{SecureProgramming}} Static analysis tools accumulate the knowledge of experienced programmers and as \myAuthorName{Brian Chess} and \myAuthorName{Jacob West} point out, the feedback given by these tools acts as a means of knowledge transfer by showing the programmer types of errors he was not aware of.\footnote{\citep[22]{SecureProgramming}} In this way, a \myInlineQuote{static analysis tool can make the code review process faster and more fruitful by hypothesizing a set of potential problems for consideration during a code review.}\footnote{\citep[13]{SecureProgramming}}
 
 As with dynamic testing and code review, static analysis can not verify the absence of errors, but is a technique to reduce the amount of bugs before release.
 
@@ -163,7 +163,7 @@ When creating the internal program model, static analysis tools generally borrow
 \textbf{Lexical analysis} (...) is the initial part of reading and analysing the program text: The text is read and divided into \textit{tokens}, each of which corresponds to a symbol in the programming language, e.g., a variable name, keyword or number.\footnote{\citep[2]{CompilerBasics}}
 \end{quotation}
 
-Compared to compilers, static analysis tools may filter out less during lexical analysis. They may preserve comments, in case the tool needs information from comments for the model (Doxygen is a prominent example for this case).
+Compared to compilers, static analysis tools may filter out less during lexical analysis. They may preserve comments, in case the tool needs information from comments for the model (\myProperName{Doxygen} is a prominent example for this case).
 Static analysis tools that search for coding errors usually also associate the tokens with their source code positions for later error reporting.\footnote{\citep[72]{SecureProgramming}} 
 
 \begin{quotation}
@@ -235,8 +235,8 @@ There are two approaches of how an application can integrate \myProperName{Clang
 \\On the one hand, one can include \myProperName{Clang} itself as a library and use the internal structures and functions of the compiler, thus having access to the AST build by \myProperName{Clang} in a direct way.
 \\The second approach is to use \myProperNameImp{libclang}, a \myProperName{C}-API to \myProperName{Clang}, which exposes much of \myProperName{Clang}'s functionality for indexing source code and accessing ASTs, while maintaining a stable interface independent of changes internal to \myProperName{Clang}. \myProperName{libclang} is extended on a per-need-basis and may thus not provide all features needed for a static analysis tool that builds upon it. As it is an open-source project, these features can easily be added.
 
-\myProperName{Clang} works on all popular operating systems, including Microsoft Windows. Having this advantage over Dehydra, \myProperName{Clang} is the favourite choice for use in this project. A detailed description of how \myProperName{libclang} is used inside the application can be found in \myRefChapter{chap:AnalysingCPP}.
+\myProperName{Clang} works on all popular operating systems, including \myProperName{Microsoft Windows}. Having this advantage over \myProperName{Dehydra}, \myProperName{Clang} is the favourite choice for use in this project. A detailed description of how \myProperName{libclang} is used inside the application can be found in \myRefChapter{chap:AnalysingCPP}.
 
 \subsubsection{\myProperName{Emscripten}}
 
-In the context of this thesis, another interesting \myProperName{LLVM}-based project should be mentioned. \myInlineQuote{Emscripten is an LLVM-to-JavaScript compiler. It takes LLVM bitcode (which can be generated from C/C++ using Clang, or any other language that can be converted into LLVM bitcode) and compiles that into JavaScript, which can be run on the web.}\footnote{\citep{EmscriptenHP} - taken from front page} Instead of accessing C++ through glue code, the C++ code itself is completely compiled to \myProperName{JavaScript}. This may sound very slow in the first place, but with the current performance of \myProperName{JavaScript} virtual machines and the reduced cost of type-conversion (as all is \myProperName{JavaScript}), code generated by \myProperName{Emscripten} is only 3 to 4 times slower than native code generated with \myProperName{GCC}.\footnote{\citep{EmscriptenHP} - taken from FAQ section}
+In the context of this thesis, another interesting \myProperName{LLVM}-based project should be mentioned. \myInlineQuote{Emscripten is an LLVM-to-JavaScript compiler. It takes LLVM bitcode (which can be generated from C/C++ using Clang, or any other language that can be converted into LLVM bitcode) and compiles that into JavaScript, which can be run on the web.}\footnote{\citep{EmscriptenHP} - taken from front page} Instead of accessing \myProperName{C++} through glue code, the \myProperName{C++} code itself is completely compiled to \myProperName{JavaScript}. This may sound very slow in the first place, but with the current performance of \myProperName{JavaScript} virtual machines and the reduced cost of type-conversion (as all is \myProperName{JavaScript}), code generated by \myProperName{Emscripten} is only 3 to 4 times slower than native code generated with \myProperName{GCC}.\footnote{\citep{EmscriptenHP} - taken from FAQ section}
