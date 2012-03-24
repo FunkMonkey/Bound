@@ -53,7 +53,7 @@ When being passed as parameters or assigned to variables, primitive values are p
 There are two kinds of properties: value properties and accessor properties. A value property simply contains any type of value (e.g. a number or function). Accessor properties have a getter and setter function associated that can perform additional computation when getting or setting a value. They are used just like normal data properties.
 
 \SingleSpacing
-\begin{lstlisting}[language=JavaScript, caption=Types in \myProperName{JavaScript}, label=JSTypes]
+\begin{lstlisting}[language=JavaScript, caption=Properties in \myProperName{JavaScript}, label=JSTypes]
 var obj = {
 	// value properties
 	aValue: 3,
@@ -321,7 +321,7 @@ The \myProperName{JSAPI} user has to do the conversion from his unicode characte
 In \myProperName{C++} namespaces exist for grouping other elements. In \myProperName{JavaScript} the same task can be achieved by creating a hierarchy of \mySCName{JSObject} instances. \mySCName{JS\_DefineObject} can be used to define an object property on another object.
 
 \SingleSpacing
-\begin{lstlisting}[language=C++, caption=A simple wrapper function]
+\begin{lstlisting}[language=C++, caption=Wrapping a namespace]
 namespace Outside {
 	namespace Inside {
 		// ... declare functions, classes, etc.
