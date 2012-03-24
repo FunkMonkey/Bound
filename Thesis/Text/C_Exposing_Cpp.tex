@@ -225,6 +225,8 @@ Most of the conversion functions take a \mySCName{JSContext} as the parameter.
 
 A \mySCName{JSObject} has a \mySCName{void} pointer that \myProperName{JSAPI} users can use for storing any kind of private data. This will be useful for storing pointers of \myProperName{C++} classes.
 
+\todo{ref jsapi reference}
+
 \section{Boolean values}
 
 Boolean values can be converted between \mySCName{jsval}s and the \myProperName{C++} boolean type using \mySCName{JSVAL\_TO\_BOOLEAN} and \mySCName{BOOLEAN\_TO\_JSVAL}. \mySCName{JS\_ValueToBoolean} can be used for automatic conversion. If the function returns false, the given \mySCName{jsval} could not be converted.
