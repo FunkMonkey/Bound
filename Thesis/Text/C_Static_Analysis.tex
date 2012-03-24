@@ -108,15 +108,21 @@ all the implicit ways a program might be putting unwarranted faith in some aspec
 
 Style checkers enforce rules related to whitespace, position of scope-brackets, naming conventions, deprecated functions, commenting, program structure, and similar non-semantic issues.\footnote{\citep[25]{SecureProgramming}}
 
-\todo{picture}
-
 \subsection{Program understanding}
+
+\begin{wrapfigure}{r}{0.4\textwidth}
+  \vspace{-20pt}
+  \begin{center}
+    \includegraphics[scale=0.5]{Images/ClangGraph.png}
+  \end{center}
+  \caption{\myProperName{Doxygen} output of class relationships in \myProperName{Clang}}
+  \label{fig:ClangGraph}
+   \vspace{-15pt}
+\end{wrapfigure}
 
 Program understanding tools help users make sense of large codebases.\footnote{\citep[27]{SecureProgramming}} Most modern IDE's provide functionality for helping the user navigate the codebase, for example jumping to a function's definition or finding all uses of a method. Some even provide functionality for refactoring symbols, like renaming classes. All these operations need knowledge about the symbols existing in the codebase.
 
 Other tools visualize the source code, for example by creating \myProperName{UML} diagrams from source, rendering images of class hierarchies or function callgraphs that can help the user understand the control flow of the application and the relationships between the existing symbols.
-
-\todo{picture}
 
 Prominent tools like \myProperName{Doxygen}\footnote{\url{http://www.stack.nl/~dimitri/doxygen/}} automatically create documentation from source code and code comments.
 

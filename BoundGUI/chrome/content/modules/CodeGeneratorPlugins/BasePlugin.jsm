@@ -48,7 +48,22 @@ BaseCodeGenPlugin.prototype = {
 	createCodeGeneratorFromSaveObject: function createCodeGeneratorFromSaveObject(saveObj, exportASTObj)
 	{
 		return null;
-	}, 
+	},
+	
+	/**
+	 * Returns the constructor of a code generator given the ASTObject and
+	 * an Export_ASTObject. This function is likely called when trying to add
+	 * a new Export_ASTObject to the given parent
+	 * 
+	 * @param   {ASTObject}          astObject      ASTObject to get codeGen for
+	 * @param   {Export_ASTObject}   exportParent   Export ASTObject it will the 
+	 * 
+	 * @returns {Function}   Constructor function of code generator
+	 */
+	getCodeGenConstructor: function getCodeGenConstructor(astObject, exportParent)
+	{
+		return null;
+	},
 };
 
 Object.defineProperty(BaseCodeGenPlugin.prototype, "constructor", {value: BaseCodeGenPlugin});
@@ -92,20 +107,7 @@ BaseEntityCodeGen.prototype = {
 		
 	},
 	
-	/**
-	 * Returns the constructor of a code generator given the ASTObject and
-	 * an Export_ASTObject. This function is likely called when trying to add
-	 * a new Export_ASTObject to the given parent
-	 * 
-	 * @param   {ASTObject}          astObject      ASTObject to get codeGen for
-	 * @param   {Export_ASTObject}   exportParent   Export ASTObject it will the 
-	 * 
-	 * @returns {Function}   Constructor function of code generator
-	 */
-	getCodeGenConstructor: function getCodeGenConstructor(astObject, exportParent)
-	{
-		return null;
-	},
+
 	
 	/**
 	 * Prepares the content for code generation and saves it in this._genInput.

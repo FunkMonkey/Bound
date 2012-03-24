@@ -1,6 +1,6 @@
 \chapter{Introduction}
 
-This masters thesis deals with the design and development of an open-source GUI application called \myProperNameImp{Bound} that creates glue code for connecting different programming languages like \myProperName{C++} and \myProperName{JavaScript} within in a single program - a process known as \textbf{language binding}.\\
+This master's thesis deals with the design and development of an open-source GUI application called \myProperNameImp{Bound} that creates glue code for connecting different programming languages like \myProperName{C++} and \myProperName{JavaScript} within in a single program - a process known as \textbf{language binding}.\\
 The application uses \textbf{static analysis} to retrieve the necessary information about symbols from \myProperName{C++} header files using the \myProperName{Clang} \myProperName{C/C++} compiler.
 
 The application is developed in a way that it can support a multitude of different programming languages, starting with the support of binding \myProperName{C++} and \myProperName{Mozilla's ECMAScript} implementation \myProperName{Spidermonkey} as presented in this thesis.
@@ -20,6 +20,8 @@ Given the information from the previous chapters, \myRefChapter{chap:DesignGoals
 \myRefChapter{chap:AnalysingCPP} shows details about the implementation of a \myProperName{C++} application that analyses certain symbols and declarations from \myProperName{C} and \myProperName{C++} source code files and exports the information as \myProperName{JSON}.
 
 The exported information will be used in a GUI application based on the \myProperName{Mozilla Framework}, as described in \myRefChapter{chap:GUIApplication}. The chapter will introduce the basic architecture of the application and explain how the symbol information is used to create language binding code for \myProperName{JavaScript}.
+
+\myRefChapter{chap:Summary} and \myRefChapter{chap:FutureDevelopment} form the \textbf{conclusion}.
 
 \myLBHighlight{Passages that are highlighted with a left blue border can be found in earlier chapters and indicate information about the goal of this thesis and the developed application.}
 

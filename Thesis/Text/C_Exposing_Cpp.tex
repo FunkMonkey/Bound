@@ -213,7 +213,7 @@ instance.funcB();
 
 \section{\myProperName{Spidermonkey}}
 
-\myProperName{Spidermonkey} comes in form of a shared library exposing a \myProperName{C} API that can be used to interact with the \myProperName{JavaScript} interpreter. This API is also known as \myProperName{JSAPI}. 
+\myProperName{Spidermonkey} comes in form of a shared library exposing a \myProperName{C} API that can be used to interact with the \myProperName{JavaScript} interpreter. This API is also known as \myProperName{JSAPI}. Due to the length of this thesis, the API can only be presented in excerpts. A full overview can be seen at the \myProperName{Mozilla Developer Network JSAPI} reference\footnote{\url{https://developer.mozilla.org/en/SpiderMonkey/JSAPI_Reference}}.
 
 A \mySCName{JSRuntime} is an instance of the virtual machine. A \mySCName{JSContext} is a single world within a \mySCName{JSRuntime}, in which all objects and values live. One \mySCName{JSRuntime} can have multiple \mySCName{JSContext}s. Each context has a global object. Objects are exposed as \mySCName{JSObject}.
 
@@ -224,8 +224,6 @@ When converting between \mySCName{jsval}s and \myProperName{C++} types, type che
 Most of the conversion functions take a \mySCName{JSContext} as the parameter.
 
 A \mySCName{JSObject} has a \mySCName{void} pointer that \myProperName{JSAPI} users can use for storing any kind of private data. This will be useful for storing pointers of \myProperName{C++} classes.
-
-\todo{ref jsapi reference}
 
 \section{Boolean values}
 
@@ -315,7 +313,6 @@ The \myProperName{JSAPI} user has to do the conversion from his unicode characte
 \myProperName{C++}'s wide character type \mySCName{wchar\_t} is not well suited for this task, as its size is compiler-specific. It is allowed to be at least 8 bit. On \myProperName{VC++} it is 16 bit, on GCC even 32 bit.\\
 \myProperName{C++11} introduces new character types for unicode characters: \mySCName{char16\_t} and \mySCName{char32\_t}. Having a fixed width, \mySCName{char16\_t} should be the same as a \mySCName{jschar} on all platforms and thus be best suited for conversion between unicode strings and \mySCName{JSString}.
 
-\newpage
 \section{Namespaces}
 
 In \myProperName{C++} namespaces exist for grouping other elements. In \myProperName{JavaScript} the same task can be achieved by creating a hierarchy of \mySCName{JSObject} instances. \mySCName{JS\_DefineObject} can be used to define an object property on another object.

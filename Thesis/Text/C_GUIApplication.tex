@@ -144,7 +144,12 @@ To create glue code for a specific scripting language, the user needs to add an 
 
 Every language plugin inherits from the class \mySCName{LanguageBindingCodeGenPlugin}, which itself inherits from \mySCName{BaseCodeGenPlugin}. As the name suggests \mySCName{BaseCodeGenPlugin} defines the basic functionality for all kinds of code generation plugins (e.g. type library or documentation generators), whereas \mySCName{LanguageBindingCodeGenPlugin} adds functionality related to language binding. The entity code generators themselves have a similar hierarchy, inheriting from \mySCName{LanguageBindingEntityCodeGen}, which inherits from \mySCName{BaseEntityCodeGen}.
 
-\todo{UML diagram}
+\begin{figure}[h!] % h = here
+	\centering
+		\includegraphics[scale=0.4]{Images/UMLCodegen.png}
+	\caption{Connection between plugins, codegenerators and \mySCName{Export\_ASTObject}}
+	\label{fig:ProjectSettings}
+\end{figure}
 
 \mySCName{BaseCodeGenPlugin} provides dummy implementations for loading and saving the plugin. Every plugin also has to provide a property named \mySCName{context}, which declares the purpose of the plugin. The \mySCName{context} of the \myProperName{Spidermonkey} plugin is \mySCString{CPP\_Spidermonkey}, as it binds \myProperName{C++} and \myProperName{Spidermonkey}. The \mySCName{context} is the entry under which plugins are stored in the \mySCName{Export\_AST} (and entity code generators in the \mySCName{Export\_ASTObject}).
 \\Every instance of \mySCName{BaseEntityCodeGen} and its subclasses stores a reference to the plugin it was created from and to the \mySCName{Export\_ASTObject} for which it generates code. Besides dummy implementations for loading and saving, the \mySCName{BaseEntityCodeGen} also contains dummy implementations for \mySCName{prepareAndDiagnose} and \mySCName{generate}. These are the two main functions used in the generation process and will be explained in more detail later.
@@ -155,7 +160,6 @@ There are different ways of creating glue code for a target language. The genera
 
 For this reason, entity code generators make use of templates (not to confuse with \myProperName{C++} templates). A template is basically a string of \mySlang{incomplete} source code. It is \mySlang{incomplete} in the sense that it contains placeholders that will be filled with proper code when processing the template with the template engine. The template engine used in this project is \myProperName{jSmart}\footnote{\url{http://code.google.com/p/jsmart/}}, a \myProperName{JavaScript} port of the \myProperName{PHP} template engine \myProperName{Smarty}\footnote{\url{http://www.smarty.net/}}.
 
-\newpage
 \SingleSpacing
 \begin{lstlisting}[language=JavaScript, caption=Template for converting a \mySCName{bool} to \myProperName{JavaScript} in \myProperName{Spidermonkey}, label=lst:TemplateBool]
 // declaring a template for converting a C++ bool to JS
@@ -295,7 +299,7 @@ The final source code generation will only be executed, if there are no errors i
 
 To give a more practical example of the given information, the language plugin for \myProperName{Spidermonkey} and its code generators are explained in greater detail in this section.
 
-The plugin, \mySCName{CPPSM\_Plugin}, contains two type maps for converting types between \myProperName{C++} and \myProperName{Spidermonkey}. These maps initially contain the templates for the conversion of fundamental types like \mySCName{int}, \mySCName{float} and \mySCName{bool}, but also for the conversion of strings (\mySCName{const char*} or \mySCName{std::string}) as string is a fundamental type in \myProperName{JavaScript}. The function \mySCName{getCodeGeneratorByASTObject} takes a \mySCName{CPP\_ASTObject} as an argument and returns the constructor for the appropriate entity code generator. For functions and member functions it returns the \mySCName{CPPSM\_FunctionCodeGen} constructor; for namespaces, classes and structs it returns the \mySCName{CPPSM\_ObjectCodeGen} constructor. Other \myProperName{C++} entities are currently not supported, but can easily be extended in a similar fashion.
+The plugin, \mySCName{CPPSM\_Plugin}, contains two type maps for converting types between \myProperName{C++} and \myProperName{Spidermonkey}. These maps initially contain the templates for the conversion of fundamental types like \mySCName{int}, \mySCName{float} and \mySCName{bool}, but also for the conversion of strings (\mySCName{const char*} or \mySCName{std::string}) as string is a fundamental type in \myProperName{JavaScript}. The function \mySCName{getCodeGenerator} takes a \mySCName{CPP\_ASTObject} as an argument and returns the constructor for the appropriate entity code generator. For functions and member functions it returns the \mySCName{CPPSM\_FunctionCodeGen} constructor; for namespaces, classes and structs it returns the \mySCName{CPPSM\_ObjectCodeGen} constructor. Other \myProperName{C++} entities are currently not supported, but can easily be extended in a similar fashion.
 
 \subsubsection{\mySCName{CPPSM\_FunctionCodeGen}}
 
@@ -436,10 +440,5 @@ Selection logic has been implemented for selecting individual or multiple tree r
 Dragging of tree nodes has also been implemented based on the \myProperName{HTML5} drag-and-drop capabilities. \mySCName{DOMTreeRow} contains a private data field that will serve as the drag-data.
 
 When creating a \mySCName{DOMTree} a callback function has to be passed. When creating a \mySCName{DOMTreeRow} this callback function is called to retrieve information about the GUI tree node, for example about the text label that should be used or styling attributes for setting the correct symbol.
-
-\section{Known Problems}
-
-from which file was a symbol included: need include file hierarchy
-parameter cleanup
 
 
