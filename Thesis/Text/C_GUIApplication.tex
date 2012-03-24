@@ -326,7 +326,7 @@ For structs and classes the \mySCName{type} property will be set to \mySCString{
 Again, if no errors occured, \mySCName{prepareAndDiagnoseRound} will return true.
 
 The \mySCName{generate} function's first act is to call the \mySCName{generate} functions of all children resulting in a recursive generation. Thereby, the generation results of the children will be collected, as they will be passed to the templates. The templates are fetched. The templates for objects and classes internally iterate over the generation results of the children and if they find a result of \mySCName{type} \mySCString{Function}, the according glue code of the function will be inserted in the class' glue code.
-The final step is to collect all used include files, just as \mySCName{CPPSM\_FunctionCodeGen} does.  The children results, the glue code  of the class (for header and source-files) and the \mySCName{isInline} property are stored in the result object and as such returned. \\
+The final step is to collect all used include files, just as \mySCName{CPPSM\_FunctionCodeGen} does.  The children results, the glue code  of the class (for header and source-files) and the \mySCName{isInline} property are stored in the result object and as such returned.
 
 \subsubsection{Export}
 
