@@ -1,12 +1,12 @@
-\chapter{Binding C++ and Spidermonkey}\todo{properName}
+\chapter{Binding C++ and SpiderMonkey}\todo{properName}
 \label{chap:LanguageBindingCPPJS}
 
-This chapter shows how \myProperName{C++} elements like declarations and types can be exposed to \myProperName{Mozilla Spidermonkey} to be used from scripts. \myProperName{Spidermonkey} is the name of \myProperName{Mozilla}'s implementation of the \myProperName{ECMAScript} programming language standard, which is most commonly known as \myProperName{JavaScript}. The terms \myProperName{JavaScript} and \myProperName{ECMAScript} will be used interchangebly, whereas \myProperName{Spidermonkey} refers to the concrete \myProperName{Mozilla} implementation.\\
+This chapter shows how \myProperName{C++} elements like declarations and types can be exposed to \myProperName{Mozilla SpiderMonkey} to be used from scripts. \myProperName{SpiderMonkey} is the name of \myProperName{Mozilla}'s implementation of the \myProperName{ECMAScript} programming language standard, which is most commonly known as \myProperName{JavaScript}. The terms \myProperName{JavaScript} and \myProperName{ECMAScript} will be used interchangebly, whereas \myProperName{SpiderMonkey} refers to the concrete \myProperName{Mozilla} implementation.\\
 Binding \myProperName{C++} elements to other programming languages like \myProperName{Python}, \myProperName{Lua} or other \myProperName{JavaScript} implementations, e.g. \myProperName{V8}\footnote{\myProperName{V8}: \url{http://code.google.com/p/v8/}}, will be similar in many aspects and specific differences will depend upon the existing elements of the target language.
 
 The information in this chapter presumes knowledge about the \myProperName{C++} programming language, its elements, type system and class-based inheritance.
 
-Language binding between \myProperName{Spidermonkey} and \myProperName{C++} could fill a book on its own. Thus, only the most important aspects will be presented in this chapter.
+Language binding between \myProperName{SpiderMonkey} and \myProperName{C++} could fill a book on its own. Thus, only the most important aspects will be presented in this chapter.
 
 \section{\myProperName{JavaScript}/\myProperName{ECMAScript}}
 \label{sec:JavaScript}
@@ -211,16 +211,16 @@ instance.funcB();
 \end{lstlisting}
 \OnehalfSpacing
 
-\section{\myProperName{Spidermonkey}}
+\section{\myProperName{SpiderMonkey}}
 
-\myProperName{Spidermonkey} comes in the form of a shared library exposing a \myProperName{C} API, which can be used to interact with the \myProperName{JavaScript} virtual machine. This API is also known as \myProperName{JSAPI}. Due to the length of this thesis, the API can only be presented in excerpts. A full overview is given at the \myProperName{Mozilla Developer Network JSAPI} reference\footnote{\myProperName{JSAPI} reference: \url{https://developer.mozilla.org/en/SpiderMonkey/JSAPI_Reference}}.
+\myProperName{SpiderMonkey} comes in the form of a shared library exposing a \myProperName{C} API, which can be used to interact with the \myProperName{JavaScript} virtual machine. This API is also known as \myProperName{JSAPI}. Due to the length of this thesis, the API can only be presented in excerpts. A full overview is given at the \myProperName{Mozilla Developer Network JSAPI} reference\footnote{\myProperName{JSAPI} reference: \url{https://developer.mozilla.org/en/SpiderMonkey/JSAPI_Reference}}.
 
 A \mySCName{JSRuntime} is an instance of the virtual machine. A \mySCName{JSContext} is a single environment within a \mySCName{JSRuntime}, in which all objects and values live. One \mySCName{JSRuntime} can have multiple \mySCName{JSContext}s. Each context has a global object. Objects are exposed as \mySCName{JSObject}.
 
 A \myProperName{JavaScript} value is expressed as a \mySCName{jsval}. \mySCName{jsval} contains information about the type of the value (number, boolean, etc.). For strings and objects, the \mySCName{jsval} stores the pointer to the \mySCName{JSString} or \mySCName{JSObject}. For all other types, the data is saved in the \mySCName{jsval} itself. \mySCName{jsval}s occur at several places in \myProperName{JSAPI}, for example when defining properties, for parameter values or return values.\\
-\myProperName{Spidermonkey} provides utility macros/functions for checking the type of a \mySCName{jsval} \linebreak(e.g. \mySCName{JSVAL\_IS\_OBJECT}) and its content (e.g. \mySCName{JSVAL\_TO\_OBJECT}) or for creating \mySCName{jsval}s from the according \myProperName{Spidermonkey} \myProperName{C++} types (e.g. \mySCName{OBJECT\_TO\_JSVAL}).\\
+\myProperName{SpiderMonkey} provides utility macros/functions for checking the type of a \mySCName{jsval} \linebreak(e.g. \mySCName{JSVAL\_IS\_OBJECT}) and its content (e.g. \mySCName{JSVAL\_TO\_OBJECT}) or for creating \mySCName{jsval}s from the according \myProperName{SpiderMonkey} \myProperName{C++} types (e.g. \mySCName{OBJECT\_TO\_JSVAL}).\\
 When converting between \mySCName{jsval}s and \myProperName{C++} types, type checking needs to be performed. The \myProperName{C++} compiler that compiles the glue code will perform this task, when converting \textbf{to} \mySCName{jsval}, as the conversion functions only accept the correct type. When converting a \mySCName{jsval} to a \myProperName{C++} type, the current type of the \mySCName{jsval} needs to be checked manually first. If the \myProperName{JSAPI} user, for example, tries to retrieve a \mySCName{JSObject} from a \mySCName{jsval} that contains a boolean value, the behaviour of the code is undefined and will probably lead to a run-time failure like a crash. Thus type checking and error handling play an important role and are explained in further detail in \myRefSection{sec:ErrorHandling}.\\
-\myProperName{Spidermonkey} also provides utility functions for automatic conversion of types according to the \myProperName{ECMAScript} standard. If, for example, a boolean is passed to a function that expects a string, the conversion would create a string from the boolean - either \mySCString{true} or \mySCString{false}. These conversion functions are less performant, but allow for a greater range of input values without reporting errors. It has to be said though, that automatic conversion can lead to unexpected program behaviour in places where the user would expect an error.\\
+\myProperName{SpiderMonkey} also provides utility functions for automatic conversion of types according to the \myProperName{ECMAScript} standard. If, for example, a boolean is passed to a function that expects a string, the conversion would create a string from the boolean - either \mySCString{true} or \mySCString{false}. These conversion functions are less performant, but allow for a greater range of input values without reporting errors. It has to be said though, that automatic conversion can lead to unexpected program behaviour in places where the user would expect an error.\\
 Most of the conversion functions take a \mySCName{JSContext} as the parameter.
 
 A \mySCName{JSObject} has a \mySCName{void} pointer that \myProperName{JSAPI} users can use for storing any kind of private data. This will be useful for storing pointers of \myProperName{C++} classes.
@@ -251,7 +251,7 @@ if(!JS_ValueToBoolean(context, jsValue, &cppValue))
 \section{Number values}
 
 \myProperName{ECMAScript} supports only a single number type. There is no distinction between integers and floating point values.\\
-\myProperName{Spidermonkey} internally makes a difference and provides macros like \mySCName{JSVAL\_TO\_INTEGER}, which will result in an undefined result if the \mySCName{jsval} contains a double value. Thus, \myProperName{Spidermonkey} also provides generalized versions for converting between \myProperName{C++} types and the \myProperName{JavaScript} numbers, which should be used instead:
+\myProperName{SpiderMonkey} internally makes a difference and provides macros like \mySCName{JSVAL\_TO\_INTEGER}, which will result in an undefined result if the \mySCName{jsval} contains a double value. Thus, \myProperName{SpiderMonkey} also provides generalized versions for converting between \myProperName{C++} types and the \myProperName{JavaScript} numbers, which should be used instead:
 
 \begin{itemize}\addtolength{\itemsep}{-0.5\baselineskip}
 	\item \mySCName{JS\_NewNumberValue}: creates a number \mySCName{jsval} from integer or floating point value
@@ -270,7 +270,7 @@ Usage of these macros and functions is similar to converting boolean values.
 
 \mySCName{STRING\_TO\_JSVAL}, \mySCName{JSVAL\_IS\_STRING}, \mySCName{JSVAL\_TO\_STRING} and \mySCName{JS\_ValueToString} (with automatic conversion) can be used for converting between \mySCName{jsval} and \mySCName{JSString}.
 
-\myProperName{JavaScript} strings are sequences of 16 bit wide characters. In \myProperName{Spidermonkey} such a character is defined as a \mySCName{jschar} and \mySCName{JSString} is a sequence of \mySCName{jschar}s. A \mySCName{jschar} is UTF-16.
+\myProperName{JavaScript} strings are sequences of 16 bit wide characters. In \myProperName{SpiderMonkey} such a character is defined as a \mySCName{jschar} and \mySCName{JSString} is a sequence of \mySCName{jschar}s. A \mySCName{jschar} is UTF-16.
 
 \mySCName{JSString}s can be converted to null-terminated \myProperName{C++} character arrays using \linebreak\mySCName{JS\_EncodeString}. The caller is responsible for managing the created memory. \linebreak\mySCName{JS\_NewStringCopyZ} can be used to convert a null-terminated character array to a \mySCName{JSString}.
 
@@ -500,14 +500,14 @@ When wrapping member functions and fields, the according wrapper code needs to r
 
 As functions can be borrowed and the execution context be forced in \myProperName{JavaScript}, there is no guarantee that the \mySCName{JSObject}'s private data contains an instance of the expected class. Thus type checking has to be performed to validate the correct type of the private data and convert it from the \mySCName{void*}. Calling instance functions on unchecked values can lead to crashes or undefined behaviour.
 
-When saving an instance as a private data \mySCName{void} pointer, type information is \mySlang{lost} and is impossible to be retrieved - not even using RTTI and \mySCName{dynamic\_cast}. \myProperName{C++} itself gives us no means of checking the data to be of a specific type. Thus, for performing type checking, the \mySCName{JSObject} itself is checked, whether it is of a specific \mySCName{JSClass}. An object of class \mySCName{SampleClassWrap} is guaranteed to hold an instance of \mySCName{SampleClass} as its private data - and nothing else. \myProperName{Spidermonkey} provides two important functions for performing such type checks.\\
+When saving an instance as a private data \mySCName{void} pointer, type information is \mySlang{lost} and is impossible to be retrieved - not even using RTTI and \mySCName{dynamic\_cast}. \myProperName{C++} itself gives us no means of checking the data to be of a specific type. Thus, for performing type checking, the \mySCName{JSObject} itself is checked, whether it is of a specific \mySCName{JSClass}. An object of class \mySCName{SampleClassWrap} is guaranteed to hold an instance of \mySCName{SampleClass} as its private data - and nothing else. \myProperName{SpiderMonkey} provides two important functions for performing such type checks.\\
 \mySCName{JS\_GetInstancePrivate} returns the private data of a \mySCName{JSObject}, but checks the object to be of a given \mySCName{JSClass}. If the check fails, it returns \mySCName{NULL}.\\
 \mySCName{JS\_HasInstance} checks a \mySCName{JSObject} (to be precise: a \mySCName{jsval}), whether it is an instance of a given constructor function by checking the whole prototype chain. Therefore it is better suited when wrapping inheritance chains.\\
 If these checks succeed, a private data value can safely be converted to the correct \myProperName{C++} type using \mySCName{static\_cast}.
 
 Another possible way of type checking is to save the type information along with the private data. This concept will be presented in \myRefSection{sec:GenericWrapper}.
 
-\myProperName{Spidermonkey} provides another way of storing private data. A \mySCName{JSClass} can be initialized to give its \mySCName{JSObject}s a fixed number (between 0 and 255) of reserved slots for \mySCName{jsval}s. Though being subject to GC, these slots are not exposed to script and can be used for any purpose.
+\myProperName{SpiderMonkey} provides another way of storing private data. A \mySCName{JSClass} can be initialized to give its \mySCName{JSObject}s a fixed number (between 0 and 255) of reserved slots for \mySCName{jsval}s. Though being subject to GC, these slots are not exposed to script and can be used for any purpose.
 
 \subsection{Constructors}
 
@@ -796,7 +796,7 @@ In this system, the \myProperName{C++} instance stores a pointer to the \mySCNam
 When the \myProperName{C++} instance needs to be wrapped, it is checked if it already has a \mySCName{JSObject} associated. If so, this \mySCName{JSObject} is used and can be handed to script. If not, a new \mySCName{JSObject} is created and both are connected.
 
 If the object has script ownership, it will delete the \myProperName{C++} instance upon garbage collection.\\
-For native ownership, the \mySCName{JSObject} has to be kept alive as long as the \myProperName{C++} instance is. \myProperName{Spidermonkey} provides functionality for rooting \mySCName{JSObject}s so that they are not garbage collected. Upon destruction of the \mySCName{C++} instance, the according \mySCName{JSObject} will be unrooted and its private data set to \mySCName{NULL}. As wrapped member functions check for private data being \mySCName{NULL}, \myProperName{JavaScript} exceptions will be thrown, when the \mySCName{JSObject} is used from script after the destruction of the C++ \mySCName{instance}. This is better than having a dangling pointer, which would lead to undefined behaviour.
+For native ownership, the \mySCName{JSObject} has to be kept alive as long as the \myProperName{C++} instance is. \myProperName{SpiderMonkey} provides functionality for rooting \mySCName{JSObject}s so that they are not garbage collected. Upon destruction of the \mySCName{C++} instance, the according \mySCName{JSObject} will be unrooted and its private data set to \mySCName{NULL}. As wrapped member functions check for private data being \mySCName{NULL}, \myProperName{JavaScript} exceptions will be thrown, when the \mySCName{JSObject} is used from script after the destruction of the C++ \mySCName{instance}. This is better than having a dangling pointer, which would lead to undefined behaviour.
 
 \mySlang{KnowledgeJS} is the most elegant way of wrapping and caching, as there are no restrictions of how a type can be used and no undefined behaviour to be expected. But because of its intrusiveness it can not be used to wrap already existing libraries without modification.
 
@@ -936,7 +936,7 @@ Templates are an advanced feature of \myProperName{C++} for writing classes that
 
 Templates are merely blueprints for classes (and functions) that are instantiated at compile-time with the given types. This happens either implicitly or or explicitly.\\
 Being a compile-time feature, generic templated classes like \mySCName{std::vector<T>} cannot be wrapped and thus made usable from script with arbitrary types set for the template parameters (e.g. \mySCName{T}).\\
-As template instantiations (e.g. \mySCName{std::vector<int>}) are normal classes, they can be wrapped like any other. This means that for any type that the \myProperName{Spidermonkey} user might want to use as a template parameter, the according template needs to be instantiated and wrapped in the glue code. Being individual classes, instantiated templates have no relationship to each other and thus such each instantiation needs to be wrapped on its own.\\
+As template instantiations (e.g. \mySCName{std::vector<int>}) are normal classes, they can be wrapped like any other. This means that for any type that the \myProperName{SpiderMonkey} user might want to use as a template parameter, the according template needs to be instantiated and wrapped in the glue code. Being individual classes, instantiated templates have no relationship to each other and thus such each instantiation needs to be wrapped on its own.\\
 Glue code can be shared, by using templated wrapper functions though: 
 
 \SingleSpacing
@@ -1038,7 +1038,7 @@ JSBool some_wrapper(JSContext *cx, uintN argc, jsval *vp)
 
 This chapter mostly focused on exposing \myProperName{C++} functionality to \myProperName{JavaScript}.
 
-\myProperName{Spidermonkey} also provides functions for getting and accessing \myProperName{JavaScript} objects and values. Object properties can be inspected and functions called.
+\myProperName{SpiderMonkey} also provides functions for getting and accessing \myProperName{JavaScript} objects and values. Object properties can be inspected and functions called.
 
 \mySCName{JS\_GetProperty} can be used to access the property of a \mySCName{JSObject}. The values stored in properties can be unwrapped in the presented way to access the wrapped \myProperName{C++} instances. Type checking has to be performed to verify the data coming from \myProperName{JavaScript}.
 
