@@ -20,7 +20,7 @@ More information about cursors and types can be retrieved using the functions \m
 
 To traverse the abstract syntax tree (recursively), \mySCName{clang\_visitChildren} is used. As arguments, it takes the cursor to be visited, a function pointer, which serves as a callback that is called for every child, and a \mySCName{void} pointer for user data. The callback function will be called from \myProperName{Clang}, passing the visited cursor, its parent and the user data as parameters. The callback function is normally used to inspect and analyse the given cursor. The return value of the function tells \myProperName{Clang}, if it should go on recursively with the first child of the cursor, go on with the next sibling or if it should end traversing of the AST at this point.
 
-\myProperName{libclang} provides more than 50 functions that deal with AST inspection - far too many, to be covered in this thesis. A complete overview is given at the \myProperName{libclang} doxygen documentation\footnote{\url{http://clang.llvm.org/doxygen/group\_\_CINDEX.html}}.
+\myProperName{libclang} provides more than 50 functions that deal with AST inspection - far too many, to be covered in this thesis. A complete overview is given at the \myProperName{libclang} doxygen documentation\footnote{\myProperName{Doxygen}: \url{http://clang.llvm.org/doxygen/group\_\_CINDEX.html}}.
 
 \subsection{Extending \myProperName{libclang}}
 
@@ -135,7 +135,7 @@ From this list, it is obvious, that the intermediate AST will only have details 
 
 \subsection{User-based filtering}
 
-Parsing code that includes heavy libraries, like the \myProperName{C++} standard library or \myProperName{Boost}\footnote{\url{http://www.boost.org/}}, results in a massive AST containing classes and other entities that the end-user might not want to create language bindings for and can as such be considered noise. With the help of different user-provided filters, the amount of nodes in the AST can be vastly reduced. 
+Parsing code that includes heavy libraries, like the \myProperName{C++} standard library or \myProperName{Boost}\footnote{\myProperName{Boost}: \url{http://www.boost.org/}}, results in a massive AST containing classes and other entities that the end-user might not want to create language bindings for and can as such be considered noise. With the help of different user-provided filters, the amount of nodes in the AST can be vastly reduced. 
 
 At the time of creation, every tree node has been marked as \textbf{not visible}. Only nodes that are marked \textbf{visible} or \textbf{referenced} will appear in the final simplified AST. Referenced nodes are AST nodes that were initially filtered out, but are used by other nodes as a parent or for type information. As such, these nodes are an integral part of a consistent AST, where every node is a) supposed to be reachable while traversing the tree and b) expected to exist in the final tree when being referenced by another node.
 
@@ -232,7 +232,7 @@ Thus, it is only logical that the AST will be serialized into a string conformin
 
 The class \mySCNameImp{JSON\_Converter} was written to perform this task given an instance of \linebreak\mySCName{Clang\_AST}.
 
-The first version of the converter was written without any additional libraries and handled the concatenation of the \myProperName{JSON} string itself. This was cumbersome and lead to code that was hard to maintain and error-prone. The \myProperName{JSON}-producing code was rewritten to use the library \myProperNameImp{JsonCpp}\footnote{\url{http://jsoncpp.sourceforge.net/}}.
+The first version of the converter was written without any additional libraries and handled the concatenation of the \myProperName{JSON} string itself. This was cumbersome and lead to code that was hard to maintain and error-prone. The \myProperName{JSON}-producing code was rewritten to use the library \myProperNameImp{JsonCpp}\footnote{\myProperName{JsonCpp}: \url{http://jsoncpp.sourceforge.net/}}.
 
 The export is straight forward and the tree structure can basically be exported as is. \mySCName{ASTType}s and \mySCName{ASTObject}s, as well as their members, need to be converted into \myProperName{JSON} objects. All \mySCName{ASTType}s and \mySCName{ASTObject}s contain a unique id, which will be used for cross-referencing. In both cases, the ids are numbers starting at 1.
 
@@ -340,7 +340,7 @@ During the development, problems occurred concerning the \myProperName{C++} stan
 
 When compiling \myProperName{Clang} itself on \myProperName{Windows} using \myProperName{Visual C++}, it will always use the \myProperName{Microsoft} standard library. The \myProperName{LLVM} project website states that \myInlineQuote{Clang mostly works on Windows, but does not currently understand all of the Microsoft extensions to C and C++. Because of this, clang cannot parse the C++ standard library included with Visual Studio (...)}\footnote{\citep{LLVMHPVS}}. Testing the \myProperName{Clang} compiler executable locally confirmed that errors where generated during compilation.
 
-A few mailing list entries and message board threads\footnote{\url{http://stackoverflow.com/questions/6525245/getting-clang-to-work-on-windows}} deal with this problem and advice to build \myProperName{Clang} on \myProperName{Windows} using the \myProperName{MinGW}\footnote{\url{http://www.mingw.org/}} build environment - a port of the \myProperName{GNU compiler collection (GCC)} to \myProperName{Windows}. \myProperName{Clang} will then use the standard library coming with \myProperName{MinGW}, which it is able to parse.
+A few mailing list entries and message board threads\footnote{\myProperName{Stackoverflow}:\\ \url{http://stackoverflow.com/questions/6525245/getting-clang-to-work-on-windows}} deal with this problem and advice to build \myProperName{Clang} on \myProperName{Windows} using the \myProperName{MinGW}\footnote{\myProperName{MinGW}: \url{http://www.mingw.org/}} build environment - a port of the \myProperName{GNU compiler collection (GCC)} to \myProperName{Windows}. \myProperName{Clang} will then use the standard library coming with \myProperName{MinGW}, which it is able to parse.
 
 This indeed works for \myProperName{Clang}, but results in run-time errors when using the \myProperName{libclang} shared library (built with \myProperName{MinGW}) in the \myProperName{CPPAnalyzer} project built with \myProperName{Visual C++}. Looking at the assembly, it became clear that the \textbf{cdecl} calling convention, which among other things specifies who cleans the stack (the caller or the callee), is handled differently by \myProperName{VC++} and \myProperName{GCC}, resulting in a crash. This only applies, if the called function returns objects bigger than 8 bytes. This is a bug in \myProperName{GCC}\footnote{Bug 36834 - structure return ABI for windows targets differs from native MSVC:\\ \url{http://gcc.gnu.org/bugzilla/show_bug.cgi?id=36834}} that will be fixed in coming versions.
 

@@ -2,7 +2,7 @@
 \label{chap:LanguageBindingCPPJS}
 
 This chapter shows how \myProperName{C++} elements like declarations and types can be exposed to \myProperName{Mozilla Spidermonkey} to be used from scripts. \myProperName{Spidermonkey} is the name of \myProperName{Mozilla}'s implementation of the \myProperName{ECMAScript} programming language standard, which is most commonly known as \myProperName{JavaScript}. The terms \myProperName{JavaScript} and \myProperName{ECMAScript} will be used interchangebly, whereas \myProperName{Spidermonkey} refers to the concrete \myProperName{Mozilla} implementation.\\
-Binding \myProperName{C++} elements to other programming languages like \myProperName{Python}, \myProperName{Lua} or other \myProperName{JavaScript} implementations, e.g. \myProperName{V8}\footnote{\url{http://code.google.com/p/v8/}}, will be similar in many aspects and specific differences will depend upon the existing elements of the target language.
+Binding \myProperName{C++} elements to other programming languages like \myProperName{Python}, \myProperName{Lua} or other \myProperName{JavaScript} implementations, e.g. \myProperName{V8}\footnote{\myProperName{V8}: \url{http://code.google.com/p/v8/}}, will be similar in many aspects and specific differences will depend upon the existing elements of the target language.
 
 The information in this chapter presumes knowledge about the \myProperName{C++} programming language, its elements, type system and class-based inheritance.
 
@@ -13,7 +13,7 @@ Language binding between \myProperName{Spidermonkey} and \myProperName{C++} coul
 
 \myProperName{JavaScript} is a weakly typed object-oriented programming language with garbage collection. 
 
-As it is a feature-rich language, only the most important aspects will be presented in this section. More information can be found in \myProperName{Mozilla}'s \myProperName{JavaScript} guide\footnote{\url{https://developer.mozilla.org/en/JavaScript/Guide}} or in various books like \myAuthorName{David Flanagan}'s \myBookName{JavaScript: The Definite Guide} or \myAuthorName{Douglas Crockford}'s \myBookName{JavaScript: The Good Parts}.
+As it is a feature-rich language, only the most important aspects will be presented in this section. More information can be found in \myProperName{Mozilla}'s \myProperName{JavaScript} guide\footnote{\myProperName{JavaScript} guide: \url{https://developer.mozilla.org/en/JavaScript/Guide}} or in various books like \myAuthorName{David Flanagan}'s \myBookName{JavaScript: The Definite Guide} or \myAuthorName{Douglas Crockford}'s \myBookName{JavaScript: The Good Parts}.
 
 \myProperName{JavaScript} values belong to one of six basic types: boolean, number, string, \mySCName{undefined}, \mySCName{null} and object.\\
 Number, string and boolean are primitive types. So are \mySCName{null} and \mySCName{undefined}, which both represent the absence of value. All these types are immutable.\todo{ref}\\
@@ -213,7 +213,7 @@ instance.funcB();
 
 \section{\myProperName{Spidermonkey}}
 
-\myProperName{Spidermonkey} comes in the form of a shared library exposing a \myProperName{C} API, which can be used to interact with the \myProperName{JavaScript} virtual machine. This API is also known as \myProperName{JSAPI}. Due to the length of this thesis, the API can only be presented in excerpts. A full overview is given at the \myProperName{Mozilla Developer Network JSAPI} reference\footnote{\url{https://developer.mozilla.org/en/SpiderMonkey/JSAPI_Reference}}.
+\myProperName{Spidermonkey} comes in the form of a shared library exposing a \myProperName{C} API, which can be used to interact with the \myProperName{JavaScript} virtual machine. This API is also known as \myProperName{JSAPI}. Due to the length of this thesis, the API can only be presented in excerpts. A full overview is given at the \myProperName{Mozilla Developer Network JSAPI} reference\footnote{\myProperName{JSAPI} reference: \url{https://developer.mozilla.org/en/SpiderMonkey/JSAPI_Reference}}.
 
 A \mySCName{JSRuntime} is an instance of the virtual machine. A \mySCName{JSContext} is a single environment within a \mySCName{JSRuntime}, in which all objects and values live. One \mySCName{JSRuntime} can have multiple \mySCName{JSContext}s. Each context has a global object. Objects are exposed as \mySCName{JSObject}.
 
@@ -915,12 +915,12 @@ Either way, passing state information demands modification of the original sourc
 
 \textbf{Run-time function creation and closures}
 
-\myProperName{C++11} allows the creation of functions at run-time with the help of lambda functions\footnote{\url{http://www.cprogramming.com/c++11/c++11-lambda-closures.html}}. Lamdba functions can capture state and thus seem to be capable of solving the given problem. This concept is also known as a closure and, as a side note, is very common in \myProperName{JavaScript}.
+\myProperName{C++11} allows the creation of functions at run-time with the help of lambda functions\footnote{Lamdba functions: \url{http://www.cprogramming.com/c++11/c++11-lambda-closures.html}}. Lamdba functions can capture state and thus seem to be capable of solving the given problem. This concept is also known as a closure and, as a side note, is very common in \myProperName{JavaScript}.
 \\Unfortunately only state-less lamdba functions can be passed as function pointers. Lambda functions that capture state are only syntactic sugar for functors and as such can not be used to solve the given problem.
 
 The only other way of creating functions at run-time is to create the machine-code itself at run-time. This, of course, requires assembly and is thus outside of portable \myProperName{C++}. With this method, the memory address of the \myProperName{JavaScript} function to call could simply be stored in the machine-code itself.
 
-\myProperName{libffi}\footnote{\url{http://sourceware.org/libffi/}} contains functionality for creating these types of closures at run-time. It is used by \myProperName{Mozilla}'s \myProperName{js-ctypes} for allowing \myProperName{JavaScript} functions to be passed as \myProperName{C} function pointers. \myProperName{Python}'s \myProperName{ctypes} uses it for the same reason. As the creation of closures is a highly machine-dependent operation, it is indispensable to use a 3rd party like \myProperName{libffi}.
+\myProperName{libffi}\footnote{\myProperName{libffi}: \url{http://sourceware.org/libffi/}} contains functionality for creating these types of closures at run-time. It is used by \myProperName{Mozilla}'s \myProperName{js-ctypes} for allowing \myProperName{JavaScript} functions to be passed as \myProperName{C} function pointers. \myProperName{Python}'s \myProperName{ctypes} uses it for the same reason. As the creation of closures is a highly machine-dependent operation, it is indispensable to use a 3rd party like \myProperName{libffi}.
 
 The creation of machine-code at run-time is the only way for completely supporting script functions as callbacks. It has the drawback of an additional library dependency and is also not supported on all platforms.
 
@@ -964,7 +964,7 @@ Sometimes the user does not need class members to be exposed to script, but only
 As no members are exposed, it is possible to use the same \mySCName{JSClass} for all kinds of instances. This generic wrapper will leave ownership to \myProperName{C++}.\\
 In contrast to the previously explained wrapping of classes, the \mySCName{JSClass} \mySCName{GenericWrapper} will not be bound to a specific type of private data and as such can not be used for type checking. Thus, type information needs to be stored along with the private data \mySCName{void*}.
 
-There are several ways to do this, for example the \myProperName{C++} \mySCName{typeid}\footnote{Documentation: \url{http://www.cplusplus.com/reference/std/typeinfo/type_info/}} operator, which returns the type information of a given value. Though \mySCName{type\_info}s can be compared, they have no knowledge about inheritance chains.\\
+There are several ways to do this, for example the \myProperName{C++} \mySCName{typeid}\footnote{\mySCName{typeid}: \url{http://www.cplusplus.com/reference/std/typeinfo/type_info/}} operator, which returns the type information of a given value. Though \mySCName{type\_info}s can be compared, they have no knowledge about inheritance chains.\\
 There is a proposal to support rich pointers\footnote{Rich pointer proposal: \url{http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3340.pdf}} (pointers that also contain type information) in \mySCName{C++}, but it is uncertain if the idea of rich pointers will ever become part of a new \myProperName{C++} standard.
 
 During research I came across \myAuthorName{Cassio Neri}'s concept of an \mySCName{any\_ptr} - a class that holds a pointer and its type information. \mySCName{any\_ptr} allows casting up and down in inheritance chains at run-time without the possibility of crashes. If an \mySCName{any\_ptr} cannot be casted to a given type, its \mySCName{cast} function simply returns \mySCName{NULL}. An important feature is its support for classes without RTTI.

@@ -124,7 +124,7 @@ Program understanding tools help users make sense of large codebases.\footnote{\
 
 Other tools visualize the source code, for example by creating \myProperName{UML} diagrams from source, rendering images of class hierarchies or function callgraphs that can help the user understand the control flow of the application and the relationships between the existing symbols.
 
-Prominent tools like \myProperName{Doxygen}\footnote{\url{http://www.stack.nl/~dimitri/doxygen/}} automatically create documentation from source code and code comments.
+Prominent tools like \myProperName{Doxygen}\footnote{\myProperName{Doxygen}: \url{http://www.stack.nl/~dimitri/doxygen/}} automatically create documentation from source code and code comments.
 
 \subsection{Optimization}
 
@@ -134,7 +134,7 @@ Compilers use static analysis to perform code optimization:
 A main application is to allow compilers to generate code avoiding redundant computations, e.g. by reusing available results or by moving loop invariant computations out of loops, or avoiding superfluous computations, e.g. of results known to be not needed or of results known already at compile-time.\footnote{\citep[1]{ProgramAnalysis}}
 \end{quotation}
 
-Apart from code optimization, compile-time optimization, for example by finding unnecessary include-files in \myProperName{C++} applications is another area that static analysis is used for. \myProperName{include-what-you-use}\footnote{\url{http://code.google.com/p/include-what-you-use/}} is a tool that performs this task. It internally uses the \myProperName{Clang} compiler.
+Apart from code optimization, compile-time optimization, for example by finding unnecessary include-files in \myProperName{C++} applications is another area that static analysis is used for. \myProperName{include-what-you-use}\footnote{\myProperName{include-what-you-use}: \url{http://code.google.com/p/include-what-you-use/}} is a tool that performs this task. It internally uses the \myProperName{Clang} compiler.
 
 \section{Static analysis as part of a programmer's workflow}
 
@@ -200,7 +200,7 @@ The application to be developed will make use of a 3rd party library for perform
 
 The most important factor of the chosen static analysis tool/library is its ability to parse \myProperName{C++} and to export or give access to a (simplified) abstract syntax tree of the parsed source files, including symbol and type information. Information about namespaces, global variables, functions including parameters and return types, classes, class-members and more needs to be extracted.
 
-Also, as this project is meant to be open-source, its dependencies must be released in an according licence, which excludes all commercial static analysis tools like \myProperName{Coverty}\footnote{\url{http://www.coverity.com/}}, \myProperName{PVS-Studio}\footnote{\url{http://www.viva64.com/en/pvs-studio/}} or \myProperName{pc-lint}\footnote{\url{http://www.gimpel.com/html/pcl.htm}}. It is also not known, whether these tools would provide the ability to export symbol and type information.
+Also, as this project is meant to be open-source, its dependencies must be released in an according licence, which excludes all commercial static analysis tools like \myProperName{Coverty}\footnote{\myProperName{Coverty}: \url{http://www.coverity.com/}}, \myProperName{PVS-Studio}\footnote{\myProperName{PVS-Studio}: \url{http://www.viva64.com/en/pvs-studio/}} or \myProperName{pc-lint}\footnote{\myProperName{pc-lint}: \url{http://www.gimpel.com/html/pcl.htm}}. It is also not known, whether these tools would provide the ability to export symbol and type information.
 
 Further, the chosen library needed to be in active development to adjust to changes coming in the new \myProperName{C++} standard. This excluded a couple of small open source projects that dealt with parsing \myProperName{C++} headers.
 
@@ -208,7 +208,7 @@ The choice had to be made between three projects: \myProperName{GCC-XML}, \myPro
 
 \subsection{\myProperName{GCC-XML}}
 
-\myProperName{GCC-XML}\footnote{\url{http://www.gccxml.org/HTML/Index.html}} is an extension to \myProperName{GCC}'s \myProperName{C++} parser that outputs AST information into an \myProperName{XML} file. It does not seem to provide any means of filtering the output. The developed application would need to parse the \myProperName{XML} and build its own representation internally. Hence, \myProperName{GCC-XML} only gives indirect access to \myProperName{GCC}'s syntax tree and is thus not well-suited for solving the problem.
+\myProperName{GCC-XML}\footnote{\myProperName{GCC-XML}: \url{http://www.gccxml.org/HTML/Index.html}} is an extension to \myProperName{GCC}'s \myProperName{C++} parser that outputs AST information into an \myProperName{XML} file. It does not seem to provide any means of filtering the output. The developed application would need to parse the \myProperName{XML} and build its own representation internally. Hence, \myProperName{GCC-XML} only gives indirect access to \myProperName{GCC}'s syntax tree and is thus not well-suited for solving the problem.
 
 \subsection{Dehydra}
 
@@ -216,7 +216,7 @@ The choice had to be made between three projects: \myProperName{GCC-XML}, \myPro
 Dehydra is a lightweight, scriptable, general purpose static analysis tool capable of application-specific analyses of C++ code (...) [that] is built as a GCC plugin, (...).\footnote{\citep{MDNDehydra}}
 \end{quotation}
 
-\myProperName{Dehydra} is developed by \myProperName{Mozilla} for checking specific bug patterns in its large codebase for \myProperName{Firefox} and other \myProperName{Mozilla} applications. It allows custom querying of the AST with the help of \myProperName{JavaScript} scripts.
+\myProperName{Dehydra}\footnote{\myProperName{Dehydra}: \url{https://developer.mozilla.org/en/Dehydra}} is developed by \myProperName{Mozilla} for checking specific bug patterns in its large codebase for \myProperName{Firefox} and other \myProperName{Mozilla} applications. It allows custom querying of the AST with the help of \myProperName{JavaScript} scripts.
 
 When compiling a project with \myProperName{GCC} and \myProperName{Dehydra}, the user provides a script file along with the command-line arguments. As the compilation happens, functions in the given script are called to inform about found types, functions and other symbols. This way the script can build its own AST representation, filtering symbols on the fly when necessary.
 
@@ -224,7 +224,7 @@ An example function that a script may provide is \mySCName{process\_type(t)}, wh
 
 The biggest drawback of \myProperName{Dehydra} is that it is currently only supported on \myProperName{Linux} based operating systems.
 
-\myProperName{Dehydra} was used for implementing \myProperName{DXR}\footnote{\url{https://github.com/mozilla/dxr}}, \myProperName{Mozilla}'s web source code cross-reference tool, that can be used to navigate inside the \myProperName{Mozilla} code base. \myProperName{DXR} development moved to using \myProperName{Clang} in newer builds, though.
+\myProperName{Dehydra} was used for implementing \myProperName{DXR}\footnote{\myProperName{DXR}: \url{https://github.com/mozilla/dxr}}, \myProperName{Mozilla}'s web source code cross-reference tool, that can be used to navigate inside the \myProperName{Mozilla} code base. \myProperName{DXR} development moved to using \myProperName{Clang} in newer builds, though.
 
 \subsection{\myProperName{Clang} and \myProperName{libclang}}
 \label{sec:Clang}
@@ -235,7 +235,7 @@ Clang is an ''LLVM native'' C/C++/Objective-C compiler, which aims to deliver am
 
 \myInlineQuote{The LLVM Project is a collection of modular and reusable compiler and toolchain technologies}. The \myProperName{LLVM} compiler framework includes multiple compiler front-ends, like \myProperName{Clang} for the \myProperName{C} language family, an optimizer and code generation support for many popular CPUs.\footnote{\citep{LLVMHP}}
 
-The open-source \myProperName{Clang} project is not only concerned with developing a compiler that produces high-performance code, but also with developing software that can be used in utilities like IDE's and bug finders to perform source code analysis and indexing.
+The open-source \myProperName{Clang}\footnote{\myProperName{Clang}: \url{http://clang.llvm.org/}} project is not only concerned with developing a compiler that produces high-performance code, but also with developing software that can be used in utilities like IDE's and bug finders to perform source code analysis and indexing.
 
 There are two approaches of how an application can integrate \myProperName{Clang} for analysing purposes.
 \\On the one hand, one can include \myProperName{Clang} itself as a library and use the internal structures and functions of the compiler, thus having access to the AST build by \myProperName{Clang} in a direct way.
@@ -245,4 +245,4 @@ There are two approaches of how an application can integrate \myProperName{Clang
 
 \subsubsection{\myProperName{Emscripten}}
 
-In the context of this thesis, another interesting \myProperName{LLVM}-based project should be mentioned. \myInlineQuote{Emscripten is an LLVM-to-JavaScript compiler. It takes LLVM bitcode (which can be generated from C/C++ using Clang, or any other language that can be converted into LLVM bitcode) and compiles that into JavaScript, which can be run on the web.}\footnote{\citep{EmscriptenHP} - taken from front page} Instead of accessing \myProperName{C++} through glue code, the \myProperName{C++} code itself is completely compiled to \myProperName{JavaScript}. This may sound very slow in the first place, but with the current performance of \myProperName{JavaScript} virtual machines and the reduced cost of type-conversion (as all is \myProperName{JavaScript}), code generated by \myProperName{Emscripten} is only 3 to 4 times slower than native code generated with \myProperName{GCC}.\footnote{\citep{EmscriptenHP} - taken from FAQ section}
+In the context of this thesis, another interesting \myProperName{LLVM}-based project should be mentioned: \myProperName{Emscripten}\footnote{\myProperName{Emscripten}: \url{http://emscripten.org}}. \myInlineQuote{Emscripten is an LLVM-to-JavaScript compiler. It takes LLVM bitcode (which can be generated from C/C++ using Clang, or any other language that can be converted into LLVM bitcode) and compiles that into JavaScript, which can be run on the web.}\footnote{\citep{EmscriptenHP} - taken from front page} Instead of accessing \myProperName{C++} through glue code, the \myProperName{C++} code itself is completely compiled to \myProperName{JavaScript}. This may sound very slow in the first place, but with the current performance of \myProperName{JavaScript} virtual machines and the reduced cost of type-conversion (as all is \myProperName{JavaScript}), code generated by \myProperName{Emscripten} is only 3 to 4 times slower than native code generated with \myProperName{GCC}.\footnote{\citep{EmscriptenHP} - taken from FAQ section}
