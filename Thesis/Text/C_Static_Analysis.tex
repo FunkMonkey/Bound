@@ -4,15 +4,15 @@
 In \myBookName{Secure Programming with Static Analysis} \textbf{static analysis} is defined as followed:
 
 \begin{quotation}
-The term static analysis refers to any process for assessing code without
-executing it. Static analysis is powerful because it allows for the quick consideration of many possibilities. A static analysis tool can explore a large number of ''what if'' scenarios without having to go through all the computations
-necessary to execute the code for all the scenarios.\footnote{\citep[3]{SecureProgramming}}
+''The term static analysis refers to any process for assessing code without
+executing it. Static analysis is powerful because it allows for the quick consideration of many possibilities. A static analysis tool can explore a large number of 'what if' scenarios without having to go through all the computations
+necessary to execute the code for all the scenarios.''\footnote{\citep[3]{SecureProgramming}}
 \end{quotation}
 
 Another definition that highlights the use of prediction during the process of analysis can be found in \myBookName{Principles of program analysis}:
 
 \begin{quotation}
-Program analysis offers static compile-time techniques for predicting safe and computable approximations to the set of values or behaviours arising dynamically at run-time when executing a program on a computer.\footnote{\citep[1]{ProgramAnalysis}}
+''Program analysis offers static compile-time techniques for predicting safe and computable approximations to the set of values or behaviours arising dynamically at run-time when executing a program on a computer.''\footnote{\citep[1]{ProgramAnalysis}}
 \end{quotation}
 
 Thus, tools performing static analysis evaluate software in the abstract, without running the software or considering a specific input.\footnote{\citep[1]{UsingSAToFindBugs}}
@@ -43,7 +43,9 @@ Bug finders point out places in the source code, where the program will behave i
 
 A prominent example of preventing run-time errors at compile-time is type checking. In this sense, compilers themselves can be seen as static analysis tools and - as we will see later - both have much in common.
 
-\myInlineQuote{The lint program for C programs is generally considered the first widely used static analysis tool for defect detection.}\footnote{\citep[1]{UsingSAToFindBugs}}
+\begin{quotation}
+''The lint program for C programs is generally considered the first widely used static analysis tool for defect detection.''\footnote{\citep[1]{UsingSAToFindBugs}}
+\end{quotation}
 
 \subsubsection{Generic and context-specific defects}
 
@@ -96,7 +98,7 @@ Similar warnings could be issued for functions whose return values (for example 
 \subsection{Software security}
 
 \begin{quotation}
-Static analysis is particularly well suited to security because many security problems occur in corner cases and hard-to-reach states that can be difficult to exercise by actually running the code.\footnote{\citep[4]{SecureProgramming}}
+''Static analysis is particularly well suited to security because many security problems occur in corner cases and hard-to-reach states that can be difficult to exercise by actually running the code.''\footnote{\citep[4]{SecureProgramming}}
 \end{quotation}
 
 Concerning software security, static analysis tools are used to find coding errors before they can be exploited. Buffer overflows and format string vulnerabilities come to mind, possibly resulting in \myProperName{SQL} injection, cross-site scripting or unwarranted acquisition of administrator privileges. 
@@ -131,7 +133,7 @@ Prominent tools like \myProperName{Doxygen}\footnote{\myProperName{Doxygen}: \ur
 Compilers use static analysis to perform code optimization:
 
 \begin{quotation}
-A main application is to allow compilers to generate code avoiding redundant computations, e.g. by reusing available results or by moving loop invariant computations out of loops, or avoiding superfluous computations, e.g. of results known to be not needed or of results known already at compile-time.\footnote{\citep[1]{ProgramAnalysis}}
+''A main application is to allow compilers to generate code avoiding redundant computations, e.g. by reusing available results or by moving loop invariant computations out of loops, or avoiding superfluous computations, e.g. of results known to be not needed or of results known already at compile-time.''\footnote{\citep[1]{ProgramAnalysis}}
 \end{quotation}
 
 Apart from code optimization, compile-time optimization, for example by finding unnecessary include-files in \myProperName{C++} applications is another area that static analysis is used for. \myProperName{include-what-you-use}\footnote{\myProperName{include-what-you-use}: \url{http://code.google.com/p/include-what-you-use/}} is a tool that performs this task. It internally uses the \myProperName{Clang} compiler.
@@ -166,14 +168,14 @@ To retrieve useful information from the code, static analysis tools need to buil
 When creating the internal program model, static analysis tools generally borrow a lot from the compiler world\footnote{\citep[72]{SecureProgramming}}. They especially follow the first two phases of a compiler: lexical analysis and syntax analysis.
 
 \begin{quotation}
-\textbf{Lexical analysis} (...) is the initial part of reading and analysing the program text: The text is read and divided into \textit{tokens}, each of which corresponds to a symbol in the programming language, e.g., a variable name, keyword or number.\footnote{\citep[2]{CompilerBasics}}
+''\textbf{Lexical analysis} (...) is the initial part of reading and analysing the program text: The text is read and divided into \textit{tokens}, each of which corresponds to a symbol in the programming language, e.g., a variable name, keyword or number.''\footnote{\citep[2]{CompilerBasics}}
 \end{quotation}
 
 Compared to compilers, static analysis tools may filter out less during lexical analysis. They may preserve comments, in case the tool needs information from comments for the model (\myProperName{Doxygen} is a prominent example for this case).
 Static analysis tools that search for coding errors usually also associate the tokens with their source code positions for later error reporting.\footnote{\citep[72]{SecureProgramming}} 
 
 \begin{quotation}
-\textbf{Syntax analysis} (...) takes the list of tokens produced by the lexical analysis and arranges these in a tree-structure (called the \textit{syntax tree}) that reflects the structure of the program. This phase is often called \textit{parsing}.\footnote{\citep[2]{CompilerBasics}}
+''\textbf{Syntax analysis} (...) takes the list of tokens produced by the lexical analysis and arranges these in a tree-structure (called the \textit{syntax tree}) that reflects the structure of the program. This phase is often called \textit{parsing}.''\footnote{\citep[2]{CompilerBasics}}
 \end{quotation}
 
 As the created syntax tree contains a lot of irrelevant data that is not needed for later analysis (parentheses, etc.), the syntax tree is usually transformed into an \textbf{abstract syntax tree (AST)}, where such information is either removed or combined from multiple tree nodes into single ones.\footnote{\citep[99]{CompilerBasics}}
@@ -213,7 +215,7 @@ The choice had to be made between three projects: \myProperName{GCC-XML}, \myPro
 \subsection{Dehydra}
 
 \begin{quotation}
-Dehydra is a lightweight, scriptable, general purpose static analysis tool capable of application-specific analyses of C++ code (...) [that] is built as a GCC plugin, (...).\footnote{\citep{MDNDehydra}}
+''Dehydra is a lightweight, scriptable, general purpose static analysis tool capable of application-specific analyses of C++ code (...) [that] is built as a GCC plugin, (...).''\footnote{\citep{MDNDehydra}}
 \end{quotation}
 
 \myProperName{Dehydra}\footnote{\myProperName{Dehydra}: \url{https://developer.mozilla.org/en/Dehydra}} is developed by \myProperName{Mozilla} for checking specific bug patterns in its large codebase for \myProperName{Firefox} and other \myProperName{Mozilla} applications. It allows custom querying of the AST with the help of \myProperName{JavaScript} scripts.
@@ -230,7 +232,7 @@ The biggest drawback of \myProperName{Dehydra} is that it is currently only supp
 \label{sec:Clang}
 
 \begin{quotation}
-Clang is an ''LLVM native'' C/C++/Objective-C compiler, which aims to deliver amazingly fast compiles (...), extremely useful error and warning messages and to provide a platform for building great source level tools. The Clang Static Analyzer is a tool that automatically finds bugs in your code, and is a great example of the sort of tool that can be built using the Clang frontend as a library to parse C/C++ code.\footnote{\citep{LLVMHP}}
+''Clang is an 'LLVM native' C/C++/Objective-C compiler, which aims to deliver amazingly fast compiles (...), extremely useful error and warning messages and to provide a platform for building great source level tools. The Clang Static Analyzer is a tool that automatically finds bugs in your code, and is a great example of the sort of tool that can be built using the Clang frontend as a library to parse C/C++ code.''\footnote{\citep{LLVMHP}}
 \end{quotation}
 
 \myInlineQuote{The LLVM Project is a collection of modular and reusable compiler and toolchain technologies}. The \myProperName{LLVM} compiler framework includes multiple compiler front-ends, like \myProperName{Clang} for the \myProperName{C} language family, an optimizer and code generation support for many popular CPUs.\footnote{\citep{LLVMHP}}
@@ -245,4 +247,10 @@ There are two approaches of how an application can integrate \myProperName{Clang
 
 \subsubsection{\myProperName{Emscripten}}
 
-In the context of this thesis, another interesting \myProperName{LLVM}-based project should be mentioned: \myProperName{Emscripten}\footnote{\myProperName{Emscripten}: \url{http://emscripten.org}}. \myInlineQuote{Emscripten is an LLVM-to-JavaScript compiler. It takes LLVM bitcode (which can be generated from C/C++ using Clang, or any other language that can be converted into LLVM bitcode) and compiles that into JavaScript, which can be run on the web.}\footnote{\citep{EmscriptenHP} - taken from front page} Instead of accessing \myProperName{C++} through glue code, the \myProperName{C++} code itself is completely compiled to \myProperName{JavaScript}. This may sound very slow in the first place, but with the current performance of \myProperName{JavaScript} virtual machines and the reduced cost of type-conversion (as all is \myProperName{JavaScript}), code generated by \myProperName{Emscripten} is only 3 to 4 times slower than native code generated with \myProperName{GCC}.\footnote{\citep{EmscriptenHP} - taken from FAQ section}
+In the context of this thesis, another interesting \myProperName{LLVM}-based project should be mentioned: \myProperName{Emscripten}\footnote{\myProperName{Emscripten}: \url{http://emscripten.org}}. 
+
+\begin{quotation}
+''Emscripten is an LLVM-to-JavaScript compiler. It takes LLVM bitcode (which can be generated from C/C++ using Clang, or any other language that can be converted into LLVM bitcode) and compiles that into JavaScript, which can be run on the web.''\footnote{\citep{EmscriptenHP} - taken from front page}
+\end{quotation}
+
+Instead of accessing \myProperName{C++} through glue code, the \myProperName{C++} code itself is completely compiled to \myProperName{JavaScript}. This may sound very slow in the first place, but with the current performance of \myProperName{JavaScript} virtual machines and the reduced cost of type-conversion (as all is \myProperName{JavaScript}), code generated by \myProperName{Emscripten} is only 3 to 4 times slower than native code generated with \myProperName{GCC}.\footnote{\citep{EmscriptenHP} - taken from FAQ section}
