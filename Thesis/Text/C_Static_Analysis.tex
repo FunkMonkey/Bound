@@ -37,7 +37,7 @@ The type of information retrieved depends on the context and purpose of the stat
 
 \subsection{Program correctness}
 
-Static analysis tools that are concerned with program correctness try to detect defects at compile-time so that those do not manifest in run-time errors, such as crashes, data corruption and program malfunctioning. Thus these tools, which are mostly concerned with \textbf{software quality}, are often referred to as \textbf{bug finders}.
+Static analysis tools that are concerned with program correctness try to detect defects at compile-time so that these defects do not manifest in run-time errors, such as crashes, data corruption and program malfunctioning. Thus these tools, which are mostly concerned with \textbf{software quality}, are often referred to as \textbf{bug finders}.
 
 Bug finders point out places in the source code, where the program will behave in a way that the programmer did not intend. Most tools are easy to use because they come pre-stocked with a set of \mySlang{bug idioms} (rules) that describe patterns in code that often indicate bugs.\footnote{\citep[32]{SecureProgramming}} They help to find these often hard-to-spot defects early in the software development life-cycle, reducing the cost, time, and risk of software errors.\footnote{\citep{CovertySA}}
 
@@ -192,7 +192,7 @@ For altering the output of the static analysis tool, some bug finders allow the 
 \\For languages that do not provide special syntax for annotations, as \myProperName{Java} and \myProperName{C\#} do, annotations usually
 take the form of specially formatted comments.\footnote{\citep[99]{SecureProgramming}}
 
-The approaches that are used for checking rules differ from rule to rule. Some checks track control flow or data flow throughout the program. Others use alternative relationships that can be drawn from the model. How static analysis tools perform these checks is out of scope of this thesis. For further knowledge the reader is advised to gather information about \textit{Control Flow Analysis}, \textit{Data Flow Analysis}, \textit{Constraint Based Analysis}, \textit{Taint Propagation}, \textit{Abstract Interpretation}, \textit{Interprocdural Analysis }as well as \textit{Type and Effect Systems}. 
+The approaches that are used for checking rules differ from rule to rule. Some checks track control flow or data flow throughout the program. Others use alternative relationships that can be drawn from the model. How static analysis tools perform these checks is out of the scope of this thesis. For further knowledge the reader is advised to gather information about \textit{Control Flow Analysis}, \textit{Data Flow Analysis}, \textit{Constraint Based Analysis}, \textit{Taint Propagation}, \textit{Abstract Interpretation}, \textit{Interprocdural Analysis }as well as \textit{Type and Effect Systems}. 
 
 \section{Existing static analysis tools}
 
