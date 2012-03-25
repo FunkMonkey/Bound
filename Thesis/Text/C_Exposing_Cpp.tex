@@ -100,7 +100,7 @@ obj1.sayHello.call(obj3); // --> "Hello, I am Ringo"
 \label{sec:JSInheritance}
 
 The prototypical inheritance mechanism used in \myProperName{JavaScript} vastly differs from class-based inheritance known from \myProperName{C++} and \myProperName{Java}. In a class-based inheritance the class defines a design contract that created instances adhere to.\\
-\myProperName{JavaScript} uses prototypes instead. A prototype is a normal \myProperName{JavaScript} object from which other objects inherit the properties. When a property is looked up on an object, the object is checked if it does have an own property with the name. If not, its prototype is checked for the property. If this doesn't have it either, the prototype's prototype is checked and so on up its hierarchy. This is called the prototype chain.\\
+\myProperName{JavaScript} uses prototypes instead. A prototype object is a normal \myProperName{JavaScript} object, from which other objects inherit properties. When \myProperName{JavaScript} looks up a property of an object, the object is checked if it does have an own property with the name. If not, its prototype is checked for the property. If this doesn't have it either, the prototype's prototype is checked and so on up its hierarchy. This hierarchy is called the prototype chain.\\
 The prototype of an object is saved as an internal property ([[Prototype]]) that can not be set after object creation and can only be accessed using \linebreak\mySCName{Object.getPrototypeOf(anObject)}. Some implementations add the non-standard \linebreak\mySCName{\_\_proto\_\_} property for accessing the prototype.\\
 If a property with the same name exists on an object that has a prototype, then it shadows the prototype's property.
 
@@ -213,13 +213,13 @@ instance.funcB();
 
 \section{\myProperName{Spidermonkey}}
 
-\myProperName{Spidermonkey} comes in form of a shared library exposing a \myProperName{C} API that can be used to interact with the \myProperName{JavaScript} interpreter. This API is also known as \myProperName{JSAPI}. Due to the length of this thesis, the API can only be presented in excerpts. A full overview can be seen at the \myProperName{Mozilla Developer Network JSAPI} reference\footnote{\url{https://developer.mozilla.org/en/SpiderMonkey/JSAPI_Reference}}.
+\myProperName{Spidermonkey} comes in the form of a shared library exposing a \myProperName{C} API, which can be used to interact with the \myProperName{JavaScript} virtual machine. This API is also known as \myProperName{JSAPI}. Due to the length of this thesis, the API can only be presented in excerpts. A full overview is given at the \myProperName{Mozilla Developer Network JSAPI} reference\footnote{\url{https://developer.mozilla.org/en/SpiderMonkey/JSAPI_Reference}}.
 
 A \mySCName{JSRuntime} is an instance of the virtual machine. A \mySCName{JSContext} is a single environment within a \mySCName{JSRuntime}, in which all objects and values live. One \mySCName{JSRuntime} can have multiple \mySCName{JSContext}s. Each context has a global object. Objects are exposed as \mySCName{JSObject}.
 
 A \myProperName{JavaScript} value is expressed as a \mySCName{jsval}. \mySCName{jsval} contains information about the type of the value (number, boolean, etc.). For strings and objects, the \mySCName{jsval} stores the pointer to the \mySCName{JSString} or \mySCName{JSObject}. For all other types, the data is saved in the \mySCName{jsval} itself. \mySCName{jsval}s occur at several places in \myProperName{JSAPI}, for example when defining properties, for parameter values or return values.\\
 \myProperName{Spidermonkey} provides utility macros/functions for checking the type of a \mySCName{jsval} \linebreak(e.g. \mySCName{JSVAL\_IS\_OBJECT}) and its content (e.g. \mySCName{JSVAL\_TO\_OBJECT}) or for creating \mySCName{jsval}s from the according \myProperName{Spidermonkey} \myProperName{C++} types (e.g. \mySCName{OBJECT\_TO\_JSVAL}).\\
-When converting between \mySCName{jsval}s and \myProperName{C++} types, type checking needs to be performed. The \myProperName{C++} compiler that compiles the glue code will perform this task, when converting \textbf{to} \mySCName{jsval}, as the conversion functions only accept the correct type. When converting a \mySCName{jsval} to a \myProperName{C++} type, the current type of the \mySCName{jsval} needs to be checked manually first. If the \myProperName{JSAPI} user for example tries to retrieve a \mySCName{JSObject} from a \mySCName{jsval} that contains a boolean value, the behaviour of the code is undefined and will probably lead to a run-time failure like a crash. Thus type checking and error handling play an important role and are explained in further detail in \myRefSection{sec:ErrorHandling}.\\
+When converting between \mySCName{jsval}s and \myProperName{C++} types, type checking needs to be performed. The \myProperName{C++} compiler that compiles the glue code will perform this task, when converting \textbf{to} \mySCName{jsval}, as the conversion functions only accept the correct type. When converting a \mySCName{jsval} to a \myProperName{C++} type, the current type of the \mySCName{jsval} needs to be checked manually first. If the \myProperName{JSAPI} user, for example, tries to retrieve a \mySCName{JSObject} from a \mySCName{jsval} that contains a boolean value, the behaviour of the code is undefined and will probably lead to a run-time failure like a crash. Thus type checking and error handling play an important role and are explained in further detail in \myRefSection{sec:ErrorHandling}.\\
 \myProperName{Spidermonkey} also provides utility functions for automatic conversion of types according to the \myProperName{ECMAScript} standard. If, for example, a boolean is passed to a function that expects a string, the conversion would create a string from the boolean - either \mySCString{true} or \mySCString{false}. These conversion functions are less performant, but allow for a greater range of input values without reporting errors. It has to be said though, that automatic conversion can lead to unexpected program behaviour in places where the user would expect an error.\\
 Most of the conversion functions take a \mySCName{JSContext} as the parameter.
 
@@ -430,8 +430,9 @@ It is open to debate what should happen if a wrong parameter type is passed for 
 The wrapping of custom types and inheritance hierarchies comes with a lot of possible pitfalls.\\
 \myProperName{C++} classes can be best mapped to \myProperName{JavaScript} constructor functions, as explained in \myRefSection{sec:JSClasses}. \myProperName{SpiderMonkey} provides the structure \mySCName{JSClass} and the function \mySCName{JS\_InitClass} for performing this task.
 
-A \mySCName{JSClass} object contains the name of a class, some flags and a set of \mySlang{hooks} - functions that are called by the \myProperName{JavaScript} engine on specific events. One of these \mySlang{hooks} is the finalize operation, which will be called when a \mySCName{JSObject}, that was created from this class, is garbage collected. The most important flag to set on the \mySCName{JSClass} is \mySCName{JSCLASS\_HAS\_PRIVATE}, which allows the objects created from the class to have a private data field. This field of type \mySCName{void*} will be used to store the instances of a wrapped \myProperName{C++} class.\\
-\mySCName{JS\_InitClass} creates a prototype \mySCName{JSObject} from a given \mySCName{JSClass} and defines functions and properties on it. It defines the \myProperName{JavaScript} constructor function for the wrapped class on the given scope object. It takes a constructor \mySCName{JSNative}, which will be called, when instances are created in script via \mySCName{new}. The constructor usually creates an instance of the wrapped \myProperName{C++} class and saves it as the private data.
+A \mySCName{JSClass} object contains the name of a class, some flags and a set of \mySlang{hooks} - functions that are called by the \myProperName{JavaScript} engine on specific events. One of these \mySlang{hooks} is the finalize operation. This will be called, when a \mySCName{JSObject}, that was created from this class, is garbage collected.\\
+The most important flag to set on the \mySCName{JSClass} is \mySCName{JSCLASS\_HAS\_PRIVATE}. Setting this flag allows the objects created from the class to have a private data field. This field of type \mySCName{void*} will be used to store the instances of a wrapped \myProperName{C++} class.\\
+The function \mySCName{JS\_InitClass} creates a prototype \mySCName{JSObject} from a given \mySCName{JSClass} and defines functions and properties on it. It defines the \myProperName{JavaScript} constructor function for the wrapped class on the given scope object. It takes a constructor \mySCName{JSNative}, which will be called, when instances are created in script via \mySCName{new}. This constructor usually creates an instance of the wrapped \myProperName{C++} class and saves it as the private data.
 
 \SingleSpacing
 \begin{lstlisting}[language=C++, caption=Initializing a class, label=lst:InitClass]
@@ -510,7 +511,7 @@ Another possible way of type checking is to save the type information along with
 
 \subsection{Constructors}
 
-As a constructor is just a \mySCName{JSNative}, parameters can be passed to it like to any other function. As explained in \myRefSection{sec:OverloadedFunctions}, the correct constructor implementation for creating the \myProperName{C++} instance can be chosen based on the number and types of arguments.
+Because a constructor is just a \mySCName{JSNative}, \myProperName{JavaScript} parameters are passed to it like to any other wrapped function. As explained in \myRefSection{sec:OverloadedFunctions}, the correct constructor implementation for creating the \myProperName{C++} instance can be chosen based on the number and types of arguments.
 
 As can be seen in \myRefListing{lst:InitClass}, the constructor's task is to create a \mySCName{JSObject} instance that will be returned. The created \myProperName{C++} instance will be stored as the private data of the \mySCName{JSObject}.
 
@@ -611,7 +612,7 @@ Accessor properties can be defined by passing them to \mySCName{JS\_InitClass} o
 \subsubsection{Value properties}
 \label{sec:ValueProperties}
 
-Non-primitive non-settable fields can be stored as value properties. This refers to struct/class instances that are completely stored inside a class and only have a getter function. This also applies to pointers that are guaranteed to not be replaced.
+Non-primitive non-settable fields can be stored as value properties. Struct or class instances that are completely stored inside a class and only have a getter function fall into this category. This also applies to pointers that are guaranteed to not be replaced.
 
 \SingleSpacing
 \begin{lstlisting}[language=C++, caption=Fields usable for value properties]
@@ -628,7 +629,7 @@ class ClassA
 \end{lstlisting}
 \OnehalfSpacing
 
-When creating a value property, the field's actual value (e.g. the \mySCName{ClassB} instance) is wrapped into a \mySCName{JSObject} and defined as a property on the \mySCName{JSObject} that wraps the \mySCName{ClassA} instance. After property definition, the \mySCName{ClassA} instance is not used anymore for accessing the field. That is why the field needs to be non-replaceable. If the field's value could be replaced, the \myProperName{JavaScript} property would still refer to the old instance.
+When creating a value property, the field's actual value (e.g. the \mySCName{ClassB} instance) is wrapped into a \mySCName{JSObject}. This is then defined as a property on the \mySCName{JSObject} that wraps the \mySCName{ClassA} instance. After property definition, the \mySCName{ClassA} instance is not used anymore for accessing the field. That is why the field needs to be non-replaceable. If the field's value could be replaced, the \myProperName{JavaScript} property would still refer to the old instance.
 
 In contrast to functions and accessor properties, value properties for non-static members are defined on the instance-wrapping \mySCName{JSObject} and not on the prototype. Thus \mySCName{JS\_DefineProperty} needs to be called, wherever the according \mySCName{JSObject} is created - for example in the constructor or a function that wraps an existing instance.
 
@@ -650,9 +651,9 @@ if(!JS_DefineProperty(context,
 \end{lstlisting}
 \OnehalfSpacing
 
-Value properties can also be defined lazily with the help of the \mySCName{JSClass}'s resolve hook, which is called when a property is not found on an object.
+Value properties can also be defined lazily with the help of the \mySCName{JSClass}'s resolve hook. The resolve hook is called, when a property is not found on an object.
 
-As type checking is only performed when defining the property and the holding instance (of \mySCName{ClassA}) is not needed afterwards, access to value properties has better performance than using accessor properties.
+Because type checking is only performed when defining the property and the holding instance (of \mySCName{ClassA}) is not needed afterwards, access to value properties has better performance than using accessor properties.
 
 \subsection{Static members}
 
