@@ -99,7 +99,7 @@ obj1.sayHello.call(obj3); // --> "Hello, I am Ringo"
 \subsection{Inheritance}
 \label{sec:JSInheritance}
 
-The prototypical inheritance mechanism used in \myProperName{JavaScript} vastly differs from class-based inheritance known from \myProperName{C++} and \myProperName{Java}. In a class-based inheritance the class defines a design contract that created instances adhere to.\\
+The prototypical inheritance mechanism used in \myProperName{JavaScript} differs vastly from the class-based inheritance already known from \myProperName{C++} and \myProperName{Java}. In a class-based inheritance the class defines a design contract that created instances adhere to.\\
 \myProperName{JavaScript} uses prototypes instead. A prototype object is a normal \myProperName{JavaScript} object, from which other objects inherit properties. When \myProperName{JavaScript} looks up a property of an object, the object is checked if it does have an own property with the name. If not, its prototype is checked for the property. If this doesn't have it either, the prototype's prototype is checked and so on up its hierarchy. This hierarchy is called the prototype chain.\\
 The prototype of an object is saved as an internal property ([[Prototype]]) that can not be set after object creation and can only be accessed using \linebreak\mySCName{Object.getPrototypeOf(anObject)}. Some implementations add the non-standard \linebreak\mySCName{\_\_proto\_\_} property for accessing the prototype.\\
 If a property with the same name exists on an object that has a prototype, then it shadows the prototype's property.
