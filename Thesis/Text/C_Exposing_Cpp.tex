@@ -309,7 +309,7 @@ To handle \mySCName{std::string}, its \mySCName{c\_str} method needs to be used 
 As \mySCName{jschar} is UTF-16, \mySCName{JSString}s can be created from and converted to 16-bit unicode strings.\\
 \mySCName{JS\_NewUCStringCopyZ} creates a \mySCName{JSString} from an array of \mySCName{jschar}s, whereas \linebreak\mySCName{JS\_GetStringCharsZ} returns an array of \mySCName{jschar}s from a \mySCName{JSString}.
 
-The \myProperName{JSAPI} user has to do the conversion from his unicode character type to \mySCName{jschar} and verse visa.\\
+The \myProperName{JSAPI} user has to do the conversion from his unicode character type to \mySCName{jschar} and vice versa.\\
 \myProperName{C++}'s wide character type \mySCName{wchar\_t} is not well suited for this task, as its size is compiler-specific. It is allowed to be at least 8 bit. On \myProperName{VC++} it is 16 bit, on GCC even 32 bit.\\
 \myProperName{C++11} introduces new character types for unicode characters: \mySCName{char16\_t} and \mySCName{char32\_t}. Having a fixed width, \mySCName{char16\_t} should be the same as a \mySCName{jschar} on all platforms and thus be best suited for conversion between unicode strings and \mySCName{JSString}.
 

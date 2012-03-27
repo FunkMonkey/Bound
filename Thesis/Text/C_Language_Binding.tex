@@ -1,15 +1,15 @@
 \chapter{Language Binding}
 \label{chap:LanguageBinding}
 
-The term \textbf{language binding} refers to the process of establishing a bridge between two programming languages. This allows functionality written in one programming language to be used from within the other and verse visa. With language binding, \myProperName{C++} functions can be exposed to \myProperName{Python} or other scripting languages. Language binding deals with the communication between code written in different programming languages within a single application.
+The term \textbf{language binding} refers to the process of establishing a bridge between two programming languages. This allows functionality written in one programming language to be used from within the other and vice versa. With language binding, \myProperName{C++} functions can be exposed to \myProperName{Python} or other scripting languages. Language binding deals with the communication between code written in different programming languages within a single application.
 
-The need to combine different programming languages and to exchange information between those may arise due to several reasons. A specific language may support a different set of programming paradigms and thus be better suited for solving a certain group of tasks. A project may also rely on a 3rd party library written in another language. In general, software-reuse is a common reason for binding multiple languages together.
+The need to combine different programming languages and to exchange information between those may arise due to several reasons. A specific language may support a different set of programming paradigms and thus be better suited for solving a certain group of tasks. A project may also rely on a 3rd party library written in another language. In general, software reuse is a common reason for binding multiple languages together.
 
-Often, language binding is needed to connect a higher-level programming language (e.g. a scripting language like \myProperName{Python}) with a lower-level programming language (e.g. a system programming language like \myProperName{C}).
+Often, language binding is needed to connect a higher-level programming \linebreak language (e.g. a scripting language like \myProperName{Python}) with a lower-level programming language (e.g. a system programming language like \myProperName{C}).
 
 \section{System programming languages and scripting languages}
 
-According to \myAuthorName{John Ousterhout}, the creator of the programming language \myProperName{TCL}, the terms \textbf{\mySlang{low(er)-level}} and \textbf{\mySlang{high(er)-level}} refer to the degree of abstraction a programming language provides in comparison to another language. Higher-level languages encapsulate more machine instructions per statement and therefore usually need less code to be written to perform a given task. They handle machine-oriented details like register allocation automatically, while omitting complexity. This leads to better code-maintainability and faster development at the cost of performance.\footnote{\citep{Ousterhout}}
+According to \myAuthorName{John Ousterhout}, the creator of the programming language \myProperName{TCL}, the terms \textbf{\mySlang{low(er)-level}} and \textbf{\mySlang{high(er)-level}} refer to the degree of abstraction a programming language provides in comparison to another language. Higher-level languages encapsulate more machine instructions per statement and therefore usually need less code to be written to perform a given task. They handle machine-oriented details like register allocation automatically, while omitting complexity. This leads to better code maintainability and faster development at the cost of performance.\footnote{\citep{Ousterhout}}
 
 \myAuthorName{Ousterhout} describes a \textbf{system programming language} as a strongly (statically) typed language that is designed to create applications from scratch. It is, however, offering a higher level of abstraction in doing so compared to assembly programming languages, which are considered very low-level. \myProperName{C}, \myProperName{C++} and \myProperName{Pascal} are popular examples of system programming languages.
 
@@ -72,16 +72,16 @@ The code written to bind both languages together is often referred to as \textbf
 \textbf{Dynamic foreign interfaces} are created at run-time. This can be done in two ways:
 \begin{itemize}
 \item writing glue code in the system programming language using the scripting language's API in conjunction with \textbf{dynamic method invocation}
-\item writing glue code in the scripting language itself using the scripting language's dynamic \textbf{foreign \underline{function} interface} (FFI)
+\item writing glue code in the scripting language itself using the scripting language's dynamic \textbf{foreign \textit{function} interface} (FFI)
 \end{itemize}
 
-Because the terminology concerning foreign \underline{function} interfaces (FFIs) can be somewhat confusing, I decided to use the following definition for this thesis:
+Because the terminology concerning foreign function interfaces (FFIs) can be somewhat confusing, I decided to use the following definition for this thesis:
 
 \begin{quotation}
 ``A foreign function interface is originally a lisp [sic] term for dynamically defining and calling functions in outside shared libraries ('foreign function', 'call-out') and as additional option also creating functions which can be called from outside functions ('callback', 'foreign-callable', 'call-in').''\footnote{\citep{DesignFFI}}
 \end{quotation}
 
-To express the dynamic nature of the given definition, the term ``\textbf{dynamic} foreign \underline{function} interface'' will be used in this thesis.
+To express the dynamic nature of the given definition, the term ``\textbf{dynamic} foreign function interface'' will be used in this thesis.
 
 The different ways of creating foreign interfaces will be explained in greater detail in the following sections.
 
