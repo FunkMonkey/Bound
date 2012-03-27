@@ -87,7 +87,7 @@ For easier maintenance, application logic and GUI logic are separated. All modul
 \subsection{Meta data}
 \label{sec:MetaData}
 
-A meta data system has been developed to equip \myProperName{JavaScript} objects (and ''classes'') with additional information that can be used for dynamic GUI element creation and serialization/deserialization.
+A meta data system has been developed to equip \myProperName{JavaScript} objects (and ``classes'') with additional information that can be used for dynamic GUI element creation and serialization/deserialization.
 
 It can be used after importing the \mySCName{MetaData} module.
 
@@ -335,6 +335,19 @@ The content of the files will be assembled from the glue code and includes infor
 
 The result of \mySCName{getExportFiles} is a map of filenames with their according source code.
 
+\mySCName{getExportFiles} is generally called with the code generator result of the root export object and will at least create two files (\mySCString{ProjectName.hpp} and \mySCString{ProjectName.cpp}).\\
+These files have to be added to the \myProperName{C++} project that runs the \myProperName{JavaScript} interpreter. The \mySCName{init} function of the project has to be called to make the wrapped functions and classes known to the virtual machine:
+
+\SingleSpacing
+\begin{lstlisting}[language=C++, caption=Initializing the wrapped elements]
+#include <ProjectName.hpp>
+
+// somewhere after creating the JSRuntime and a JSContext
+if(!jswrap::ProjectName::init(context, globalJSObject))
+	// error handling
+\end{lstlisting}
+\OnehalfSpacing
+
 \section{The project}
 \label{sec:Project}
 
@@ -342,7 +355,7 @@ All project-related information is stored in a \mySCName{Project} object. The pr
 
 \subsection{Saving}
 
-A project is saved to two files: On the one hand there is the project file, which contains the \mySCName{Export\_AST} and other project settings in \myProperName{JSON}. The other file contains the \myProperName{JSON} of the \myProperName{C++} AST just as it was retrieved from \myProperName{CPPAnalyzer}.
+A project is saved to two files: On the one hand there is the project file, which contains the \mySCName{Export\_AST} and other project settings in \myProperName{JSON}. The other file contains the \myProperName{JSON} of the \myProperName{C++} AST just as it was retrieved from \myProperName{CPPAnalyzer}. Saving the \myProperName{C++} AST eliminates the need to reparse and allows editing the project on a different computer on which the original source code files do not exist.
 
 For saving the \mySCName{Export\_AST}, its \mySCName{toSaveObject} function is called The function returns a JSON-compatible object, which can then be serialized for saving using \mySCName{JSON.stringify}. \mySCName{toSaveObject} does nothing, but calling the \mySCName{toSaveObject} functions of the root \linebreak\mySCName{Export\_ASTObject} (for saving all nodes) and the code generator plugins and stores the results in the \mySlang{save object} that it returns.\\
 Upon saving, a \mySCName{Export\_ASTObject} needs to store the reference to its \mySCName{sourceObject} in a way that it can be retrieved again when loading. This is done by saving the \mySCName{CPP\_ASTObject}'s USR as an id. The export object also stores the save objects for all its children (thus saving recursively) and its own entity code generators associated with their \mySCName{context}. All of these different \myProperName{JavaScript} objects have their own \mySCName{toSaveObject} functions.

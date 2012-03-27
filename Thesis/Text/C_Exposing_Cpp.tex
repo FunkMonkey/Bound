@@ -657,7 +657,7 @@ Because type checking is only performed when defining the property and the holdi
 
 \subsection{Static members}
 
-Static data members and functions are wrapped similar to fields and functions. As they are static, they make no use of the \mySCName{this} object. When calling \mySCName{JS\_InitClass}, static properties and functions can be passed. \myProperName{JavaScript} has no real concept of static members as there is no distinction between classes and instances. When declaring ''static'' properties using \mySCName{JS\_InitClass}, these are simply defined on the created constructor function, so access to static members looks similar to \myProperName{C++}. Contrary to \myProperName{C++}, it is not possible to access a static member from within an instance using \mySCName{this} - static members always have to be accessed using the constructor function object.
+Static data members and functions are wrapped similar to fields and functions. As they are static, they make no use of the \mySCName{this} object. When calling \mySCName{JS\_InitClass}, static properties and functions can be passed. \myProperName{JavaScript} has no real concept of static members as there is no distinction between classes and instances. When declaring ``static'' properties using \mySCName{JS\_InitClass}, these are simply defined on the created constructor function, so access to static members looks similar to \myProperName{C++}. Contrary to \myProperName{C++}, it is not possible to access a static member from within an instance using \mySCName{this} - static members always have to be accessed using the constructor function object.
 
 \subsection{Inheritance}
 

@@ -52,14 +52,14 @@ It is important to understand that static binding is only possible in programmin
 \section{The process of binding languages}
 
 \begin{quotation}
-''Binding one language to another is a non-trivial task. The binding language needs to understand the calling conventions, type system, data structures, memory allocation mechanisms and linking strategy of the target language, just to get things working. The task is to carefully align the semantics of both languages, so that both languages can understand the data that passes between them.''\footnote{\citep{RealWorldHaskell}}
+``Binding one language to another is a non-trivial task. The binding language needs to understand the calling conventions, type system, data structures, memory allocation mechanisms and linking strategy of the target language, just to get things working. The task is to carefully align the semantics of both languages, so that both languages can understand the data that passes between them.''\footnote{\citep{RealWorldHaskell}}
 \end{quotation}
 
 When binding a scripting language to a system programming language, the scripting language usually comes in form of a shared library. The library's API can be used by the system programming language to interact with the scripting language.\\
 The code written to bind both languages together is often referred to as \textbf{glue code} or \textbf{foreign interface}. The process of creating such code is called \textbf{wrapping}.
 
 \begin{quotation}
-''A foreign interface is a piece of glue code, intended to make it possible to use functionality written in one language (often C) available to programs written in another (usually high-level) language. Such glue code involves low-level details that users of high-level languages usually take for granted. For example:
+``A foreign interface is a piece of glue code, intended to make it possible to use functionality written in one language (often C) available to programs written in another (usually high-level) language. Such glue code involves low-level details that users of high-level languages usually take for granted. For example:
 \begin{itemize}
 \item marshalling objects to and from foreign code,
 \item managing memory and other resources,
@@ -78,10 +78,10 @@ The code written to bind both languages together is often referred to as \textbf
 Because the terminology concerning foreign \underline{function} interfaces (FFIs) can be somewhat confusing, I decided to use the following definition for this thesis:
 
 \begin{quotation}
-''A foreign function interface is originally a lisp [sic] term for dynamically defining and calling functions in outside shared libraries ('foreign function', 'call-out') and as additional option also creating functions which can be called from outside functions ('callback', 'foreign-callable', 'call-in').''\footnote{\citep{DesignFFI}}
+``A foreign function interface is originally a lisp [sic] term for dynamically defining and calling functions in outside shared libraries ('foreign function', 'call-out') and as additional option also creating functions which can be called from outside functions ('callback', 'foreign-callable', 'call-in').''\footnote{\citep{DesignFFI}}
 \end{quotation}
 
-To express the dynamic nature of the given definition, the term ''\textbf{dynamic} foreign \underline{function} interface'' will be used in this thesis.
+To express the dynamic nature of the given definition, the term ``\textbf{dynamic} foreign \underline{function} interface'' will be used in this thesis.
 
 The different ways of creating foreign interfaces will be explained in greater detail in the following sections.
 
@@ -185,7 +185,7 @@ Because the need for bridging different programming languages arises in many pro
 \label{sec:ComponentModels}
 
 \begin{quotation}
-''Component-based software engineering is a reuse-based approach to defining, implementing and composing loosely coupled independent components into systems.''\footnote{\citep[460]{Sommerville}}
+``Component-based software engineering is a reuse-based approach to defining, implementing and composing loosely coupled independent components into systems.''\footnote{\citep[460]{Sommerville}}
 \end{quotation}
 
 A software component itself is an independent piece of software that encapsulates discrete functionality into a reusable entity\footnote{\citep[3]{ComponentTechnology}}, which is to be used in composition with other components.
@@ -199,7 +199,7 @@ These component models are language-agnostic, meaning that components can be wri
 \subsubsection{Interfaces}
 
 \begin{quotation}
-''The services offered by a component are made available through an interface, and all interactions are through that interface.''\footnote{\citep[444]{Sommerville}}
+``The services offered by a component are made available through an interface, and all interactions are through that interface.''\footnote{\citep[444]{Sommerville}}
 \end{quotation}
 
 \myProperName{CORBA}, \myProperName{COM} and \myProperName{XPCOM} are strictly separating interfaces and implementations. The same interface can be implemented by multiple classes and a class can also implement multiple interfaces.
@@ -231,7 +231,7 @@ Component models like \myProperName{COM} and \myProperName{CORBA} do provide oth
 \subsection{\myProperName{SWIG}}
 
 \begin{quotation}
-''SWIG is an interface compiler that connects programs written in C and C++ with scripting languages such as Perl, Python, Ruby, and Tcl. It works by taking the declarations found in C/C++ header files and using them to generate the wrapper code that scripting languages need to access the underlying C/C++ code. In addition, SWIG provides a variety of customization features that let you tailor the wrapping process to suit your application.''\footnote{\citep{SWIGHPExec}}
+``SWIG is an interface compiler that connects programs written in C and C++ with scripting languages such as Perl, Python, Ruby, and Tcl. It works by taking the declarations found in C/C++ header files and using them to generate the wrapper code that scripting languages need to access the underlying C/C++ code. In addition, SWIG provides a variety of customization features that let you tailor the wrapping process to suit your application.''\footnote{\citep{SWIGHPExec}}
 \end{quotation}
 
 \myLBHighlight{Thus \myProperName{SWIG} serves the exact same purpose as the application developed in this thesis.}
