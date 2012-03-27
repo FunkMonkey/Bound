@@ -18,6 +18,7 @@ Components.utils.import("chrome://bound/content/modules/Utils/MetaDataHandler.js
 Components.utils.import("chrome://bound/content/modules/Utils/Extension.jsm");
 Components.utils.import("chrome://bound/content/modules/Utils/ForwardProxy.jsm");
 Components.utils.import("chrome://bound/content/modules/Utils/DOMHelper.jsm");
+Components.utils.import("chrome://bound/content/modules/Utils/ExceptionHandling.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 
 
@@ -46,7 +47,7 @@ function initExportTree(mainWindowModule)
 	$exportTree.addEventListener("dragenter", $exportTree._checkDrag);
 	$exportTree.addEventListener("drop", $exportTree._onDrop);
 	$exportTree.addEventListener("click", $exportTree._onClick);
-	$exportTree.addEventListener("select", $exportTree._onSelect);
+	$exportTree.addEventListener("select", wrapWithTryAndCatch($exportTree._onSelect, Bound.errorCallback));
 	$exportTree.addEventListener("keypress", $exportTree._onKeyUp);
 	
 	$exportTree.$dropMenuPopup = DOMHelper.createDOMNodeOn($exportTree, "menupopup");
@@ -59,7 +60,7 @@ var ExportTreePrototype = {
 	_proxySet: function _proxySet(receiver, name, val) {
 		
 		this.obj[name] = val;
-		if(name === "name")
+		if(name === "name" && this.obj._exportTreeRow)
 			this.obj._exportTreeRow.invalidate();
 			
 		return true;
@@ -107,17 +108,39 @@ var ExportTreePrototype = {
 		//this.$exportASTTree.focus();
 		if(this.selection.length > 0)
 		{
-			var proxyHandler = new ForwardProxyHandler(this.selection[0].data);
-			proxyHandler.set = this._proxySet;
-			var proxy = Proxy.create(proxyHandler, Object.getPrototypeOf(proxyHandler.obj));
-			var handler = new MetaDataHandler(proxy);
-			handler.handleException = this._metaHandleException;
-			handler.getPropertyDataHandler = this._metaGetPropertyDataHandler;
-			MainWindow.PropertyExplorer.setDataHandler(handler);
-			
-			MainWindow.PropertyExplorer.$label.value = "Inspecting: " + this.selection[0].data.name;
+			this.inspectExportObject(this.selection[0].data);
 		}
 	},
+	
+	/**
+	 * Inspects the given AST object
+	 * 
+	 * @param   {Export_ASTObject}   exportObject   Description
+	 */
+	inspectExportObject: function inspectExportObject(exportObject)
+	{
+		var proxyHandler = new ForwardProxyHandler(exportObject);
+		proxyHandler.set = this._proxySet;
+		var proxy = Proxy.create(proxyHandler, Object.getPrototypeOf(proxyHandler.obj));
+		var handler = new MetaDataHandler(proxy);
+		handler.handleException = this._metaHandleException;
+		handler.getPropertyDataHandler = this._metaGetPropertyDataHandler;
+		MainWindow.PropertyExplorer.setDataHandler(handler);
+		
+		MainWindow.PropertyExplorer.$label.value = "Inspecting: " + exportObject.name;
+		MainWindow.ResultTabbox.displayCodeGenResult(exportObject);
+	}, 
+	
+	
+	/**
+	 * Shows the root node in the property explorer
+	 */
+	editRoot: function editRoot()
+	{
+		this.clearSelection();
+		this.inspectExportObject(this.exportAST.root);
+	}, 
+	
 	
 	/**
 	 * Called when a key goes up
@@ -248,6 +271,7 @@ var ExportTreePrototype = {
 		}
 	},
 	
+	
 	/**
 	 * Summary
 	 * 
@@ -321,7 +345,25 @@ var ExportTreePrototype = {
 			funcArray[i]();
 	}, 
 	
+	/**
+	 * Creates a new object on the current selection
+	 * 
+	 * @returns {Export_ASTObject}   Newly created object
+	 */
+	createNewObject: function createNewObject()
+	{
+		
+	},
 	
+	/**
+	 * Creates a new object based on the CPP AST node on the given row
+	 * 
+	 * @returns {Export_ASTObject}   Newly created object
+	 */
+	/*createNewObjectOn: function createNewObject(parent row)
+	{
+		
+	},*/
 	
 	/**
 	 * Drops the given data as a child row
@@ -330,15 +372,15 @@ var ExportTreePrototype = {
 	 * @param   {Object}         dropInfo         All relevent drop data
 	 * 
 	 */
-	_dropAddAsChild: function _dropAddAsChild(data, dropInfo)
+	_dropAddAsChild: function _dropAddAsChild(srcCPPASTObject, dropInfo)
 	{
 		try
 		{
-			var codeGenConstructor = dropInfo.contextPlugin.getCodeGeneratorByASTObject(data, dropInfo.exportParent);
+			var codeGenConstructor = dropInfo.contextPlugin.getCodeGeneratorByASTObject(srcCPPASTObject, dropInfo.exportParent);
 					
 			if(codeGenConstructor)
 			{
-				var exportASTObject = new Export_ASTObject(dropInfo.exportParent, data.name, data);
+				var exportASTObject = new Export_ASTObject(dropInfo.exportParent, srcCPPASTObject.name, srcCPPASTObject);
 				dropInfo.exportParent.addChild(exportASTObject);
 				exportASTObject.addCodeGenerator(new codeGenConstructor(dropInfo.contextPlugin));
 				var $newRow = this.createAndAppendRow(dropInfo.$parentRow, false, exportASTObject);
@@ -408,7 +450,7 @@ var ExportTreePrototype = {
 	{
 		if(this.selection.length > 0)
 		{
-			MainWindow.ResultTabbox.displayCodeGenResult(this.selection[0].data);
+			//MainWindow.ResultTabbox.displayCodeGenResult(this.selection[0].data);
 		}
 	}
 	

@@ -31,6 +31,7 @@
 			<toolbarbutton id="btnSaveProject" label="Save Project" oncommand="saveProject();"></toolbarbutton>
 			<toolbarbutton id="btnReparse" label="Reparse C++" oncommand="reparseCurrentProject();"></toolbarbutton>
 			<toolbarbutton id="btnExport" label="Export" oncommand="exportFiles();"></toolbarbutton>
+			<toolbarbutton id="btnEditExportRoot" label="Edit root" oncommand="MainWindow.ExportTree.editRoot()"></toolbarbutton>
 		</toolbar>
 	</toolbox>
 	

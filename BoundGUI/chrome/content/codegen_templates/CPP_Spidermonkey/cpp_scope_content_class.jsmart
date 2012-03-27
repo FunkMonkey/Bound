@@ -68,7 +68,7 @@
 		jsPrototype = JS_InitClass(cx, scope, 
 
 			// parent proto
-			NULL, 
+			{if $baseTypeLib}{$baseTypeLib.jsPrototype}{else}NULL{/if}, 
 
 			&jsClass,
 

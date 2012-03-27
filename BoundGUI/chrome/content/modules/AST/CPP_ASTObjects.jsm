@@ -745,7 +745,53 @@ CPP_ASTObject_Struct.prototype = {
 	addBase: function addBase(baseObject, access)
 	{
 		this.bases.push(new CPP_Base(baseObject, access));
+	},
+	
+	/**
+	 * Checks if this struct/class is a subclass of the given parent
+	 * 
+	 * @param   {CPP_ASTObject_Struct}   parent   Parent to check
+	 * 
+	 * @returns {boolean}   True if subclass, otherwise false
+	 */
+	isSubclassOf: function isSubclassOf(parent)
+	{
+		for(var i = 0, len = this.bases.length; i < len; ++i)
+		{
+			if(this.bases[i].base === parent)
+				return true;
+		}
+		
+		for(var i = 0, len = this.bases.length; i < len; ++i)
+		{
+			if(this.bases[i].base.isSubClassOf(parent))
+				return true;
+		}
+		
+		return false;
+	},
+	
+	/**
+	 * Checks if the given member belongs to the struct or one of its baseclasses
+	 * 
+	 * @param   {CPP_ASTObject}   member   Member node to check
+	 * 
+	 * @returns {boolean}   True if it belongs, otherwise false
+	 */
+	hasMember: function hasMember(member)
+	{
+		if(member.parent === this)
+			return true;
+		
+		for(var i = 0, len = this.bases.length; i < len; ++i)
+		{
+			if(this.bases[i].base === member.parent)
+				return true;
+		}
+		
+		return false;
 	}, 
+	
 	
 };
 
@@ -960,7 +1006,7 @@ function CPP_ASTObject_Member_Function(parent, name, id, usr)
 
 CPP_ASTObject_Member_Function.prototype = {
 	constructor: CPP_ASTObject_Member_Function,
-	kind: ASTObject.KIND_MEMBER_FUNCTION,
+	kind: ASTObject.KIND_MEMBER_FUNCTION,	
 };
 
 Extension.inherit(CPP_ASTObject_Member_Function, CPP_ASTObject_Function);

@@ -16,6 +16,15 @@ Components.utils.import("chrome://bound/content/modules/AST/Export_ASTObjects.js
 
 Components.utils.import("chrome://bound/content/modules/Project/Project.jsm");
 
+window.onerror = function myErrorHandler(errorMsg, url, lineNumber)
+{
+	alert("Unexpected error!\n\n" + errorMsg + "\n\n" + url + ": " + lineNumber);
+	log("fool");
+
+  return false;
+}
+
+
 function exportFiles()
 {
 	const nsIFilePicker = Components.interfaces.nsIFilePicker;
@@ -132,7 +141,7 @@ function reparseCurrentProject()
 
 function init()
 {
-	Bound.init(MainWindow);
+	Bound.init(MainWindow, window);
 	
 	var projectOptions = Bound.currentProject.options;
 	

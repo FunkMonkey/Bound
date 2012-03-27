@@ -4,6 +4,7 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
 const Cu = Components.utils;
 
+Components.utils.import("chrome://bound/content/modules/log.jsm");
 Components.utils.import("chrome://bound/content/modules/CPPAnalyzer.jsm");
 Components.utils.import("chrome://bound/content/modules/Project/Project.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
@@ -16,11 +17,12 @@ var Bound = {
 	 * 
 	 * @param   {Object}   mainWindowModule   Main-window JSM
 	 */
-	init: function init(mainWindow)
+	init: function init(mainWindow, window)
 	{
 		CPPAnalyzer.init();
 		this.MainWindow = mainWindow;
 		this.currentContext = "CPP_Spidermonkey";
+		this.window = window;
 		
 		this.currentProject = new Project();
 		var projOptions = this.currentProject.options;
@@ -53,6 +55,29 @@ var Bound = {
 		var quitSeverity = aForceQuit ? Ci.nsIAppStartup.eForceQuit : Ci.nsIAppStartup.eAttemptQuit;
 		appStartup.quit(quitSeverity);
 	},
+	
+	/**
+	 * Generic error handler called for specially wrapped functions
+	 * 
+	 * @param   {Error}      e         Error caught
+	 * @param   {Function}   wrapped   Wrapped function
+	 * @param   {Object}     theThis   Context
+	 * @param   {Array}      args      Argumetns passed
+	 * 
+	 * @returns {boolean}   True if handled, false if rethrown
+	 */
+	errorCallback: function errorCallback(e, wrapped, theThis, args)
+	{
+		log("called on error")
+		
+		if(typeof e === "object" && e)
+			Bound.window.alert("Unexpected error: " + e.message + "\n\n" + e.stack);
+		else
+			Bound.window.alert("Unexpected error: " + e)
+			
+		return false;
+	}, 
+	
 	
 }
 

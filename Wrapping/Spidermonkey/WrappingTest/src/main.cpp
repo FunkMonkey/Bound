@@ -127,7 +127,7 @@ int main(int argc, const char *argv[])
 	
 	//jswrap::Functions_BasicTypes::init(cx, global);
 	//jswrap::wrap_Test::init(cx, global);
-	jswrap::Functions_Strings::init(cx, global);
+	//jswrap::Functions_Strings::init(cx, global);
 	//jswrap::SimpleClass::init(cx, global);
 	//jswrap::UsingSimpleClass::init(cx, global);
 	jswrap::ProjectName::init(cx, global);

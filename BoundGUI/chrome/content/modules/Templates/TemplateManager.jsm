@@ -4,7 +4,7 @@ var EXPORTED_SYMBOLS = ["TemplateManager", "TemplateNotFoundException", "jSmart"
 
 Components.utils.import("chrome://bound/content/modules/log.jsm");
 
-Components.utils.import("chrome://bound/content/modules/Utils/CustomException.jsm");
+Components.utils.import("chrome://bound/content/modules/Utils/ExceptionHandling.jsm");
 Components.utils.import("chrome://bound/content/modules/Templates/jSmart.jsm");
 
 var IOService = Components.classes['@mozilla.org/network/io-service;1'].getService(Components.interfaces["nsIIOService"]);

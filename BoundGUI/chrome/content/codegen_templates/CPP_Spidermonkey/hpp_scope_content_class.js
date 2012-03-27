@@ -14,6 +14,9 @@ function getTypeLibraryInfo(genInput)
 	return {
 		unwrapFunction:       fullNamespace + "::getFromJSValue",
 		wrapInstanceFunction: fullNamespace + "::wrapInstance",
-		wrapCopyFunction :    fullNamespace + "::wrapCopy"
+		wrapCopyFunction :    fullNamespace + "::wrapCopy",
+		jsClass:              fullNamespace + "::jsClass",
+		jsPrototype:          fullNamespace + "::jsPrototype",
+		jsConstructor:        fullNamespace + "::jsConstructor"
 	}
 }

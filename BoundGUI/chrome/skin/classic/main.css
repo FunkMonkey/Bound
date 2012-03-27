@@ -30,6 +30,11 @@
 	list-style-image: url("chrome://bound/skin/Main/Export.png");
 }
 
+#btnEditExportRoot
+{
+	list-style-image: url("chrome://bound/skin/Main/EditExportRoot.png");
+}
+
 #logBoxes
 {
 	height: 10em;

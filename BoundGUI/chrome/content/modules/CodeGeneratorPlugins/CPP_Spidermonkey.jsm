@@ -19,6 +19,20 @@ Components.utils.import("chrome://bound/content/modules/Utils/ObjectHelpers.jsm"
 
 //======================================================================================
 
+var regexJSIdentifier = /^[$A-Z_][0-9A-Z_$]*$/i;
+
+/**
+ * Checks a given string, if it is a valid JavaScript identifier
+ * 
+ * @param   {String}   identifier   Identifier to check
+ * 
+ * @returns {boolean}   True if valid, otherwise false
+ */
+function isValidIdentifier(identifier)
+{
+	return regexJSIdentifier.test(identifier);
+}
+
 /**
  * 
  *
@@ -59,6 +73,14 @@ Plugin_CPP_Spidermonkey.prototype = {
 		"double":              "CPP_Spidermonkey/float_to_jsval",
 		"long double":         "CPP_Spidermonkey/float_to_jsval",
 		
+		"const char *":           "CPP_Spidermonkey/const_char_array_to_jsval",
+		"char *":                 "CPP_Spidermonkey/const_char_array_to_jsval",
+		"::std::string":          "CPP_Spidermonkey/std_string_to_jsval",
+		"const ::std::string *":  "CPP_Spidermonkey/std_string_to_jsval",
+		"const ::std::string &":  "CPP_Spidermonkey/std_string_to_jsval",
+		"::std::string *":        "CPP_Spidermonkey/std_string_to_jsval",
+		"::std::string &":        "CPP_Spidermonkey/std_string_to_jsval",
+		
 		"void":                "CPP_Spidermonkey/void_to_jsval"
 	},
 	
@@ -82,7 +104,15 @@ Plugin_CPP_Spidermonkey.prototype = {
 		"__int128":            "CPP_Spidermonkey/jsval_to_int",
 		"float":               "CPP_Spidermonkey/jsval_to_float",
 		"double":              "CPP_Spidermonkey/jsval_to_float",
-		"long double":         "CPP_Spidermonkey/jsval_to_float"
+		"long double":         "CPP_Spidermonkey/jsval_to_float",
+		
+		"const char *":           "CPP_Spidermonkey/jsval_to_const_char_array",
+		"char *":                 "CPP_Spidermonkey/jsval_to_const_char_array",
+		"::std::string":          "CPP_Spidermonkey/jsval_to_std_string",
+		"const ::std::string *":  "CPP_Spidermonkey/jsval_to_std_string",
+		"const ::std::string &":  "CPP_Spidermonkey/jsval_to_std_string",
+		"::std::string *":        "CPP_Spidermonkey/jsval_to_std_string",
+		"::std::string &":        "CPP_Spidermonkey/jsval_to_std_string",
 	},
 	
 	/**
@@ -379,93 +409,124 @@ CodeGenerator_Function.prototype = {
 		{
 			// Round 2: currently there is no other round, we are in 2 because we may need typelib information
 			case 2:
-				// clean previous data
-				var genInput = this._genInput = { codeGen: this };
-				var diagnosis = this._genInput.diagnosis = new CodeGenDiagnosis();
 				
-				genInput.template = this._getTemplate(this.templateFunction, diagnosis);
-				
-				// checking the name TODO: regex name check
-				genInput.name = this.exportObject.name;
-				
-				// checking the sourceObject
-				var astFunc = this.exportObject.sourceObject
-				if(!astFunc)
+				try
 				{
-					diagnosis.addReport(this._diagnosisReports["NoSourceObject"]);
-				}
-				else
-				{
-					// TODO: check if this is actually a function
+				
+					// clean previous data
+					var genInput = this._genInput = { codeGen: this };
+					var diagnosis = this._genInput.diagnosis = new CodeGenDiagnosis();
 					
-					genInput.isStatic = this.isStatic;
+					genInput.template = this._getTemplate(this.templateFunction, diagnosis);
 					
-					// TODO: check parent for member functions
+					// checking the name
+					genInput.name = this.exportObject.name;
+					if(!isValidIdentifier(genInput.name))
+						diagnosis.addReport({ name: "InvalidIdentifier", message: "The given identifier is not valid", type: "ERROR"});
 					
-					// checking params
-					//genInput.numParams = astFunc.parameters.length;
-					genInput.params = [];
 					
-					for(var i = 0; i < astFunc.parameters.length; ++i)
+					// checking the sourceObject
+					var astFunc = this.exportObject.sourceObject
+					if(!astFunc)
 					{
-						var param = astFunc.parameters[i];
-						var tInfoParam = this.getTypeHandlingTemplate(param.type, LanguageBindingEntityCodeGen.TYPE_FROM_SCRIPT);
-						
-						var paramInput = {
-							name: "p" + i + "__" + param.name,
-							templateInfo: tInfoParam
-						}
-						
-						if(tInfoParam)
-						{
-							paramInput.template = this._getTemplate(tInfoParam.templateName, diagnosis);
-							
-							// check restrictions
-							if(tInfoParam.typeLib && !tInfoParam.typeLib.allowUnwrapping)
-								diagnosis.addReport({ name: "ParamTypeRestriction", message: "Parameter type does not allow unwrapping: " + param.name, type: "ERROR"});
-						}
-						else
-							diagnosis.addReport({ name: "ResolvingParamTemplate", message: "Could not resolve parameter template: " + param.name, type: "ERROR"});
-						
-						genInput.params.push(paramInput);
+						diagnosis.addReport(this._diagnosisReports["NoSourceObject"]);
 					}
-					
-					// checking return type
-					genInput.returnType = {}
-					var tInfoReturn = this.getTypeHandlingTemplate(astFunc.returnType, LanguageBindingEntityCodeGen.TYPE_TO_SCRIPT);
-					if(tInfoReturn)
+					else if(!(astFunc instanceof CPP_ASTObject_Function))
 					{
-						genInput.returnType.templateInfo = tInfoReturn;
-						genInput.returnType.template = this._getTemplate(tInfoReturn.templateName, diagnosis);
-						
-						// check restrictions
-						if(tInfoReturn.typeLib)
-						{
-							var canonicalType = tInfoReturn.astType.getCanonicalType();
-							if(canonicalType.declaration)
-							{
-								if(!tInfoReturn.typeLib.allowWrappingCopies)
-									diagnosis.addReport({ name: "ReturnTypeRestriction", message: "Return type does not allow wrapping copies", type: "ERROR"});
-							}
-							else if(canonicalType.pointsTo)
-							{
-								if(!tInfoReturn.typeLib.allowWrappingInstances)
-									diagnosis.addReport({ name: "ReturnTypeRestriction", message: "Return type does not allow wrapping instances", type: "ERROR"});
-							}
-						}
+						diagnosis.addReport({ name: "WrongASTObject", message: "ASTObject is not a function", type: "ERROR"});
 					}
 					else
-						diagnosis.addReport({ name: "ResolvingReturnTemplate", message: "Could not resolve return type template", type: "ERROR"});
-					
-					genInput.returnType.isVoid = (astFunc.returnType.kind === "Void");
-					
-					// instance call
-					genInput.isInstanceCall = (astFunc.kind === ASTObject.KIND_MEMBER_FUNCTION && !astFunc.isStatic);
-					genInput.parentQualifier = astFunc.parent.cppLongName;
-					genInput.cppFuncionName = astFunc.name;
-					
-					// include resolution
-					genInput.includeFile = this._getSourceObjectIncludeDirective(diagnosis);
+					{
+						genInput.isStatic = this.isStatic;
+						
+						// check member function specific stuff
+						if(astFunc instanceof CPP_ASTObject_Member_Function && !genInput.isStatic)
+						{
+							if(this.exportObject.parent.sourceObject instanceof CPP_ASTObject_Struct)
+							{
+								if(!this.exportObject.parent.sourceObject.hasMember(astFunc))
+									diagnosis.addReport({ name: "WrongParent", message: "Parent export object wraps other class", type: "ERROR"});
+							}
+							else
+								diagnosis.addReport({ name: "ParentNotClass", message: "Parent export object is not a class", type: "ERROR"});
+						}
+						
+						
+						
+						// TODO: check parent for member functions
+						
+						// checking params
+						//genInput.numParams = astFunc.parameters.length;
+						genInput.params = [];
+						
+						for(var i = 0; i < astFunc.parameters.length; ++i)
+						{
+							var param = astFunc.parameters[i];
+							var tInfoParam = this.getTypeHandlingTemplate(param.type, LanguageBindingEntityCodeGen.TYPE_FROM_SCRIPT);
+							
+							var paramInput = {
+								name: "p" + i + "__" + param.name,
+								templateInfo: tInfoParam
+							}
+							
+							if(tInfoParam)
+							{
+								paramInput.template = this._getTemplate(tInfoParam.templateName, diagnosis);
+								
+								// check restrictions
+								if(tInfoParam.typeLib && !tInfoParam.typeLib.allowUnwrapping)
+									diagnosis.addReport({ name: "ParamTypeRestriction", message: "Parameter type does not allow unwrapping: " + param.name, type: "ERROR"});
+							}
+							else
+								diagnosis.addReport({ name: "ResolvingParamTemplate", message: "Could not resolve parameter template: "  + normalTypePrinter.getAsString(param.type) + " " + param.name, type: "ERROR"});
+							
+							genInput.params.push(paramInput);
+						}
+						
+						// checking return type
+						genInput.returnType = {}
+						var tInfoReturn = this.getTypeHandlingTemplate(astFunc.returnType, LanguageBindingEntityCodeGen.TYPE_TO_SCRIPT);
+						if(tInfoReturn)
+						{
+							genInput.returnType.templateInfo = tInfoReturn;
+							genInput.returnType.template = this._getTemplate(tInfoReturn.templateName, diagnosis);
+							
+							// check restrictions
+							if(tInfoReturn.typeLib)
+							{
+								var canonicalType = tInfoReturn.astType.getCanonicalType();
+								if(canonicalType.declaration)
+								{
+									if(!tInfoReturn.typeLib.allowWrappingCopies)
+										diagnosis.addReport({ name: "ReturnTypeRestriction", message: "Return type does not allow wrapping copies", type: "ERROR"});
+								}
+								else if(canonicalType.pointsTo)
+								{
+									if(!tInfoReturn.typeLib.allowWrappingInstances)
+										diagnosis.addReport({ name: "ReturnTypeRestriction", message: "Return type does not allow wrapping instances", type: "ERROR"});
+								}
+							}
+						}
+						else
+							diagnosis.addReport({ name: "ResolvingReturnTemplate", message: "Could not resolve return type template: " + normalTypePrinter.getAsString(astFunc.returnType), type: "ERROR"});
+						
+						genInput.returnType.isVoid = (astFunc.returnType.kind === "Void");
+						
+						// instance call
+						genInput.isInstanceCall = (astFunc.kind === ASTObject.KIND_MEMBER_FUNCTION && !astFunc.isStatic);
+						genInput.parentQualifier = astFunc.parent.cppLongName;
+						genInput.cppFuncionName = astFunc.name;
+						
+						// include resolution
+						genInput.includeFile = this._getSourceObjectIncludeDirective(diagnosis);
+					}
+				}
+				catch(e)
+				{
+					if(typeof e === "object" && e)
+						diagnosis.addReport({ name: "UnexpectedError", message: e.message + "\n\n" + e.stack, type: "ERROR"});
+					else
+						diagnosis.addReport({ name: "UnexpectedError", message: e, type: "ERROR"});
 				}
 				
 				return !diagnosis.hasErrors;
@@ -658,6 +719,8 @@ function CodeGenerator_Object(plugin)
 	this.hppTemplateNameObject = "CPP_Spidermonkey/hpp_scope_content_object";
 	this.cppTemplateNameObject = "CPP_Spidermonkey/cpp_scope_content_object";
 	
+	this.useBasePrototype = true;
+	
 	this.ownership = "Script";
 	this.allowWrappingInstances = false;
 	this.allowWrappingCopies = false;
@@ -733,6 +796,9 @@ CodeGenerator_Object.prototype = {
 				this._typeLibraryEntry.unwrapFunction       = typeInfoFromTemplate.unwrapFunction;
 				this._typeLibraryEntry.wrapInstanceFunction = typeInfoFromTemplate.wrapInstanceFunction;
 				this._typeLibraryEntry.wrapCopyFunction     = typeInfoFromTemplate.wrapCopyFunction;
+				this._typeLibraryEntry.jsClass              = typeInfoFromTemplate.jsClass;
+				this._typeLibraryEntry.jsPrototype          = typeInfoFromTemplate.jsPrototype;
+				this._typeLibraryEntry.jsConstructor        = typeInfoFromTemplate.jsConstructor;
 				
 				// TODO: customize file ending
 				// TODO: add project_dir
@@ -789,48 +855,70 @@ CodeGenerator_Object.prototype = {
 		{
 			// Round 1: currently there is no other round
 			case 1:
-				// clean previous data
-				var genInput = this._genInput = { codeGen: this };
-				var diagnosis = this._genInput.diagnosis = new CodeGenDiagnosis();
-				
-				var scopeObj = this.exportObject;
-				var sourceObj = this.exportObject.sourceObject;
-				
-				// TODO: check name with regex
-				genInput.name = scopeObj.name;
-				
-				// TODO: check parent
-				
-				// the other stuff
-				genInput.isInline = this.isInline;
-				genInput.nameChain = this.getNameChain();
-				genInput.defineOnParent = (scopeObj.parent == null);
-				
-				if(sourceObj && (sourceObj.kind === ASTObject.KIND_STRUCT || sourceObj.kind === ASTObject.KIND_CLASS))
+				try
 				{
-					genInput.type = "Class";
-					genInput.hppTemplate = this._getTemplate(this.hppTemplateNameClass, diagnosis);
-					genInput.cppTemplate = this._getTemplate(this.cppTemplateNameClass, diagnosis);
-					genInput.cppClassFullName = sourceObj.cppLongName;
+					// clean previous data
+					var genInput = this._genInput = { codeGen: this };
+					var diagnosis = this._genInput.diagnosis = new CodeGenDiagnosis();
 					
-					// validating type library
-					this._updateTypeLibraryEntry(genInput.hppTemplate);
-					if(this._typeLibraryEntry.ownership === "Script")
+					var scopeObj = this.exportObject;
+					var sourceObj = this.exportObject.sourceObject;
+					
+					genInput.name = scopeObj.name;
+					if(!isValidIdentifier(genInput.name))
+						diagnosis.addReport({ name: "InvalidIdentifier", message: "The given identifier is not valid", type: "ERROR"});
+					
+					// TODO: check parent
+					
+					// the other stuff
+					genInput.isInline = this.isInline;
+					genInput.nameChain = this.getNameChain();
+					genInput.defineOnParent = (scopeObj.parent == null);
+					
+					if(sourceObj && (sourceObj.kind === ASTObject.KIND_STRUCT || sourceObj.kind === ASTObject.KIND_CLASS))
 					{
+						genInput.type = "Class";
+						genInput.hppTemplate = this._getTemplate(this.hppTemplateNameClass, diagnosis);
+						genInput.cppTemplate = this._getTemplate(this.cppTemplateNameClass, diagnosis);
+						genInput.cppClassFullName = sourceObj.cppLongName;
+						
+						// validating type library
+						this._updateTypeLibraryEntry(genInput.hppTemplate);
+						if(this._typeLibraryEntry.ownership === "Script")
+						{
+							if(this._typeLibraryEntry.allowWrappingInstances)
+								diagnosis.addReport({ name: "IncompatibleOptions", message: "allowWrappingInstances and ownership 'Script' are incompatible, as they will result in undefined behaviour when rewrapping", type: "ERROR"});
+						}
+						else if(this._typeLibraryEntry.ownership === "Native")
+						{
+							if(this._typeLibraryEntry.allowWrappingCopies)
+								diagnosis.addReport({ name: "IncompatibleOptions", message: "allowWrappingCopies and ownership 'Native' are incompatible, as they will likely result in memory leaks.", type: "ERROR"});
+						}
+						genInput.typeLib = this._typeLibraryEntry;
+						genInput.includeFile = this._getSourceObjectIncludeDirective(diagnosis);
+						
+						if(this.useBasePrototype)
+						{
+							var baseTypeLibs = this.getBaseTypeLibraryEntries(sourceObj);
+							if(baseTypeLibs.length > 0)
+							{
+								genInput.baseTypeLib = baseTypeLibs[0];
+							}
+						}
 					}
-					else if(this._typeLibraryEntry.ownership === "Native")
+					else
 					{
-						if(this._typeLibraryEntry.allowWrappingCopies)
-							diagnosis.addReport({ name: "IncompatibleOptions", message: "allowWrappingCopies and ownership 'Native' are incompatible, as they will likely result in memory leaks.", type: "ERROR"});
+						genInput.type = "Object";
+						genInput.hppTemplate = this._getTemplate(this.hppTemplateNameObject, diagnosis);
+						genInput.cppTemplate = this._getTemplate(this.cppTemplateNameObject, diagnosis);
 					}
-					genInput.typeLib = this._typeLibraryEntry;
-					genInput.includeFile = this._getSourceObjectIncludeDirective(diagnosis);
 				}
-				else
+				catch(e)
 				{
-					genInput.type = "Object";
-					genInput.hppTemplate = this._getTemplate(this.hppTemplateNameObject, diagnosis);
-					genInput.cppTemplate = this._getTemplate(this.cppTemplateNameObject, diagnosis);
+					if(typeof e === "object" && e)
+						diagnosis.addReport({ name: "UnexpectedError", message: e.message + "\n\n" + e.stack, type: "ERROR"});
+					else
+						diagnosis.addReport({ name: "UnexpectedError", message: e, type: "ERROR"});
 				}
 		}
 		
@@ -887,6 +975,7 @@ CodeGenerator_Object.prototype = {
 			nameChain: genInput.nameChain,
 			defineOnParent: genInput.defineOnParent,
 			typeLib: genInput.typeLib,
+			baseTypeLib: genInput.baseTypeLib,
 			cppClassFullName: genInput.cppClassFullName
 		}
 		
@@ -897,7 +986,7 @@ CodeGenerator_Object.prototype = {
 			result.hppIncludes.push(genInput.includeFile);
 		
 		// ------ cpp ------
-		result.wrapper.cppCode = hppTemplateUser.fetch(genInput.cppTemplate, templateData);
+		result.wrapper.cppCode = cppTemplateUser.fetch(genInput.cppTemplate, templateData);
 		result.cppIncludes = Object.keys(cppTemplateUser.aggregateIncludes());
 		
 		// ----- result -----
@@ -948,6 +1037,9 @@ CodeGenerator_Object.prototype = {
 		LoadSaveFromMetaData.loadFrom(this, saveObj);
 	},
 	
+	
+	
+	
 };
 
 Extension.inherit(CodeGenerator_Object, LanguageBindingEntityCodeGen);
@@ -959,6 +1051,7 @@ MetaData.initMetaDataOn(CodeGenerator_Object.prototype)
    .addPropertyData("cppTemplateNameClass", {view: {}, load_save: {}})
    .addPropertyData("hppTemplateNameObject", {view: {}, load_save: {}})
    .addPropertyData("cppTemplateNameObject", {view: {}, load_save: {}})
+   .addPropertyData("useBasePrototype", {view: {}, load_save: {}})
    .addPropertyData("ownership", {type: "dropdown", view: {dropDownValues:{"Script": "Script", "Native": "Native"}}, load_save: {}})
    .addPropertyData("allowWrappingInstances", {view: {}, load_save: {}})
    .addPropertyData("allowWrappingCopies", {view: {}, load_save: {}})

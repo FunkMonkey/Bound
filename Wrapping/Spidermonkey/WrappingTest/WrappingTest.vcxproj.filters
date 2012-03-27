@@ -49,14 +49,9 @@
       <Filter>wrap_example\include</Filter>
     </ClInclude>
     <ClInclude Include="wrap_autogen\include\ProjectName.hpp" />
-    <ClInclude Include="wrap_autogen\include\ProjectName\SimpleClass.hpp" />
-    <ClInclude Include="wrap_autogen\include\ProjectName\UsingSimpleClass.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="wrap_example\src\Functions_BasicTypes_wrap.cpp">
-      <Filter>wrap_example\src</Filter>
-    </ClCompile>
-    <ClCompile Include="wrap_example\src\Functions_Strings_wrap.cpp">
       <Filter>wrap_example\src</Filter>
     </ClCompile>
     <ClCompile Include="wrap_example\src\SimpleClass_wrap.cpp">
@@ -81,7 +76,5 @@
       <Filter>wrap_example\src</Filter>
     </ClCompile>
     <ClCompile Include="wrap_autogen\src\ProjectName.cpp" />
-    <ClCompile Include="wrap_autogen\src\ProjectName\SimpleClass.cpp" />
-    <ClCompile Include="wrap_autogen\src\ProjectName\UsingSimpleClass.cpp" />
   </ItemGroup>
 </Project>

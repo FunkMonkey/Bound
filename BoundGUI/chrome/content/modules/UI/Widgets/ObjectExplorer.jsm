@@ -70,6 +70,11 @@ ObjectExplorer.prototype = {
 		for(var i=0, len = props.length; i < len; ++i)
 		{
 			var propFactory = ObjectExplorerPropertyManager.getPropertyFactory(props[i].type);
+			if(!propFactory)
+			{
+				log("Could not find prop factory for type: " + props[i].type);
+				return;
+			}
 			
 			var $row = null;
 			

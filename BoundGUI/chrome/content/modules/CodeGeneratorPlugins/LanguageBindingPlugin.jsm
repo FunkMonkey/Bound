@@ -357,7 +357,37 @@ LanguageBindingEntityCodeGen.prototype = {
 		
 		
 		return null;
-	}, 	
+	},
+	
+	/**
+	 * Returns the type library entries for the base classes of the given
+	 * ASTObject
+	 * 
+	 * @param   {CPP_ASTObject_Struct}   astObject   ASTObject to get entries for
+	 * @param   [Array]                  entries     (optional) Array to add entries to 
+	 * 
+	 * @returns {Array}   Array of type library entries
+	 */
+	getBaseTypeLibraryEntries: function getBaseTypeLibraryEntries(astObject, entries)
+	{
+		// TODO: check valid type
+		
+		if(!entries)
+			entries = [];
+		
+		for(var i = 0, len = astObject.bases.length; i < len; ++i)
+		{
+			var entry = this.plugin.getTypeLibraryEntry(astObject.bases[i].base.USR);
+			if(entry)
+				entries.push(entry);
+		}
+		
+		// second round: go up the inheritence chain
+		for(var i = 0, len = astObject.bases.length; i < len; ++i)
+			this.getBaseTypeLibraryEntries(astObject.bases[i].base, entries);
+		
+		return entries;
+	}, 
 };
 
 /**
@@ -371,7 +401,6 @@ LanguageBindingEntityCodeGen.prototype = {
  */
 LanguageBindingEntityCodeGen.getCompatibilityInformation = function getCompatibilityInformation(astObject, exportParent)
 {
-	
 }, 
 
 

@@ -9,6 +9,15 @@ function onFetchBefore(data)
 	tShared.createInitCalls(data);
 }
 
+function getIncludes(data)
+{
+	var includes = [];
+	if(data.baseTypeLib)
+		includes.push('#include "' + data.baseTypeLib.includeFile + '"');
+	
+	return includes;
+}
+
 function handleFunctions(data)
 {
 	data.functionsWrapperCode = ''; 
