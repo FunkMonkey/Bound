@@ -16,47 +16,36 @@
     <Filter Include="wrap_example\src">
       <UniqueIdentifier>{daf96d8d-b48e-4906-af0a-bcd4c5988fea}</UniqueIdentifier>
     </Filter>
+    <Filter Include="wrap_autogen">
+      <UniqueIdentifier>{0cbc0876-cf8a-42f7-b3b7-dd0f306b69c1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="wrap_example\include\Functions_BasicTypes_wrap.hpp">
-      <Filter>wrap_example\include</Filter>
-    </ClInclude>
-    <ClInclude Include="wrap_example\include\Functions_Strings_wrap.hpp">
-      <Filter>wrap_example\include</Filter>
-    </ClInclude>
-    <ClInclude Include="wrap_example\include\SimpleClass_wrap.hpp">
-      <Filter>wrap_example\include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Functions_BasicTypes.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Functions_Strings.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\GlobalFunctions.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\SimpleClass.hpp">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\test.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\UsingSimpleClass.hpp">
+    <ClInclude Include="include\Mix.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="wrap_example\include\UsingSimpleClass_wrap.hpp">
-      <Filter>wrap_example\include</Filter>
+    <ClInclude Include="wrap_autogen\include\projectname\classes\sampleclass.hpp">
+      <Filter>wrap_autogen</Filter>
     </ClInclude>
-    <ClInclude Include="wrap_autogen\include\ProjectName.hpp" />
+    <ClInclude Include="wrap_autogen\include\projectname\classes.hpp">
+      <Filter>wrap_autogen</Filter>
+    </ClInclude>
+    <ClInclude Include="wrap_autogen\include\ProjectName.hpp">
+      <Filter>wrap_autogen</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GlobalFunctionsWrap.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="wrap_autogen\include\ProjectName\Builtin.hpp" />
+    <ClInclude Include="wrap_autogen\include\ProjectName\Strings.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="wrap_example\src\Functions_BasicTypes_wrap.cpp">
-      <Filter>wrap_example\src</Filter>
-    </ClCompile>
-    <ClCompile Include="wrap_example\src\SimpleClass_wrap.cpp">
-      <Filter>wrap_example\src</Filter>
-    </ClCompile>
     <ClCompile Include="src\GlobalFunctions.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -72,9 +61,22 @@
     <ClCompile Include="src\UsingSimpleClass.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="wrap_example\src\UsingSimpleClass_wrap.cpp">
-      <Filter>wrap_example\src</Filter>
+    <ClCompile Include="src\Mix.cpp">
+      <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="wrap_autogen\src\ProjectName.cpp" />
+    <ClCompile Include="wrap_autogen\src\ProjectName\Classes.cpp">
+      <Filter>wrap_autogen</Filter>
+    </ClCompile>
+    <ClCompile Include="wrap_autogen\src\ProjectName.cpp">
+      <Filter>wrap_autogen</Filter>
+    </ClCompile>
+    <ClCompile Include="wrap_autogen\src\ProjectName\Classes\SampleClass.cpp">
+      <Filter>wrap_autogen</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GlobalFunctionsWrap.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="wrap_autogen\src\ProjectName\Builtin.cpp" />
+    <ClCompile Include="wrap_autogen\src\ProjectName\Strings.cpp" />
   </ItemGroup>
 </Project>

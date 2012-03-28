@@ -19,7 +19,7 @@ namespace jswrap
 			throw exception("Could not convert JSString* to char*");
 
 		std::string strRes(result);
-		delete[] result;
+		JS_free(cx, result);
 
 		return strRes; // TODO: optimize
 	}
@@ -37,7 +37,7 @@ namespace jswrap
 			throw exception("Could not convert jsval to char*");
 
 		std::string strRes(result);
-		delete[] result;
+		JS_free(cx, result);
 
 		return strRes; // TODO: optimize
 	}

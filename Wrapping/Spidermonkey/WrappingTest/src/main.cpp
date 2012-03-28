@@ -8,12 +8,8 @@
 #include <iostream>
 #include <typeinfo>
 #include "jsapi.h"
-#include "SimpleClass_wrap.hpp"
-//#include "UsingSimpleClass_wrap.hpp"
-#include "Functions_BasicTypes_wrap.hpp"
-//#include "wrap_Test.hpp"
-#include "Functions_Strings_wrap.hpp"
 #include "GlobalFunctions.hpp"
+#include "GlobalFunctionsWrap.hpp"
 
 #include "ProjectName.hpp"
 
@@ -122,8 +118,8 @@ int main(int argc, const char *argv[])
 		Your application code here. This may include JSAPI calls
        to create your own custom JS objects and run scripts. */
 
-	jswrap::GlobalFunctions::init(cx, global);
-	jswrap::SimpleClass::init(cx, global);
+	jswrap::GlobalFunctionsWrap::init(cx, global);
+	//jswrap::SimpleClass::init(cx, global);
 	
 	//jswrap::Functions_BasicTypes::init(cx, global);
 	//jswrap::wrap_Test::init(cx, global);

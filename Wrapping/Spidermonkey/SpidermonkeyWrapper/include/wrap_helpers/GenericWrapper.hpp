@@ -34,7 +34,7 @@ namespace jswrap
 		//JSBool init(JSContext* cx, JSObject* scope);
 
 		template<class T>
-		static T getPrivateFromGenericWrapper(JSContext* cx, jsval val)
+		static T* getPrivateFromGenericWrapper(JSContext* cx, jsval val)
 		{
 			if(!JSVAL_IS_OBJECT(val))
 				throw exception("jsval is not a JSObject");

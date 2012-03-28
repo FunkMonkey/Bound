@@ -39,6 +39,5 @@
     <ClInclude Include="include\wrap_helpers\wrap_helpers_x.hpp">
       <Filter>include\wrap_helpers</Filter>
     </ClInclude>
-    <ClInclude Include="include\wrap_helpers\GenericWrapper.hpp" />
   </ItemGroup>
 </Project>

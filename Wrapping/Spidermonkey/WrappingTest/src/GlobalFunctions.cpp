@@ -1,47 +1,19 @@
 #include "GlobalFunctions.hpp"
 
-#include "wrap_helpers/wrap_helpers_x.hpp"
-#include "wrap_helpers/char_string_x.hpp"
-#include "wrap_helpers/std_string_x.hpp"
-
+#include <sstream>
 #include <iostream>
 
-namespace jswrap
+int         lastInstance = 0;
+std::string lastFunc;
+std::stringstream lastParam1;
+std::stringstream lastParam2;
+
+int         getLastInstance()       { return lastInstance; }
+const std::string& getLastFunction(){ return lastFunc; }
+std::string getLastParam1(){ return lastParam1.str(); }
+std::string getLastParam2(){ return lastParam2.str(); }
+
+void print(const std::string& str)
 {
-	namespace GlobalFunctions
-	{
-		JSBool print_wrap(JSContext *cx, uintN argc, jsval *vp)
-		{
-			JSWRAP_TRY_START
-				checkMinNumberOfArguments_x(argc, 1);
-
-				jsval* args = JS_ARGV(cx, vp);
-
-				const std::string& x = jsval_to_stdString_convert_x(cx, args[0]);
-				std::cout << x.c_str() << std::endl;
-
-				JS_SET_RVAL(cx, vp, JSVAL_VOID);
-
-			JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "print")
-
-			return true;
-		}
-
-		//---------------------------------------------------
-		// Exposing the functionality
-		//---------------------------------------------------
-		JSBool init(JSContext* cx, JSObject* scope)
-		{
-			JSFunctionSpec functions[] = {
-				JS_FS("print",            print_wrap,             1, 0),
-
-				JS_FS_END
-			};
-
-			if(!JS_DefineFunctions(cx, scope, functions))
-				return false;
-
-			return true;
-		}
-	}
+	std::cout << str.c_str() << "\n";
 }
