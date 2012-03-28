@@ -71,7 +71,7 @@ Project.prototype = {
 		}
 		
 		// TODO: put somewhere else
-		var spidermonkeyPlugin = new Plugin_CPP_Spidermonkey();
+		var spidermonkeyPlugin = new CPPSM_Plugin();
 		exportAST.addCodeGeneratorPlugin(spidermonkeyPlugin);
 		
 		var codeGenConstructor = spidermonkeyPlugin.getCodeGeneratorByASTObject((cppAST == null) ? null : cppAST.root);

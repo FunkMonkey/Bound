@@ -1,6 +1,6 @@
 /*global Components, CPP_ASTObject, CodeGeneratorPluginManager, TemplateManager */
 
-var EXPORTED_SYMBOLS = ["Plugin_CPP_Spidermonkey"];
+var EXPORTED_SYMBOLS = ["CPPSM_Plugin"];
 
 Components.utils.import("chrome://bound/content/modules/log.jsm");
 Components.utils.import("chrome://bound/content/modules/Utils/Extension.jsm");
@@ -39,15 +39,15 @@ function isValidIdentifier(identifier)
  * @constructor
  * @extends LanguageBindingCodeGenPlugin
  */
-function Plugin_CPP_Spidermonkey()
+function CPPSM_Plugin()
 {
 	LanguageBindingCodeGenPlugin.call(this);
 	
 	this.AST = null;
 }
 
-Plugin_CPP_Spidermonkey.prototype = {
-	constructor: Plugin_CPP_Spidermonkey,
+CPPSM_Plugin.prototype = {
+	constructor: CPPSM_Plugin,
 	
 	context: "CPP_Spidermonkey",
 	
@@ -132,7 +132,7 @@ Plugin_CPP_Spidermonkey.prototype = {
 	getCodeGeneratorByASTObject: function getCodeGeneratorByASTObject(astObject, exportParent)
 	{
 		if(!astObject)
-			return CodeGenerator_Object; // TODO: is this a good idea?
+			return CPPSM_CodeGenObject; // TODO: is this a good idea?
 		
 		if(!astObject.getKindAsString)
 			return null;
@@ -142,12 +142,12 @@ Plugin_CPP_Spidermonkey.prototype = {
 		var codegen;
 		switch(kind)
 		{
-			case "Function":       codegen = CodeGenerator_Function; break;
-			case "MemberFunction": codegen = CodeGenerator_Function; break;
+			case "Function":       codegen = CPPSM_CodeGenFunction; break;
+			case "MemberFunction": codegen = CPPSM_CodeGenFunction; break;
 			case "Namespace":
 			case "Class":
-			case "Struct":         codegen = CodeGenerator_Object; break;
-			case "Property":	   codegen = CodeGenerator_Property; break;
+			case "Struct":         codegen = CPPSM_CodeGenObject; break;
+			case "Property":	   codegen = CPPSM_CodeGenProperty; break;
 			default: return null;
 		}
 		
@@ -179,9 +179,9 @@ Plugin_CPP_Spidermonkey.prototype = {
 		if(!exportParent)
 			return false;
 		
-		var parentCodeGen = exportParent.getCodeGenerator(Plugin_CPP_Spidermonkey.prototype.context);
+		var parentCodeGen = exportParent.getCodeGenerator(CPPSM_Plugin.prototype.context);
 		
-		if(!parentCodeGen || !(parentCodeGen instanceof CodeGenerator_Object))
+		if(!parentCodeGen || !(parentCodeGen instanceof CPPSM_CodeGenObject))
 			return false;
 		
 		return true;
@@ -355,9 +355,9 @@ Plugin_CPP_Spidermonkey.prototype = {
 	
 };
 
-Extension.inherit(Plugin_CPP_Spidermonkey, LanguageBindingCodeGenPlugin);
+Extension.inherit(CPPSM_Plugin, LanguageBindingCodeGenPlugin);
 
-CodeGeneratorPluginManager.registerPlugin(Plugin_CPP_Spidermonkey.prototype.context, Plugin_CPP_Spidermonkey);
+CodeGeneratorPluginManager.registerPlugin(CPPSM_Plugin.prototype.context, CPPSM_Plugin);
 
 
 //======================================================================================
@@ -371,19 +371,19 @@ CodeGeneratorPluginManager.registerPlugin(Plugin_CPP_Spidermonkey.prototype.cont
  * @property   {string}    templateFunction   Name of the template for the function
  * @property   {boolean}   isStatic           Will function be wrapped as static
  *
- * @param   {Plugin_CPP_Spidermonkey}   plugin   Plugin this code gen belongs to
+ * @param   {CPPSM_Plugin}   plugin   Plugin this code gen belongs to
  */
-function CodeGenerator_Function(plugin)
+function CPPSM_CodeGenFunction(plugin)
 {
 	LanguageBindingEntityCodeGen.call(this, plugin);
 	
 	this.templateFunction = "CPP_Spidermonkey/function";
 }
 
-CodeGenerator_Function.isCompatible = Plugin_CPP_Spidermonkey.prototype._isCompatible;
+CPPSM_CodeGenFunction.isCompatible = CPPSM_Plugin.prototype._isCompatible;
 
-CodeGenerator_Function.prototype = {
-	constructor: CodeGenerator_Function,
+CPPSM_CodeGenFunction.prototype = {
+	constructor: CPPSM_CodeGenFunction,
 		
 	get isStatic()
 	{
@@ -636,20 +636,20 @@ CodeGenerator_Function.prototype = {
 	},
 };
 
-Extension.inherit(CodeGenerator_Function, LanguageBindingEntityCodeGen);
+Extension.inherit(CPPSM_CodeGenFunction, LanguageBindingEntityCodeGen);
 
 /**
  * Creates the code generator from the given save object
  * 
  * @param   {Object}                    saveObj        Save object with data
- * @param   {Plugin_CPP_Spidermonkey}   plugin         The plugin the generator will belong to
+ * @param   {CPPSM_Plugin}   plugin         The plugin the generator will belong to
  * @param   {Export_ASTObject}          exportASTObj   ASTObject the generator will belong to
  * 
- * @returns {CodeGenerator_Function}   The created generator
+ * @returns {CPPSM_CodeGenFunction}   The created generator
  */
-CodeGenerator_Function.createFromSaveObject =  function createFromSaveObject(saveObj, plugin, exportASTObj)
+CPPSM_CodeGenFunction.createFromSaveObject =  function createFromSaveObject(saveObj, plugin, exportASTObj)
 {
-	var result = new CodeGenerator_Function(plugin);
+	var result = new CPPSM_CodeGenFunction(plugin);
 	return result;
 };
 
@@ -663,17 +663,17 @@ CodeGenerator_Function.createFromSaveObject =  function createFromSaveObject(sav
  *
  * @property   {boolean}   isStatic    Will property be wrapped as static
  *
- * @param   {Plugin_CPP_Spidermonkey}   plugin   Plugin this code gen belongs to
+ * @param   {CPPSM_Plugin}   plugin   Plugin this code gen belongs to
  */
-function CodeGenerator_Property(plugin)
+function CPPSM_CodeGenProperty(plugin)
 {
 	LanguageBindingEntityCodeGen.call(this, plugin);
 }
 
-CodeGenerator_Property.isCompatible = Plugin_CPP_Spidermonkey.prototype._isCompatible;
+CPPSM_CodeGenProperty.isCompatible = CPPSM_Plugin.prototype._isCompatible;
 
-CodeGenerator_Property.prototype = {
-	constructor: CodeGenerator_Property,
+CPPSM_CodeGenProperty.prototype = {
+	constructor: CPPSM_CodeGenProperty,
 	
 	get isStatic()
 	{
@@ -710,9 +710,11 @@ CodeGenerator_Property.prototype = {
 	},
 };
 
-Extension.inherit(CodeGenerator_Property, LanguageBindingEntityCodeGen);
+Extension.inherit(CPPSM_CodeGenProperty, LanguageBindingEntityCodeGen);
 
 //======================================================================================
+
+// TODO: split into object and class
 
 /**
  * Code generator for namespaces and classes
@@ -734,9 +736,9 @@ Extension.inherit(CodeGenerator_Property, LanguageBindingEntityCodeGen);
  * @property   {boolean}  isInline                 Shall the source code get its own file or not?
  * @property   {ASTTypeLibraryEntry}   _typeLibraryEntry   Type libray entry created for this class
  *
- * @param   {Plugin_CPP_Spidermonkey}   plugin   Plugin this code gen belongs to
+ * @param   {CPPSM_Plugin}   plugin   Plugin this code gen belongs to
  */
-function CodeGenerator_Object(plugin)
+function CPPSM_CodeGenObject(plugin)
 {
 	LanguageBindingEntityCodeGen.call(this, plugin);
 	
@@ -757,10 +759,10 @@ function CodeGenerator_Object(plugin)
 	this._typeLibraryEntry = null;
 }
 
-CodeGenerator_Object.isCompatible = Plugin_CPP_Spidermonkey.prototype._isCompatible;
+CPPSM_CodeGenObject.isCompatible = CPPSM_Plugin.prototype._isCompatible;
 
-CodeGenerator_Object.prototype = {
-	constructor: CodeGenerator_Object,
+CPPSM_CodeGenObject.prototype = {
+	constructor: CPPSM_CodeGenObject,
 	
 	// TODO: can we remove this?
 	get exportObject(){ return this._exportObject; },
@@ -1064,9 +1066,9 @@ CodeGenerator_Object.prototype = {
 	
 };
 
-Extension.inherit(CodeGenerator_Object, LanguageBindingEntityCodeGen);
+Extension.inherit(CPPSM_CodeGenObject, LanguageBindingEntityCodeGen);
 
-MetaData.initMetaDataOn(CodeGenerator_Object.prototype)
+MetaData.initMetaDataOn(CPPSM_CodeGenObject.prototype)
    .addPropertyData("_typeLibraryEntry", { type: "KeyValueMap", view: {}})
    .addPropertyData("_genInput", {type: "KeyValueMap", view: {}})
    .addPropertyData("hppTemplateNameClass", {view: {}, load_save: {}})
