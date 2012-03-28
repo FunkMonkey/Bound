@@ -352,18 +352,26 @@ var ExportTreePrototype = {
 	 */
 	createNewObject: function createNewObject()
 	{
+		$parentNode = null;
+		if(this.selection.length > 0)
+			$parentNode = this.selection[0];
 		
+		var exportParent = ($parentNode == null) ? this.exportAST.root : $parentNode.data;
+			
+		var plugin = exportParent.AST.getCodeGeneratorPlugin(Bound.currentContext);
+		if(!plugin)
+			throw "No plugin for context: " + Bound.currentContext;
+		
+		// TODO: get functions from exportParent, exportParent.sourceObject, codegen!
+		var dropInfo = {
+			exportParent: exportParent,
+			contextPlugin: plugin,
+			$parentRow: $parentNode
+		}
+		
+		this._dropAddAsChild(null, dropInfo);
 	},
 	
-	/**
-	 * Creates a new object based on the CPP AST node on the given row
-	 * 
-	 * @returns {Export_ASTObject}   Newly created object
-	 */
-	/*createNewObjectOn: function createNewObject(parent row)
-	{
-		
-	},*/
 	
 	/**
 	 * Drops the given data as a child row
@@ -380,7 +388,20 @@ var ExportTreePrototype = {
 					
 			if(codeGenConstructor)
 			{
-				var exportASTObject = new Export_ASTObject(dropInfo.exportParent, srcCPPASTObject.name, srcCPPASTObject);
+				if(srcCPPASTObject)
+					name = srcCPPASTObject.name
+				else
+				{
+					name = "NewObject";
+					var counter = 1;
+					while(dropInfo.exportParent._childrenMap[name])
+					{
+						name = "NewObject" + counter;
+						++counter;
+					}
+				}
+				
+				var exportASTObject = new Export_ASTObject(dropInfo.exportParent, name, srcCPPASTObject);
 				dropInfo.exportParent.addChild(exportASTObject);
 				exportASTObject.addCodeGenerator(new codeGenConstructor(dropInfo.contextPlugin));
 				var $newRow = this.createAndAppendRow(dropInfo.$parentRow, false, exportASTObject);

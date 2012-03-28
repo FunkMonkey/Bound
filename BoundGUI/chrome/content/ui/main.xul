@@ -40,7 +40,7 @@
 			<vbox id="cppTree" width="200"  />
 			<vbox id="exportTreeContainer">
 				<toolbar>
-					<toolbarbutton id="exportAddObject" label="" oncommand="" ></toolbarbutton>
+					<toolbarbutton id="exportAddObject" label="" oncommand="MainWindow.ExportTree.createNewObject();" ></toolbarbutton>
 					<toolbarbutton id="exportAddProperty" label="" oncommand="" ></toolbarbutton>
 				</toolbar>
 				<vbox id="exportTree" width="200" tabindex="7" flex="1" />

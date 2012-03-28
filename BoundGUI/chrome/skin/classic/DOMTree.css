@@ -133,5 +133,15 @@
 	list-style-image: url("chrome://bound/skin/AST/small_d.png");
 }
 
+.dom-tree-row[ast_kind="Object"] > hbox > .dom-tree-row-label-image > image
+{
+	list-style-image: url("chrome://bound/skin/AST/O.png");
+}
+
+.dom-tree-row[ast_kind="VariableDeclaration"] > hbox > .dom-tree-row-label-image > image
+{
+	list-style-image: url("chrome://bound/skin/AST/V.png");
+}
+
 
 

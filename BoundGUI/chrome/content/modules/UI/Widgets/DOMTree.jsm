@@ -153,8 +153,18 @@ DOMTreeRow.prototype = {
 				tree.clearSelection();
 			tree._suppressSelectEvent = false;
 		}
-			
-		tree.addToSelection(this);
+		
+		
+		if(event.ctrlKey)
+		{
+			if(this.hasAttribute("selected"))
+				tree.removeFromSelection(this);
+			else
+				tree.addToSelection(this);
+		}
+		else
+			tree.addToSelection(this);
+		
 	},
 	
 	/**
@@ -216,6 +226,8 @@ function DOMTree($this, dataCB)
 	
 	$this.selection = [];
 	$this._suppressSelectEvent = false;
+	
+	$this.addEventListener("click", $this._onClick_.bind($this), true);
 }
 
 DOMTree.createOn = function(element, dataCB)
@@ -227,17 +239,17 @@ DOMTree.createOn = function(element, dataCB)
 
 DOMTree.prototype =
 {
-	//constructor: DOMTree,
 	
 	/**
-	 * Called when clicking the dropmarker
+	 * Called when clicked on the tree
 	 * 
-	 * @param   {DOMEvent}   event   Description
+	 * @param   {DOMEvent}   e   Click event
 	 */
-	//_onToggleCollapse: function _onToggleCollapse(event)
-	//{
-	//	event.currentTarget.parentNode.parentNode.toggleCollapse();
-	//},
+	_onClick_: function _onClick_(e)
+	{
+		if(e.target === this)
+			this.clearSelection();
+	}, 
 	
 	
 	/**

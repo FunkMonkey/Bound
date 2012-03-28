@@ -41,7 +41,15 @@ Components.utils.import("chrome://bound/content/modules/Utils/MetaData.jsm");
 //======================================================================================
 
 /**
- * Export_AST
+ * Represents a C++ AST
+ *
+ * @property {CPP_ASTObject}           root               Root node
+ * @property {Object<CPP_ASTObject>}   astObjectsByID     Maps IDs and AST nodes
+ * @property {Object<CPP_ASTObject>}   astObjectsByUSR    Maps USRs and AST nodes
+ * @property {Object<CPP_ASTType>}     astTypesByID       Maps IDs and AST types
+ * @property {string}   translationUnitFilename           Filename of the translation unit
+ * @property {string}   translationUnitDirectory          Directory of the translation unit
+ * @property {Logger}   logger   Logger instance for C++ logs
  *
  * @constructor
  */
@@ -110,6 +118,12 @@ CPP_AST.createFromSaveObject = function createFromSaveObject(saveObj)
 	return result;
 }
 
+/**
+ * Adds the log messages during loading
+ * 
+ * @param   {Logger}   logger         Logger to add messages to
+ * @param   {Array}    messageArray   Messages to add
+ */
 function _addLogMessages(logger, messageArray)
 {
 	var currDate = new Date(); // they can all share the same timestamp
@@ -152,7 +166,7 @@ CPP_AST.prototype = {
 	* 
 	* @param   {Object}   jsonObject   The JSON-data
 	* 
-	* @returns {ASTType}   The newly created type
+	* @returns {CPP_ASTType}   The newly created type
 	*/
 	_addASTTypeFromJSON: function _addASTTypeFromJSON(jsonObject)
 	{
@@ -178,7 +192,7 @@ CPP_AST.prototype = {
 	{
 		var type = this.astTypesByID[id];
 		if(!type)
-			throw "Could not get ASTType for given id";
+			throw new Error("Could not get ASTType for given id");
 		
 		return type;
 	}, 
@@ -187,7 +201,7 @@ CPP_AST.prototype = {
 	/**
 	* Initializes the ASTType and sets up the references
 	* 
-	* @param   {ASTType}   astType   The type to initialize
+	* @param   {CPP_ASTType}   astType   The type to initialize
 	*/
 	_initASTType: function _initASTType(astType)
 	{
@@ -230,12 +244,12 @@ CPP_AST.prototype = {
 		
 	
 	/**
-	* Summary
+	* Creates and adds an AST node from the given save object
 	* 
-	* @param   {ASTObject}   parent       The parent ASTObject
-	* @param   {Object}      jsonObject   The JSON-data
+	* @param   {CPP_ASTObject}   parent       The parent ASTObject
+	* @param   {Object}          jsonObject   The JSON-data
 	*
-	* @returns {ASTObject}   The newly created object
+	* @returns {CPP_ASTObject}   The newly created object
 	*/
 	_addASTObjectFromJSON: function _addASTObjectFromJSON(parent, jsonObject)
 	{
@@ -362,7 +376,7 @@ CPP_AST.prototype = {
 	/**
 	 * Adds parameters to the astObject
 	 * 
-	 * @param   {ASTObject}   astObject   ASTObject to add params to
+	 * @param   {CPP_ASTObject}   astObject   ASTObject to add params to
 	 */
 	_initAddParameters: function _initAddParameters(astObject)
 	{
@@ -380,7 +394,7 @@ CPP_AST.prototype = {
 	/**
 	 * Adds template information to the astobject
 	 * 
-	 * @param   {ASTObject}   astObject   ASTObject to add template information to
+	 * @param   {CPP_ASTObject}   astObject   ASTObject to add template information to
 	 */
 	_initAddTemplateInformation: function _initAddTemplateInformation(astObject)
 	{
@@ -424,7 +438,7 @@ CPP_AST.prototype = {
 	/**
 	 * Initializes the ASTObject and sets up the references
 	 * 
-	 * @param   {ASTObject}   astObject   ASTObject to init
+	 * @param   {CPP_ASTObject}   astObject   ASTObject to init
 	 */
 	_initASTObject: function _initASTObject(astObject)
 	{
@@ -589,10 +603,23 @@ MetaData.initMetaDataOn(CPP_AST.prototype)
 //======================================================================================
 
 /**
- * ASTObject
+ * Represents a C++ AST node
  *
  * @constructor
- * @this {ASTObject}
+ * @extends ASTObject
+ * 
+ * @property {number}          id             ID of the ASTObject (from CPPAnalyzer)
+ * @property {string}          USR            USR of the node
+ * @property {boolean}         isDefinition   Checks if node is a definition
+ * @property {LocationInfo[]}  declarations   Location information about all declarations
+ * @property {LocationInfo}    definiiton     Location information about definition
+ * @property {string}          cppLongName    Full name of node (e.g. ::std::string)
+ * @property {string}          displayName    Display name
+ * 
+ * @param   {CPP_ASTObject}   parent   Parent of the ASTObject
+ * @param   {string}          name     Name of the ASTObject
+ * @param   {number}          id       ID of the ASTObject (from CPPAnalyzer)
+ * @param   {string}          usr      USR of the node
  */
 function CPP_ASTObject(parent, name, id, usr)
 {
@@ -654,10 +681,9 @@ MetaData.initMetaDataOn(CPP_ASTObject.prototype)
 //======================================================================================
 
 /**
- * 
+ * Represents a fake C++ node that is a property
  *
  * @constructor
- * @this {CPP_FakeASTObject_Property}
  */
 function CPP_FakeASTObject_Property()
 {
@@ -668,18 +694,21 @@ function CPP_FakeASTObject_Property()
 CPP_FakeASTObject_Property.prototype = {
 	constructor: CPP_FakeASTObject_Property,
 	kind: ASTObject.KIND_PROPERTY
-	
 };
 
 //======================================================================================
 
 
-
 /**
- * CPP_ASTObject_Namespace
+ * Represents a C++ namespace
  *
  * @constructor
- * @this {CPP_ASTObject_Namespace}
+ * @extends CPP_ASTObject
+ * 
+ * @param   {CPP_ASTObject}   parent   Parent of the ASTObject
+ * @param   {string}          name     Name of the ASTObject
+ * @param   {number}          id       ID of the ASTObject (from CPPAnalyzer)
+ * @param   {string}          usr      USR of the node
  */
 function CPP_ASTObject_Namespace(parent, name, id, usr)
 {
@@ -697,10 +726,15 @@ Extension.inherit(CPP_ASTObject_Namespace, CPP_ASTObject);
 //======================================================================================
 
 /**
- * 
+ * Represents a C++ base class specification
  *
  * @constructor
- * @this {CPP_Base}
+ *
+ * @property   {CPP_ASTObject_Struct}   base     Base AST node
+ * @property   {number}                 access   Access of inheritance
+ *
+ * @param   {CPP_ASTObject_Struct}   base     Base AST node
+ * @param   {number}                 access   Access of inheritance
  */
 function CPP_Base(baseObject, access)
 {
@@ -713,10 +747,21 @@ MetaData.initMetaDataOn(CPP_Base.prototype)
    .addPropertyData("access",        {view: {}})
 
 /**
- * CPP_ASTObject_Struct
+ * Represents a C++ struct
  *
  * @constructor
- * @this {CPP_ASTObject_Struct}
+ * @extends CPP_ASTObject
+ *
+ * @property   {CPP_Base[]}        bases                  Information about base classes
+ * @property   {CPP_ASTObject[]}   templateParameters     List of template parameters
+ * @property   {CPP_ASTObject[]}   templateArguments      List of template arguments
+ * @property   {CPP_ASTObject}     templateDeclaration    Declaration of the template
+ * @property   {string}            templateKind           Kind of template ("Template", "Specialization", etc.)
+ * 
+ * @param   {CPP_ASTObject}   parent   Parent of the ASTObject
+ * @param   {string}          name     Name of the ASTObject
+ * @param   {number}          id       ID of the ASTObject (from CPPAnalyzer)
+ * @param   {string}          usr      USR of the node
  */
 function CPP_ASTObject_Struct(parent, name, id, usr)
 {
@@ -737,10 +782,10 @@ CPP_ASTObject_Struct.prototype = {
 	kind: ASTObject.KIND_STRUCT,
 	
 	/**
-	 * Adds a base object
+	 * Adds a base AST node
 	 * 
-	 * @param   {ASTObject}   baseObject   Base ASTObject (Struct or Class)
-	 * @param   {Number}      access       Access specifier
+	 * @param   {CPP_ASTObject_Struct}   baseObject   Base ASTObject (Struct or Class)
+	 * @param   {number}                 access       Access specifier
 	 */
 	addBase: function addBase(baseObject, access)
 	{
@@ -807,10 +852,15 @@ MetaData.initMetaDataOn(CPP_ASTObject_Struct.prototype)
 //======================================================================================
 
 /**
- * CPP_ASTObject_Class
+ * Represents a C++ class
  *
  * @constructor
- * @this {CPP_ASTObject_Class}
+ * @extends CPP_ASTObject_Struct
+ *
+ * @param   {CPP_ASTObject}   parent   Parent of the ASTObject
+ * @param   {string}          name     Name of the ASTObject
+ * @param   {number}          id       ID of the ASTObject (from CPPAnalyzer)
+ * @param   {string}          usr      USR of the node
  */
 function CPP_ASTObject_Class(parent, name, id, usr)
 {
@@ -827,10 +877,17 @@ Extension.inherit(CPP_ASTObject_Class, CPP_ASTObject_Struct);
 //======================================================================================
 
 /**
- * CPP_ASTObject_Typedef
+ * Represents a C++ typedef
  *
  * @constructor
- * @this {CPP_ASTObject_Typedef}
+ * @extends CPP_ASTObject
+ *
+ * @property   {CPP_ASTType}  type     Type that this typedef sugars
+ * 
+ * @param   {CPP_ASTObject}   parent   Parent of the ASTObject
+ * @param   {string}          name     Name of the ASTObject
+ * @param   {number}          id       ID of the ASTObject (from CPPAnalyzer)
+ * @param   {string}          usr      USR of the node
  */
 function CPP_ASTObject_Typedef(parent, name, id, usr)
 {
@@ -851,10 +908,17 @@ MetaData.initMetaDataOn(CPP_ASTObject_Typedef.prototype)
 //======================================================================================
 
 /**
- * CPP_ASTObject_Var_Decl
+ * Represents a C++ variable declaration
  *
  * @constructor
- * @this {CPP_ASTObject_Var_Decl}
+ * @extends CPP_ASTObject
+ *
+ * @property   {CPP_ASTType}  type     Type of the variable
+ * 
+ * @param   {CPP_ASTObject}   parent   Parent of the ASTObject
+ * @param   {string}          name     Name of the ASTObject
+ * @param   {number}          id       ID of the ASTObject (from CPPAnalyzer)
+ * @param   {string}          usr      USR of the node
  */
 function CPP_ASTObject_Var_Decl(parent, name, id, usr)
 {
@@ -875,10 +939,18 @@ MetaData.initMetaDataOn(CPP_ASTObject_Var_Decl.prototype)
 //======================================================================================
 
 /**
- * CPP_ASTObject_Field
+ * Represents a C++ field (data member of a struct or class)
  *
  * @constructor
- * @this {CPP_ASTObject_Field}
+ * @extends CPP_ASTObject_Var_Decl
+ *
+ * @property   {number}   access       Type of access
+ * @property   {boolean}  isStatic     Is field static or not
+ * 
+ * @param   {CPP_ASTObject}   parent   Parent of the ASTObject
+ * @param   {string}          name     Name of the ASTObject
+ * @param   {number}          id       ID of the ASTObject (from CPPAnalyzer)
+ * @param   {string}          usr      USR of the node
  */
 function CPP_ASTObject_Field(parent, name, id, usr)
 {
@@ -901,10 +973,15 @@ MetaData.initMetaDataOn(CPP_ASTObject_Field.prototype)
 //======================================================================================
 
 /**
- * CPP_ASTObject_Parameter
+ * Represents a C++ function parameter
  *
  * @constructor
- * @this {CPP_ASTObject_Parameter}
+ * @extends CPP_ASTObject_Var_Decl
+ *
+ * @param   {CPP_ASTObject}   parent   Parent of the ASTObject
+ * @param   {string}          name     Name of the ASTObject
+ * @param   {number}          id       ID of the ASTObject (from CPPAnalyzer)
+ * @param   {string}          usr      USR of the node
  */
 function CPP_ASTObject_Parameter(parent, name, id, usr)
 {
@@ -921,10 +998,23 @@ Extension.inherit(CPP_ASTObject_Parameter, CPP_ASTObject_Var_Decl);
 //======================================================================================
 
 /**
- * CPP_ASTObject_Function
+ * Represents a C++ function
  *
  * @constructor
- * @this {CPP_ASTObject_Function}
+ * @extends CPP_ASTObject
+ *
+ * @property   {CPP_ASTType}                returnType             Return type of the function
+ * @property   {CPP_ASTObject_Parameter[]}  parameters             List of parameters
+ * @property   {CPP_ASTObject[]}            templateParameters     List of template parameters
+ * @property   {CPP_ASTObject[]}            templateArguments      List of template arguments
+ * @property   {CPP_ASTObject}              templateDeclaration    Declaration of the template
+ * @property   {string}                     templateKind           Kind of template ("Template", "Specialization", etc.)
+ * @property   {string}                     overloadName           Full name of the overload (includes types)
+ * 
+ * @param   {CPP_ASTObject}   parent   Parent of the ASTObject
+ * @param   {string}          name     Name of the ASTObject
+ * @param   {number}          id       ID of the ASTObject (from CPPAnalyzer)
+ * @param   {string}          usr      USR of the node
  */
 function CPP_ASTObject_Function(parent, name, id, usr)
 {
@@ -990,10 +1080,20 @@ MetaData.initMetaDataOn(CPP_ASTObject_Function.prototype)
 //======================================================================================
 
 /**
- * CPP_ASTObject_Member_Function
+ * Represents a C++ member function
  *
  * @constructor
- * @this {CPP_ASTObject_Member_Function}
+ * @extends CPP_ASTObject_Function
+ *
+ * @property   {number}   access      Type of access
+ * @property   {boolean}  isVirtual   Is function declared 'virtual'
+ * @property   {boolean}  isConst     Is function declared 'const'
+ * @property   {boolean}  isStatic    Is function declared 'static'
+ * 
+ * @param   {CPP_ASTObject}   parent   Parent of the ASTObject
+ * @param   {string}          name     Name of the ASTObject
+ * @param   {number}          id       ID of the ASTObject (from CPPAnalyzer)
+ * @param   {string}          usr      USR of the node
  */
 function CPP_ASTObject_Member_Function(parent, name, id, usr)
 {
@@ -1018,10 +1118,15 @@ MetaData.initMetaDataOn(CPP_ASTObject_Member_Function.prototype)
 //======================================================================================
 
 /**
- * CPP_ASTObject_Constructor
+ * Represents a C++ constructor
  *
  * @constructor
- * @this {CPP_ASTObject_Constructor}
+ * @extends CPP_ASTObject_Member_Function
+ *
+ * @param   {CPP_ASTObject}   parent   Parent of the ASTObject
+ * @param   {string}          name     Name of the ASTObject
+ * @param   {number}          id       ID of the ASTObject (from CPPAnalyzer)
+ * @param   {string}          usr      USR of the node
  */
 function CPP_ASTObject_Constructor(parent, name, id, usr)
 {
@@ -1038,10 +1143,15 @@ Extension.inherit(CPP_ASTObject_Constructor, CPP_ASTObject_Member_Function);
 //======================================================================================
 
 /**
- * CPP_ASTObject_Destructor
+ * Represents a C++ destructor
  *
  * @constructor
- * @this {CPP_ASTObject_Destructor}
+ * @extends CPP_ASTObject_Member_Function
+ *
+ * @param   {CPP_ASTObject}   parent   Parent of the ASTObject
+ * @param   {string}          name     Name of the ASTObject
+ * @param   {number}          id       ID of the ASTObject (from CPPAnalyzer)
+ * @param   {string}          usr      USR of the node
  */
 function CPP_ASTObject_Destructor(parent, name, id, usr)
 {
@@ -1058,10 +1168,15 @@ Extension.inherit(CPP_ASTObject_Destructor, CPP_ASTObject_Member_Function);
 //======================================================================================
 
 /**
- * CPP_ASTObject_Enum
+ * Represents a C++ enum
  *
  * @constructor
- * @this {CPP_ASTObject_Enum}
+ * @extends CPP_ASTObject
+ *
+ * @param   {CPP_ASTObject}   parent   Parent of the ASTObject
+ * @param   {string}          name     Name of the ASTObject
+ * @param   {number}          id       ID of the ASTObject (from CPPAnalyzer)
+ * @param   {string}          usr      USR of the node
  */
 function CPP_ASTObject_Enum(parent, name, id, usr)
 {
@@ -1078,10 +1193,15 @@ Extension.inherit(CPP_ASTObject_Enum, CPP_ASTObject);
 //======================================================================================
 
 /**
- * CPP_ASTObject_EnumConstant
+ * Represents a C++ enum constant
  *
  * @constructor
- * @this {CPP_ASTObject_EnumConstant}
+ * @extends CPP_ASTObject
+ *
+ * @param   {CPP_ASTObject}   parent   Parent of the ASTObject
+ * @param   {string}          name     Name of the ASTObject
+ * @param   {number}          id       ID of the ASTObject (from CPPAnalyzer)
+ * @param   {string}          usr      USR of the node
  */
 function CPP_ASTObject_EnumConstant(parent, name, id, usr)
 {
@@ -1103,10 +1223,15 @@ MetaData.initMetaDataOn(CPP_ASTObject_EnumConstant.prototype)
 //======================================================================================
 
 /**
- * CPP_ASTObject_Union
+ * Represents a C++ union
  *
  * @constructor
- * @this {CPP_ASTObject_Union}
+ * @extends CPP_ASTObject
+ *
+ * @param   {CPP_ASTObject}   parent   Parent of the ASTObject
+ * @param   {string}          name     Name of the ASTObject
+ * @param   {number}          id       ID of the ASTObject (from CPPAnalyzer)
+ * @param   {string}          usr      USR of the node
  */
 function CPP_ASTObject_Union(parent, name, id, usr)
 {
@@ -1123,10 +1248,15 @@ Extension.inherit(CPP_ASTObject_Union, CPP_ASTObject);
 //======================================================================================
 
 /**
- * CPP_ASTObject_TemplateTypeParameter
+ * Represents a C++ template type parameter
  *
  * @constructor
- * @this {CPP_ASTObject_TemplateTypeParameter}
+ * @extends CPP_ASTObject
+ *
+ * @param   {CPP_ASTObject}   parent   Parent of the ASTObject
+ * @param   {string}          name     Name of the ASTObject
+ * @param   {number}          id       ID of the ASTObject (from CPPAnalyzer)
+ * @param   {string}          usr      USR of the node
  */
 function CPP_ASTObject_TemplateTypeParameter(parent, name, id, usr)
 {
@@ -1143,10 +1273,15 @@ Extension.inherit(CPP_ASTObject_TemplateTypeParameter, CPP_ASTObject);
 //======================================================================================
 
 /**
- * CPP_ASTObject_TemplateNonTypeParameter
+ * Represents a C++ template non-type parameter
  *
  * @constructor
- * @this {CPP_ASTObject_TemplateNonTypeParameter}
+ * @extends CPP_ASTObject
+ *
+ * @param   {CPP_ASTObject}   parent   Parent of the ASTObject
+ * @param   {string}          name     Name of the ASTObject
+ * @param   {number}          id       ID of the ASTObject (from CPPAnalyzer)
+ * @param   {string}          usr      USR of the node
  */
 function CPP_ASTObject_TemplateNonTypeParameter(parent, name, id, usr)
 {
@@ -1163,10 +1298,15 @@ Extension.inherit(CPP_ASTObject_TemplateNonTypeParameter, CPP_ASTObject);
 //======================================================================================
 
 /**
- * CPP_ASTObject_TemplateTemplateParameter
+ * Represents a C++ template template parameter
  *
  * @constructor
- * @this {CPP_ASTObject_TemplateTemplateParameter}
+ * @extends CPP_ASTObject
+ *
+ * @param   {CPP_ASTObject}   parent   Parent of the ASTObject
+ * @param   {string}          name     Name of the ASTObject
+ * @param   {number}          id       ID of the ASTObject (from CPPAnalyzer)
+ * @param   {string}          usr      USR of the node
  */
 function CPP_ASTObject_TemplateTemplateParameter(parent, name, id, usr)
 {
@@ -1183,10 +1323,17 @@ Extension.inherit(CPP_ASTObject_TemplateTemplateParameter, CPP_ASTObject);
 //======================================================================================
 
 /**
- * CPP_ASTObject_TemplateTypeArgument
+ * Represents a C++ template type argument
  *
  * @constructor
- * @this {CPP_ASTObject_TemplateTypeArgument}
+ * @extends CPP_ASTObject
+ *
+ * @property   {CPP_ASTType}   type   Type of the argument
+ *
+ * @param   {CPP_ASTObject}   parent   Parent of the ASTObject
+ * @param   {string}          name     Name of the ASTObject
+ * @param   {number}          id       ID of the ASTObject (from CPPAnalyzer)
+ * @param   {string}          usr      USR of the node
  */
 function CPP_ASTObject_TemplateTypeArgument(parent, name, id, usr)
 {
@@ -1207,10 +1354,17 @@ MetaData.initMetaDataOn(CPP_ASTObject_TemplateTypeArgument.prototype)
 //======================================================================================
 
 /**
- * CPP_ASTObject_TemplateDeclarationArgument
+ * Represents a C++ template declaration argument
  *
  * @constructor
- * @this {CPP_ASTObject_TemplateDeclarationArgument}
+ * @extends CPP_ASTObject
+ *
+ * @property   {CPP_ASTObject}   declaration   Declaration of the argument
+ *
+ * @param   {CPP_ASTObject}   parent   Parent of the ASTObject
+ * @param   {string}          name     Name of the ASTObject
+ * @param   {number}          id       ID of the ASTObject (from CPPAnalyzer)
+ * @param   {string}          usr      USR of the node
  */
 function CPP_ASTObject_TemplateDeclarationArgument(parent, name, id, usr)
 {
@@ -1231,10 +1385,17 @@ MetaData.initMetaDataOn(CPP_ASTObject_TemplateDeclarationArgument.prototype)
 //======================================================================================
 
 /**
- * CPP_ASTObject_TemplateIntegralArgument
+ * Represents a C++ template integral argument
  *
  * @constructor
- * @this {CPP_ASTObject_TemplateIntegralArgument}
+ * @extends CPP_ASTObject
+ *
+ * @property   {number}   integral   Integral of the argument
+ *
+ * @param   {CPP_ASTObject}   parent   Parent of the ASTObject
+ * @param   {string}          name     Name of the ASTObject
+ * @param   {number}          id       ID of the ASTObject (from CPPAnalyzer)
+ * @param   {string}          usr      USR of the node
  */
 function CPP_ASTObject_TemplateIntegralArgument(parent, name, id, usr)
 {
@@ -1255,10 +1416,17 @@ MetaData.initMetaDataOn(CPP_ASTObject_TemplateIntegralArgument.prototype)
 //======================================================================================
 
 /**
- * CPP_ASTObject_TemplateTemplateArgument
+ * Represents a C++ template template argument
  *
  * @constructor
- * @this {CPP_ASTObject_TemplateTemplateArgument}
+ * @extends CPP_ASTObject
+ *
+ * @property   {CPP_ASTObject}   template   Template of the argument
+ *
+ * @param   {CPP_ASTObject}   parent   Parent of the ASTObject
+ * @param   {string}          name     Name of the ASTObject
+ * @param   {number}          id       ID of the ASTObject (from CPPAnalyzer)
+ * @param   {string}          usr      USR of the node
  */
 function CPP_ASTObject_TemplateTemplateArgument(parent, name, id, usr)
 {
@@ -1279,10 +1447,15 @@ MetaData.initMetaDataOn(CPP_ASTObject_TemplateTemplateArgument.prototype)
 //======================================================================================
 
 /**
- * CPP_ASTObject_TemplateExpressionArgument
+ * Represents a C++ template expression argument
  *
  * @constructor
- * @this {CPP_ASTObject_TemplateExpressionArgument}
+ * @extends CPP_ASTObject
+ *
+ * @param   {CPP_ASTObject}   parent   Parent of the ASTObject
+ * @param   {string}          name     Name of the ASTObject
+ * @param   {number}          id       ID of the ASTObject (from CPPAnalyzer)
+ * @param   {string}          usr      USR of the node
  */
 function CPP_ASTObject_TemplateExpressionArgument(parent, name, id, usr)
 {

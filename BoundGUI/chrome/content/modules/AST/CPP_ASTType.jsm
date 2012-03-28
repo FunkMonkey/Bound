@@ -63,10 +63,20 @@ Existing type kinds:
 */
 
 /**
- * CPP_ASTType
+ * Represents a C++ type
  *
  * @constructor
- * @this {CPP_ASTType}
+ *
+ * @property   {string}   kind   Kind of the type
+ * @property   {number}   id     ID of the type
+ * @property   {CPP_ASTObject}   declaration     Declaration that type uses
+ * @property   {CPP_ASTType}     pointsTo        Type that this type points to
+ * @property   {boolean}         isConst         Is the type declared 'const'?
+ * @property   {CPP_ASTType}     canonicalType   The canonical type of this type (null if it already is canonical)
+ * @property   {boolean}         isCanonical     Checks if type is canonical
+ *
+ * @param   {string}   kind   Kind of the type
+ * @param   {number}   id     ID of the type
  */
 function CPP_ASTType(kind, id)
 {
@@ -83,7 +93,7 @@ CPP_ASTType.prototype = {
 	constructor: CPP_ASTType,
 	
 	/**
-	 * True if type is a builtin type, otherwise false
+	 * Checks if it is a builtin type
 	 * 
 	 * @returns {boolean}
 	 */
@@ -153,33 +163,15 @@ CPP_ASTType.prototype = {
 	
 	get isCanonical(){ return (this.canonicalType == null);},
 	
+	/**
+	 * Returns the canonical type of this type
+	 * 
+	 * @returns {CPP_ASTType}   Canonical type 
+	 */
 	getCanonicalType: function getCanonicalType()
 	{
 		return (this.canonicalType == null) ? this : this.canonicalType;
-	},
-	
-	/**
-	 * Returns the type as its C++ code
-	 * 
-	 * @returns {String} 
-	 */
-	getAsCPPCode: function getAsCPPCode()
-	{
-		if(this.declaration)
-		{
-			return "INVALID";
-		}
-		else if(this.pointsTo)
-		{
-			return "INVALID";
-		}
-		else if(this._fundamentalTypeCodes[this.kind])
-		{
-			return ((this.isConst == true) ? "const " : "") + this._fundamentalTypeCodes[this.kind];
-		}
-		else return "INVALID";
-	}, 
-	
+	},	
 };
 
 MetaData.initMetaDataOn(CPP_ASTType.prototype)
@@ -192,10 +184,14 @@ MetaData.initMetaDataOn(CPP_ASTType.prototype)
 //======================================================================================   
    
 /**
- * CPP_ASTFunctionType
+ * Represents a C++ function type
  *
  * @constructor
- * @this {CPP_ASTFunctionType}
+ *
+ * @property   {CPP_ASTType[]}   parameters    List of parameter types
+ *
+ * @param   {string}   kind   Kind of the type
+ * @param   {number}   id     ID of the type
  */
 function CPP_ASTFunctionType(kind, id)
 {

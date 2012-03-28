@@ -5,10 +5,18 @@ Components.utils.import("chrome://bound/content/modules/Utils/MetaData.jsm");
 //======================================================================================
 
 /**
- * ASTObject
+ * Represents an AST node
+ *
+ * @property {string}             name           Name of the AST node
+ * @property {number}             kind           Kind of the AST node
+ * @property {AST}                AST            AST the node belongs to
+ * @property {ASTObject}          parent         Parent node
+ * @property {ASTObject[]}        children       Children of the node
+ * @property {Object<ASTObject>}  _childrenMap   Children of the node in a map by their name
  *
  * @constructor
- * @this {ASTObject}
+ * @param   {ASTObject}   parent   Parent of the ASTObject
+ * @param   {string}      name     Name of the ASTObject
  */
 function ASTObject(parent, name)
 {
@@ -25,6 +33,14 @@ ASTObject.ACCESS_PRIVATE   = 1;
 ASTObject.ACCESS_PROTECTED = 2;
 ASTObject.ACCESS_PUBLIC    = 3;
 
+
+/**
+ * Returns the access from the given string
+ *
+ * @param   {string}   str   String to retrieve access from
+ *
+ * @returns {number}   access
+ */
 ASTObject.getAccessFromString = function getAccessFromString(str)
 {
 	switch(str)
@@ -66,8 +82,15 @@ ASTObject.KIND_TEMPLATE_EXPRESSION_ARGUMENT         = 24;
 ASTObject.KIND_TEMPLATE_PACK_ARGUMENT               = 25;
 
 ASTObject.KIND_PROPERTY        = 100;
+ASTObject.KIND_OBJECT          = 101;
 
-
+/**
+ * Returns the string of a given kind
+ *
+ * @param   {Number}   kind   Kind to retrieve string from
+ *
+ * @returns {string}   String version of kind or "Invalid"
+ */
 ASTObject.getKindAsString = function getKindAsString(kind)
 {
 	switch(kind)
@@ -100,6 +123,7 @@ ASTObject.getKindAsString = function getKindAsString(kind)
 		case ASTObject.KIND_TEMPLATE_PACK_ARGUMENT:               return "TemplatePackArgument";
 			
 		case ASTObject.KIND_PROPERTY       : return "Property";
+		case ASTObject.KIND_OBJECT         : return "Object";
 	}
 	
 	return "Invalid";
@@ -132,7 +156,7 @@ ASTObject.prototype = {
 	 * Renames the given child
 	 * 
 	 * @param   {ASTObject}   child            Child to rename
-	 * @param   {String}      newName          New name of the child
+	 * @param   {string}      newName          New name of the child
 	 */
 	_renameChild: function _renameChild(child, newName)
 	{
@@ -192,7 +216,7 @@ ASTObject.prototype = {
 	/**
 	 * Adds a child to the object, does overload resolution
 	 * 
-	 * @param   {ASTObject}   child            Child to add
+	 * @param   {ASTObject}   child    Child to add
 	 */
 	addChild: function addChild(child)
 	{
@@ -277,9 +301,9 @@ ASTObject.prototype = {
 	 * Returns the kind as a string
 	 *   - uses own kind or the kind specified
 	 * 
-	 * @param   {Number}   kind   Optional: kind to get
+	 * @param   {number}   kind   Optional: kind to get
 	 * 
-	 * @returns {String}   String representation of the kind
+	 * @returns {string}   String representation of the kind
 	 */
 	getKindAsString: function getKindAsString(kind)
 	{
@@ -291,7 +315,7 @@ ASTObject.prototype = {
 	/**
 	 * Returns a unique identifier that can be used to reference this AST_Object f. ex. when loading
 	 * 
-	 * @returns {String}   Reference identifier
+	 * @returns {string}   Reference identifier
 	 */
 	getReferenceID: function getReferenceID()
 	{
@@ -312,7 +336,11 @@ MetaData.initMetaDataOn(ASTObject.prototype)
 //======================================================================================
 
 /**
- * 
+ * Represents a container for overloaded elements
+ *
+ * @property   {string}         name        Name of the elements
+ * @property   {number}         kind        Kind of the elements
+ * @property   {ASTObject[]}    overloads   Elements of the container
  *
  * @constructor
  * @this {ASTOverloadContainer}
@@ -332,9 +360,9 @@ ASTOverloadContainer.prototype = {
 	 * Returns the kind as a string
 	 *   - uses own kind or the kind specified
 	 * 
-	 * @param   {Number}   kind   Optional: kind to get
+	 * @param   {number}   kind   Optional: kind to get
 	 * 
-	 * @returns {String}   String representation of the kind
+	 * @returns {string}   String representation of the kind
 	 */
 	getKindAsString: function getKindAsString(kind)
 	{

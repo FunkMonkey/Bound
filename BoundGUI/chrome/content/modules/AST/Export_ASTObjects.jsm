@@ -14,7 +14,11 @@ Components.utils.import("chrome://bound/content/modules/Utils/MetaData.jsm");
 Cu.import("chrome://bound/content/modules/log.jsm");
 
 /**
- * Export_AST
+ * Represents an export AST
+ *
+ * @property {Export_ASTObject}           root                   Root node
+ * @property {Object<BaseCodeGenPlugin>}  codeGeneratorPlugins   Map of code generator plugins
+ * @property {AST}                        sourceAST              C++ AST the export AST is connected to
  *
  * @constructor
  */
@@ -34,8 +38,8 @@ function Export_AST(rootNodeName)
 /**
  * Creates a CPP_AST given a JSON compatible object
  * 
- * @param   {Object}   saveObj    JSON compatible object
- * @param   {AST}      sourceAST  The Input AST TODO: think about something else
+ * @param   {Object}    saveObj     JSON compatible object
+ * @param   {AST}       sourceAST   The Input AST (e.g. CPP_AST) TODO: think about something else
  * 
  * @returns {Exort_AST} New Exort_AST
  */
@@ -64,7 +68,7 @@ Export_AST.prototype = {
 	/**
 	 * Adds a code generator plugin to the AST
 	 * 
-	 * @param   {CodeGeneratorPlugin}   codeGenPlugin   Code generator to add
+	 * @param   {BaseCodeGenPlugin}   codeGenPlugin   Code generator plugin to add
 	 */
 	addCodeGeneratorPlugin: function addCodeGenerator(codeGenPlugin)
 	{
@@ -78,9 +82,9 @@ Export_AST.prototype = {
 	/**
 	 * Returns the code generator plugin for the given language
 	 * 
-	 * @param   {String}   context   Context of the code-generator plugin
+	 * @param   {string}   context   Context of the code-generator plugin
 	 * 
-	 * @returns {CodeGeneratorPlugin}   Code generator plugin; null if not found
+	 * @returns {BaseCodeGenPlugin}   Code generator plugin; null if not found
 	 */
 	getCodeGeneratorPlugin: function getCodeGenerator(context)
 	{
@@ -121,15 +125,21 @@ Export_AST.prototype = {
 			this.root.onSourceASTChanged(this._sourceAST);
 		}
 	}
-	
-	
 }
 
 /**
- * ASTObject
+ * Represents an export AST node
  *
  * @constructor
  * @extends ASTObject
+ * 
+ * @property {ASTObject}                   sourceObject     Source AST node (e.g. CPP_ASTObject)
+ * @property {number}                      kind             Kind of the node
+ * @property {Object<BaseEntityCodeGen>}   codeGenerators   Code generators (mapped by context)
+ * 
+ * @param   {Export_ASTObject}   parent         Parent of the ASTObject
+ * @param   {string}             name           Name of the ASTObject
+ * @param   {ASTObject}          sourceObject   Source AST node (e.g. CPP_ASTObject)
  */
 function Export_ASTObject(parent, name, sourceObject)
 {
@@ -148,8 +158,8 @@ Export_ASTObject.prototype = {
 	/**
 	 * Renames the given child
 	 * 
-	 * @param   {ASTObject}   child            Child to rename
-	 * @param   {String}      newName          New name of the child
+	 * @param   {Export_ASTObject}   child            Child to rename
+	 * @param   {string}             newName          New name of the child
 	 */
 	_renameChild: function _renameChild(child, newName)
 	{
@@ -160,12 +170,14 @@ Export_ASTObject.prototype = {
 	},
 	
 	// TEMPORARY
-	get kind(){ return (this.sourceObject == null) ? ASTObject.KIND_INVALID : this.sourceObject.kind; },
+	get kind(){
+		return (this.sourceObject == null) ? ASTObject.KIND_OBJECT : this.sourceObject.kind;
+	},
 	
 	/**
 	 * Adds a code generator to the ASTObject
 	 * 
-	 * @param   {CodeGenerator}   codeGen   Code generator to add
+	 * @param   {BaseEntityCodeGen}   codeGen   Code generator to add
 	 */
 	addCodeGenerator: function addCodeGenerator(codeGen)
 	{
@@ -179,9 +191,9 @@ Export_ASTObject.prototype = {
 	/**
 	 * Returns the code generator for the given language
 	 * 
-	 * @param   {String}   context   Context of the code-generator
+	 * @param   {string}   context   Context of the code-generator
 	 * 
-	 * @returns {CodeGenerator}   Code generator; null if not found
+	 * @returns {BaseEntityCodeGen}   Code generator; null if not found
 	 */
 	getCodeGenerator: function getCodeGenerator(context)
 	{

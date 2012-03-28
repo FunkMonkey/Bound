@@ -4,10 +4,15 @@ Components.utils.import("chrome://bound/content/modules/log.jsm");
 Components.utils.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm");
 
 /**
- * CPP_TypePrinterPolicy
+ * Represents a policy for a type printer
+ *
+ * @property  {boolean}  suppressQualifiers                 If true, qualifiers are suppressed
+ * @property  {boolean}  suppressNonPointerConstQualifier   If true, const qualifiers of non-pointers are suppressed
+ * @property  {boolean}  suppressPointerConstQualifier      If true, const qualifiers of pointers are suppressed
+ * @property  {boolean}  suppressScope                      If true, scope is suppressed (remove namespaces and such)
+ * @property  {boolean}  suppressGlobalNSColons             If true, leading colons for global scope are suppressed
  *
  * @constructor
- * @this {CPP_TypePrinterPolicy}
  */
 function CPP_TypePrinterPolicy()
 {
@@ -19,10 +24,11 @@ function CPP_TypePrinterPolicy()
 };
 
 /**
- * CPP_TypePrinter
+ * Represents a type printer that can convert C++ types to strings
+ *
+ * @property  {CPP_TypePrinterPolicy}  policy   Printing policy used
  *
  * @constructor
- * @this {CPP_TypePrinter}
  */
 function CPP_TypePrinter(policy)
 {
@@ -38,7 +44,7 @@ CPP_TypePrinter.prototype = {
 	 * 
 	 * @param   {CPP_ASTType}   type   Type to get name for
 	 * 
-	 * @returns {String}   Name of builtin type
+	 * @returns {string}   Name of builtin type
 	 */
 	_getBuiltInName: function _getBuiltInName(type)
 	{
@@ -78,7 +84,7 @@ CPP_TypePrinter.prototype = {
 	 * @param   {boolean}         appendScope            Show scope
 	 * @param   {boolean}         appendGlobalNSColons   Show scope colons of global namespace
 	 * 
-	 * @returns {String}   Name of the declaration
+	 * @returns {string}   Name of the declaration
 	 */
 	_getDeclarationName: function _getDeclarationName(astObject, appendScope, appendGlobalNSColons)
 	{
@@ -145,7 +151,7 @@ CPP_TypePrinter.prototype = {
 	 * 
 	 * @param   {CPP_ASTType}   type   ASTType to stringify
 	 * 
-	 * @returns {String}   String representation of ASTType
+	 * @returns {string}   String representation of ASTType
 	 */
 	getAsString: function getAsString(type)
 	{
@@ -195,7 +201,7 @@ CPP_TypePrinter.prototype = {
 	 * 
 	 * @param   {CPP_ASTType}   type   ASTType to stringify
 	 * 
-	 * @returns {Array}   Array of string representations of the given type, most sugared first
+	 * @returns {string[]}   Array of string representations of the given type, most sugared first
 	 */
 	getAllStrings: function getAllStrings(type, forceConst)
 	{
