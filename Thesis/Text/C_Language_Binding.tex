@@ -7,7 +7,7 @@ The need to combine different programming languages and to exchange information 
 
 Often, language binding is needed to connect a higher-level programming \linebreak language (e.g. a scripting language like \myProperName{Python}) with a lower-level programming language (e.g. a system programming language like \myProperName{C}).
 
-\section{System programming languages and scripting languages}
+\section{System Programming Languages and Scripting Languages}
 
 According to \myAuthorName{John Ousterhout}, the creator of the programming language \myProperName{TCL}, the terms \textbf{\mySlang{low(er)-level}} and \textbf{\mySlang{high(er)-level}} refer to the degree of abstraction a programming language provides in comparison to another language. Higher-level languages encapsulate more machine instructions per statement and therefore usually need less code to be written to perform a given task. They handle machine-oriented details like register allocation automatically, while omitting complexity. This leads to better code maintainability and faster development at the cost of performance.\footnote{\citep{Ousterhout}}
 
@@ -21,13 +21,13 @@ However, there are programming languages that share properties of both presented
 
 Scripting and system programming languages have a symbiotic relationship. System programming languages are used to create high-performance components providing access to platform- and operating system functionality. These components can then be assembled using scripting languages to form an application\footnote{\citep{Ousterhout}}. Binding a system programming language and a scripting language together combines the advantages of both worlds and most importantly allows the reuse of existing code that may not be integrable without language binding.
 
-\subsection{Extending vs embedding}
+\subsection{Extending vs Embedding}
 
 When binding together a system programming language and a scripting language, we must first understand the difference between \textbf{extending} and \textbf{embedding} of the scripting language\footnote{\citep{PythonHP}}. Languages like \myProperName{Python} or \myProperName{JavaScript}, which run inside a virtual machine, come with their own interpreter. This interpreter and the API that is used for extending and embedding are usually provided in the form of a shared library. The interpreter often also exists as an independent executable. \\
 When \textbf{extending} a scripting language, the programmer creates a shared library in the system programming language that can be loaded and used from the scripting language's interpreter executable. The shared library uses the provided API-library to expose functionality to the scripting language.\\
 \textbf{Embedding} however, means the programmers will be including an instance of the interpreter in their own application. Again, the API-library is used for exposing functionality, however the developed application must further deal with the initialization of the interpreter itself. Communication with the interpreter has to be established and maintained. In such a scenario the embedded language is often referred to as the \textbf{guest language}, whereas the main application's programming language is the \textbf{host language}.
 
-\section{Types of function binding}
+\section{Types of Function Binding}
 \label{sec:TypesOfFunctionBinding}
 
 Before the process of binding different languages into one application is explained, it is important to define some terms concerning the binding of functions.
@@ -40,7 +40,7 @@ In \myProperName{C++}, calls to virtual functions are bound at run-time. This is
 
 Looking up the address of a function at run-time using a string or another type of identifier is also a kind of dynamic binding. This is sometimes referred to as \textbf{dynamic method invocation}.\\
 The lookup of native functions may be trivial for programming languages that support reflection, as these languages (for instance \myProperName{C\#} or \myProperName{Java}) provide native ways of calling functions using a string-identifier.\\
-A language like \myProperName{C++}, which does not support reflection, needs special type libraries, which map the identifiers to the according offset of the function in the class' virtual table. Type library files also contain information about the types of function arguments and return types. Given an instance with a virtual table and the type library, the function's address can be retrieved and called. As an alternative to using type libraries, the object can also provide a dispatch function that takes an identifier and resolves the function address.
+A language like \myProperName{C++}, which does not support reflection, needs special type libraries, which map the identifiers to the corresponding offset of the function in the class' virtual table. Type library files also contain information about the types of function arguments and return types. Given an instance with a virtual table and the type library, the function's address can be retrieved and called. As an alternative to using type libraries, the object can also provide a dispatch function that takes an identifier and resolves the function address.
 \\Type checking of function arguments and return values needs to be done at run-time with the information given in the type library. Therefore dynamic method invocation does not require compile-time knowledge about the object's interface. Trying to call non-existent functions by using a string-identifier that is not in the type library will result in run-time errors.
 
 Concerning performance, static binding is the fastest. Dynamic binding using virtual tables is only marginally slower on modern hardware, because of one more level of indirection. Dynamic method invocation is by far the slowest, due to the resolving of a function's address using an identifier and type checking at run-time. 
@@ -49,7 +49,7 @@ Note that in contexts outside of standard \myProperName{C++}, for example in \my
 
 It is important to understand that static binding is only possible in programming languages that support static typing. Scripting languages like \myProperName{JavaScript}, where variables are weakly typed, can neither know the type of a variable nor the offset of a function at compile-time and thus can only use dynamic method invocation.
 
-\section{The process of binding languages}
+\section{The Process of Binding Languages}
 
 \begin{quotation}
 ``Binding one language to another is a non-trivial task. The binding language needs to understand the calling conventions, type system, data structures, memory allocation mechanisms and linking strategy of the target language, just to get things working. The task is to carefully align the semantics of both languages, so that both languages can understand the data that passes between them.''\footnote{\citep{RealWorldHaskell}}
@@ -85,7 +85,7 @@ To express the dynamic nature of the given definition, the term ``\textbf{dynami
 
 The different ways of creating foreign interfaces will be explained in greater detail in the following sections.
 
-\subsection{Static foreign interfaces}
+\subsection{Static Foreign Interfaces}
 
 Both \myProperName{Python} and \myProperName{SpiderMonkey} (\myProperName{Mozilla}'s implementation of the \myProperName{ECMAScript} standard, also known as \myProperName{JavaScript}) are accessible in form of a library exposing a \myProperName{C}-API. Thus glue code for binding \myProperName{C} or \myProperName{C++} functionality to one of these languages has to be written in \myProperName{C/C++} using the given API.
 
@@ -125,12 +125,12 @@ Looking at the given example, it is obvious that even the wrapping of a simple \
 
 \myLBHighlight{Thus, the main subject of this thesis is to develop an application that assists in the creation of glue code for binding different scripting languages to \myProperName{C++} using a static foreign interface as presented above for \myProperName{Mozilla SpiderMonkey}.}
 
-\subsection{Dynamic foreign interfaces and dynamic method invocation}
+\subsection{Dynamic Foreign Interfaces and Dynamic Method Invocation}
 \label{sec:DynamicForeignInterfaces}
 
 When wrapping a class, instead of writing glue code for every single function, it is also possible to direct every call through a single proxy function. This proxy function will do all the work at run-time, with the help of type libraries. As this is a form of dynamic dispatch, such a function can be called a \mySlang{dispatch function}.
 
-Calls to an object's functions are resolved using dynamic method invocation based on an identifier as explained in \myRefSection{sec:TypesOfFunctionBinding}. Consider a script object that wraps a class instance. The object internally holds a reference to the wrapped instance. When calling a method of the given object, f. ex. \mySCName{doSomething}, the call will be directed to the proxy function. Based on the given string \mySCString{doSomething} and the internal instance, the proxy will look up the memory address and expected parameters of the native function. It will then convert the given script-arguments to the expected format. The proxy subsequently calls the native function and converts the return value to a type that is understood by the scripting language. This is all happening at run-time.
+Calls to an object's functions are resolved using dynamic method invocation based on an identifier as explained in \myRefSection{sec:TypesOfFunctionBinding}. Consider a script object that wraps a class instance. The object internally holds a reference to the wrapped instance. When calling a method of the given object, e.g. \mySCName{doSomething}, the call will be directed to the proxy function. Based on the given string \mySCString{doSomething} and the internal instance, the proxy will look up the memory address and expected parameters of the native function. It will then convert the given script-arguments to the expected format. The proxy subsequently calls the native function and converts the return value to a type that is understood by the scripting language. This is all happening at run-time.
 
 Exposing a foreign interface using dynamic method invocation will lead to worse performance as opposed to static foreign interfaces.\\
 When binding a weakly typed language, both approaches have the cost of resolving the method's name to the address of the wrapper function using dynamic method invocation.\\
@@ -140,7 +140,7 @@ Dynamic method invocation though has the advantage that type information of the 
 
 \myLBHighlight{The developed application should be designed in a way that it can later be extended to allow the creation of type libraries based on \myProperName{C++} source code.}
 
-\subsection{Dynamic foreign function interfaces}
+\subsection{Dynamic Foreign Function Interfaces}
 \label{sec:DynamicFFI}
 
 Some scripting languages allow the use of public symbols from shared libraries, such as calling functions and accessing data types, without the need to write glue code in the system programming language. The scripting language provides an API (the dynamic foreign function interface) for writing the glue code in the scripting language itself.
@@ -177,11 +177,11 @@ As a side note, most FFI implementations use the same library, \myProperNameImp{
 
 \myLBHighlight{Besides creating glue code for static foreign interfaces, the application should be designed in a way that it can be extended to support the creation of glue code for dynamic foreign function interfaces.}
 
-\section{Existing language binding systems and tools}
+\section{Existing Language Binding Systems and Tools}
 
 Because the need for bridging different programming languages arises in many projects - especially in the computer games industry the embedding of scripting languages is very popular - there are already systems and tools existing for automating the binding-process, creating glue code or providing dynamic access to native code. Some of these binding systems and tools will be explained in further detail.
 
-\subsection{Component models}
+\subsection{Component Models}
 \label{sec:ComponentModels}
 
 \begin{quotation}
@@ -208,7 +208,7 @@ Interfaces are defined in a special interface definition language (IDL). The int
 When implementing \myProperName{COM} or \myProperName{CORBA} components in \myProperName{C++}, an IDL compiler is used to create header files with abstract classes that are to be extended and implemented.\\
 The IDL compiler will also create type libraries which hold information about the interfaces, the functions and their offsets in the virtual table, their parameters, etc. When calling a component's method from a dynamically typed scripting language, these type libraries will be used for dynamically invoking the method by its name at run-time as described in \myRefSection{sec:DynamicForeignInterfaces}. In \myProperName{COM}, statically typed or compiled languages like \myProperName{Visual Basic} also use the type libraries for retrieving function memory addresses at compile-time to eliminate the cost of dynamic method invocation.  
 
-\subsubsection{Communication between components}
+\subsubsection{Communication between Components}
 
 When it comes to in-process communication between different components and objects, \myProperName{COM} and \myProperName{CORBA} go different ways. 
 

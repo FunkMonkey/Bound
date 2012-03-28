@@ -20,7 +20,7 @@ Thus, tools performing static analysis evaluate software in the abstract, withou
 Complementary to static program analysis, there is \textbf{dynamic program analysis}, which analyses software at run-time. Unit testing comes to mind as a prominent example of dynamic program analysis.
 
 \newpage
-\section{Area of application}
+\section{Area of Application}
 \label{sec:AreaOfApplication}
 
 The general purpose of static analysis is to extract useful information from source code or compiled code (like byte code or binary code).
@@ -35,7 +35,7 @@ The type of information retrieved depends on the context and purpose of the stat
 \item Optimization
 \end{itemize}
 
-\subsection{Program correctness}
+\subsection{Program Correctness}
 
 Static analysis tools that are concerned with program correctness try to detect defects at compile-time so that these defects do not manifest in run-time errors, such as crashes, data corruption and program malfunctioning. Thus these tools, which are mostly concerned with \textbf{software quality}, are often referred to as \textbf{bug finders}.
 
@@ -47,7 +47,7 @@ A prominent example of preventing run-time errors at compile-time is type checki
 ``The lint program for C programs is generally considered the first widely used static analysis tool for defect detection.''\footnote{\citep[1]{UsingSAToFindBugs}}
 \end{quotation}
 
-\subsubsection{Generic and context-specific defects}
+\subsubsection{Generic and Context-Specific Defects}
 
 Defects can be categorized into generic and context-specific defects.
 
@@ -56,7 +56,7 @@ Defects can be categorized into generic and context-specific defects.
 
 The following sections will present different kinds of bugs, most of which can be found by analysing the control and data flow of an application.
 
-\subsubsection{Overflow and range analysis problems}
+\subsubsection{Overflow and Range Analysis Problems}
 
 A buffer overflow occurs when a program writes data outside the bounds of allocated memory\footnote{\citep[175]{SecureProgramming}}, for example when writing data into a buffer that is too small for the data to be written, leading to the memory after the buffer being overwritten and thus corrupted. Static analysis tools can detect such problems and advice the programmer to do a bounds-check.
 
@@ -73,7 +73,7 @@ for(unsigned int i = 200; i >= 0; --i)
 
 A static analysis tool will detect that the expression \mySCName{i \textgreater= 0} will always be true for \mySCName{unsigned} integer types like \mySCName{i}, as \mySCName{i} will be set to the highest possible unsigned integer when being \mySCName{0} and decreased by \mySCName{1}.
 
-\subsubsection{Resource leaks}
+\subsubsection{Resource Leaks}
 
 Resource leaks can be detected by tracking request (for example allocation of memory) and release of resources.
 
@@ -81,21 +81,21 @@ If a program gives up all references to a resource that has not been released, t
 
 The most prominent example of a resource leak is a memory leak. But there are other important resources like files and databases that may need to be locked before usage and released afterwards.
 
-\subsubsection{Threads and concurrency}
+\subsubsection{Threads and Concurrency}
 
 Static analysis tools can also be used to find problems with threads such as data races and deadlocks.
 
 Similar to the detection of resource leaks, the data and call flow of the application can be analysed to track the locking and unlocking of semaphores.
 
-\subsubsection{Other problems and warnings}
+\subsubsection{Other Problems and Warnings}
 
 There are many more possible sources for bugs that can be detected using static analysis tools, such as division by zero, dereferencing of \mySCName{null}-pointers or the returning of references or pointers to local function variables.
 
-Bug finders are not only concerned with finding malicious code that will lead to run-time errors, but may also warn about code that is redundant, like comparisons that will always have the same result. Although such a comparison won't cause a failure or exception, its existence suggests that it might have resulted from a coding error, leading to incorrect program behaviour.\footnote{\citep[1]{UsingSAToFindBugs}}
+Bug finders are not only concerned with finding malicious code that will lead to run-time errors, but may also warn about code that is redundant, like comparisons that will always have the same result. Although such a comparison will not cause a failure or exception, its existence suggests that it might have resulted from a coding error, leading to incorrect program behaviour.\footnote{\citep[1]{UsingSAToFindBugs}}
 
 Similar warnings could be issued for functions whose return values (for example error codes) have not been checked or for exception catch-clauses that are too broad, so that they catch important exceptions like \mySCName{OutOfMemoryError} without handling them.
 
-\subsection{Software security}
+\subsection{Software Security}
 
 \begin{quotation}
 ``Static analysis is particularly well suited to security because many security problems occur in corner cases and hard-to-reach states that can be difficult to exercise by actually running the code.''\footnote{\citep[4]{SecureProgramming}}
@@ -106,11 +106,11 @@ Concerning software security, static analysis tools are used to find coding erro
 Static analysis may also track input data flow and validation to determine
 all the implicit ways a program might be putting unwarranted faith in some aspect of its input.\footnote{\citep[172]{SecureProgramming}}
 
-\subsection{Style checking}
+\subsection{Style Checking}
 
 Style checkers enforce rules related to whitespace, position of scope-brackets, naming conventions, deprecated functions, commenting, program structure, and similar non-semantic issues.\footnote{\citep[25]{SecureProgramming}}
 
-\subsection{Program understanding}
+\subsection{Program Understanding}
 
 \begin{wrapfigure}{r}{0.4\textwidth}
   \vspace{-20pt}
@@ -138,7 +138,7 @@ Compilers use static analysis to perform code optimization:
 
 Apart from code optimization, compile-time optimization, for example by finding unnecessary include-files in \myProperName{C++} applications is another area that static analysis is used for. \myProperName{include-what-you-use}\footnote{\myProperName{include-what-you-use}: \url{http://code.google.com/p/include-what-you-use/}} is a tool that performs this task. It internally uses the \myProperName{Clang} compiler.
 
-\section{Static analysis as part of a programmer's workflow}
+\section{Static Analysis as Part of a Programmer's Workflow}
 
 Being major factors of software quality, companies put a lot of effort into improving and verifying \textbf{program correctness} and \textbf{software security}. Different techniques have been developed, each concerned with achieving this main goal, but taking varying routes and targeting different stages of the development.
 
@@ -159,11 +159,11 @@ Depending on how well a tool works and how good it is balanced, static analysis 
 \textbf{False negatives}, on the other hand, are real bugs that a tool did not discover. It has already been said, that complete absence of errors can not be proven with any tool - so, using static analysis tools may give the programmer a false sense of security.\footnote{\citep[23]{SecureProgramming}}
 
 
-\section{Static analysis tool internals}
+\section{Static Analysis Tool Internals}
 
 To retrieve useful information from the code, static analysis tools need to build an internal representation (model) of the program to be analysed. The structure of that model heavily depends on the purpose of the tool and has to make good trade-offs between precision, depth, and scalability.\footnote{\citep[45]{SecureProgramming}} After such a model has been created, the tool can use the information for further processing. It could, for example, perform rule-based checks on the model to find coding errors.
 
-\subsection{The model}
+\subsection{The Model}
 
 When creating the internal program model, static analysis tools generally borrow a lot from the compiler world\footnote{\citep[72]{SecureProgramming}}. They especially follow the first two phases of a compiler: lexical analysis and syntax analysis.
 
@@ -184,7 +184,7 @@ Some static analysis tools may go their own way from this point on and create th
 
 Bug finders additionally need to populate their model with information about the effects of library or system calls invoked by the program being analysed.\footnote{\citep[37]{SecureProgramming}}
 
-\subsection{Applying rules}
+\subsection{Applying Rules}
 
 After creating a model, static analysis tools that check for correctness, will perform checks on the model using a set of rules that are delivered with the tool. These rules may search for common \mySlang{bug idioms} like memory leaks, buffer overflows or may define the characteristics of a special security related problem.
 
@@ -196,7 +196,7 @@ take the form of specially formatted comments.\footnote{\citep[99]{SecureProgram
 
 The approaches that are used for checking rules differ from rule to rule. Some checks track control flow or data flow throughout the program. Others use alternative relationships that can be drawn from the model. How static analysis tools perform these checks is out of the scope of this thesis. For further knowledge the reader is advised to gather information about \textit{Control Flow Analysis}, \textit{Data Flow Analysis}, \textit{Constraint Based Analysis}, \textit{Taint Propagation}, \textit{Abstract Interpretation}, \textit{Interprocdural Analysis }as well as \textit{Type and Effect Systems}. 
 
-\section{Existing static analysis tools}
+\section{Existing Static Analysis Tools}
 
 The application to be developed will make use of a 3rd party library for performing an integral part of the analysis of \myProperName{C++} headers. 
 
