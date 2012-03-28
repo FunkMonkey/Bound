@@ -1,14 +1,22 @@
 var EXPORTED_SYMBOLS = ["CodeGeneratorPluginManager"];
 
+
+// TODO: move into BasePlugin
+
+/**
+ * Manages the code generator plugin constructor functions
+ *
+ * @type Object
+ */
 var CodeGeneratorPluginManager = {
 	
 	_plugins: {},
 	
 	/**
-	 * Registers a plugin
+	 * Registers a plugin constructor function
 	 *
-	 * @param   {String}                context  Context of the plugin
-	 * @param   {CodeGeneratorPlugin}   plugin   Plugin to register
+	 * @param   {string}     context  Context of the plugin
+	 * @param   {Function}   plugin   Plugin constructor function to register
 	 */
 	registerPlugin: function registerPlugin(context, plugin)
 	{

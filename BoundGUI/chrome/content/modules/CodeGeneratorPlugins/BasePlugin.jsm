@@ -3,10 +3,11 @@ var EXPORTED_SYMBOLS = ["BaseCodeGenPlugin", "BaseEntityCodeGen"];
 //======================================================================================
 
 /**
- * 
+ * Represents the base class for code generator plugins
  *
  * @constructor
- * @this {BaseCodeGenPlugin}
+ *
+ * @property   {string}   context   Context ID for the plugin
  */
 function BaseCodeGenPlugin()
 {
@@ -71,10 +72,16 @@ Object.defineProperty(BaseCodeGenPlugin.prototype, "constructor", {value: BaseCo
 //======================================================================================
 
 /**
+ * Represents the base class for an entity code generator
  * 
- *
  * @constructor
- * @this {BaseEntityCodeGen}
+ *
+ * @property   {BaseCodeGenPlugin}   plugin         Plugin the code gen belongs to
+ * @property   {Export_ASTObject}    exportObject   The export object this code gen belongs to
+ * @property   {Object}              _genInput      Input used for code generation
+ * @property   {string}              context        Context ID  (shortcut to plugin.context)
+ *
+ * @param   {BaseCodeGenPlugin}   plugin   Plugin the code gen belongs to
  */
 function BaseEntityCodeGen(plugin)
 {
@@ -107,15 +114,13 @@ BaseEntityCodeGen.prototype = {
 		
 	},
 	
-
-	
 	/**
 	 * Prepares the content for code generation and saves it in this._genInput.
 	 * This happens in multiple rounds (what only makes sense when being recursive).
 	 * Saves problems in this._genInput.diagnosis
 	 *    - returns if the code generator will produce valid results
 	 *
-	 * @param   {Number}    round     Round of preparation
+	 * @param   {number}    round     Round of preparation
 	 * @param   {boolean}   recurse   Prepare and diagnose recursively
 	 * 
 	 * @returns {boolean}   True if valid, otherwise false
@@ -150,7 +155,7 @@ BaseEntityCodeGen.prototype = {
 	/**
 	 * Prepares the content of the children and validates them
 	 *
-	 * @param   {Number}    round     Round of preparation
+	 * @param   {number}    round     Round of preparation
 	 * @param   {boolean}   recurse   Prepare and diagnose recursively
 	 * 
 	 * @returns {boolean}   True if children valid, otherwise false

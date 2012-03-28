@@ -29,10 +29,11 @@ var unqualifiedTypePrinter = new CPP_TypePrinter(unqualifiedTypePolicy);
 //======================================================================================
 
 /**
- * 
+ * Represents the base class for a type library entry
+ *
+ * @property   {string}   id   ID of the type library entry
  *
  * @constructor
- * @this {ASTTypeLibraryEntry}
  */
 function ASTTypeLibraryEntry(id)
 {
@@ -48,10 +49,14 @@ Object.defineProperty(ASTTypeLibraryEntry.prototype, "constructor", {value: ASTT
 //======================================================================================
 
 /**
- * 
+ * Represents a code generator plugin for language binding purposes
  *
  * @constructor
- * @this {LanguageBindingCodeGenPlugin}
+ * @extends BaseCodeGenPlugin
+ *
+ * @property   {Object<ASTTypeLibraryEntry>}    typeLibrary                List of type library entries
+ * @property   {Object<string>}                 typeTemplates_to_script    Type map that associates C++ types with template names (converting to script)
+ * @property   {Object<string>}                 typeTemplates_from_script  Type map that associates C++ types with template names (converting from script)
  */
 function LanguageBindingCodeGenPlugin()
 {
@@ -69,13 +74,14 @@ LanguageBindingCodeGenPlugin.prototype = {
 	
 	/**
 	 * Number of times prepareAndDiagnose will be called
+	 * @type number
 	 */
 	numPrepareRounds: 1,
 	
 	/**
 	 * Registers a type library entry
 	 * 
-	 * @param   {String}                id      ID of the entry, f. ex. USR
+	 * @param   {string}                id      ID of the entry, f. ex. USR
 	 * @param   {ASTTypeLibraryEntry}   entry   Entry to register
 	 */
 	addTypeLibraryEntry: function addTypeLibraryEntry(id, entry)
@@ -89,7 +95,7 @@ LanguageBindingCodeGenPlugin.prototype = {
 	/**
 	 * Removes the type library entry with the given id
 	 * 
-	 * @param   {String}   id   ID of entry to remove
+	 * @param   {string}   id   ID of entry to remove
 	 */
 	removeTypeLibraryEntry: function removeTypeLibraryEntry(id)
 	{
@@ -100,7 +106,7 @@ LanguageBindingCodeGenPlugin.prototype = {
 	/**
 	 * Returns the type library entry for the given id
 	 * 
-	 * @param   {String}   id   ID of entry to get
+	 * @param   {string}   id   ID of entry to get
 	 * 
 	 * @returns {ASTTypeLibraryEntry}   Entry or null
 	 */
@@ -119,10 +125,15 @@ Extension.inherit(LanguageBindingCodeGenPlugin, BaseCodeGenPlugin);
 //======================================================================================
 
 /**
- * 
+ * Represents an entity code generator for language binding purposes
  *
  * @constructor
- * @this {LanguageBindingEntityCodeGen}
+ * @extends BaseEntityCodeGen
+ *
+ * @property   {Object<string>}   typeTemplates_to_script    Type map that associates C++ types with template names (converting to script)
+ * @property   {Object<string>}   typeTemplates_from_script  Type map that associates C++ types with template names (converting from script)
+ *
+ * @param   {LanguageBindingCodeGenPlugin}   plugin   Plugin this code gen belongs to
  */
 function LanguageBindingEntityCodeGen(plugin)
 {
@@ -131,8 +142,6 @@ function LanguageBindingEntityCodeGen(plugin)
 	// typeTemplates can include the templates of the plugin
 	this.typeTemplates_to_script   = Object.create(this.plugin.typeTemplates_to_script);
 	this.typeTemplates_from_script = Object.create(this.plugin.typeTemplates_from_script);
-	
-
 }
 
 LanguageBindingEntityCodeGen.prototype = {
@@ -141,7 +150,7 @@ LanguageBindingEntityCodeGen.prototype = {
 	 * Returns the template with the given name
 	 *   - if template does not exist, then it sets an error in the diagnostic
 	 * 
-	 * @param   {String}             templateName   Template to get
+	 * @param   {string}             templateName   Template to get
 	 * @param   {CodeGenDiagnosis}   diagnosis      Diagnosis for error reporting
 	 * 
 	 * @returns {Template}   Template or null if not found
@@ -162,7 +171,7 @@ LanguageBindingEntityCodeGen.prototype = {
 	 *
 	 * @param   {CodeGenDiagnosis}   diagnosis      Diagnosis for error reporting
 	 * 
-	 * @returns {String}   Filename or empty string
+	 * @returns {string}   Filename or empty string
 	 */
 	_getSourceObjectIncludeDirective: function _getSourceObjectIncludeDirective(diagnosis)
 	{
@@ -187,10 +196,10 @@ LanguageBindingEntityCodeGen.prototype = {
 	/**
 	 * Returns the id of the template for the given type by searching the type maps
 	 * 
-	 * @param   {String}   astTypeString   String of asttype to find template for
-	 * @param   {Number}   usage           Usage of the type
+	 * @param   {string}   astTypeString   String of asttype to find template for
+	 * @param   {number}   usage           Usage of the type
 	 * 
-	 * @returns {String}   ID of the template
+	 * @returns {string}   ID of the template
 	 */
 	getTypeHandlingTemplateFromMapsByString: function getTypeHandlingTemplateFromMapsByString(astTypeString, usage)
 	{
@@ -213,7 +222,7 @@ LanguageBindingEntityCodeGen.prototype = {
 	 * Returns the id of the template for the given type by searching the type maps
 	 * 
 	 * @param   {CPP_ASTType}   astType   ASTType to find template for
-	 * @param   {Number}        usage     Usage of the type
+	 * @param   {number}        usage     Usage of the type
 	 * 
 	 * @returns {Object}   ID of the template
 	 */
@@ -252,7 +261,7 @@ LanguageBindingEntityCodeGen.prototype = {
 	 * @param   {CPP_ASTType}   astType        ASTType to find USR for
 	 * @param   {boolean}       useCanonical   Use the canonical type for retrieving the USR
 	 * 
-	 * @returns {String}   USR or ""
+	 * @returns {string}   USR or ""
 	 */
 	_getTypeUSR: function _getTypeUSR(astType, useCanonical)
 	{
@@ -275,7 +284,7 @@ LanguageBindingEntityCodeGen.prototype = {
 	 * 
 	 * @param   {CPP_ASTType}           astType   ASTType to find template for
 	 * @param   {ASTTypeLibraryEntry}   typeLib   Type library with more information
-	 * @param   {Number}                usage     Usage of the type
+	 * @param   {number}                usage     Usage of the type
 	 * 
 	 * @returns {Object}   Template with information
 	 */
@@ -322,7 +331,7 @@ LanguageBindingEntityCodeGen.prototype = {
 	* Returns the template that handles the given type for the given usage (TYPE_TO_SCRIPT, TYPE_FROM_SCRIPT)
 	* 
 	* @param   {CPP_ASTType}   astType   ASTType to find template for
-	* @param   {Number}        usage     Usage of the type
+	* @param   {number}        usage     Usage of the type
 	* 
 	* @returns {Object}   Template with information
 	*/
@@ -364,9 +373,9 @@ LanguageBindingEntityCodeGen.prototype = {
 	 * ASTObject
 	 * 
 	 * @param   {CPP_ASTObject_Struct}   astObject   ASTObject to get entries for
-	 * @param   [Array]                  entries     (optional) Array to add entries to 
+	 * @param   {ASTTypeLibraryEntry[]}  [entries]  (optional) Array to add entries to 
 	 * 
-	 * @returns {Array}   Array of type library entries
+	 * @returns {ASTTypeLibraryEntry[]}   Array of type library entries
 	 */
 	getBaseTypeLibraryEntries: function getBaseTypeLibraryEntries(astObject, entries)
 	{
@@ -421,10 +430,12 @@ Extension.inherit(LanguageBindingEntityCodeGen, BaseEntityCodeGen);
 //======================================================================================
 
 /**
- * 
+ * Represents a class that tracks template usage throughout a generation
  *
  * @constructor
- * @this {TemplateUser}
+ *
+ * @property   {Template[]}   usedTemplates     List of used templates
+ * @property   {string[]}     fetchedIncludes   List of fetched includes
  */
 function TemplateUser()
 {
@@ -436,10 +447,10 @@ TemplateUser.prototype = {
 	/**
 	 * Fetches the given template and returns the result string
 	 * 
-	 * @param   {String|Template}   templateOrName   Name of template to fetch, or template itself
+	 * @param   {string|Template}   templateOrName   Name of template to fetch, or template itself
 	 * @param   {Object}            data             Data to pass on fetching
 	 * 
-	 * @returns {String}   Result of the template fetching
+	 * @returns {string}   Result of the template fetching
 	 */
 	fetch: function fetch(templateOrName, data)
 	{
@@ -448,7 +459,7 @@ TemplateUser.prototype = {
 		
 		this.usedTemplates.push(templateOrName);
 		
-		
+		// get the includes dynamically
 		if(templateOrName.getIncludes)
 			this.fetchedIncludes.push.apply(this.fetchedIncludes, templateOrName.getIncludes(data));
 		
@@ -458,9 +469,9 @@ TemplateUser.prototype = {
 	/**
 	 * Uses the template with the given name
 	 * 
-	 * @param   {String|Template}   templateOrName   Name of template to fetch, or template itself
+	 * @param   {string|Template}   templateOrName   Name of template to fetch, or template itself
 	 * 
-	 * @returns {jSmart}   Template found and used
+	 * @returns {Template}   Template found and used
 	 */
 	use: function use(templateOrName)
 	{
@@ -480,6 +491,8 @@ TemplateUser.prototype = {
 	aggregateIncludes: function aggregateIncludes()
 	{
 		var includeFiles = {};
+		
+		// first get from 'includes' member of template
 		for(var i = 0; i < this.usedTemplates.length; ++i)
 		{
 			var template = this.usedTemplates[i];
@@ -487,6 +500,7 @@ TemplateUser.prototype = {
 				ObjectHelpers.mergeKeys(includeFiles, template.includes);
 		}
 		
+		// second get the includes that were fetched
 		for(var i = 0, len = this.fetchedIncludes.length; i < len; ++i)
 			ObjectHelpers.mergeKeys(includeFiles, this.fetchedIncludes);
 		
@@ -501,11 +515,16 @@ Object.defineProperty(TemplateUser.prototype, "constructor", {value: TemplateUse
 
 //======================================================================================
 
+
+// TODO: move to BasePlugin.jsm
 /**
- * 
+ * Represents a diagnosis object for code generation
+ *
+ * @property   {Object<Object>}   reports       List of reports
+ * @property   {boolean}          hasErrors     Tracks if errors were found
+ * @property   {boolean}          hasWarnigns   Tracks if warnings were found
  *
  * @constructor
- * @this {CodeGenDiagnosis}
  */
 function CodeGenDiagnosis() // TODO: inherit from Logger
 {

@@ -24,7 +24,7 @@ var regexJSIdentifier = /^[$A-Z_][0-9A-Z_$]*$/i;
 /**
  * Checks a given string, if it is a valid JavaScript identifier
  * 
- * @param   {String}   identifier   Identifier to check
+ * @param   {string}   identifier   Identifier to check
  * 
  * @returns {boolean}   True if valid, otherwise false
  */
@@ -34,10 +34,10 @@ function isValidIdentifier(identifier)
 }
 
 /**
- * 
+ * Represents a plugin for creating glue code for SpiderMonkey
  *
  * @constructor
- * @this {Plugin_CPP_Spidermonkey}
+ * @extends LanguageBindingCodeGenPlugin
  */
 function Plugin_CPP_Spidermonkey()
 {
@@ -117,6 +117,7 @@ Plugin_CPP_Spidermonkey.prototype = {
 	
 	/**
 	 * Number of times prepareAndDiagnose will be called
+	 * @type number
 	 */
 	numPrepareRounds: 2,
 	
@@ -211,7 +212,7 @@ Plugin_CPP_Spidermonkey.prototype = {
 	 * @param   {Object}             saveObj        Save object with data
 	 * @param   {Export_ASTObject}   exportASTObj   ASTObject the generator will belong to
 	 * 
-	 * @returns {CodeGenerator}   The created generator
+	 * @returns {LanguageBindingEntityCodeGen}   The created generator
 	 */
 	createCodeGeneratorFromSaveObject: function createCodeGeneratorFromSaveObject(saveObj, exportASTObj)
 	{
@@ -250,7 +251,7 @@ Plugin_CPP_Spidermonkey.prototype = {
 	 * Exports a code generator result recursively
 	 *
 	 * @param   {Object}   codeGenResult   codeGenResult to export
-	 * @param   {String}   parentPath      Path of the parent
+	 * @param   {string}   parentPath      Path of the parent
 	 * 
 	 * @returns {Object}   Information exported from this code generator
 	 */
@@ -365,7 +366,12 @@ CodeGeneratorPluginManager.registerPlugin(Plugin_CPP_Spidermonkey.prototype.cont
  * Code generator for functions and member functions
  *
  * @constructor
- * @this {CodeGenerator_Function}
+ * @extends LanguageBindingEntityCodeGen
+ *
+ * @property   {string}    templateFunction   Name of the template for the function
+ * @property   {boolean}   isStatic           Will function be wrapped as static
+ *
+ * @param   {Plugin_CPP_Spidermonkey}   plugin   Plugin this code gen belongs to
  */
 function CodeGenerator_Function(plugin)
 {
@@ -398,7 +404,7 @@ CodeGenerator_Function.prototype = {
 	 * Saves problems in this._genInput.diagnosis
 	 *    - returns if the code generator will produce valid results
 	 *
-	 * @param   {Number}    round     Round of preparation
+	 * @param   {number}    round     Round of preparation
 	 * @param   {boolean}   recurse   Prepare and diagnose recursively
 	 * 
 	 * @returns {boolean}   True if valid, otherwise false
@@ -639,7 +645,7 @@ Extension.inherit(CodeGenerator_Function, LanguageBindingEntityCodeGen);
  * @param   {Plugin_CPP_Spidermonkey}   plugin         The plugin the generator will belong to
  * @param   {Export_ASTObject}          exportASTObj   ASTObject the generator will belong to
  * 
- * @returns {CodeGenerator}   The created generator
+ * @returns {CodeGenerator_Function}   The created generator
  */
 CodeGenerator_Function.createFromSaveObject =  function createFromSaveObject(saveObj, plugin, exportASTObj)
 {
@@ -650,10 +656,14 @@ CodeGenerator_Function.createFromSaveObject =  function createFromSaveObject(sav
 //======================================================================================
 
 /**
- * Code generator for functions and member functions
+ * Code generator for value and accessor properties
  *
  * @constructor
- * @this {CodeGenerator_Function}
+ * @extends LanguageBindingEntityCodeGen
+ *
+ * @property   {boolean}   isStatic    Will property be wrapped as static
+ *
+ * @param   {Plugin_CPP_Spidermonkey}   plugin   Plugin this code gen belongs to
  */
 function CodeGenerator_Property(plugin)
 {
@@ -705,10 +715,26 @@ Extension.inherit(CodeGenerator_Property, LanguageBindingEntityCodeGen);
 //======================================================================================
 
 /**
- * Code generator for objects
+ * Code generator for namespaces and classes
  *
  * @constructor
- * @this {CodeGenerator_Object}
+ * @extends LanguageBindingEntityCodeGen
+ *
+ * @property   {string}   hppTemplateNameClass     Template name for header of class wraps
+ * @property   {string}   cppTemplateNameClass     Template name for source of class wraps
+ * @property   {string}   hppTemplateNameObject    Template name for header of object wraps
+ * @property   {string}   cppTemplateNameObject    Template name for source of object wraps
+ * @property   {boolean}  useBasePrototype         If true, the wrapper will check for prototypes
+ * @property   {string}   ownership                Classes only: memory ownership
+ * @property   {boolean}  allowWrappingInstances   Classes only: allow wrapping instances?
+ * @property   {boolean}  allowWrappingCopies      Classes only: allow wrapping copies?
+ * @property   {boolean}  allowUnwrapping          Classes only: allow unwrapping of JSObjects?
+ * @property   {boolean}  allowNullValues          Classes only: allow wrapping wrapping of NULL values?
+ * @property   {boolean}  allowConstruction        Classes only: allow constructing new JSObjects?
+ * @property   {boolean}  isInline                 Shall the source code get its own file or not?
+ * @property   {ASTTypeLibraryEntry}   _typeLibraryEntry   Type libray entry created for this class
+ *
+ * @param   {Plugin_CPP_Spidermonkey}   plugin   Plugin this code gen belongs to
  */
 function CodeGenerator_Object(plugin)
 {
@@ -724,7 +750,7 @@ function CodeGenerator_Object(plugin)
 	this.ownership = "Script";
 	this.allowWrappingInstances = false;
 	this.allowWrappingCopies = false;
-	this.allowUnwrapping = false;
+	this.allowUnwrapping = true;
 	this.allowNullValues = false;
 	this.allowConstruction = true;
 	
@@ -733,11 +759,10 @@ function CodeGenerator_Object(plugin)
 
 CodeGenerator_Object.isCompatible = Plugin_CPP_Spidermonkey.prototype._isCompatible;
 
-
-
 CodeGenerator_Object.prototype = {
 	constructor: CodeGenerator_Object,
 	
+	// TODO: can we remove this?
 	get exportObject(){ return this._exportObject; },
 	set exportObject(val) {this._exportObject = val; },
 	
@@ -818,7 +843,7 @@ CodeGenerator_Object.prototype = {
 	/**
 	 * Returns the filename (without extension)
 	 * 
-	 * @returns {String}   Filename
+	 * @returns {string}   Filename
 	 */
 	_getFileName: function _getFileName()
 	{
@@ -844,7 +869,7 @@ CodeGenerator_Object.prototype = {
 	 * Saves problems in this._genInput.diagnosis
 	 *    - returns if the code generator will produce valid results
 	 *
-	 * @param   {Number}    round     Round of preparation
+	 * @param   {number}    round     Round of preparation
 	 * @param   {boolean}   recurse   Prepare and diagnose recursively
 	 * 
 	 * @returns {boolean}   True if valid, otherwise false
@@ -997,7 +1022,7 @@ CodeGenerator_Object.prototype = {
 	 * Returns the chain of parent names as an array
 	 * TODO: performance? cache?
 	 * 
-	 * @returns {Array}   Array of parents names
+	 * @returns {string[]}   Array of parents names
 	 */
 	getNameChain: function getNameChain()
 	{
@@ -1036,9 +1061,6 @@ CodeGenerator_Object.prototype = {
 	{
 		LoadSaveFromMetaData.loadFrom(this, saveObj);
 	},
-	
-	
-	
 	
 };
 
