@@ -136,7 +136,7 @@ Compilers use static analysis to perform code optimization:
 ``A main application is to allow compilers to generate code avoiding redundant computations, e.g. by reusing available results or by moving loop invariant computations out of loops, or avoiding superfluous computations, e.g. of results known to be not needed or of results known already at compile-time.''\footnote{\citep[1]{ProgramAnalysis}}
 \end{quotation}
 
-Apart from code optimization, compile-time optimization, for example by finding unnecessary include-files in \myProperName{C++} applications is another area that static analysis is used for. \myProperName{include-what-you-use}\footnote{\myProperName{include-what-you-use}: \url{http://code.google.com/p/include-what-you-use/}} is a tool that performs this task. It internally uses the \myProperName{Clang} compiler.
+Apart from code optimization, compile-time optimization, for example by finding \linebreak unnecessary include-files in \myProperName{C++} applications is another area that static analysis is used for. \myProperName{include-what-you-use}\footnote{\myProperName{include-what-you-use}: \url{http://code.google.com/p/include-what-you-use/}} is a tool that performs this task. It internally uses the \myProperName{Clang} compiler.
 
 \section{Static Analysis as Part of a Programmer's Workflow}
 

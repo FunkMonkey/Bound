@@ -303,7 +303,7 @@ The plugin, \mySCName{CPPSM\_Plugin}, contains two type maps for converting type
 
 \subsubsection{\mySCName{CPPSM\_FunctionCodeGen}}
 
-As explained, \mySCName{CPPSM\_FunctionCodeGen} gathers all important information inside \mySCName{prepare}-\mySCName{AndDiagnoseRound}. As it uses type information, this is done in the second round. Nothing happens in the first.
+As explained, \mySCName{CPPSM\_FunctionCodeGen} gathers all important information inside \linebreak \mySCName{prepareAndDiagnoseRound}. As it uses type information, this is done in the second round. Nothing happens in the first.
 
 The function first creates a new object for \mySCName{\_genInput} for a fresh start. It stores the name of the \mySCName{Export\_ASTObject}, as it will be used as the name of the \myProperName{JavaScript} function. Also the template that will be used for the function is retrieved by its name (standard is \mySCString{CPP\_Spidermonkey/function}). As all failed checks, an error message will be saved in the \mySCName{diagnosis} if the template cannot be found.\\
 The method then checks if the corresponding \mySCName{Export\_ASTObject} does have a \mySCName{sourceObject} and if that is a kind of function. For member functions, it will test if the parent \mySCName{Export\_ASTObject} wraps the corresponding class. Information is stored about the function being declared as \mySCName{static} or if it is a call to an instance function. The name of the called \myProperName{C++} function and a string qualifying the scope of the function (f.ex. the class name) need to be stored as well. \\
@@ -405,7 +405,7 @@ As the \myProperName{C++} projects for which glue code is created, may be under 
 \subsection{ObjectExplorer}
 \label{sec:ObjectExplorer}
 
-\begin{wrapfigure}{r}{0.4\textwidth}
+\begin{wrapfigure}{r}{0.5\textwidth}
   \vspace{-20pt}
   \begin{center}
     \includegraphics[scale=0.60]{Images/ObjectExplorer.png}
