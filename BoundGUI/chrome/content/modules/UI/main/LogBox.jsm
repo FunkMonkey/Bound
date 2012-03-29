@@ -8,6 +8,11 @@ Components.utils.import("chrome://bound/content/modules/Utils/Logger.jsm");
 var MainWindow = null;
 var document = null;
 
+/**
+ * Log box at the bottom of the screen
+ *
+ * @type Object
+ */
 var LogBox = {
 	
 	/**
@@ -33,7 +38,7 @@ var LogBox = {
 	 * Adds the messages from diagnosis
 	 * 
 	 * @param   {ExportASTObject}   astObject   Object to retrieve diagnosis from
-	 * @param   {String}            context     Context to retrieve diagnosis from
+	 * @param   {string}            context     Context to retrieve diagnosis from
 	 * @param   {boolean}           recursive   If true, do it recursively
 	 */
 	showDiagnosisMessages: function showDiagnosisMessages(astObject, context, recursive)

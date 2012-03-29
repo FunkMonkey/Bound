@@ -8,6 +8,11 @@ Components.utils.import("chrome://bound/content/modules/Utils/MetaDataHandler.js
 var MainWindow = null;
 var document = null;
 
+// TODO rename to ResultExplorer
+/**
+ * Represents the result object explorer
+ * @type Object 
+ */
 var ResultTabbox = {
 	
 	/**
@@ -29,6 +34,11 @@ var ResultTabbox = {
 		
 	},
 	
+	/**
+	 * Displays the result of the code generation
+	 * 
+	 * @param   {Export_ASTObject}   exportASTObject   Export object to show result for
+	 */
 	displayCodeGenResult: function displayCodeGenResult(exportASTObject)
 	{
 		var codeGen = exportASTObject.getCodeGenerator(Bound.currentContext);
@@ -103,6 +113,7 @@ var ResultTabbox = {
 	
 };
 
+// TODO: remove
 function stringifyRecursive(obj, level)
 {
 	var str = "";
@@ -134,6 +145,7 @@ function stringifyRecursive(obj, level)
 	return str;
 }
 
+// TODO: remove
 function objToString(obj)
 {
 	var str = "";
@@ -143,6 +155,7 @@ function objToString(obj)
 	return str;
 }
 
+// TODO: move to DOMHelpers
 /**
  * Removes all elements from the given element
  * 

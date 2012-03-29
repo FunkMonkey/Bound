@@ -55,7 +55,12 @@ function initExportTree(mainWindowModule)
 	return $exportTree;
 }
 
+/**
+ * Prototype for the export tree
+ * @type Object
+ */
 var ExportTreePrototype = {
+	
 	
 	_proxySet: function _proxySet(receiver, name, val) {
 		
@@ -101,7 +106,7 @@ var ExportTreePrototype = {
 	/**
 	 * Called when selection in the tree changed
 	 * 
-	 * @param   {event}   event   Event
+	 * @param   {DOMEvent}   event   Event
 	 */
 	_onSelect: function _onSelect(event)
 	{
@@ -145,7 +150,7 @@ var ExportTreePrototype = {
 	/**
 	 * Called when a key goes up
 	 * 
-	 * @param   {event}   event   Event
+	 * @param   {DOMEvent}   event   Event
 	 */
 	_onKeyUp: function _onKeyUp(event)
 	{
@@ -163,6 +168,14 @@ var ExportTreePrototype = {
 		}
 	},
 	
+	/**
+	 * Creates a tree row for the given AST node
+	 * 
+	 * @param   {ASTObject}    astNode   AST node to create row for
+	 * @param   {DOMTreeRow}   $parent   Parent row
+	 *
+	 * @returns {DOMTreeRow}   Newly created row
+	 */
 	astNodeToTreeNode: function astNodeToTreeNode(astNode, $parent)
 	{
 		var $row = this.createAndAppendRow($parent, astNode.children.length !== 0, astNode);
@@ -191,6 +204,11 @@ var ExportTreePrototype = {
 		return $row;
 	},
 	
+	/**
+	 * Sets the Export tree
+	 * 
+	 * @param   {Export_AST}    exportAST   AST to set
+	 */
 	setExportAST: function setExportAST(exportAST)
 	{
 		this.exportAST = exportAST;
@@ -204,6 +222,11 @@ var ExportTreePrototype = {
 		}
 	},
 	
+	/**
+	 * On drop event
+	 * 
+	 * @param   {DOMEvent}   event   Passed event
+	 */
 	_onDrop: function _onDrop(event)
 	{
 		try
@@ -273,7 +296,7 @@ var ExportTreePrototype = {
 	
 	
 	/**
-	 * Summary
+	 * Updates the drop menu
 	 * 
 	 * @param   {Array}   items   Description
 	 */
@@ -455,6 +478,15 @@ var ExportTreePrototype = {
 			event.preventDefault();
 	},
 	
+	/**
+	 * Data callback for the DOMTree widget
+	 * 
+	 * @param   {string}    type   Type of data requested
+	 * @param   {Object}    data   Data that is associated with the row (should be CPP_ASTObject)
+	 * @param   {string}    row    Row for which data is requested
+	 *
+	 * @returns {string} Returned data
+	 */
 	_dataCB: function _dataCB(type, data, row)
 	{
 		switch(type)
@@ -467,6 +499,11 @@ var ExportTreePrototype = {
 		return "";
 	},
 	
+	/**
+	 * On click event handler
+	 * 
+	 * @param   {DOMEvent}   event   MouseEvent that was passed
+	 */
 	_onClick: function _onClick(event)
 	{
 		if(this.selection.length > 0)

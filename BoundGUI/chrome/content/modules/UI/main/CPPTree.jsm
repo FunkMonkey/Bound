@@ -31,13 +31,16 @@ function initCPPTree(mainWindowModule)
 	
 	return $cppTree;
 }
-
+/**
+ * Prototype used for the CPPTree
+ * @type Object
+ */
 var CPPTreePrototype = {
 	/**
 	 * Handles exceptions for the given property
 	 * 
-	 * @param   {String}      propertyName   Name of the property
-	 * @param   {Exception}   e              Caught exception
+	 * @param   {string}      propertyName   Name of the property
+	 * @param   {Error}       e              Caught exception
 	 *
 	 * @returns {boolean}   True if exception has been handled, false if it should be rethrown
 	 */
@@ -53,7 +56,7 @@ var CPPTreePrototype = {
 	/**
 	 * Returns the DataHandler for the given property (may be needed for arrays / child objects)
 	 * 
-	 * @param   {String}   propertyName   Name of the property
+	 * @param   {string}   propertyName   Name of the property
 	 * 
 	 * @returns {DataHandler}   DataHandler for the property
 	 */
@@ -69,7 +72,7 @@ var CPPTreePrototype = {
 	/**
 	 * Called when selection in the tree changed
 	 * 
-	 * @param   {event}   event   Description
+	 * @param   {DOMEvent}   event   Passed event
 	 */
 	_onSelect: function _onSelect(event)
 	{
@@ -108,7 +111,14 @@ var CPPTreePrototype = {
 		}
 	}, 
 	
-	
+	/**
+	 * Creates a tree row for the given AST node
+	 * 
+	 * @param   {ASTObject}    astNode   AST node to create row for
+	 * @param   {DOMTreeRow}   $parent   Parent row
+	 *
+	 * @returns {DOMTreeRow}   Newly created row
+	 */
 	astNodeToTreeNode: function astNodeToTreeNode(astNode, $parent)
 	{
 		if(astNode instanceof ASTOverloadContainer)
@@ -127,6 +137,11 @@ var CPPTreePrototype = {
 		return $row;
 	},
 	
+	/**
+	 * Sets the C++ tree
+	 * 
+	 * @param   {CPP_AST}    cppAST   AST to set
+	 */
 	setCPPAST: function setCPPAST(cppAST)
 	{
 		this.cppAST = cppAST;
@@ -140,6 +155,15 @@ var CPPTreePrototype = {
 		}
 	},
 	
+	/**
+	 * Data callback for the DOMTree widget
+	 * 
+	 * @param   {string}    type   Type of data requested
+	 * @param   {Object}    data   Data that is associated with the row (should be CPP_ASTObject)
+	 * @param   {string}    row    Row for which data is requested
+	 *
+	 * @returns {string} Returned data
+	 */
 	_dataCB: function dataCB(type, data, row)
 	{
 		switch(type)
@@ -154,9 +178,9 @@ var CPPTreePrototype = {
 }
 
 /**
- * Returns the PropertyExplorer
+ * Returns the C++ DOMTree
  * 
- * @returns {Object}   PropertyExplorer
+ * @returns {DOMTree}   The tree
  */
 function getCPPTree()
 {

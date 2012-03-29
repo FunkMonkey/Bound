@@ -15,6 +15,9 @@ Components.utils.import("chrome://bound/content/modules/Utils/DOMHelper.jsm");
  */
 function DOMTreeRow($this, $tree, $parent, data) // TODO: remove $tree and combine with parent
 {
+	if(this instanceof DOMTreeRow)
+		throw new Error("DOMTreeRow can not be used as a constructor");
+	
 	Extension.borrow($this, DOMTreeRow.prototype);
 	
 	$this.classList.add("dom-tree-row");

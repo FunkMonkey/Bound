@@ -12,10 +12,15 @@ Components.utils.import("chrome://bound/content/modules/Bound.jsm");
 
 // TEMP
 
+/**
+ * Provides access to the functionality and GUI widgets of the main window
+ *
+ * @type Object
+ */
 var MainWindow = {
 	
 	/**
-	 * Initializes the Export tree
+	 * Initializes the main window
 	 * 
 	 * @param   {element}   mainWindow   Main window
 	 */
