@@ -21,14 +21,15 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 //======================================================================================
 
 /**
- * 
- *
+ * Represents a template (includes a jSmart)
  * @constructor
- * @this {Template}
+ *
+ * @property   {jSmart}   template       The jSmart template
+ * @property   {string}   templateCode   The source code for the jSmart template
  */
 function Template()
 {
-	this.template = null;
+	this.template = null; // TODO: rename to jSmartTemplate
 	this.templateCode = "";
 }
 
@@ -48,7 +49,7 @@ Template.prototype = {
 	 * 
 	 * @param   {Object}   data   Fetch data
 	 * 
-	 * @returns {String}   Result of template
+	 * @returns {string}   Result of template
 	 */
 	fetch: function fetch(data)
 	{
@@ -72,11 +73,24 @@ Object.defineProperty(Template.prototype, "constructor", {value: Template});
 
 //======================================================================================
 
+/**
+ * Manages templates and handles loading
+ * @type Object
+ */
 var TemplateManager = {
+	
+	/**
+	 * The loaded templates. Mapped by ID / subpath
+	 * @type Object<Template>
+	 */
 	_templates: {},
 	
 	jSmart: jSmart,
 	
+	/**
+	 * Search paths for templates
+	 * @type nsIFile[]
+	 */
 	_templateSearchPaths: [],
 	
 	autoloadTemplates: true,
@@ -84,7 +98,7 @@ var TemplateManager = {
 	/**
 	 * Adds a path for searching template files
 	 * 
-	 * @param   {String}   URLspec   Path to search for as a fileURL
+	 * @param   {string}   URLspec   Path to search for as a fileURL
 	 * 
 	 * @returns {nsIFile}   File object
 	 */
@@ -130,10 +144,10 @@ var TemplateManager = {
 	/**
 	 * Loads a template from a file, directories will be split
 	 * 
-	 * @param   {String}   searchTerm        File search term
-	 * @param   {String}   alternativeName   Alternative name for saving
+	 * @param   {string}   searchTerm        File search term
+	 * @param   {string}   alternativeName   Alternative name for saving
 	 * 
-	 * @returns {jSmart}   Created jSmart template
+	 * @returns {Template}   Created template
 	 */
 	loadTemplateFromFile: function loadTemplateFromFile(searchTerm, alternativeName)
 	{
@@ -209,12 +223,13 @@ var TemplateManager = {
 		return this.addTemplate((alternativeName == null) ? searchTerm : alternativeName, templateData);*/
 	},
 	
+	// TODO: can be removed
 	/**
 	 * Escapes some control characters
 	 * 
-	 * @param   {String}   str   String to escape
+	 * @param   {string}   str   String to escape
 	 * 
-	 * @returns {String}
+	 * @returns {string}
 	 */
 	_escape: function _escape(str)
 	{
@@ -229,7 +244,7 @@ var TemplateManager = {
 		return str;
 	}, 
 	
-	
+	// TODO: can be removed
 	/**
 	 * Converts a given template String (stringified JSON) to JSON
 	 *    - will escape tabs and newlines
@@ -261,14 +276,14 @@ var TemplateManager = {
 		return JSON.parse(finString);
 	}, 
 	
-	
+	// TODO: do we really need this?
 	/**
 	 * Fetches the template with the given name
 	 * 
-	 * @param   {String}   templateName   Name of the template to fetch
+	 * @param   {string}   templateName   Name of the template to fetch
 	 * @param   {Object}   data           Data to pass to the template engine
 	 * 
-	 * @returns {String}   Result string with inserted data
+	 * @returns {string}   Result string with inserted data
 	 */
 	fetch: function fetch(templateName, data)
 	{
@@ -286,7 +301,7 @@ var TemplateManager = {
 	/**
 	 * Checks for the existence of a template
 	 * 
-	 * @param   {String}   templateName   Name of the template
+	 * @param   {string}   templateName   Name of the template
 	 * 
 	 * @returns {boolean}   True if exists, otherwise false
 	 */
@@ -301,9 +316,9 @@ var TemplateManager = {
 	/**
 	 * Returns the template with the given name
 	 * 
-	 * @param   {String}   templateName   Name of the template
+	 * @param   {string}   templateName   Name of the template
 	 * 
-	 * @returns {jSmart}   jSmart template or null
+	 * @returns {Template}   Found template or null
 	 */
 	getTemplate: function getTemplate(templateName)
 	{

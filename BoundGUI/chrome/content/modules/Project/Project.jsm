@@ -17,7 +17,17 @@ var accessFilterValues = {};
 for(var propName in CPPAnalyzer.FilterAccess)
 	accessFilterValues[propName] = CPPAnalyzer.FilterAccess[propName];
 
-
+// TODO: rename to Settings
+/**
+ * Represents the settings of a project
+ *
+ * @property   {string}   clangArguments     The arguments passed to clang
+ * @property   {string}   fileNameFilter     The file name filter passed to CPPAnalyzer
+ * @property   {string}   symbolNameFilter   The symbol name filter passed to CPPAnalyzer
+ * @property   {number}   accessFilter       The access filter passed to CPPAnalyzer
+ *
+ * @constructor
+ */
 function ProjectOptions()
 {
 	this.clangArguments =  "";
@@ -33,10 +43,15 @@ MetaData.initMetaDataOn(ProjectOptions.prototype)
 	.addPropertyData("accessFilter",     { type: "dropdown", view: { name: "Access filter", dropDownValues: accessFilterValues }})
 
 /**
- * 
- *
+ * Represents a single project (including a C++ AST and an export AST)
  * @constructor
- * @this {Project}
+ *
+ * @property   {CPP_AST}          cppAST       C++ AST of the project
+ * @property   {Export_AST}       exportAST    Export AST of the project
+ * @property   {ProjectOptions}   options      Settings of the project
+ *
+ * @param   {CPP_AST}      cppAST       C++ AST of the project
+ * @param   {Export_AST}   exportAST    Export AST of the project
  */
 function Project(cppAST, exportAST)
 {
