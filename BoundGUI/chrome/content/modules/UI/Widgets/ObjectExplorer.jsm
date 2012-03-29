@@ -8,8 +8,12 @@ Components.utils.import("chrome://bound/content/modules/Utils/DOMHelper.jsm");
 Components.utils.import("chrome://bound/content/modules/UI/Widgets/ObjectExplorerPropertyManager.jsm");
 
 
+// TODO: make it take DOMeleemnt as first parameter
 /**
- * Creats an ObjectExplorer
+ * Represents an object explorer widget
+ * @constructor
+ *
+ * @property   {DataHandler}   _dataHandler   Data handler object used for retrieving data
  */
 function ObjectExplorer()
 {
@@ -131,56 +135,52 @@ function createObjectExplorer(element)
 ObjectExplorer.create = createObjectExplorer;
 
 
-/**
- * 
- *
- * @constructor
- * @this {DataHandler}
- */
-function DataHandler()
-{
-	
-}
-
-DataHandler.prototype = {
-	constructor: DataHandler,
-	
-	/**
-	 * Returns information about the properties to be handled
-	 * 
-	 * @returns {Array}   Properties to be handled
-	 */
-	getProperties: function getProperties()
-	{
-		var example = [{
-			name: "test",
-			type: "string",
-			
-			// custom data
-			readonly: true
-		}]
-	},
-	
-	/**
-	 * Sets the value of a property
-	 * 
-	 * @param   {String}   propertyName   Name of the property to set
-	 * @param   {Value}    value        New value of the property
-	 */
-	setPropertyValue: function setPropertyValue(propertyName, value)
-	{
-		
-	},
-	
-	/**
-	 * Returns the value of a property
-	 * 
-	 * @param   {String}   propertyName   Name of the property
-	 * 
-	 * @returns {Value}   Value of the property
-	 */
-	getPropertyValue: function getPropertyValue(propertyName)
-	{
-		return null;
-	}, 
-};
+// Example Data handler
+//
+//  function DataHandler()
+//  {
+//  	
+//  }
+//  
+//  DataHandler.prototype = {
+//  	constructor: DataHandler,
+//  	
+//  	/**
+//  	 * Returns information about the properties to be handled
+//  	 * 
+//  	 * @returns {Array}   Properties to be handled
+//  	 */
+//  	getProperties: function getProperties()
+//  	{
+//  		var example = [{
+//  			name: "test",
+//  			type: "string",
+//  			
+//  			// custom data
+//  			readonly: true
+//  		}]
+//  	},
+//  	
+//  	/**
+//  	 * Sets the value of a property
+//  	 * 
+//  	 * @param   {String}   propertyName   Name of the property to set
+//  	 * @param   {Value}    value        New value of the property
+//  	 */
+//  	setPropertyValue: function setPropertyValue(propertyName, value)
+//  	{
+//  		
+//  	},
+//  	
+//  	/**
+//  	 * Returns the value of a property
+//  	 * 
+//  	 * @param   {String}   propertyName   Name of the property
+//  	 * 
+//  	 * @returns {Value}   Value of the property
+//  	 */
+//  	getPropertyValue: function getPropertyValue(propertyName)
+//  	{
+//  		return null;
+//  	}, 
+//  };

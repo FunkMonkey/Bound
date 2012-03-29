@@ -11,7 +11,6 @@ var newOptions = null;
 
 function saveOptions()
 {
-	
 	window.close();
 }
 

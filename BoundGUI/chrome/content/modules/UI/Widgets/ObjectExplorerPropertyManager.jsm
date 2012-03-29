@@ -4,6 +4,11 @@ var EXPORTED_SYMBOLS = ["ObjectExplorerPropertyManager"];
 Components.utils.import("chrome://bound/content/modules/log.jsm");
 Components.utils.import("chrome://bound/content/modules/Utils/DOMHelper.jsm");
 
+// TODO: make class and let it be used by data handler instead of ObjectExplorer
+/**
+ * Manages property factories
+ * @type Object
+ */
 var ObjectExplorerPropertyManager = {
 	
 	_propFactories: {},
@@ -11,7 +16,7 @@ var ObjectExplorerPropertyManager = {
 	/**
 	 * Registers a property factory for the given type
 	 * 
-	 * @param   {String}            type      Type of the property
+	 * @param   {string}            type      Type of the property
 	 * @param   {PropertyFactory}   factory   Factory to register
 	 */
 	registerPropertyFactory: function registerPropertyFactory(type, factory)
@@ -22,7 +27,7 @@ var ObjectExplorerPropertyManager = {
 	/**
 	 * Returns the property factory for the given type
 	 * 
-	 * @param   {String}   type   Type of the property
+	 * @param   {string}   type   Type of the property
 	 * 
 	 * @returns {PropertyFactory}   Factory
 	 */
@@ -45,10 +50,17 @@ function PropertyFactory(document, dataHandler, memberName)
 
  */
 
-
+// TODO: rename all PropertyFactories to "OE_StringProperty", etc.
 //======================================================================================//
 // PropertyFactoryString
 //======================================================================================//
+
+/**
+ * Represents a string property
+ * @constructor
+ *
+ * @param   {DOMElement}   $row   Element to create property on
+ */
 function PropertyFactoryString($row)
 {
 	$row.refresh = PropertyFactoryString.refresh;
@@ -90,6 +102,12 @@ ObjectExplorerPropertyManager.registerPropertyFactory("string", PropertyFactoryS
 //======================================================================================//
 // PropertyFactoryBoolean
 //======================================================================================//
+/**
+ * Represents a boolean property
+ * @constructor
+ *
+ * @param   {DOMElement}   $row   Element to create property on
+ */
 function PropertyFactoryBoolean($row)
 {
 	$row.refresh = PropertyFactoryBoolean.refresh;
@@ -122,6 +140,13 @@ ObjectExplorerPropertyManager.registerPropertyFactory("boolean", PropertyFactory
 //======================================================================================//
 // PropertyFactoryNumber
 //======================================================================================//
+
+/**
+ * Represents a number property
+ * @constructor
+ *
+ * @param   {DOMElement}   $row   Element to create property on
+ */
 function PropertyFactoryNumber($row)
 {
 	$row.refresh = PropertyFactoryNumber.refresh;
@@ -159,6 +184,12 @@ ObjectExplorerPropertyManager.registerPropertyFactory("number", PropertyFactoryN
 //======================================================================================//
 // PropertyFactoryObject
 //======================================================================================//
+/**
+ * Represents a object property
+ * @constructor
+ *
+ * @param   {DOMElement}   $row   Element to create property on
+ */
 function PropertyFactoryObject($row)
 {
 	$row.refresh = PropertyFactoryObject.refresh;
@@ -195,6 +226,12 @@ ObjectExplorerPropertyManager.registerPropertyFactory("undefined", PropertyFacto
 //======================================================================================//
 // PropertyFactoryArray
 //======================================================================================//
+/**
+ * Represents an array property
+ * @constructor
+ *
+ * @param   {DOMElement}   $row   Element to create property on
+ */
 function PropertyFactoryArray($row)
 {
 	$row.refresh = PropertyFactoryArray.refresh;
@@ -261,6 +298,13 @@ ObjectExplorerPropertyManager.registerPropertyFactory("KeyValueMap", PropertyFac
 //======================================================================================//
 // PropertyFactoryDropdown
 //======================================================================================//
+
+/**
+ * Represents a dropdown property
+ * @constructor
+ *
+ * @param   {DOMElement}   $row   Element to create property on
+ */
 function PropertyFactoryDropdown($row)
 {
 	$row.refresh = PropertyFactoryDropdown.refresh;

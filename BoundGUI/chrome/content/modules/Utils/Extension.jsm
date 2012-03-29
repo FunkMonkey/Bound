@@ -1,14 +1,27 @@
 var EXPORTED_SYMBOLS = ["Extension"];
 
+/**
+ * Provides functionality for object extension
+ * @namespace
+ * 
+ * @type Object
+ */
 var Extension =
 {
+	// TODO: remove as FF only
+	/**
+	 * Inherits from a given class by setting the prototype
+	 * 
+	 * @param   {Object}   child   Child class
+	 * @param   {Object}   base    Base class
+	 */
 	inherit: function inherit(child, supertype)
 	{
 		child.prototype.__proto__ = supertype.prototype;
 	},
 	
 	/**
-	 * Inherits
+	 * Inherits from a given class by setting the prototype
 	 * 
 	 * @param   {Object}   child   Child class
 	 * @param   {Object}   base    Base class
@@ -24,7 +37,13 @@ var Extension =
 			Object.defineProperty(child.prototype, propNames[i], Object.getOwnPropertyDescriptor(oldProto, propNames[i]));
 	}, 
 	
-	
+	/**
+	 * Borrows properties from the given object
+	 * 
+	 * @param   {Object} to      Object to add properties to
+	 * @param   {Object} from    Object to get properties from
+	 * @param   {Object} options Options to set
+	 */
 	borrow: function borrow(to, from, options)
 	{
 		if(!options)

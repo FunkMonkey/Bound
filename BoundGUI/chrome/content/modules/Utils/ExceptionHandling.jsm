@@ -9,8 +9,8 @@ Components.utils.import("chrome://bound/content/modules/Utils/Extension.jsm");
 /**
  * Creates a custom exception class that can be used to raise exceptions
  * 
- * @param   {String}   name      Name of the class
- * @param   {String}   message   Message
+ * @param   {string}   name      Name of the class
+ * @param   {string}   message   Message
  *
  * @returns {Error}   New exception class inherited from Error
  */

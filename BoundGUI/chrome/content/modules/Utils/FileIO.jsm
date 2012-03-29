@@ -5,6 +5,12 @@ Components.utils.import("chrome://bound/content/modules/Utils/Extension.jsm");
 
 Components.utils.import("resource://gre/modules/FileUtils.jsm");
 
+/**
+ * Helper functions for file IO
+ * @namespace
+ *
+ * @type Object
+ */
 var FileIO = {
 	
 	/**
@@ -24,6 +30,13 @@ var FileIO = {
 		converter.close(); // this closes foStream  	
 	},
 	
+	/**
+	 * Reads the given file as a text file
+	 * 
+	 * @param   {nsIFile} file File to read
+	 * 
+	 * @returns {string} Text of the file
+	 */
 	readTextFile: function readTextFile(file)
 	{
 		// open an input stream from file  

@@ -1,14 +1,23 @@
 let EXPORTED_SYMBOLS = ["CustomEventSender"];
 
+/**
+ * Represents a CustomEventSender
+ * @constructor
+ *
+ * @property   {Object<Function[]>}   _customEvents   List of event listeners per event
+ * 
+ */
 function CustomEventSender()
 {
 };
 
 CustomEventSender.prototype = {
 	
-	
-	/*
-	 *
+	/**
+	 * Adds the given event listener
+	 * 
+	 * @param   {string}     eventName   Event to be searched
+	 * @param   {Function}   listener    Listener to be added
 	 */
 	addCustomEventListener: function addCustomEventListener(eventName, listener)
 	{
@@ -24,7 +33,7 @@ CustomEventSender.prototype = {
 	/**
 	 * Removes the given event listener
 	 * 
-	 * @param   {String}     eventName   Event to be searched
+	 * @param   {string}     eventName   Event to be searched
 	 * @param   {Function}   listener    Listener to be removed
 	 */
 	removeCustomEventListener: function removeCustomEventListener(eventName, listener)
@@ -46,9 +55,11 @@ CustomEventSender.prototype = {
 		}
 	}, 
 	
-	
-	/*
-	 *
+	/**
+	 * Fires the event with the given name
+	 * 
+	 * @param   {string}  eventName   Event to be searched
+	 * @param   {Array}   args        Arguments passed to the listeners
 	 */
 	fireCustomEvent: function fireCustomEvent(eventName, args)
 	{

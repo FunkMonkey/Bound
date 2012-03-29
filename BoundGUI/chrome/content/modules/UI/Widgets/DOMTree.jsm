@@ -8,10 +8,22 @@ Components.utils.import("chrome://bound/content/modules/Utils/Extension.jsm");
 Components.utils.import("chrome://bound/content/modules/Utils/DOMHelper.jsm");
 
 /**
- * 
+ * Represents a tree node
  *
  * @constructor
- * @this {DOMTreeRow}
+ *
+ * @property   {DOMTree}      tree              Tree the row belongs to
+ * @property   {...}          data              Any kind of user data
+ * @property   {boolean}      isContainer       True, if it is a container row
+ * @property   {boolean}      isContainerOpen   True, if row is open. False if collapsed
+ * @property   {DOMTreeRow}   $parentRow        Parent row
+ *
+ * @param   {DOMElement}   $this             DOMElement that the row will be created on
+ * @param   {DOMTree}      tree              Tree the row belongs to
+ * @param   {DOMTreeRow}   $parent           Parent row
+ * @param   {...}          data              Any kind of user data
+ * 
+ * @returns   Object passed as $this
  */
 function DOMTreeRow($this, $tree, $parent, data) // TODO: remove $tree and combine with parent
 {
@@ -102,7 +114,7 @@ DOMTreeRow.prototype = {
 	/**
 	 * Called when clicked on row content
 	 * 
-	 * @param   {MouseEvent}   event   Description
+	 * @param   {MouseEvent}   event   MouseEvent passed
 	 */
 	_onContentClicked: function _onContentClicked(event)
 	{
@@ -173,7 +185,7 @@ DOMTreeRow.prototype = {
 	/**
 	 * Called when drag start event is initialized on row content
 	 * 
-	 * @param   {DOMEvent}   event   Row content
+	 * @param   {DOMEvent}   event   Event raised
 	 */
 	_onContentDragStart: function _onContentDragStart(event)
 	{
@@ -205,12 +217,24 @@ DOMTreeRow.prototype = {
 		}
 	},
 	
+	/**
+	 * Invalidates the row
+	 */
 	invalidate: function invalidate()
 	{
 		this.$label.value = this.tree.dataCB("label", this.data, this);
 	},
 };
 
+/**
+ * Creates a new row
+ * 
+ * @param   {DOMTree}      tree              Tree the row belongs to
+ * @param   {DOMTreeRow}   $parent           Parent row
+ * @param   {...}          data              Any kind of user data
+ * 
+ * @returns   Newly created row
+ */
 DOMTreeRow.create = function($tree, $parent, data)
 {
 	var $this = DOMHelper.createDOMNode($tree.ownerDocument, "vbox");
@@ -220,6 +244,19 @@ DOMTreeRow.create = function($tree, $parent, data)
 
 // TODO: create on vbox as this!
 // TODO: use DOMHelper
+
+/**
+ * Represents a tree widget
+ * @constructor
+ *
+ * @property   {Function}      dataCB      Data callback for retrieving row data
+ * @property   {DOMTreeRow[]}  selection   Selected rows
+ *
+ * @param   {DOMElement}   $this       DOMElement that the tree will be created on
+ * @param   {Function}     dataCB      Data callback for retrieving row data
+ * 
+ * @returns   Object passed as $this
+ */
 function DOMTree($this, dataCB)
 {
 	Extension.borrow($this, DOMTree.prototype);
@@ -246,7 +283,7 @@ DOMTree.prototype =
 	/**
 	 * Called when clicked on the tree
 	 * 
-	 * @param   {DOMEvent}   e   Click event
+	 * @param   {DOMEvent}   e   Click event raised
 	 */
 	_onClick_: function _onClick_(e)
 	{
@@ -258,7 +295,7 @@ DOMTree.prototype =
 	/**
 	 * Adds the given row to the selection
 	 * 
-	 * @param   {Element}   row
+	 * @param   {DOMElement}   row
 	 */
 	addToSelection: function addToSelection(row)
 	{
@@ -339,11 +376,11 @@ DOMTree.prototype =
 	/**
 	 * Creates a row for the tree
 	 * 
-	 * @param   {Element}       $parent       Parent node
-	 * @param   {boolean}       isContainer   Does it have a 
+	 * @param   {DOMElement}    $parent       Parent node
+	 * @param   {boolean}       isContainer   True for container rows // TODO: remove
 	 * @param   {Object}        data          Private data
 	 * 
-	 * @returns {Element}    newly created element
+	 * @returns {DOMTreeRow}    newly created row
 	 */
 	createRow: function createRow($parent, isContainer, data)
 	{
@@ -358,10 +395,10 @@ DOMTree.prototype =
 	 * Creates a row for the tree and appends it
 	 * 
 	 * @param   {DOMElement}    parent        Parent node
-	 * @param   {boolean}       isContainer   Does it have a 
+	 * @param   {boolean}       isContainer   True for container rows // TODO: remove
 	 * @param   {Object}        data          Private data
 	 * 
-	 * @returns {DOMElement}    newly created element
+	 * @returns {DOMTreeRow}    newly created element
 	 */
 	createAndAppendRow: function createAndAppendRow(parent, isContainer, data)
 	{
@@ -383,7 +420,7 @@ DOMTree.prototype =
 	/**
 	 * Removes the given row from the tree
 	 * 
-	 * @param   {DOMTreeRow}   $row   Remove
+	 * @param   {DOMTreeRow}   $row   Row to remove
 	 */
 	removeRow: function removeRow($row)
 	{
@@ -408,6 +445,4 @@ DOMTree.prototype =
 			this.removeChild(this.firstChild);
 		
 	}, 
-	
-	
 }

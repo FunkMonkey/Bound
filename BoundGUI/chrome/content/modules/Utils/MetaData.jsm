@@ -6,10 +6,10 @@ Components.utils.import("chrome://bound/content/modules/log.jsm");
 var hasOwnProperty = Object.prototype.hasOwnProperty;
 
 /**
- * 
- *
+ * Represents meta data that can be attached to an object
  * @constructor
- * @this {MetaDataInfo}
+ *
+ * @property   {Object}  propertyData   Property data stored
  */
 function MetaDataInfo()
 {
@@ -22,7 +22,7 @@ MetaDataInfo.prototype = {
 	/**
 	 * Adds property data to the property
 	 *
-	 * @param   {String|Object}   propertyNameOrMap  Name of the property | map with property data objects
+	 * @param   {string|Object}   propertyNameOrMap  Name of the property | map with property data objects
 	 * @param   {Object}          propertyData       Data to add
 	 */
 	addPropertyData: function addPropertyData(propertyNameOrMap, propertyData)
@@ -42,6 +42,12 @@ MetaDataInfo.prototype = {
 	
 };
 
+/**
+ * Provides functionality for setting and editing meta data
+ * @namespace
+ *
+ * @type Object
+ */
 var MetaData = {
 	
 	/**
@@ -134,6 +140,17 @@ var MetaData = {
 	
 };
 
+/**
+ * Represents an aggregate of meta data of the given object
+ * @constructor
+ *
+ * @property   {Object}           obj               Object to aggregate meta data for
+ * @property   {MetaDataInfo[]}   metaDataObjects   List of meta data objects
+ * @property   {Object}           _properties       Collected data of meta data properties
+ *
+ * 
+ * @param   {Object}   obj   Object to aggregate meta data for
+ */
 function MetaDataAggregate(obj)
 {
 	this.obj = obj;
@@ -215,8 +232,13 @@ MetaDataAggregate.prototype = {
 	}, 
 	
 	
-	/*
+	/**
+	 * Returns the type of the property with the given name
 	 *
+	 * @param   {string}   propName   Name of the property
+	 * @param   {Object}   [prop]     Meta data for the property
+	 *
+	 * @returns  {string}  Type of the property
 	 */
 	getPropertyType: function getPropertyType(propertyName, prop)
 	{

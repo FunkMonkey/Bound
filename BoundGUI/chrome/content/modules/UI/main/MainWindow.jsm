@@ -14,6 +14,7 @@ Components.utils.import("chrome://bound/content/modules/Bound.jsm");
 
 /**
  * Provides access to the functionality and GUI widgets of the main window
+ * @namespace
  *
  * @type Object
  */

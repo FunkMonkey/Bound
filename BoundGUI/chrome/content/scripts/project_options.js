@@ -15,6 +15,9 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 
 var newOptions = null;
 
+/**
+ * Saves the options
+ */
 function saveOptions()
 {
 	projOptions = Bound.currentProject.options;
@@ -52,6 +55,9 @@ function saveOptions()
 	window.close();
 }
 
+/**
+ * Called when window is loaded
+ */
 function onLoad()
 {
 	this.$projectOptionsExplorer = document.getElementById("projectOptionsExplorer");

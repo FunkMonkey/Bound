@@ -3,6 +3,13 @@ var EXPORTED_SYMBOLS = ["LoadSaveFromMetaData"];
 Components.utils.import("chrome://bound/content/modules/Utils/MetaData.jsm");
 Components.utils.import("chrome://bound/content/modules/log.jsm");
 
+
+/**
+ * Provides helper functions for loading to and saving from meta data
+ * @namespace
+ *
+ * @type Object
+ */
 var LoadSaveFromMetaData = {
 	/**
 	 * Loads properties into the given object from a json compatible object

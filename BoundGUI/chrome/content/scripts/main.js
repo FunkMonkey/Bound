@@ -16,6 +16,9 @@ Components.utils.import("chrome://bound/content/modules/AST/Export_ASTObjects.js
 
 Components.utils.import("chrome://bound/content/modules/Project/Project.jsm");
 
+/**
+ * Handles all uncaught errors
+ */
 window.onerror = function myErrorHandler(errorMsg, url, lineNumber)
 {
 	alert("Unexpected error!\n\n" + errorMsg + "\n\n" + url + ": " + lineNumber);
@@ -24,7 +27,9 @@ window.onerror = function myErrorHandler(errorMsg, url, lineNumber)
   return false;
 }
 
-
+/**
+ * Exports the files of the current code generation plugin
+ */
 function exportFiles()
 {
 	const nsIFilePicker = Components.interfaces.nsIFilePicker;
@@ -84,6 +89,10 @@ function exportFiles()
 	}
 }
 
+
+/**
+ * Saves the project
+ */
 function saveProject()
 {
 	const nsIFilePicker = Components.interfaces.nsIFilePicker;
@@ -101,6 +110,9 @@ function saveProject()
 	}
 }
 
+/**
+ * Loads the project
+ */
 function loadProject()
 {
 	const nsIFilePicker = Components.interfaces.nsIFilePicker;
@@ -123,6 +135,9 @@ function loadProject()
 	}
 }
 
+/**
+ * Reparses the project and creates a new C++ AST
+ */
 function reparseCurrentProject()
 {
 	try
@@ -139,6 +154,9 @@ function reparseCurrentProject()
 	
 }
 
+/**
+ * Initializes the application
+ */
 function init()
 {
 	Bound.init(MainWindow, window);

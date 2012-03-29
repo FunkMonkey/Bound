@@ -1,7 +1,22 @@
 var EXPORTED_SYMBOLS = ["ArrayHelpers", "ObjectHelpers"];
 
+
+/**
+ * Provides helper functions for working with arrays
+ * @namespace
+ *
+ * @type Object
+ */
 var ArrayHelpers = {
 	
+	/**
+	 * Removes duplicates from an array by creating a map
+	 * 
+	 * @param   {Array}   arr       Array to manipulate
+	 * @param   {boolean} inplace   True if array should be manipulated in place
+	 * 
+	 * @returns {Array}   Result array
+	 */
 	_removeHashableDuplicates: function _removeHashableDuplicates(arr, inplace)
 	{
 		var obj={};
@@ -23,20 +38,37 @@ var ArrayHelpers = {
 		return out;
 	},
 	
+	/**
+	 * Removes duplicates from an array by creating a map
+	 * 
+	 * @param   {Array}   arr       Array to manipulate
+	 * 
+	 * @returns {Array}   Result array
+	 */
 	removeHashableDuplicates: function removeHashableDuplicates(arr)
 	{
 		return ArrayHelpers._removeHashableDuplicates(arr, false);
 	},
 	
+	/**
+	 * Removes duplicates from an array inplace by creating a map
+	 * 
+	 * @param   {Array}   arr       Array to manipulate
+	 * 
+	 * @returns {Array}   Result array
+	 */
 	removeHashableDuplicatesInplace: function removeHashableDuplicatesInplace(arr)
 	{
 		return ArrayHelpers._removeHashableDuplicates(arr, true);
 	}
-	
-	
-	
 };
 
+/**
+ * Provides helper functions for working with objects
+ * @namespace
+ *
+ * @type Object
+ */
 var ObjectHelpers = {
 	
 	/**

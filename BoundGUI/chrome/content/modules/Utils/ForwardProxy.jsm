@@ -1,10 +1,10 @@
 var EXPORTED_SYMBOLS = ["ForwardProxyHandler"];
 
 /**
- * 
- *
+ * Creates a proxy handler that simply forwards all traps to the given object
  * @constructor
- * @this {ForwardHandler}
+ *
+ * @property  {Object}   obj    Wrapped object
  */
 function ForwardProxyHandler(obj)
 {
@@ -14,7 +14,7 @@ function ForwardProxyHandler(obj)
 ForwardProxyHandler.prototype = {
 	constructor: ForwardProxyHandler,
 	
-	// ---- Fundamental traps ----
+	
     getOwnPropertyDescriptor: function(name) {  
       var desc = Object.getOwnPropertyDescriptor(this.obj, name);  
       // a trapping proxy's properties must always be configurable  

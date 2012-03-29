@@ -10,6 +10,9 @@ Components.utils.import("chrome://bound/content/modules/Utils/Logger.jsm");
 
 /**
  * Represents a LoggerOutput
+ * @constructor
+ *
+ * 
  */
 function LoggerOutput()
 {
@@ -69,9 +72,9 @@ LoggerOutput.prototype = {
 	/**
 	 * Returns the logger type as a string
 	 * 
-	 * @param   {Number}   loggerType   Logger type
+	 * @param   {number}   loggerType   Logger type
 	 * 
-	 * @returns {String}   String representation of logger type
+	 * @returns {string}   String representation of logger type
 	 */
 	getTypeString: function getTypeString(loggerType)
 	{

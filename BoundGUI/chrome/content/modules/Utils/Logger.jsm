@@ -4,10 +4,12 @@ Components.utils.import("chrome://bound/content/modules/Utils/Extension.jsm");
 Components.utils.import("chrome://bound/content/modules/Utils/CustomEvents.jsm");
 
 /**
- * 
- *
+ * Represents a message for the logger
  * @constructor
- * @this {LoggerMessage}
+ *
+ * @property   {number}   type        Type of the message
+ * @property   {string}   message     Message content
+ * @property   {Date}     timestamp   Timestamp
  */
 function LoggerMessage(type, message, timestamp)
 {
@@ -24,10 +26,10 @@ Object.defineProperty(LoggerMessage.prototype, "constructor", {value: LoggerMess
 
 
 /**
- * 
- *
+ * Represents a logger for storing log messages
  * @constructor
- * @this {Logger}
+ *
+ * @property   {LoggerMessage[]}   messages   List of messages
  */
 function Logger()
 {
@@ -42,7 +44,7 @@ Logger.prototype = {
    /**
 	* Adds an info message
 	* 
-	* @param   {String}   message      Message to add
+	* @param   {string}   message      Message to add
 	* @param   {Date}     [timestamp]  (Optional) Timestamp for adding, if not set, then present
 	*/
    addInfoMessage: function addInfoMessage(message, timestamp)
@@ -58,7 +60,7 @@ Logger.prototype = {
    /**
 	* Adds a warning message
 	* 
-	* @param   {String}   message      Message to add
+	* @param   {string}   message      Message to add
 	* @param   {Date}     [timestamp]  (Optional) Timestamp for adding, if not set, then present
 	*/
    addWarningMessage: function addWarningMessage(message, timestamp)
@@ -74,7 +76,7 @@ Logger.prototype = {
    /**
 	* Adds an error message
 	* 
-	* @param   {String}   message      Message to add
+	* @param   {string}   message      Message to add
 	* @param   {Date}     [timestamp]  (Optional) Timestamp for adding, if not set, then present
 	*/
    addErrorMessage: function addErrorMessage(message, timestamp)

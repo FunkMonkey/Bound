@@ -6,10 +6,17 @@ Components.utils.import("chrome://bound/content/modules/Utils/MetaData.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 
 /**
- * 
- *
+ * Represents a data handler for meta data to be used with an ObjectExplorer
  * @constructor
- * @this {MetaDataHandler}
+ *
+ * @property   {Object}   sourceObject   Object to handle
+ * @property   {boolean}  readOnly       True if properties should be treated as readonly
+ * @property   {boolean}  testMultiline  True if strings should be checked for being multiline
+ * @property   {Object[]} props          List of properties for the ObjectExplorer
+ *
+ * @param   {Object}   sourceObject   Object to handle
+ * @param   {boolean}  readOnly       True if properties should be treated as readonly
+ * @param   {boolean}  testMultiline  True if strings should be checked for being multiline
  */
 function MetaDataHandler(sourceObject, readOnly, testMultiline)
 {

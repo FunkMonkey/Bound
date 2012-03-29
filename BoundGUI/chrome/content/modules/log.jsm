@@ -3,6 +3,11 @@ var EXPORTED_SYMBOLS = ["log", "LogUtils"];
 
 const consoleService = Components.classes['@mozilla.org/consoleservice;1'].getService(Components.interfaces.nsIConsoleService);
 
+/**
+ * Logs a string message
+ * 
+ * @param   {string} str Message to log
+ */
 function log(str)
 {
 	if(log.useJSConsole)
@@ -22,6 +27,11 @@ log.useFirebug = true;
 log.firebugLog = null;
 log.useJSConsole = true;
 
+/**
+ * Provides logging utilities
+ *
+ * @type Object
+ */
 var LogUtils = {
 	/**
 	 * Logs the given object
@@ -44,9 +54,10 @@ var LogUtils = {
 	},
 	
 	/**
-	 * Summary
+	 * Logs the stack of a given error
+	 *    - if no error is given, it will log the stack of the call to logStack
 	 *
-	 * @param   {Error}    e      Exception to log
+	 * @param   {Error}    [e]      Exception to log
 	 */
 	logStack: function logStack(e)
 	{

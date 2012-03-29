@@ -11,6 +11,12 @@ Components.utils.import("resource://gre/modules/ctypes.jsm");
 Cu.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm");
 Cu.import("chrome://bound/content/modules/AST/CPP_ASTObjects.jsm")
 
+/**
+ * Provides access to the CPPAnalyzer shared library
+ * @namespace
+ *
+ * @type Object
+ */
 var CPPAnalyzer =
 {
 	FilterAccess: {
@@ -24,6 +30,9 @@ var CPPAnalyzer =
 		PRIVATE_PROTECTED_PUBLIC: 8,
 	},
 	
+	/**
+	 * Initializes the library
+	 */
 	init: function init()
 	{
 		this.libClang =       ctypes.open(FileUtils.getFile("CurProcD", ["components", "libClang.dll"]).path);
@@ -39,7 +48,17 @@ var CPPAnalyzer =
 		
 	},
 	
-	
+	/**
+	 * Calls the parse_header function of hte library and creates a C++ AST
+	 * 
+	 * @param   {string} tuPath       Path of the translation unit TODO: remove
+	 * @param   {Array}  cmdArgs      Command line arguments to be passed to clang
+	 * @param   {string} filterFile   File name filter
+	 * @param   {string} filterName   Symbol name filter
+	 * @param   {number} filterAccess Access fitlter
+	 * 
+	 * @returns {CPP_AST} The created C++ AST
+	 */
 	parse_header: function parse_header(tuPath, cmdArgs, filterFile, filterName, filterAccess)
 	{
 		paramsArray = ["Bound", cmdArgs];

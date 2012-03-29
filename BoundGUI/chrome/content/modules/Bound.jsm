@@ -9,7 +9,17 @@ Components.utils.import("chrome://bound/content/modules/CPPAnalyzer.jsm");
 Components.utils.import("chrome://bound/content/modules/Project/Project.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 
-
+/**
+ * Main entry point for accessing Bound
+ * @namespace
+ *
+ * @property  {Object}      MainWindow      Main window accessor
+ * @property  {DOMWindow}   window          Main window
+ * @property  {string}      currentContext  Current code generation context
+ * @property  {Project}     currentProject  Current project
+ *
+ * @type Object
+ */
 var Bound = {
 	
 	/**
@@ -46,7 +56,11 @@ var Bound = {
 	}, 
 	
 	
-	
+	/**
+	 * Quits the application
+	 * 
+	 * @param   {boolean} aForceQuit If true, quitting is forced
+	 */
 	quit: function quit(aForceQuit)
 	{
 		var appStartup = Cc["@mozilla.org/toolkit/app-startup;1"].getService(Ci.nsIAppStartup);
