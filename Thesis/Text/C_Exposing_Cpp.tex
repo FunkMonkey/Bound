@@ -569,7 +569,7 @@ Stack-allocated return values (e.g. the return of \mySCName{getInstanceCopy} fro
 
 \subsection{Member Functions}
 
-The wrapping of member functions works similar to the wrapping of free functions as explained in \myRefSection{sec:Functions}.
+The wrapping of member functions works similarly to the wrapping of free functions as explained in \myRefSection{sec:Functions}.
 
 For the function call to work, the class instance needs to be retrieved from the private data of the \mySCName{this} \mySCName{JSObject} as explained in \myRefSection{sec:PrivateData}. Type checking has to be performed.
 
@@ -700,12 +700,12 @@ If base classes do not need to be exposed, multiple inheritance can be mimicked 
 
 \subsection{Memory Management}
 
-Memory management is probably the most problematic area in language binding and as such needed intensive research and development of solutions.\\
+Memory management is probably the most problematic area in language binding and as such required intensive research and development of own solutions.\\
 When bridging two programming languages, memory is often shared. This especially applies to instances of \myProperName{C++} classes that are wrapped for use in \myProperName{JavaScript}.
 
 The \myProperName{JSAPI} user has to decide upon which side is responsible for freeing the memory - meaning which party holds the \textbf{ownership}. Depending on the application, this is not necessarily the party that allocated the memory.
 
-There are basically three kinds of ownership.\\
+There are three basic kinds of ownership.\\
 For strict \textbf{script ownership}, the private data is always owned by the scripting language. The memory pointed to is freed, when the \mySCName{JSObject} is garbage collected (so, in the finalizer).\\
 For strict \textbf{native ownership}, the memory is owned by the \myProperName{C++} library that is wrapped, which is thus responsible for freeing the private data. When a \mySCName{JSObject} with native ownership is garbage collected, the memory the private data points to is left unchanged.\\
 \textbf{Mixed} ownership mixes both approaches. Ownership can be changed at run-time. Therefore, the \mySCName{JSObject} has to store state about who currently owns the private data. Functions for changing this state are exposed to script. When the \mySCName{JSObject} is garbage collected, the state is checked. If it is set to script ownership, the private data is freed. The ownership state can be saved along with the private data (for example in a struct that holds a \mySCName{void*} to the real private data and the state member) or in a reserved slot.
