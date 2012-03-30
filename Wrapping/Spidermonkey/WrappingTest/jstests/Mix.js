@@ -88,7 +88,18 @@ if(checkPropertyOn("Classes", this, "Global Object"))
 		if(!instance)
 			print("ERROR: could not create instance of 'SampleClass'");
 		else
+		{
 			testFunctionsOn(instance, { "memberFunc": { resultExpected: 8, param1: 8.5, param1Expected: "8.5" }});
+			
+			print("--- Testing calling member function with wrong execution context (exception expected)")
+			try {
+				instance.memberFunc.call({}, 8.5);
+				print("---- ERROR: no exception thrown")
+			} catch(e){
+			}
+		}
+			
+		
 	}
 }
 
@@ -102,7 +113,8 @@ function testFunctionsOn(object, funcs)
 		print("ERROR: Object'" + objectName + "' not existing");
 		return false;
 	}
-
+	
+	var fail = false;
 	for(var funcName in funcs)
 	{
 		print("--- Testing " + funcName)
@@ -112,10 +124,13 @@ function testFunctionsOn(object, funcs)
 			verifyFunctionCall(funcName, result, funcs[funcName].resultExpected, funcs[funcName].param1Expected, funcs[funcName].param2Expected);
 		}
 		else
-			print("ERROR: Function '" + funcName + "' is not defined on the given object");
+		{
+			fail = true;
+			print("---- ERROR: Function '" + funcName + "' is not defined on the given object");
+		}
 	}
 	
-	return true;
+	return fail;
 }
 
 function checkPropertyOn(propName, object, objectName)

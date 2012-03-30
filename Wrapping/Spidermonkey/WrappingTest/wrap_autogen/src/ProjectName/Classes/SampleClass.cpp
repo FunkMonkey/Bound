@@ -40,7 +40,7 @@ namespace jswrap { namespace ProjectName { namespace Classes { namespace SampleC
 	{
 		JSWRAP_TRY_START
 		
-			::Classes::SampleClass* inst = getThisPrivatePtr_unsafe<::Classes::SampleClass>(cx, vp);
+			::Classes::SampleClass* inst = getPrivateAsPtr_NotNull<::Classes::SampleClass>(cx, JS_THIS(cx, vp), jsConstructor);
 			
 			checkMinNumberOfArguments_x(argc, 1);
 			jsval* args = JS_ARGV(cx, vp);
@@ -128,6 +128,10 @@ namespace jswrap { namespace ProjectName { namespace Classes { namespace SampleC
 		return true;
 	}
 	
+	::Classes::SampleClass* getFromJSValue(JSContext* cx, jsval val)
+	{
+		return getPrivateAsPtr<::Classes::SampleClass>(cx, val, jsConstructor);
+	}
 	
 } } } } 
 

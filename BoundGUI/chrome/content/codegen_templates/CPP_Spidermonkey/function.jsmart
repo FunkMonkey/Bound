@@ -2,7 +2,7 @@ JSBool {$wrapperFunctionName}(JSContext *cx, uintN argc, jsval *vp)
 {
 	JSWRAP_TRY_START
 	
-{if $isInstanceCall}		{$parentQualifier}* inst = getThisPrivatePtr_unsafe<{$parentQualifier}>(cx, vp);
+{if $isInstanceCall}		{$parentQualifier}* inst = getPrivateAsPtr_NotNull<{$parentQualifier}>(cx, JS_THIS(cx, vp), jsConstructor);
 		
 {/if}{if $params.length > 0}
 		checkMinNumberOfArguments_x(argc, {$params.length});

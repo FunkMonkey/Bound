@@ -5,6 +5,7 @@
 #include <sstream>
 
 void print(const std::string& str);
+void printNoBreak(const std::string& str);
 
 extern int         lastInstance;
 extern std::string lastFunc;

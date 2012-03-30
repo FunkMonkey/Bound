@@ -23,6 +23,23 @@ namespace jswrap { namespace GlobalFunctionsWrap {
 		
 		return true;
 	}
+
+	JSBool wrapper_printNoBreak(JSContext *cx, uintN argc, jsval *vp)
+	{
+		JSWRAP_TRY_START
+
+			checkMinNumberOfArguments_x(argc, 1);
+		jsval* args = JS_ARGV(cx, vp);
+
+		std::string& p0__str = jsval_to_stdString_convert_x(cx, args[0]);
+
+		::printNoBreak(p0__str);
+
+		JS_RVAL(cx, vp) = JSVAL_VOID;
+		JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "")
+
+			return true;
+	}
 	
 	JSBool wrapper_getLastInstance(JSContext *cx, uintN argc, jsval *vp)
 	{
@@ -74,6 +91,7 @@ namespace jswrap { namespace GlobalFunctionsWrap {
 	
 	JSFunctionSpec functionsDefs[] = {
 			JS_FS("print", wrapper_print, 1, 0),
+			JS_FS("printNoBreak", wrapper_printNoBreak, 1, 0),
 			JS_FS("getLastInstance", wrapper_getLastInstance, 0, 0),
 			JS_FS("getLastFunction", wrapper_getLastFunction, 0, 0),
 			JS_FS("getLastParam1", wrapper_getLastParam1, 0, 0),

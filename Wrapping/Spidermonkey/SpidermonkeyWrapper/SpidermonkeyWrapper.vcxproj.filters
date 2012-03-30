@@ -40,4 +40,7 @@
       <Filter>include\wrap_helpers</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\GenericWrapper.cpp" />
+  </ItemGroup>
 </Project>

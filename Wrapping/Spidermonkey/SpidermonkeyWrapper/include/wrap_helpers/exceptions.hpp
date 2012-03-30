@@ -3,6 +3,7 @@
 
 #include <exception>
 
+// macros for converting C++ exceptions to JS exceptions
 #define JSWRAP_TRY_START try{
 #define JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, funcName)	} \
 														catch(std::exception& e) { \
@@ -12,6 +13,9 @@
 
 namespace jswrap
 {
+	/** 
+	 * Represents an exception for the JS wrapping
+	 */
 	class exception: public std::exception
 	{
 		public:

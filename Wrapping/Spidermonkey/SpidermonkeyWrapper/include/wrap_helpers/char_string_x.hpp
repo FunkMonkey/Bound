@@ -6,6 +6,14 @@
 
 namespace jswrap
 {
+	// TODO: rename to jsval_to_char_array_strict_x
+	/** 
+	 * Converts a jsval to a C++ char*
+	 *   - throws exception if jsval is not a string
+	 *
+	 * \param 	val   Value to convert
+	 * \return	String as char*
+	 */
 	static char* jsval_to_char_array_x(JSContext* cx, jsval val)
 	{
 		if(!JSVAL_IS_STRING(val))
@@ -18,6 +26,14 @@ namespace jswrap
 		return result;
 	}
 
+	/** 
+	 * Converts a jsval to a C++ char*
+	 *   - uses ECMAScript conversion function if jsval is not string
+	 *   - throws exception if conversion fails
+	 *
+	 * \param 	val   Value to convert
+	 * \return	String as char*
+	 */
 	static char* jsval_to_char_array_convert_x(JSContext* cx, jsval val)
 	{
 		JSString* str = JS_ValueToString(cx, val);
@@ -31,6 +47,13 @@ namespace jswrap
 		return result;
 	}
 
+	/** 
+	 * Converts a null-terminated char* to a JSString
+	 *
+	 * \param 	cx           JSContext
+	 * \param 	charArray    Character array to convert
+	 * \return	JavaScript string
+	 */
 	static JSString* nullterminated_char_array_to_jsstring_x(JSContext* cx, const char* charArray)
 	{
 		JSString* result = JS_NewStringCopyZ(cx, charArray);
@@ -40,6 +63,13 @@ namespace jswrap
 		return result;
 	}
 
+	/** 
+	 * Converts a null-terminated char* to a string jsval
+	 *
+	 * \param 	cx           JSContext
+	 * \param 	charArray    Character array to convert
+	 * \param 	val          Output jsval
+	 */
 	static void nullterminated_char_array_to_jsval_x(JSContext* cx, const char* charArray, jsval* val)
 	{
 		JSString* jsstr = nullterminated_char_array_to_jsstring_x(cx, charArray);

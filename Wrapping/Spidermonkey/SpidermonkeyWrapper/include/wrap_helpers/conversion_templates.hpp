@@ -6,6 +6,8 @@
 namespace jswrap
 {
 	
+	// Templates for conversion currently not used
+
 	template<typename T>
 	T jsval_to_type_x(JSContext* cx, jsval val)
 	{

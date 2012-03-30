@@ -10,6 +10,7 @@ namespace jswrap { namespace ProjectName { namespace Classes { namespace SampleC
 	extern JSClass jsClass;
 	JSBool init(JSContext* cx, JSObject* scope);
 	
+	::Classes::SampleClass* getFromJSValue(JSContext* cx, jsval val);
 } } } } 
 
 

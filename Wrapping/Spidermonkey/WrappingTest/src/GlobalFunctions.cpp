@@ -17,3 +17,8 @@ void print(const std::string& str)
 {
 	std::cout << str.c_str() << "\n";
 }
+
+void printNoBreak(const std::string& str)
+{
+	std::cout << str.c_str();
+}
