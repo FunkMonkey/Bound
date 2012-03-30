@@ -9,7 +9,7 @@ executing it. Static analysis is powerful because it allows for the quick consid
 necessary to execute the code for all the scenarios.''\footnote{\citep[3]{SecureProgramming}}
 \end{quotation}
 
-Another definition that highlights the use of prediction during the process of analysis can be found in \myBookName{Principles of program analysis}:
+Another definition that highlights the use of prediction during the process of analysis can be found in \myBookName{Principles of Program Analysis}:
 
 \begin{quotation}
 ``Program analysis offers static compile-time techniques for predicting safe and computable approximations to the set of values or behaviours arising dynamically at run-time when executing a program on a computer.''\footnote{\citep[1]{ProgramAnalysis}}
@@ -23,10 +23,11 @@ Complementary to static program analysis, there is \textbf{dynamic program analy
 \section{Area of Application}
 \label{sec:AreaOfApplication}
 
-The general purpose of static analysis is to extract useful information from source code or compiled code (like byte code or binary code).
+The general purpose of static analysis is to extract useful information from source code or compiled code (e.g. byte code or binary code).
 
 The type of information retrieved depends on the context and purpose of the static analysis and can be broken down into the following categories:
 
+\vspace{-5pt}
 \begin{itemize}\addtolength{\itemsep}{-0.5\baselineskip}
 \item Program correctness
 \item Software security
@@ -37,9 +38,9 @@ The type of information retrieved depends on the context and purpose of the stat
 
 \subsection{Program Correctness}
 
-Static analysis tools that are concerned with program correctness try to detect defects at compile-time so that these defects do not manifest in run-time errors, such as crashes, data corruption and program malfunctioning. Thus these tools, which are mostly concerned with \textbf{software quality}, are often referred to as \textbf{bug finders}.
+Static analysis tools that are concerned with program correctness try to detect defects at compile-time so that these defects do not manifest in run-time errors, such as crashes, data corruption and program malfunctioning. Hence these tools, which are mostly concerned with \textbf{software quality}, are often referred to as \textbf{bug finders}.
 
-Bug finders point out places in the source code, where the program will behave in a way that the programmer did not intend. Most tools are easy to use because they come pre-stocked with a set of \mySlang{bug idioms} (rules) that describe patterns in code that often indicate bugs.\footnote{\citep[32]{SecureProgramming}} They help to find these often hard-to-spot defects early in the software development life-cycle, reducing the cost, time, and risk of software errors.\footnote{\citep{CovertySA}}
+Bug finders point out places in the source code, where the program will behave in a way that the programmer did not intend. Most tools are easy to use, because they come pre-stocked with a set of \mySlang{bug idioms} (rules) that describe patterns in code that often indicate bugs.\footnote{\citep[32]{SecureProgramming}} They help to find these often hard-to-spot defects early in the software development life-cycle, reducing the cost, time, and risk of software errors.\footnote{\citep{CovertySA}}
 
 A prominent example of preventing run-time errors at compile-time is type checking. In this sense, compilers themselves can be seen as static analysis tools and - as we will see later - both have much in common.
 
@@ -52,7 +53,7 @@ A prominent example of preventing run-time errors at compile-time is type checki
 Defects can be categorized into generic and context-specific defects.
 
 \textbf{Generic defects} are problems that can occur in almost any program written in the given programming language, such as buffer overflows and memory leaks.\\
-\textbf{Context-specific defects} on the other hand require specific knowledge about the semantics of the given program.\footnote{\citep[14]{SecureProgramming}} Applications that deal with atomic operations (like a program that handles money transfer) belong to the latter category.
+\newpage\textbf{Context-specific defects} on the other hand require specific knowledge about the semantics of the analysed program.\footnote{\citep[14]{SecureProgramming}} Applications that deal with atomic operations (like a program that handles money transfer) belong to this category.
 
 The following sections will present different kinds of bugs, most of which can be found by analysing the control and data flow of an application.
 
@@ -60,7 +61,7 @@ The following sections will present different kinds of bugs, most of which can b
 
 A buffer overflow occurs when a program writes data outside the bounds of allocated memory\footnote{\citep[175]{SecureProgramming}}, for example when writing data into a buffer that is too small for the data to be written, leading to the memory after the buffer being overwritten and thus corrupted. Static analysis tools can detect such problems and advice the programmer to do a bounds-check.
 
-An integer overflow occurs when an integral value is increased or decreased beyond its capacity\footnote{\citep[235]{SecureProgramming}}. The following example demonstrates how this can lead to an infinite loop:
+An integer overflow occurs when an integral value is increased or decreased beyond its capacity.\footnote{\citep[235]{SecureProgramming}} The following example demonstrates how this can lead to an infinite loop:
 
 \SingleSpacing
 \begin{lstlisting}[language=C++, caption=Integer \mySlang{underflow} in \myProperName{C++}]
@@ -71,7 +72,7 @@ for(unsigned int i = 200; i >= 0; --i)
 \end{lstlisting}
 \OnehalfSpacing
 
-A static analysis tool will detect that the expression \mySCName{i \textgreater= 0} will always be true for \mySCName{unsigned} integer types like \mySCName{i}, as \mySCName{i} will be set to the highest possible unsigned integer when being \mySCName{0} and decreased by \mySCName{1}.
+A static analysis tool will detect that the expression \mySCName{i \textgreater= 0} will always be true for \mySCName{unsigned} integer types like \mySCName{i}, as \mySCName{i} will be set to the highest possible unsigned integer when a value of \mySCName{0} is being decreased.
 
 \subsubsection{Resource Leaks}
 
@@ -89,7 +90,7 @@ Similar to the detection of resource leaks, the data and call flow of the applic
 
 \subsubsection{Other Problems and Warnings}
 
-There are many more possible sources for bugs that can be detected using static analysis tools, such as division by zero, dereferencing of \mySCName{null}-pointers or the returning of references or pointers to local function variables.
+There are many more possible sources for bugs that can be detected using static analysis tools, such as division by zero, dereferencing of \mySCName{null}-pointers or the returning of references or pointers to local function stack variables.
 
 Bug finders are not only concerned with finding malicious code that will lead to run-time errors, but may also warn about code that is redundant, like comparisons that will always have the same result. Although such a comparison will not cause a failure or exception, its existence suggests that it might have resulted from a coding error, leading to incorrect program behaviour.\footnote{\citep[1]{UsingSAToFindBugs}}
 
@@ -165,7 +166,7 @@ To retrieve useful information from the code, static analysis tools need to buil
 
 \subsection{The Model}
 
-When creating the internal program model, static analysis tools generally borrow a lot from the compiler world\footnote{\citep[72]{SecureProgramming}}. They especially follow the first two phases of a compiler: lexical analysis and syntax analysis.
+When creating the internal program model, static analysis tools generally borrow a lot from the compiler world.\footnote{\citep[72]{SecureProgramming}} They especially follow the first two phases of a compiler: lexical analysis and syntax analysis.
 
 \begin{quotation}
 ``\textbf{Lexical analysis} (...) is the initial part of reading and analysing the program text: The text is read and divided into \textit{tokens}, each of which corresponds to a symbol in the programming language, e.g., a variable name, keyword or number.''\footnote{\citep[2]{CompilerBasics}}
@@ -202,16 +203,17 @@ The application to be developed will make use of a 3rd party library for perform
 
 The most important factor of the chosen static analysis tool/library is its ability to parse \myProperName{C++} and to export or give access to a (simplified) abstract syntax tree of the parsed source files, including symbol and type information. Information about namespaces, global variables, functions including parameters and return types, classes, class-members and more needs to be extracted.
 
-Also, as this project is meant to be open-source, its dependencies must be released in an according licence, which excludes all commercial static analysis tools like \myProperName{Coverty}\footnote{\myProperName{Coverty}: \url{http://www.coverity.com/}}, \myProperName{PVS-Studio}\footnote{\myProperName{PVS-Studio}: \url{http://www.viva64.com/en/pvs-studio/}} or \myProperName{pc-lint}\footnote{\myProperName{pc-lint}: \url{http://www.gimpel.com/html/pcl.htm}}. It is also not known, whether these tools would provide the ability to export symbol and type information.
+Also, as this project is meant to be open-source, its dependencies must be released in an according licence, which excludes all commercial static analysis tools like \myProperName{Coverty}\footnote{\myProperName{Coverty}: \url{http://www.coverity.com/}}, \myProperName{PVS-Studio}\footnote{\myProperName{PVS-Studio}: \url{http://www.viva64.com/en/pvs-studio/}} or \myProperName{pc-lint}\footnote{\myProperName{pc-lint}: \url{http://www.gimpel.com/html/pcl.htm}}. It is also not known, whether these tools do provide the ability to export symbol and type information for later usage.
 
-Further, the chosen library needed to be in active development to adjust to changes coming in the new \myProperName{C++} standard. This excluded a couple of small open source projects that dealt with parsing \myProperName{C++} headers.
+Further, the chosen library needed to be in active development to adjust to changes coming with future \myProperName{C++} standards. This excluded a couple of small open source projects that dealt with parsing \myProperName{C++} headers.
 
 The choice had to be made between three projects: \myProperName{GCC-XML}, \myProperName{Dehydra} and \myProperName{Clang}.
 
 \subsection{\myProperName{GCC-XML}}
 
-\myProperName{GCC-XML}\footnote{\myProperName{GCC-XML}: \url{http://www.gccxml.org/HTML/Index.html}} is an extension to \myProperName{GCC}'s \myProperName{C++} parser that outputs AST information into an \myProperName{XML} file. It does not seem to provide any means of filtering the output. The developed application would need to parse the \myProperName{XML} and build its own representation internally. Hence, \myProperName{GCC-XML} only gives indirect access to \myProperName{GCC}'s syntax tree and is thus not well-suited for solving the problem.
+\myProperName{GCC-XML}\footnote{\myProperName{GCC-XML}: \url{http://www.gccxml.org/HTML/Index.html}} is an extension to \myProperName{GCC}'s\footnote{\myProperName{GCC}: \url{http://gcc.gnu.org/}}  \myProperName{C++} parser that outputs AST information into an \myProperName{XML} file. It does not seem to provide any means of filtering the output. The developed application would need to parse the \myProperName{XML} and build its own representation internally. Hence, \myProperName{GCC-XML} only gives indirect access to \myProperName{GCC}'s syntax tree and is thus not well-suited for solving the problem.
 
+\newpage
 \subsection{Dehydra}
 
 \begin{quotation}
@@ -240,8 +242,8 @@ The biggest drawback of \myProperName{Dehydra} is that it is currently only supp
 The open-source \myProperName{Clang}\footnote{\myProperName{Clang}: \url{http://clang.llvm.org/}} project is not only concerned with developing a compiler that produces high-performance code, but also with developing software that can be used in utilities like IDE's and bug finders to perform source code analysis and indexing.
 
 There are two approaches of how an application can integrate \myProperName{Clang} for analysing purposes.
-\\On the one hand, one can include \myProperName{Clang} itself as a library and use the internal structures and functions of the compiler, thus having access to the AST build by \myProperName{Clang} in a direct way.
-\\The second approach is to use \myProperNameImp{libclang}, a \myProperName{C}-API to \myProperName{Clang}, which exposes much of \myProperName{Clang}'s functionality for indexing source code and accessing ASTs, while maintaining a stable interface independent of changes internal to \myProperName{Clang}. \myProperName{libclang} is extended on a per-need-basis and may thus not provide all features needed for a static analysis tool that builds upon it. As it is an open-source project, these features can easily be added.
+\\On the one hand, \myProperName{Clang} itself can be included as a shared library. The internal structures and functions of the compiler can be used to access the AST build by \myProperName{Clang} in a direct manner.
+\\The second approach is to use \myProperNameImp{libclang}, a \myProperName{C}-API to \myProperName{Clang}, which exposes much of \myProperName{Clang}'s functionality for indexing source code and accessing ASTs, while maintaining a stable interface independent of changes internal to \myProperName{Clang}. \myProperName{libclang}, which belongs to the official \myProperName{Clang} project, is extended on a per-need-basis and may thus not provide all features needed for a static analysis tool that builds upon it. As it is an open-source project, these features can easily be added.
 
 \myProperName{Clang} works on all popular operating systems, including \myProperName{Microsoft Windows}. Having this advantage over \myProperName{Dehydra}, \myProperName{Clang} is the favourite choice for use in this project. A detailed description of how \myProperName{libclang} is used inside the application can be found in \myRefChapter{chap:AnalysingCPP}.
 
@@ -253,4 +255,4 @@ In the context of this thesis, another interesting \myProperName{LLVM}-based pro
 ``Emscripten is an LLVM-to-JavaScript compiler. It takes LLVM bitcode (which can be generated from C/C++ using Clang, or any other language that can be converted into LLVM bitcode) and compiles that into JavaScript, which can be run on the web.''\footnote{\citep{EmscriptenHP} - taken from front page}
 \end{quotation}
 
-Instead of accessing \myProperName{C++} through glue code, the \myProperName{C++} code itself is completely compiled to \myProperName{JavaScript}. This may sound very slow in the first place, but with the current performance of \myProperName{JavaScript} virtual machines and the reduced cost of type-conversion (as all is \myProperName{JavaScript}), code generated by \myProperName{Emscripten} is only 3 to 4 times slower than native code generated with \myProperName{GCC}.\footnote{\citep{EmscriptenHP} - taken from FAQ section}
+Instead of accessing \myProperName{C++} through glue code, the \myProperName{C++} code itself is completely compiled to \myProperName{JavaScript}. This may sound very slow in the first place, but with the current performance of \myProperName{JavaScript} virtual machines and the reduced cost of type conversion (as all is \myProperName{JavaScript}), code generated by \myProperName{Emscripten} is only 3 to 4 times slower than native code generated with \myProperName{GCC}.\footnote{\citep{EmscriptenHP} - taken from FAQ section}
