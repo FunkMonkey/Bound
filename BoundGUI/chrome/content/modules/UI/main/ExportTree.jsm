@@ -8,7 +8,7 @@ Components.utils.import("chrome://bound/content/modules/log.jsm");
 Components.utils.import("chrome://bound/content/modules/UI/Widgets/DOMTree.jsm");
 Components.utils.import("chrome://bound/content/modules/AST/Base_ASTObjects.jsm");
 Components.utils.import("chrome://bound/content/modules/AST/Export_ASTObjects.jsm");
-Components.utils.import("chrome://bound/content/modules/CodeGeneratorPlugins/CPP_Spidermonkey.jsm");
+Components.utils.import("chrome://bound/content/modules/CodeGeneratorPlugins/CPP_Spidermonkey/CPPSM_Plugin.jsm");
 
 Components.utils.import("chrome://bound/content/modules/Bound.jsm");
 

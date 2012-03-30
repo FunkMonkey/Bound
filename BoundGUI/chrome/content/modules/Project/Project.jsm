@@ -2,7 +2,7 @@ var EXPORTED_SYMBOLS = ["Project", "ProjectOptions"];
 
 Components.utils.import("chrome://bound/content/modules/AST/CPP_ASTObjects.jsm");
 Components.utils.import("chrome://bound/content/modules/AST/Export_ASTObjects.jsm");
-Components.utils.import("chrome://bound/content/modules/CodeGeneratorPlugins/CPP_Spidermonkey.jsm");
+Components.utils.import("chrome://bound/content/modules/CodeGeneratorPlugins/CPP_Spidermonkey/CPPSM_Plugin.jsm");
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("chrome://bound/content/modules/Utils/FileIO.jsm");
