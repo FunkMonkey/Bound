@@ -700,7 +700,7 @@ If base classes do not need to be exposed, multiple inheritance can be mimicked 
 
 \subsection{Memory Management}
 
-Memory management is probably the most problematic area in language binding and as such needed intensive research and creation of solutions.\\
+Memory management is probably the most problematic area in language binding and as such needed intensive research and development of solutions.\\
 When bridging two programming languages, memory is often shared. This especially applies to instances of \myProperName{C++} classes that are wrapped for use in \myProperName{JavaScript}.
 
 The \myProperName{JSAPI} user has to decide upon which side is responsible for freeing the memory - meaning which party holds the \textbf{ownership}. Depending on the application, this is not necessarily the party that allocated the memory.
@@ -904,7 +904,7 @@ callLater(5,  function(){ print("World"); }); // call in 5  seconds
 \end{lstlisting}
 \OnehalfSpacing
 
-The result should be the other way around, because the time delay for \mySCString{Hello} is 10 and thus after \mySCString{World}. Because of the queue that does not know about execution order, the callback that prints \mySCString{Hello} was called first.
+The result should be the other way around, because the time delay for \mySCString{Hello} is 10 and thus after \mySCString{World}. Because of the queue that does not know about execution order, the callback that prints \mySCString{Hello} is called first.
 
 \textbf{Passing state information}
 
@@ -994,7 +994,7 @@ In contrast to the previously explained wrapping of classes, the \mySCName{JSCla
 There are several ways to do this, for example the \myProperName{C++} \mySCName{typeid}\footnote{\mySCName{typeid}: \url{http://www.cplusplus.com/reference/std/typeinfo/type_info/}} operator, which returns the type information of a given value. Though \mySCName{type\_info}s can be compared, they have no knowledge about inheritance chains and are therefore not the best solution.\\
 There is a proposal to support rich pointers\footnote{Rich pointer proposal: \url{http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3340.pdf}} (pointers that also contain type information) in \myProperName{C++}, but it is uncertain if the idea of rich pointers will ever become part of a new \myProperName{C++} standard.
 
-During research I came across \myAuthorName{Cassio Neri}'s concept of an \mySCName{any\_ptr} - a class that holds a pointer and its type information. \mySCName{any\_ptr} allows casting up and down in inheritance chains at run-time without the possibility of crashes. If an \mySCName{any\_ptr} cannot be casted to a given type, its \mySCName{cast} function simply returns \mySCName{NULL} - allowing arbitrary type checking without risking undefined behaviour. An important feature is its support for classes without RTTI.
+During research I came across \myAuthorName{Cassio Neri}'s concept of an \mySCName{any\_ptr} - a class that holds a pointer and its type information. \mySCName{any\_ptr} allows casting up and down in inheritance chains at run-time without the possibility of crashes. If an \mySCName{any\_ptr} cannot be casted to a given type, its \mySCName{cast} function simply returns \mySCName{NULL} - allowing arbitrary run-time type checking without risking undefined behaviour. An important feature is its support for classes without RTTI.
 
 \begin{lstlisting}[language=C++, caption=Implementation of \mySCName{any\_ptr}]
 class any_ptr {
