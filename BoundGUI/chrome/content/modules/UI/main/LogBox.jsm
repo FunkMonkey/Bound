@@ -43,6 +43,15 @@ var LogBox = {
 	 */
 	showDiagnosisMessages: function showDiagnosisMessages(astObject, context, recursive)
 	{
+		var nameChain = astObject.name;
+		var currObj = astObject.parent;
+		while(currObj.parent)
+		{
+			nameChain = currObj.name + "::" + nameChain;
+			currObj = currObj.parent;
+		}
+		
+		
 		var codeGen = astObject.getCodeGenerator(context);
 		if(codeGen && codeGen._genInput && codeGen._genInput.diagnosis)
 		{
@@ -52,13 +61,13 @@ var LogBox = {
 				switch(messages[propName].type)
 				{
 					case "INFO":
-						this.codeGenLogger.addInfoMessage(messages[propName].name + ": " + messages[propName].message);
+						this.codeGenLogger.addInfoMessage(nameChain + " -- " + messages[propName].name + ": " + messages[propName].message);
 						break;
 					case "WARNING":
-						this.codeGenLogger.addWarningMessage(messages[propName].name + ": " + messages[propName].message);
+						this.codeGenLogger.addWarningMessage(nameChain + " -- " + messages[propName].name + ": " + messages[propName].message);
 						break;
 					case "ERROR":
-						this.codeGenLogger.addErrorMessage(messages[propName].name + ": " + messages[propName].message);
+						this.codeGenLogger.addErrorMessage(nameChain + " -- " + messages[propName].name + ": " + messages[propName].message);
 						break;
 				}
 			}
