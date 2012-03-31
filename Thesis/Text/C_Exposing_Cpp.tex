@@ -701,7 +701,7 @@ If base classes do not need to be exposed, multiple inheritance can be mimicked 
 \subsection{Memory Management}
 \label{sec:MemoryManagement}
 
-Memory management is probably the most problematic area in language binding and as such required intensive research and development of own solutions.\\
+Memory management is an extremely problematic area in language binding and as such required intensive research and development of own solutions.\\
 When bridging two programming languages, memory is often shared. This especially applies to instances of \myProperName{C++} classes that are wrapped for use in \myProperName{JavaScript}.
 
 The \myProperName{JSAPI} user has to decide upon which side is responsible for freeing the memory - meaning which party holds the \textbf{ownership}. Depending on the application, this is not necessarily the party that allocated the memory.
