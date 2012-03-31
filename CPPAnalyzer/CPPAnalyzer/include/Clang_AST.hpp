@@ -9,6 +9,10 @@
 #include "ASTObjectKinds.hpp"
 #include "Logger.hpp"
 
+/**
+ * @namespace CPPAnalyzer
+ * Namespace for CPPAnalyzer
+ */
 namespace CPPAnalyzer
 {
 	class Clang_AST_CXTreeNode;
