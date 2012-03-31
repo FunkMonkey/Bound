@@ -136,8 +136,8 @@ The intermediate tree is built using instances of \mySCNameImp{Clang\_AST\_CXTre
 Every node holds a pointer to its parent and all of its children, resulting in a tree structure that can be traversed in both directions. 
 The \mySCName{Clang\_AST} holds a reference to the root tree node and a map that links canonical cursors to intermediate tree nodes (for faster access).
 
-After the translation unit has been parsed using \mySCName{clang\_parseTranslationUnit}, all the children of the translation unit cursor will be visited with the help of \linebreak\mySCName{clang\_visitChildren}. Every visited child cursor is checked, whether an intermediate tree node has already been created for it - based on the child's canonical cursor. If so, the tree node is retrieved, the visited cursor added to its list of cursors and the children are visited. Visiting the children for an already existing tree node is necessary, as the the new found cursor may contain more children. This happens, for example, when the new found cursor represents a class definition.\\
-If no tree node is existing for the canonical cursor, then, depending on the cursor's kind, a new tree node is created, inserted into the tree and added to the map that links canonical cursors and tree nodes. A lot of AST nodes are not needed for language binding. Thus, the first filtering happens at this stage and tree nodes for the intermediate AST will only be created for the following \myProperName{C++} entities:\\global and static variables, \mySCName{union}, \mySCName{typedef}, \mySCName{struct}, \mySCName{namespace}, \mySCName{class} (including templated classes, partial specializations and explicit/implicit specializations), (templated) functions, function parameters, member functions, constructors, destructors, fields (data members), \mySCName{enum}, enum constants, template parameters, template arguments and linkage specifiers (e.g. \mySCName{extern "C"}).\\
+After the translation unit has been parsed using \mySCName{clang\_parseTranslationUnit}, all the children of the translation unit cursor are visited with the help of \linebreak\mySCName{clang\_visitChildren}. Every visited child cursor is checked, whether an intermediate tree node has already been created for it - based on the child's canonical cursor. If so, the tree node is retrieved, the visited cursor added to its list of cursors and the children are visited. Visiting the children for an already existing tree node is necessary, as the the new found cursor may contain more children. This happens, for example, when the new found cursor represents a class definition.\\
+If no tree node is existing for the canonical cursor, then, depending on the cursor's kind, a new tree node is created, inserted into the tree and added to the map that links canonical cursors and tree nodes. A lot of AST nodes are not needed for language binding. Thus, the first filtering happens at this stage and tree nodes for the intermediate AST are only created for the following \myProperName{C++} entities:\\global and static variables, \mySCName{union}, \mySCName{typedef}, \mySCName{struct}, \mySCName{namespace}, \mySCName{class} (including templated classes, partial specializations and explicit/implicit specializations), (templated) functions, function parameters, member functions, constructors, destructors, fields (data members), \mySCName{enum}, enum constants, template parameters, template arguments and linkage specifiers (e.g. \mySCName{extern "C"}).\\
 From this list, it is obvious, that the intermediate AST will only have details up to function-level. Source code inside functions is not considered. 
 
 \subsection{User-Based Filtering}
@@ -146,17 +146,17 @@ Parsing code that includes heavy libraries, like the \myProperName{C++} standard
 
 At the time of creation, every tree node has been marked as \textbf{not visible}. Only nodes that are marked \textbf{visible} or \textbf{referenced} will appear in the final simplified AST. Referenced nodes are AST nodes that were initially filtered out, but are used by other nodes as a parent or for type information. As such, these nodes are an integral part of a consistent AST, where every node is a) supposed to be reachable while traversing the tree and b) expected to exist in the final tree when being referenced by another node.
 
-In the filtering step every node of the intermediate tree will be checked.
+In the filtering step every node of the intermediate tree is checked.
 
 First the filename is checked with the help of a user-given regular expression. As a tree node may combine multiple cursors, the filenames of all these cursors are retrieved and matched against the regular expression. If none succeeds, the node and all its children are considered \textit{not visible}.
 
-The second filter matches the complete symbol name of a node (mangled with all parent names added upfront) against a regular expression. Some nodes, like linkage specifiers, will not be checked, as they do not have a name. If the symbol name check fails, then - depending on the kind of node (for example \mySCName{namespace}) - the algorithm will still check the visibility of the children as the symbol name filter may apply to those.
+The second filter matches the complete symbol name of a node (mangled with all parent names added upfront) against a regular expression. Some nodes, like linkage specifiers, are not checked, as they do not have a name. If the symbol name check fails, then - depending on the kind of node (for example \mySCName{namespace}) - the algorithm still checks the visibility of the children as the symbol name filter may apply to those.
 
-The third filter will check the member access of a node - whether it is \mySCName{private}, \mySCName{protected} or \mySCName{public}. For language binding, non-\mySCName{public} members are not needed as they can not be referenced by glue code.
+The third filter checks the member access of a node - whether it is \mySCName{private}, \mySCName{protected} or \mySCName{public}. For language binding, non-\mySCName{public} members are not needed as they can not be referenced by glue code.
 
 If the tree node passes all three filters, it will be marked as \textit{visible}. As explained in more detail in the next section, an \mySCName{ASTObject} - a node of the final AST - will be created and stored in the intermediate tree node. Also, all parent nodes (that are still marked as \textit{not visible}) will be marked as \textit{referenced} and consequently appear in the final AST.
 
-Depending on the kind of node, the visibility of the children will be checked recursively.
+Depending on the kind of node, the visibility of the children is checked recursively.
 
 \subsection{The Final AST}
 
@@ -233,15 +233,15 @@ As can be seen in \myRefFigure{fig:TreeExample}, the AST \myProperName{Clang} pr
 \label{sec:ExportJSON}
 
 As the AST will be used from within another application, it needs to be serialized into a string for passing the data across application borders. As will be shown in \myRefChapter{chap:GUIApplication}, the GUI application is heavily based on \myProperName{JavaScript}.\\
-Hence, it is only logical that the AST will be serialized into a string conforming the \myProperNameImp{JavaScript Object Notation (JSON)}. \myProperName{JSON}  is a lightweight data-interchange format, based on a subset of the \myProperName{JavaScript} programming language. The format is easy for humans to read and write, but also for machines to parse and generate.\footnote{\citep{JSONHP}}
+Hence, it is only logical that the AST is serialized into a string conforming the \myProperNameImp{JavaScript Object Notation (JSON)}. \myProperName{JSON}  is a lightweight data-interchange format, based on a subset of the \myProperName{JavaScript} programming language. The format is easy for humans to read and write, but also for machines to parse and generate.\footnote{\citep{JSONHP}}
 
 The class \mySCNameImp{JSON\_Converter} was written to perform this task given an instance of \linebreak\mySCName{Clang\_AST}.
 
 The first version of the converter was written without any additional libraries and handled the concatenation of the \myProperName{JSON} string itself. This was cumbersome and lead to code that was hard to maintain and error-prone. The \myProperName{JSON}-producing code was rewritten to use the library \myProperNameImp{JsonCpp}\footnote{\myProperName{JsonCpp}: \url{http://jsoncpp.sourceforge.net/}}.
 
-The export is straight forward and the tree structure can basically be exported as is. \mySCName{ASTType}s and \mySCName{ASTObject}s, as well as their members, need to be converted into \myProperName{JSON} objects. All \mySCName{ASTType}s and \mySCName{ASTObject}s contain a unique id, which will be used for cross-referencing. In both cases, the ids are numbers starting at 1.
+The export is straight forward and the tree structure can basically be exported as is. \mySCName{ASTType}s and \mySCName{ASTObject}s, as well as their members, need to be converted into \myProperName{JSON} objects. All \mySCName{ASTType}s and \mySCName{ASTObject}s contain a unique id, which is used for cross-referencing. In both cases, the ids are numbers starting at 1.
 
-The list of \mySCName{ASTType}s will be converted first, followed by the tree of \mySCName{ASTObject}s. Logger messages produced during AST creation will also be exported. The produced \myProperName{JSON} does not necessarily follow that order, as members of \myProperName{JSON} objects are sorted alphabetically in \myProperName{JsonCpp}.
+The list of \mySCName{ASTType}s is converted first, followed by the tree of \mySCName{ASTObject}s. Logger messages produced during AST creation are also exported. The produced \myProperName{JSON} does not necessarily follow that order, as members of \myProperName{JSON} objects are sorted alphabetically in \myProperName{JsonCpp}.
 
 \SingleSpacing
 \begin{lstlisting}[language=C++, caption=Example AST for \myProperName{JSON} conversion]
