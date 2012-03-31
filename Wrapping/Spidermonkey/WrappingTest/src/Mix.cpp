@@ -122,22 +122,24 @@ namespace Inheritance
 namespace UsingAndOwnership
 {
 	void ClassScriptOwned::func(){ lastInstance = (int)this; lastFunc = "func"; };
-	void passScriptOwnedCopy(ClassScriptOwned copy);
-	void passScriptOwnedRef(ClassScriptOwned& ref);
-	void passScriptOwnedPtr(ClassScriptOwned* ptr);
-	ClassScriptOwned  returnScriptOwnedCopy(){return ClassScriptOwned(); }
-	ClassScriptOwned& returnScriptOwnedRef(){ return *(new ClassScriptOwned()); }
-	ClassScriptOwned* returnScriptOwnedPtr(){ return new ClassScriptOwned(); }
+	void passScriptOwnedCopy(ClassScriptOwned copy){lastFunc = "passScriptOwnedCopy";};
+	void passScriptOwnedRef(ClassScriptOwned& ref){lastFunc = "passScriptOwnedRef";};
+	void passScriptOwnedPtr(ClassScriptOwned* ptr){lastFunc = "passScriptOwnedPtr";};
+	ClassScriptOwned  returnScriptOwnedCopy(){ lastFunc = "returnScriptOwnedCopy"; return ClassScriptOwned(); }
+
+	// should be prohibited by restrictions
+	ClassScriptOwned& returnScriptOwnedRef(){ lastFunc = "returnScriptOwnedRef"; return *(new ClassScriptOwned()); }
+	ClassScriptOwned* returnScriptOwnedPtr(){ lastFunc = "returnScriptOwnedPtr"; return new ClassScriptOwned(); }
 	
 	void ClassNativeOwned::func(){ lastInstance = (int)this; lastFunc = "func"; };
-	void passNativeOwnedCopy(ClassNativeOwned copy){}
-	void passNativeOwnedRef(ClassNativeOwned& ref){}
-	void passNativeOwnedPtr(ClassNativeOwned* ptr){}
-	
-	// should be prohibited by restrictions
-	ClassNativeOwned  returnNativeOwnedCopy(){return ClassNativeOwned(); }
+	void passNativeOwnedCopy(ClassNativeOwned copy){lastFunc = "passNativeOwnedCopy";}
+	void passNativeOwnedRef(ClassNativeOwned& ref){lastFunc = "passNativeOwnedRef";}
+	void passNativeOwnedPtr(ClassNativeOwned* ptr){lastFunc = "passNativeOwnedPtr";}
 	
 	ClassNativeOwned instance;
-	ClassNativeOwned& returnNativeOwnedRef(){ return instance; }
-	ClassNativeOwned* returnNativeOwnedPtr(){ return &instance; }
+	ClassNativeOwned& returnNativeOwnedRef(){ lastFunc = "returnNativeOwnedRef"; return instance; }
+	ClassNativeOwned* returnNativeOwnedPtr(){ lastFunc = "returnNativeOwnedPtr"; return &instance; }
+
+	// should be prohibited by restrictions
+	ClassNativeOwned  returnNativeOwnedCopy(){lastFunc = "returnNativeOwnedCopy"; return ClassNativeOwned(); }
 }

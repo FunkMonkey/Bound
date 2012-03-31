@@ -117,7 +117,13 @@
     <ClCompile Include="wrap_autogen\src\ProjectName\Builtin.cpp" />
     <ClCompile Include="wrap_autogen\src\ProjectName\Classes.cpp" />
     <ClCompile Include="wrap_autogen\src\ProjectName\Classes\SampleClass.cpp" />
+    <ClCompile Include="wrap_autogen\src\ProjectName\Inheritance.cpp" />
+    <ClCompile Include="wrap_autogen\src\ProjectName\Inheritance\BaseClass.cpp" />
+    <ClCompile Include="wrap_autogen\src\ProjectName\Inheritance\SubClass.cpp" />
     <ClCompile Include="wrap_autogen\src\ProjectName\Strings.cpp" />
+    <ClCompile Include="wrap_autogen\src\ProjectName\UsingAndOwnership.cpp" />
+    <ClCompile Include="wrap_autogen\src\ProjectName\UsingAndOwnership\ClassNativeOwned.cpp" />
+    <ClCompile Include="wrap_autogen\src\ProjectName\UsingAndOwnership\ClassScriptOwned.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -89,6 +89,12 @@ if(checkPropertyOn("Classes", this, "Global Object"))
 			print("ERROR: could not create instance of 'SampleClass'");
 		else
 		{
+			print("--- Testing instance to be of type SampleClass")
+			if(!(instance instanceof Classes.SampleClass))
+				print("ERROR: instance is not of type 'SampleClass'");
+			
+			// testing functions
+			print("--- Testing instance member functions ... following")
 			testFunctionsOn(instance, { "memberFunc": { resultExpected: 8, param1: 8.5, param1Expected: "8.5" }});
 			
 			print("--- Testing calling member function with wrong execution context (exception expected)")
@@ -100,6 +106,64 @@ if(checkPropertyOn("Classes", this, "Global Object"))
 		}
 			
 		
+	}
+}
+
+//---------------------------------------------------
+// Inheritance
+//---------------------------------------------------
+print("\nINFO: Testing Inheritance")
+if(checkPropertyOn("Inheritance", this, "Global Object"))
+{
+	print("- Testing BaseClass")
+	if(checkPropertyOn("BaseClass", Inheritance, "Inheritance"))
+	{
+		print("-- Testing BaseClass instance")
+		var instance = new Inheritance.BaseClass();
+		if(!instance)
+			print("ERROR: could not create instance of 'BaseClass'");
+		else
+		{
+			print("--- Testing BaseClass instance to be of type BaseClass")
+			if(!(instance instanceof Inheritance.BaseClass))
+				print("ERROR: instances is not of type 'BaseClass'");
+			
+			// testing functions
+			print("--- Testing BaseClass instance member functions ... following")
+			testFunctionsOn(instance, { "baseFunc": {}});
+			
+			print("--- Testing 'subFunc' not being an instance function of BaseClass")
+			if("subFunc" in Inheritance.BaseClass)
+				print("ERROR: 'subFunc' is declared on BaseClass instance");
+		}
+		
+		print("- Testing SubClass")
+		if(checkPropertyOn("SubClass", Inheritance, "Inheritance"))
+		{
+			print("-- Testing SubClass prototype chain")
+			if(Object.getPrototypeOf(Inheritance.SubClass.prototype) !== Inheritance.BaseClass.prototype)
+				print("ERROR: SubClass.prototype.[[Prototype]] is not BaseClass.prototype");
+		
+			print("-- Testing SubClass instance")
+			var instance = new Inheritance.SubClass();
+			if(!instance)
+				print("ERROR: could not create instance of 'SubClass'");
+			else
+			{
+				print("--- Testing SubClass instance to be of type SubClass")
+				if(!(instance instanceof Inheritance.SubClass))
+					print("ERROR: instances is not of type 'SubClass'");
+					
+				print("--- Testing SubClass instance to be of type BaseClass")
+				if(!(instance instanceof Inheritance.BaseClass))
+					print("ERROR: instances is not of type 'BaseClass'");
+				
+				// testing functions
+				print("--- Testing SubClass instance member functions ... following")
+				testFunctionsOn(instance, { "baseFunc": {}, "subFunc": {}});
+			}
+
+		}
 	}
 }
 
