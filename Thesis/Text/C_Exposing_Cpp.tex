@@ -148,7 +148,7 @@ anInstance.sayHello();
 For creating inheritance chains, the internal [[Prototype]] property of a function's \linebreak\mySCName{prototype} object must reference another function's \mySCName{prototype} object. If a base constructor function initializes members, then it must be called explicitly from the subclass constructor function with the help of the function object's \mySCName{call} method.
 
 \SingleSpacing
-\begin{lstlisting}[language=JavaScript, caption=Prototype-based inheritance in \myProperName{JavaScript}, label=JSClasses]
+\begin{lstlisting}[language=JavaScript, caption=Prototype-based inheritance in \myProperName{JavaScript}, label=lst:PrototypeInheritance]
 function Base()
 {
 	this.baseMember = 3;
@@ -179,7 +179,7 @@ instance.doSomething(); // --> 9 (3 * 3)
 	\centering
 		\includegraphics[scale=0.32]{Images/PrototypeChain.png}
 	\caption{The prototype chain}
-	\label{fig:InheritanceWrapping}
+	\label{fig:PrototypeChain}
 \end{figure}
 
 \subsubsection{Mixins}
@@ -699,6 +699,7 @@ The \myProperName{C++} class hierarchy does not necessarily need to be replicate
 If base classes do not need to be exposed, multiple inheritance can be mimicked in the same way. Otherwise, if base classes are wrapped too, the subclass can inherit from one base class and borrow the properties from the others as explained in \myRefSection{sec:Mixins}.
 
 \subsection{Memory Management}
+\label{sec:MemoryManagement}
 
 Memory management is probably the most problematic area in language binding and as such required intensive research and development of own solutions.\\
 When bridging two programming languages, memory is often shared. This especially applies to instances of \myProperName{C++} classes that are wrapped for use in \myProperName{JavaScript}.
