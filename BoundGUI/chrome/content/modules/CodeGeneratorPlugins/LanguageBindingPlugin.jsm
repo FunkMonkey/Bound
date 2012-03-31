@@ -340,7 +340,7 @@ LanguageBindingEntityCodeGen.prototype = {
 		// throw exception, when TemplateParameterType
 		
 		// == 1. check the type
-		// --- 1a) check type maps
+		// --- 1a) check type maps TODO: add type library entry for restrictions when possible
 		var typeMapResult = this._getTypeHandlingTemplateFromTypeMaps(astType, usage);
 		if(typeMapResult)
 		{
@@ -363,6 +363,7 @@ LanguageBindingEntityCodeGen.prototype = {
 		// --- 2b)check type libraries
 		
 		// == 3. check standard pointer / reference wrapper
+		// TODO: generic wrapper. But also for all other instances possible using & operator (but only for field wrapping)
 		
 		
 		return null;

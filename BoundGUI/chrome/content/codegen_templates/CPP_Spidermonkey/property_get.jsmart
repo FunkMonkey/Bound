@@ -1,0 +1,18 @@
+JSBool {$wrapperFunctionName}(JSContext *cx, uintN argc, jsval *vp)
+{
+	JSWRAP_TRY_START
+	
+{if $isInstanceCall}		{$parentQualifier}* inst = getPrivateAsPtr_NotNull<{$parentQualifier}>(cx, JS_THIS(cx, vp), jsConstructor);
+		
+{/if}{if $params.length > 0}
+		checkMinNumberOfArguments_x(argc, {$params.length});
+		jsval* args = JS_ARGV(cx, vp);
+
+{/if}{if $paramsInit}{$paramsInit|indent:2:'\t'}
+{/if}		{if $returnType.cppTypeStr}{$returnType.cppTypeStr}{$returnTypePost} cpp__result = {/if}{if $isInstanceCall}inst->{else}{$parentQualifier}::{/if}{$cppFuncionName}({$callParamList});
+	
+		{$returnType.code}
+	JSWRAP_CATCH_AND_REPORT_JS_ERROR(cx, "{$errorSource}")
+	
+	return true;
+}

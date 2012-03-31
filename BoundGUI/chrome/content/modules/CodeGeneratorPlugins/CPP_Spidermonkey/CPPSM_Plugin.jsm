@@ -137,7 +137,7 @@ CPPSM_Plugin.prototype = {
 			case "Namespace":
 			case "Class":
 			case "Struct":         codegen = CPPSM_CodeGenObject; break;
-			case "Field":
+//			case "Field":
 			case "Property":	   codegen = CPPSM_CodeGenProperty; break;
 			default: return null;
 		}

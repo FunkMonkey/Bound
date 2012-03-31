@@ -116,9 +116,6 @@ CPPSM_CodeGenFunction.prototype = {
 						}
 						
 						
-						
-						// TODO: check parent for member functions
-						
 						// checking params
 						//genInput.numParams = astFunc.parameters.length;
 						genInput.params = [];

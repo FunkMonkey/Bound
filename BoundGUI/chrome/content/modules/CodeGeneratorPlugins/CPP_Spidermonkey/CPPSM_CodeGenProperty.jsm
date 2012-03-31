@@ -35,7 +35,8 @@ function CPPSM_CodeGenProperty(plugin)
 {
 	LanguageBindingEntityCodeGen.call(this, plugin);
 	
-	this.templateFunction = "CPP_Spidermonkey/function";
+	this.templatePropertyGet = "CPP_Spidermonkey/property_get";
+	this.templatePropertySet = "CPP_Spidermonkey/property_set";
 }
 
 CPPSM_CodeGenProperty.isCompatible = isCompatible;
@@ -76,12 +77,12 @@ CPPSM_CodeGenProperty.prototype = {
 				
 				try
 				{
-				
 					// clean previous data
 					var genInput = this._genInput = { codeGen: this };
 					var diagnosis = this._genInput.diagnosis = new CodeGenDiagnosis();
 					
-					genInput.template = this._getTemplate(this.templateFunction, diagnosis);
+					genInput.templateGet = this._getTemplate(this.templatePropertyGet, diagnosis);
+					genInput.templateSet = this._getTemplate(this.templatePropertySet, diagnosis);
 					
 					// checking the name
 					genInput.name = this.exportObject.name;
@@ -90,12 +91,12 @@ CPPSM_CodeGenProperty.prototype = {
 					
 					
 					// checking the sourceObject
-					var astFunc = this.exportObject.sourceObject
-					if(!astFunc)
+					var astField = this.exportObject.sourceObject;
+					if(!astField)
 					{
 						diagnosis.addReport(this._diagnosisReports["NoSourceObject"]);
 					}
-					else if(!(astFunc instanceof CPP_ASTObject_Function))
+					else if(!(astField instanceof CPP_ASTObject_Var_Decl)) // TODO: exclude parameters
 					{
 						diagnosis.addReport({ name: "WrongASTObject", message: "ASTObject is not a function", type: "ERROR"});
 					}
@@ -104,82 +105,65 @@ CPPSM_CodeGenProperty.prototype = {
 						genInput.isStatic = this.isStatic;
 						
 						// check member function specific stuff
-						if(astFunc instanceof CPP_ASTObject_Member_Function && !genInput.isStatic)
+						if(astField instanceof CPP_ASTObject_Field && !genInput.isStatic)
 						{
 							if(this.exportObject.parent.sourceObject instanceof CPP_ASTObject_Struct)
 							{
-								if(!this.exportObject.parent.sourceObject.hasMember(astFunc))
+								if(!this.exportObject.parent.sourceObject.hasMember(astField))
 									diagnosis.addReport({ name: "WrongParent", message: "Parent export object wraps other class", type: "ERROR"});
 							}
 							else
 								diagnosis.addReport({ name: "ParentNotClass", message: "Parent export object is not a class", type: "ERROR"});
 						}
 						
-						
-						
-						// TODO: check parent for member functions
-						
-						// checking params
-						//genInput.numParams = astFunc.parameters.length;
-						genInput.params = [];
-						
-						for(var i = 0; i < astFunc.parameters.length; ++i)
+						// setter
+						genInput.getterType = {}
+						var tInfoGetter = this.getTypeHandlingTemplate(astField.type, LanguageBindingEntityCodeGen.TYPE_TO_SCRIPT);
+						if(tInfoGetter)
 						{
-							var param = astFunc.parameters[i];
-							var tInfoParam = this.getTypeHandlingTemplate(param.type, LanguageBindingEntityCodeGen.TYPE_FROM_SCRIPT);
-							
-							var paramInput = {
-								name: "p" + i + "__" + param.name,
-								templateInfo: tInfoParam
-							}
-							
-							if(tInfoParam)
-							{
-								paramInput.template = this._getTemplate(tInfoParam.templateName, diagnosis);
-								
-								// check restrictions
-								if(tInfoParam.typeLib && !tInfoParam.typeLib.allowUnwrapping)
-									diagnosis.addReport({ name: "ParamTypeRestriction", message: "Parameter type does not allow unwrapping: " + param.name, type: "ERROR"});
-							}
-							else
-								diagnosis.addReport({ name: "ResolvingParamTemplate", message: "Could not resolve parameter template: "  + normalTypePrinter.getAsString(param.type) + " " + param.name, type: "ERROR"});
-							
-							genInput.params.push(paramInput);
-						}
-						
-						// checking return type
-						genInput.returnType = {}
-						var tInfoReturn = this.getTypeHandlingTemplate(astFunc.returnType, LanguageBindingEntityCodeGen.TYPE_TO_SCRIPT);
-						if(tInfoReturn)
-						{
-							genInput.returnType.templateInfo = tInfoReturn;
-							genInput.returnType.template = this._getTemplate(tInfoReturn.templateName, diagnosis);
+							genInput.getterType.templateInfo = tInfoGetter;
+							genInput.getterType.template = this._getTemplate(tInfoGetter.templateName, diagnosis);
 							
 							// check restrictions
-							if(tInfoReturn.typeLib)
+							if(tInfoGetter.typeLib)
 							{
-								var canonicalType = tInfoReturn.astType.getCanonicalType();
-								if(canonicalType.declaration)
+								var canonicalType = tInfoGetter.astType.getCanonicalType();
+								if(canonicalType.declaration || canonicalType.pointsTo)
 								{
-									if(!tInfoReturn.typeLib.allowWrappingCopies)
-										diagnosis.addReport({ name: "ReturnTypeRestriction", message: "Return type does not allow wrapping copies", type: "ERROR"});
-								}
-								else if(canonicalType.pointsTo)
-								{
-									if(!tInfoReturn.typeLib.allowWrappingInstances)
-										diagnosis.addReport({ name: "ReturnTypeRestriction", message: "Return type does not allow wrapping instances", type: "ERROR"});
+									if(!tInfoGetter.typeLib.allowWrappingInstances)
+										diagnosis.addReport({ name: "GetterTypeRestriction", message: "Getter type does not allow wrapping instances", type: "ERROR"});
 								}
 							}
 						}
 						else
-							diagnosis.addReport({ name: "ResolvingReturnTemplate", message: "Could not resolve return type template: " + normalTypePrinter.getAsString(astFunc.returnType), type: "ERROR"});
+							diagnosis.addReport({ name: "ResolvingGetterTemplate", message: "Could not resolve getter type template: " + normalTypePrinter.getAsString(astField.type), type: "ERROR"});
 						
-						genInput.returnType.isVoid = (astFunc.returnType.kind === "Void");
+						// setter
+						genInput.setterType = {}
+						var tInfoSetter = this.getTypeHandlingTemplate(astField.type, LanguageBindingEntityCodeGen.TYPE_TO_SCRIPT);
+						if(tInfoSetter)
+						{
+							genInput.setterType.templateInfo = tInfoSetter;
+							genInput.setterType.template = this._getTemplate(tInfoSetter.templateName, diagnosis);
+							
+							// check restrictions
+							if(tInfoSetter.typeLib)
+							{
+								var canonicalType = tInfoSetter.astType.getCanonicalType();
+								if(canonicalType.declaration || canonicalType.pointsTo)
+								{
+									if(!tInfoSetter.typeLib.allowUnwrapping)
+										diagnosis.addReport({ name: "SetterTypeRestriction", message: "Setter type does not allow unwrapping instances", type: "ERROR"});
+								}
+							}
+						}
+						else
+							diagnosis.addReport({ name: "ResolvingSetterTemplate", message: "Could not resolve setter type template: " + normalTypePrinter.getAsString(astField.type), type: "ERROR"});
 						
 						// instance call
-						genInput.isInstanceCall = (astFunc.kind === ASTObject.KIND_MEMBER_FUNCTION && !astFunc.isStatic);
-						genInput.parentQualifier = astFunc.parent.cppLongName;
-						genInput.cppFuncionName = astFunc.name;
+						genInput.isInstanceCall = (astField.kind === ASTObject.KIND_FIELD && !astField.isStatic);
+						genInput.parentQualifier = astField.parent.cppLongName;
+						genInput.cppFieldName = astField.name;
 						
 						// include resolution
 						genInput.includeFile = this._getSourceObjectIncludeDirective(diagnosis);
@@ -214,45 +198,33 @@ CPPSM_CodeGenProperty.prototype = {
 		// setting up the result object
 		var result = {
 			codeGen: this,
-			type: "Function",
+			type: "Property",
 			isStatic: genInput.isStatic,
-			numParams: genInput.params.length,
 			name: genInput.name,
-			wrapperFunction: {
+			wrapperGetterFunction: {
 				code: "",
-				name: "wrapper_" + genInput.name // todo: retrieve from function template
+				name: "wrapper_get_" + genInput.name // todo: retrieve from function template
+			},
+			wrapperSetterFunction: {
+				code: "",
+				name: "wrapper_set_" + genInput.name // todo: retrieve from function template
 			},
 			includeFiles: null
 		};
 		
-		// the main template for the function
-		var tFunction = genInput.template;
+		// the main templates for the property
+		var tPropertyGet = genInput.templateGet;
+		var tPropertySet = genInput.templateSet;
 		
-		// parameters
-		var params = [];
-		for(var i = 0; i < genInput.params.length; ++i)
-		{
-			var param = genInput.params[i];
-			param.templateInfo.declareResultVar = true;
-			param.templateInfo.finishStatement = true;
-			param.templateInfo.input_jsval = tFunction.getParameter(i);
-			param.templateInfo.resultVarName = param.name;
-			
-			params.push( { initCode: templateUser.fetch(param.template, param.templateInfo),
-			               name: param.name});
-		}
-		
-		// return type
-		genInput.returnType.templateInfo.finishStatement = true;		
-		genInput.returnType.templateInfo.jsvalName = tFunction.getReturnJSVAL();
-		genInput.returnType.templateInfo.inputVar = tFunction.getCPPReturnValue();
-		var returnTypeCode = templateUser.fetch(genInput.returnType.template, genInput.returnType.templateInfo);
+		// getter type
+		genInput.getterType.templateInfo.finishStatement = true;		
+		genInput.getterType.templateInfo.jsvalName = tPropertyGet.getReturnJSVAL();
+		//genInput.getterType.templateInfo.inputVar = (genInput.isInstanceCall == true) ? ;
+		var getterTypeCode = templateUser.fetch(genInput.getterType.template, genInput.getterType.templateInfo);
 		
 		// create the function code
-		var cppTypeStr = (genInput.returnType.isVoid) ? "" : normalTypePrinter.getAsString(genInput.returnType.templateInfo.astType);
 		var funcData = {
 			isInstanceCall: genInput.isInstanceCall,
-			params: params,
 			returnType: {
 				code: returnTypeCode,
 				cppTypeStr:  cppTypeStr,
