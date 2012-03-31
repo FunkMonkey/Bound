@@ -1,21 +1,24 @@
-\part{Conclusion}
+\part{\hspace{5pt}Conclusion}
 \chapter{Summary}
 \label{chap:Summary}
 
 This thesis presented the development of a highly extensible language binding application that uses the \myProperName{Clang} compiler as a static analysis tool for inspecting \myProperName{C++} files.\\
 The chapters in the theoretical part of this thesis summarize the general knowledge about language binding and static analysis that has been gathered before and during development.\\
-\myRefChapter{chap:LanguageBindingCPPJS} shows a concrete example of how two programming languages are bridged, presenting the knowledge that was gathered about the \myProperName{SpiderMonkey} \myProperName{JavaScript} virtual machine and API. The chapter shows how \myProperName{C++} elements can be exposed to \myProperName{JavaScript}, what potential problems can arise and how to work around these. A great deal of time was spent on developing solutions for memory ownership related problems.
+\myRefChapter{chap:LanguageBindingCPPJS} shows a practical example of how two programming languages are bridged, while presenting the knowledge that was gathered about the \myProperName{SpiderMonkey} \myProperName{JavaScript} virtual machine and API. The chapter shows how elements of \myProperName{C++} can be exposed to \myProperName{JavaScript}, what potential problems can arise and how to work around them. A lot of effort was put into developing solutions for memory ownership related problems.
 
-The \myProperName{CPPAnalyzer} library was developed to analyse \myProperName{C++} files. It uses the \myProperName{Clang} compiler to create a simplified abstract syntax tree that can be filtered with user-given regular expressions, while leaving the resulting tree consistent. The library is able to output its result in form of stringified \myProperName{JSON}.\\
-\myProperName{Clang}'s \myProperName{libclang} API was extended to expose more \myProperName{Clang} functionality, especially concerning \myProperName{C++} templates. This task required familiarization with the \myProperName{Clang} code base and its internal workings. The changes to \myProperName{libclang} can currently be found in a personal, though publicly available, \myProperName{github}\todo{ref} repository\todo{link} and will hopefully make their way back into the official \myProperName{Clang} source code repository.
+The \myProperName{CPPAnalyzer} library was developed to analyse \myProperName{C++} files. It uses the \myProperName{Clang} compiler to create a simplified abstract syntax tree that can be filtered with user-given regular expressions, while leaving the resulting tree consistent. The library is able to output its result in the form of stringified \myProperName{JSON}.
 
-The \myProperName{Bound} GUI application allows its user to inspect a \myProperName{C++} AST and create a customized export tree for glue code generation. It currently allows to generate glue code for binding \myProperName{C++} and \myProperName{Mozilla SpiderMonkey}.\\
-\myProperName{Mozilla XULRunner} was chosen as the application framework, because of its dynamic and extensible nature.\\
-The architecture was designed with customizability and extendability in mind. With the help of language plugins and code generators for single \myProperName{C++} entities it is possible to generate glue code for multiple target languages at the same time. Great effort was put in the handling of types (type maps/type libraries/restrictions), error diagnosis before code generation and include file resolution. The use of templates separates the basic wrapping logic from the actual glue code and allows end-user customization of the output. The meta data system assists in loading and saving processes and allows inspection and manipulation of arbitrary \myProperName{JavaScript} objects in the GUI.\\
-Combining these architectural decisions and features, other developers will be able to easily add support for more target languages by extending the basic language binding plugins and code generators. Other uses of the imported \myProperName{C++} AST, for example for creating type libraries, are also imaginable.
+\myProperName{Clang}'s \myProperName{libclang} API was extended to expose more \myProperName{Clang} functionality, especially concerning \myProperName{C++} templates. This task required familiarization with the \myProperName{Clang} code base and its internal workings. The changes to \myProperName{libclang} can be found in a personal, though publicly available, \myProperName{git} repository and will hopefully make their way back into the official \myProperName{Clang} source code repository.
 
-In retrospective, my personal goals for this thesis have mostly been accomplished.\\
-Due to a lack of time, the original plan to support a second target language like \myProperName{Python} or \myProperName{Lua} had to be dropped. Wrapping for \myProperName{SpiderMonkey} is not complete either. In its current state, it is only possible to wrap simple classes and functions. With the basic architecture finished, full support should not take too much effort though.\\
+The \myProperName{Bound} GUI application allows its user to inspect a \myProperName{C++} AST and create a customized export tree for glue code generation. It currently allows the generation of glue code for binding \myProperName{C++} and \myProperName{Mozilla SpiderMonkey}.\\
+Because of its dynamic and extensible nature, \myProperName{Mozilla XULRunner} was chosen as the application framework.\\
+The architecture was designed with customizability and extendability in mind. With the help of language plugins and code generators for single \myProperName{C++} entities it is possible to generate glue code for multiple target languages at the same time. Extensive effort was put into the handling of types (type maps/type libraries/restrictions), error diagnosis before code generation and include file resolution. The use of templates separates the basic wrapping logic from the actual glue code and allows end-user customization of the output. The meta data system assists in loading and saving processes and allows inspection and manipulation of arbitrary \myProperName{JavaScript} objects in the GUI.\\
+Combining these architectural decisions and features, other developers will be able to easily add support for other target languages by extending the basic language binding plugins and code generators. Different uses of the imported \myProperName{C++} AST, e.g. for creating type libraries or unit test skeletons, are also conceivable.
+
+In retrospective, most of my personal goals for this thesis have been accomplished. An extendable and customizable glue code generation tool has been developed.
+
+Due to time restraints, the original plan of supporting a second target language like \myProperName{Python} or \myProperName{Lua} had to be dropped. Wrapping for \myProperName{SpiderMonkey} is not complete either. In its current state, it is only possible to wrap simple classes and functions. With the basic architecture complete, full support should not take too much effort.
+
 On a personal level, apart from the knowledge gained about the topic itself, lessons have been learned - especially when it comes to project management and organization. Undoubtedly one of the biggest lessons was about my personal tendency to start programming too early. Prototyping and playing with 3rd party code are important, but cannot replace proper research and architectural design.
 
 \chapter{Future Development}
@@ -28,7 +31,15 @@ The application will be tested on real-world libraries to confirm correct behavi
 
 As already explained, the changes in my personal \myProperName{Clang} repository have to be merged into the official repository. Otherwise \myProperName{Bound} would rely on an unofficial \myProperName{Clang} build.
 
+\hspace{20pt} Custom \myProperName{Clang}: \url{https://github.com/FunkMonkey/libClang}
+
 \myRefChapter{chap:DesignGoals} stated that the project is developed as open-source.\\
-The source code is publicly available on \myProperName{github}\todo{ref}.\\ But being open-source requires more effort than publishing the source code. Documentation has to be written and the source code has to be made compilable on other platforms than \myProperName{Windows}.\\
+The source code is publicly available on \myProperName{github}:
+
+\hspace{20pt} \myProperName{Bound} source code: \url{https://github.com/FunkMonkey/Bound}
+
+Being open-source requires more effort than publishing the source code. Documentation has to be written and the source code has to be made compilable on other platforms than \myProperName{Windows}.\\
 Fellow contributing developers need to be sought and assisted when they are having problems with the source code or with understanding the architectural design.\\
 Also, a license has to be chosen.
+
+\todo{Super krasse zusammenfassung}
