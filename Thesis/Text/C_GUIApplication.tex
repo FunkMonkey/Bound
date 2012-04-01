@@ -176,7 +176,7 @@ var result = template.fetch({jsvalName: "jsBool",
 \end{lstlisting}
 \OnehalfSpacing
 
-As can be seen in \myRefListing{lst:TemplateBool}, the template code contains the placeholders \mySCName{\{\$jsvalName\}} and \mySCName{\{\$inputVar\}}. After creating the \myProperName{jSmart} template by calling the \mySCName{jSmart} constructor, the \mySCName{fetch} function can be used to process the template. The function requires an argument that contains the values to be inserted for the placeholders (\mySCString{jsBool} and \mySCString{cppBool}).
+As can be seen in \myRefListing{lst:TemplateBool}, the template code contains the placeholders \mySCName{\{\$jsvalName\}} and \mySCName{\{\$inputVar\}}. After creating the \myProperName{jSmart} template by calling the \mySCName{jSmart} \linebreak constructor, the \mySCName{fetch} function can be used to process the template. The function requires an argument that contains the values to be inserted for the \linebreak placeholders (\mySCString{jsBool} and \mySCString{cppBool}).
 
 Leaving the actual glue code generation to templates, the entity code generator's main task is to collect all the information needed, checking it for validity and passing it on to the template(s) for creating the final glue code. The code generator should thus be agnostic to different styles of glue code.
 
@@ -192,6 +192,7 @@ All of these features were added as needed. Instead of using plain text template
 This system was completely rewritten to accommodate its drawbacks. Instead of having files that contain \myProperName{JSON} data, template files became ordinary \myProperName{JavaScript} files that are loaded at run-time using \myProperName{XULRunner}'s \mySCName{mozIJSSubScriptLoader} component. A template is not a \mySCName{jSmart} object anymore, but a simple \myProperName{JavaScript} object. This object serves as the global scope in which the script file is dynamically executed. Thus, all variables and functions declared in the script will be properties of the template object.\\
 The script can declare a couple of special properties that are important for the template's behaviour. If a variable named \mySCName{templateCode} is declared, a \myProperName{jSmart} template will be created based on the content and added as the \mySCName{jSmartTemplate} property of the template object. Also, a \mySCName{fetch} function will be added that forwards the \mySCName{fetch} function of the \myProperName{jSmart} template. The functions \mySCName{onFetchBefore} and \mySCName{onFetchAfter} can be declared to manipulate the data passed to the \mySCName{fetch} function of the \myProperName{jSmart} template or to alter its result.
 
+\newpage
 \SingleSpacing
 \begin{lstlisting}[language=JavaScript, caption=Example of a template file, label=lst:TemplateFile]
 // declaring the includes
@@ -221,7 +222,6 @@ When fetching the template shown in \myRefListing{lst:TemplateFile} with \mySCNa
 jsval jsBool = BOOLEAN_TO_JSVAL(cppBool); // Gimme 0.342$ please
 \end{lstlisting}
 \OnehalfSpacing
-\$\todo{remove}
 
 When a code generator retrieves a template it can access all data declared in it. The \mySCName{includes} variable, for example, will be used to collect all necessary include files for the final export. There are also cases, where code generators call functions in templates to generate information that needs to be passed to other templates.
 
@@ -257,7 +257,7 @@ Though class types can be handled using type maps, creating type map entries for
 Type library entries are created by the class code generators and exist for every wrapped class.\\
 A type library entry contains information about the type, most importantly its identifier (the class' USR) and the include file needed when wrapping the type.\\
 Type library entries also provide information about the type of ownership and restrictions that define in which way a wrapped class is allowed to be used. These restrictions arise from the issues presented in \myRefSection{sec:MemoryManagement}. Some types may, for example, not allow being retrieved from \myProperName{C++} (wrapped), others do not allow being created from a returned copy and similar.\\
-Here is a short overview over the currently existing restrictions:
+Here is a list of the currently existing restrictions:
 
 \vspace{-10pt}
 \begin{itemize}\addtolength{\itemsep}{-0.5\baselineskip}
@@ -291,7 +291,7 @@ int wrapMe(const WrappedClass& p1, OtherSubClass* p2);
 \end{lstlisting}
 \OnehalfSpacing
 
-Prerequisites: A type map entry exist for \mySCName{int}. A type library entry exists for \mySCName{WrappedClass}.
+Prerequisites: A type map entry exist for \mySCName{int}. A type library entry exists for \linebreak\mySCName{WrappedClass}.
 
 The function code generator for wrapping \mySCName{wrapMe} detects that it needs to handle two parameter types (script to \myProperName{C++}) and a return type (\myProperName{C++} to script).\\
 For \mySCName{p1} the script-to-\myProperName{C++}-type map is checked for \mySCString{const ::WrappedClass \&}. As this does not yield a result, \mySCName{const} is removed and \mySCString{::WrappedClass \&} is checked next. No result either. Because \mySCName{WrappedClass} is a \mySCName{class}, the type library is checked with the class' USR. An entry exists and the default template for converting a type with a type library entry from script to \myProperName{C++} is returned along with the found entry.\\
@@ -307,7 +307,7 @@ As defined in \mySCName{BaseEntityCodeGen}, every entity code generator needs to
 
 The basic idea is that the generation process is split into multiple steps: first preparation and diagnosis, then generation as the second step.
 
-\mySCName{prepareAndDiagnose} will accumulate all data that is necessary for the generation process. Most of the data will be retrieved from the \mySCName{Export\_ASTObject}, the \mySCName{sourceObject} and the options set for the entity code generator itself. All data is saved in a property named \mySCName{\_genInput}. While the data is accumulated, it is checked for various sources of errors. If errors or warnings occur, these are stored in \mySCName{\_genInput.diagnosis}.\\
+\mySCName{prepareAndDiagnose} will accumulate all data that is necessary for the generation \linebreak process. Most of the data will be retrieved from the \mySCName{Export\_ASTObject}, the \linebreak \mySCName{sourceObject} and the options set for the entity code generator itself. All data is saved in a property named \mySCName{\_genInput}. While the data is accumulated, it is checked for various sources of errors. If errors or warnings occur, these are stored in \mySCName{\_genInput.diagnosis}.\\
 The range of checks is broad.\\
 The existence of templates that are referenced by the code generator \linebreak(e.g. \mySCString{CPP\_Spidermonkey/function}) needs to be verified.\\
 A function code generator that creates glue code for a member function needs to check if its \mySCName{Export\_ASTObject}'s parent is creating the glue code for the class that the member function belongs to. If not, the glue code will call the function on an instance of a totally different class, probably resulting in a run-time crash.\\
@@ -317,7 +317,7 @@ This is only a short list. There are many more possible checks, which mostly dep
 
 When creating such a system, it is important to be able to alter the diagnosis in certain situations, otherwise the diagnosis system may perform its job to eagerly and limit the user. If the user is truly knowing what he is doing, he should be able to allow ignoring restrictions in certain situations. Especially type library restrictions are merely recommendations as they only point out \textbf{potential} risks. Options for ignoring certain diagnosis results have to be part of the code generator, but are currently not implemented.
 
-Preparation happens in multiple rounds, meaning that the whole tree is traversed multiple times and \mySCName{prepareAndDiagnoseRound} called with the current round passed as an argument. This is necessary for cross-referencing. A function that needs a type library entry of a class that comes later in the try would issue wrong errors, just because the corresponding type library has not been created yet or is not up to date. Therefore, type library entries are created in the first round, while the functions just start preparing in the second round, when it is safe to use the type library entries.
+Preparation happens in multiple rounds, meaning that the whole tree is traversed \linebreak multiple times and \mySCName{prepareAndDiagnoseRound} called with the current round passed as an \linebreak argument. This is necessary for cross-referencing. A function that needs a type library entry of a class that comes later in the tree would issue wrong errors, just because the corresponding type library has not been created yet or is not up to date. Therefore, type library entries are created in the first round, while the functions just start preparing in the second round, when it is safe to use the type library entries.
 
 The final source code generation will only be executed, if there are no errors in the whole project. The \mySCName{generate} function of an entity code generator is used for producing the glue code for the corresponding entity.  It only uses information stored \linebreak in \mySCName{\_genInput} --- identifiers, templates and other data needed for glue code generation. As explained in more detail in the following section, the \mySCName{generate} function will fetch the templates with the data provided. The method will return a \myProperName{JavaScript} object containing all information needed for assembling the export files, most importantly the glue code for the entity. The result of a \textit{function} code generator, for example, contains the code for the wrapper function, as well as its name and all necessary include files. If the function belongs to a class, the \textit{class} code generator's \mySCName{generate} function will use this information for assembling the glue code of the whole class.
 
@@ -333,11 +333,11 @@ The plugin, \mySCName{CPPSM\_Plugin}, contains two type maps for converting type
 
 As explained, \mySCName{CPPSM\_FunctionCodeGen} gathers all important information inside \linebreak \mySCName{prepareAndDiagnoseRound}. Because it uses type information, this is done in the second round. Nothing happens in the first.
 
-The function first creates a new object for \mySCName{\_genInput} for a fresh start. It stores the name of the \mySCName{Export\_ASTObject}, because it will be used as the name of the \myProperName{JavaScript} function. Also the template that will be used for the function is retrieved by its name (default is \mySCString{CPP\_Spidermonkey/function}). If the corresponding template file cannot be found, an error message is be saved in the \mySCName{diagnosis}. For all failed checks diagnosis errors are stored in a similar manner.
+The function first creates a new object for \mySCName{\_genInput} for a fresh start. It stores the name of the \mySCName{Export\_ASTObject}, because it will be used as the name of the \myProperName{JavaScript} function. Also the template that will be used for the function is retrieved by its name (default is \mySCString{CPP\_Spidermonkey/function}). If the corresponding template file cannot be found, an error message is saved in the \mySCName{diagnosis}. For all failed checks diagnosis errors are stored in a similar manner.
 
 The method then checks, whether the corresponding \mySCName{Export\_ASTObject} does have a \mySCName{sourceObject} and if that object is any kind of function. For member functions, it tests if the parent \mySCName{Export\_ASTObject} wraps the corresponding class. Information is stored about the function being declared as \mySCName{static} or if it is a call to an instance function. The name of the called \myProperName{C++} function and a string qualifying the scope of the function (e.g. the class name and namespace hierarchy) need to be stored as well.
 
-Afterwards, parameter information is added to \mySCName{\_genInput}. For every parameter type the correct conversion template is retrieved using \mySCName{getTypeHandlingTemplate} defined in \mySCName{LanguageBindingEntityCodeGen}. \mySCName{TYPE\_FROM\_SCRIPT} is passed for specifying the direction of type conversion. Templates are tested for existence. If the template information contains a type library entry, it the algorithm checks, whether the type library entry allows passing the type as a parameter (restriction: \mySCName{allowUnwrapping}).
+Afterwards, parameter information is added to \mySCName{\_genInput}. For every parameter type the correct conversion template is retrieved using \mySCName{getTypeHandlingTemplate} defined in \mySCName{LanguageBindingEntityCodeGen}. \mySCName{TYPE\_FROM\_SCRIPT} is passed for specifying the direction of type conversion. Templates are tested for existence. If the template \linebreak information contains a type library entry, the algorithm checks, whether the type library entry allows passing the type as a parameter (restriction: \mySCName{allowUnwrapping}).
 
 The return type information is retrieved afterwards in a similar fashion, but with \mySCName{TYPE\_TO\_SCRIPT} as the direction. If the return type is a pointer or reference and a type library entry was found, the algorithm checks, whether the wrapping of \myProperName{C++} instances is allowed (restriction: \mySCName{allowWrappingInstances}). If the type is a declaration, it is tested, whether wrapping of copies is allowed (restriction: \mySCName{allowWrappingCopies}).
 
@@ -345,11 +345,12 @@ At the end, the necessary include file is retrieved based on the location inform
 
 If no errors were detected, the function returns \mySCName{true}.
 
+\newpage
 \textbf{Glue Code Generation}
 
 For code generation, only information stored in \mySCName{\_genInput} is used. The \mySCName{generate} function returns an object containing all information needed for further assembling the generated glue code. This object contains a \mySCName{type} property, which is set to \mySCString{Function}. The object also stores information about the number of parameters, whether the function is static and the name under which the function should appear in script. Based on the parameter information in \mySCName{\_genInput}, the given templates for the parameters are fetched to create the glue code for those. The same happens for the return type. In the next step, these glue code pieces and other information from \mySCName{\_genInput} are passed to the \mySCName{fetch} method of the template that creates the glue code of the whole function. The generated glue code, as well as the name of the wrapper function are stored in the result object.
 
-All used templates (for parameters, return type and the function itself), are  checked, whether they provide include dependencies. All includes are collected, duplicates eliminated and the list stored in the result object, which is then returned.
+All used templates (for parameters, return type and the function itself), are  checked, whether they provide include dependencies. All includes are collected, duplicates \linebreak eliminated and the list stored in the result object, which is then returned.
 
 \subsubsection{\mySCName{CPPSM\_ObjectCodeGen}}
 
@@ -363,7 +364,7 @@ The glue code for namespaces will only create a simple \myProperName{JavaScript}
 
 First the name for the class or scope is stored in \mySCName{\_genInput}. The names of all \linebreak\mySCName{Export\_ASTObject}s in the parent chain are retrieved as they will be used by the template. Also, depending on whether the \mySCName{exportObject} has children, the \mySCName{isInline} property is set. Scopes or classes without children will not be saved in their own files.
 
-For namespaces, the \mySCName{type} of property \mySCName{\_genInput} is set to \mySCString{Object}. The templates for generating the header- and the source-file code are retrieved. When they have not been adjusted by the user, they default to \mySCString{CPP\_Spidermonkey/hpp\_scope\_content\_object} and \mySCString{CPP\_Spidermonkey/cpp\_scope\_content\_object}.
+For namespaces, the \mySCName{type} property of \mySCName{\_genInput} is set to \mySCString{Object}. The templates for generating the header- and the source-file code are retrieved. When they have not been adjusted by the user, they default to \mySCString{CPP\_Spidermonkey/hpp\_scope\_content\_object} and \mySCString{CPP\_Spidermonkey/cpp\_scope\_content\_object}.
 
 For structs and classes the \mySCName{type} property is set to \mySCString{Class} and the header and source-file templates are retrieved, defaulting to \mySCString{CPP\_Spidermonkey/hpp\_scope\_content\_class} and \mySCString{CPP\_Spidermonkey/cpp\_scope\_content\_class}. Also, the full name of the class including namespaces is stored. A type library entry is created or updated and saved in the plugin based on the class' USR. The information for the type library is retrieved from the code generator and can be changed by the user from within the GUI. The type library entry is checked for incompatible options. For example, if the ownership is set to \mySCString{Native}, \mySCName{allowWrappingCopies} must be set to false, as wrapping copies returned from \myProperName{C++} functions would probably result in memory leaks, when memory is handled by the \myProperName{C++} side. The type library entry and the include file in which the class was defined are also stored in \mySCName{\_genInput}. If \mySCName{useBasePrototype} is set to \mySCName{true}, the algorithm checks, whether a base class has already been wrapped and retrieves the corresponding type library entry. If a base class type library entry is found, the prototype \mySCName{JSObject} of the wrapped base class will be used in \mySCName{JS\_InitClass} to create an inheritance/prototype chain.
 
@@ -382,7 +383,7 @@ The \mySCName{CPPSM\_Plugin}'s \mySCName{getExportFiles} function is responsible
 
 It takes the generation result of a \mySCName{CPPSM\_ObjectCodeGen} and tries to create complete files in a reasonable way. To do this, it traverses the generation results of the children recursively. If a child is marked \mySCName{inline}, then its content will be included in the same header and source file. Non-inline children will get their own set of files.
 
-The content of the files will be assembled from the glue code and include information found in the given generator result and its inline child generator results. The filenames of the created files are of course integrated into the include resolution process, as the glue code of scopes needs to call the \mySCName{init} functions of the child scopes so all elements will be correctly registered to the script interpreter.
+The content of the files will be assembled from the glue code and include information found in the given generator result and its inline child generator results. The filenames of the created files are of course integrated into the include resolution process, as the glue code of scopes needs to call the \mySCName{init} functions of the child scopes so that all elements will be correctly registered to the script interpreter.
 
 The result of \mySCName{getExportFiles} is a map of filenames with their corresponding source code.
 
@@ -453,7 +454,7 @@ With the \mySCName{CPP\_AST} and the \mySCName{Export\_AST} instantiated, a new 
 
 \subsection{Reparsing}
 
-As the \myProperName{C++} projects, for which glue code is created, may be under development, new functions or classes are likely to be added or removed. In such a case, the \myProperName{C++} AST has to be reparsed for the loaded project. A new \mySCName{CPP\_AST} is retrieved by calling \myProperName{CPPAnalyzer}. This invalidates all \mySCName{Export\_ASTObject}s as their \mySCName{sourceObject} properties still reference the old \mySCName{CPP\_ASTObject}s. Thus, the objects have to be reconnected to the new AST nodes by using the USRs of the old \mySCName{sourceObject}s. If the current \mySCName{sourceObject} is \mySCName{null}, the \mySCName{\_sourceObjectSaveObject} property is checked to recall information about the USR. If the \mySCName{sourceObject} is not \mySCName{null}, but the corresponding USR is not in the new AST, then the old USR is stored in \mySCName{\_sourceObjectSaveObject} and the \mySCName{sourceObject} set to \mySCName{null}. This makes it possible to reconnect to the correct \mySCName{CPP\_ASTObject}, even if it got missing in a set of reparse-operations, for example in case the \myProperName{C++} function/class/entity has been accidentally deleted in the source code and was readded later.
+As the \myProperName{C++} projects, for which glue code is created, may be under development, new functions or classes are likely to be added or removed. In such a case, the \myProperName{C++} AST has to be reparsed for the loaded project. A new \mySCName{CPP\_AST} is retrieved by calling \myProperName{CPPAnalyzer}. This invalidates all \mySCName{Export\_ASTObject}s as their \mySCName{sourceObject} \linebreak properties still reference the old \mySCName{CPP\_ASTObject}s. Thus, the objects have to be \linebreak reconnected to the new AST nodes by using the USRs of the old \mySCName{sourceObject}s. If the current \mySCName{sourceObject} is \mySCName{null}, the \mySCName{\_sourceObjectSaveObject} property is checked to recall information about the USR. If the \mySCName{sourceObject} is not \mySCName{null}, but the \linebreak corresponding USR is not in the new AST, then the old USR is stored in \linebreak\mySCName{\_sourceObjectSaveObject} and the \mySCName{sourceObject} set to \mySCName{null}. This makes it possible to reconnect to the correct \mySCName{CPP\_ASTObject}, even if it got missing in a set of \linebreak reparse-operations, for example in case the \myProperName{C++} function/class/entity has been \linebreak accidentally deleted in the source code and was readded later.
 
 \section{GUI Widgets}
 
@@ -478,12 +479,12 @@ As can be seen in \myRefFigure{fig:ObjectExplorer}, these properties are general
 
 Extension developers can add new kinds of GUI elements for manipulating custom classes/types. For example, for handling colors, the GUI element created for the property could be a color chooser field. The GUI element for a 2D vector could have two number-textboxes for setting the x and y components. 
 
-Adding new property row types is done with \mySCName{GUIPropertyFactory}s, which are responsible for creating the GUI elements. The \mySCName{ObjectExplorerPropertyManager} handles a list of which property factories are connected with which types (based on a string representation of the \myProperName{JavaScript} type). \mySCName{GUIPropertyFactoryString} would be associated \linebreak with \mySCString{string}, \mySCName{GUIPropertyFactoryColor} with \mySCString{Color}, and so on. 
+Adding new property row types is done using \mySCName{GUIPropertyFactory}s, which are \linebreak responsible for creating the GUI elements. The \mySCName{ObjectExplorerPropertyManager} \linebreak handles a list of which property factories are connected with which types (based on a string representation of the \myProperName{JavaScript} type). \mySCName{GUIPropertyFactoryString} would be associated with \mySCString{string}, \mySCName{GUIPropertyFactoryColor} with \mySCString{Color}, and so on. 
 
 \subsubsection{Retrieving Object Information (Data Handler)}
 
 The \mySCName{ObjectExplorer} retrieves all necessary information with the help of a \mySCName{DataHandler}. A data handler must expose three important functions. \mySCName{getProperties} will return the list of properties that should be displayed and thus for which GUI elements will be created. \mySCName{getPropertyValue} and \mySCName{setPropertyValue} will be called for retrieving or manipulating a property. Both take the name of a property, the setter also takes a value to set.\\
-The \mySCName{ObjectExplorer} has no knowledge of the specific \myProperName{JavaScript} object that it displays, as this is completely handled by the \mySCName{DataHandler}. This means, that a custom \mySCName{DataHandler} could combine the properties of multiple objects for showing them as a unit within an \mySCName{ObjectExplorer}.
+The \mySCName{ObjectExplorer} has no knowledge of the specific \myProperName{JavaScript} object that it \linebreak displays, as this is completely handled by the \mySCName{DataHandler}. This means, that a custom  \mySCName{DataHandler} could combine the properties of multiple objects for showing them as a unit within an \mySCName{ObjectExplorer}.
 
 A \mySCName{MetaDataHandler} has been written to handle the inspection and manipulation of \myProperName{JavaScript} objects that have meta data. Despite the name, the \mySCName{MetaDataHandler} can also display objects without meta data.\\
 The constructor of \mySCName{MetaDataHandler} takes the object that is to be displayed as the argument. Based on its properties, a property list will be created. That is the one that will be returned by \mySCName{getProperties}. All properties of the given object will be traversed and if there is a meta data entry containing \mySCName{view} information for the current property (as explained in \myRefSection{sec:MetaData}), then a property list entry will be created. Properties without an entry in the list will not be displayed, as they are not intended to be GUI exposed.\\
@@ -502,7 +503,7 @@ A property entry has three important members: \mySCName{labelName}, \mySCName{re
 
 For displaying the \myProperName{C++} and export tree in the user interface, a tree GUI widget has been developed.
 
-\myProperName{XUL} already comes with a native tree widget, but it requires the user to manage the hierarchy of visible tree elements in the form of a list. The user himself has to track whether nodes have been opened, hence child nodes are visible and adjust the list accordingly.
+\myProperName{XUL} already comes with a native tree widget, but it requires the user to manage the hierarchy of visible tree elements in the form of a list. The user himself has to track whether nodes have been opened, which child nodes are visible and adjust the list accordingly.
 
 As managing a tree structure in the form of a list seemed rather complicated and styling a \myProperName{XUL} tree element works differently than styling any other \myProperName{XUL} or \myProperName{HTML} element (for performance reasons, it seems), I decided to create a new tree GUI widget, expressed in the class \mySCName{DOMTree}.
 
@@ -513,6 +514,6 @@ When collapsing/opening a tree row by clicking on the twisty, the container \myS
 Selection logic has been implemented for selecting individual or multiple tree rows. A \mySCName{selection} \mySCName{DOMEvent} is fired when the selection is changed.\\
 Dragging of tree nodes has also been implemented based on the \myProperName{HTML5} drag-and-drop capabilities. \mySCName{DOMTreeRow} contains a private data field that will serve as the drag-data.
 
-When creating a \mySCName{DOMTree} a callback function has to be passed. The moment a \mySCName{DOMTreeRow} is created, this callback function is called to retrieve information about the GUI tree node, for example about the text label that should be used or styling attributes for setting the correct tree row icon.
+When creating a \mySCName{DOMTree} a callback function has to be passed. The moment a \linebreak\mySCName{DOMTreeRow} is created, this callback function is called to retrieve information about the GUI tree node, for example about the text label that should be used or styling attributes for setting the correct tree row icon.
 
 
