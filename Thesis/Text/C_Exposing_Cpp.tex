@@ -1,7 +1,7 @@
-\chapter{Binding C++ and SpiderMonkey}\todo{properName}
+\chapter{Binding C++ and \myProperName{SpiderMonkey}}
 \label{chap:LanguageBindingCPPJS}
 
-This chapter shows how \myProperName{C++} elements like declarations and types can be exposed to \myProperName{Mozilla SpiderMonkey} to be used from scripts. \myProperName{SpiderMonkey} is the name of \myProperName{Mozilla}'s implementation of the \myProperName{ECMAScript} programming language standard, which is most commonly known as \myProperName{JavaScript}. The terms \myProperName{JavaScript} and \myProperName{ECMAScript} will be used interchangebly, whereas \myProperName{SpiderMonkey} refers to the concrete \myProperName{Mozilla} implementation.\\
+This chapter shows how \myProperName{C++} elements like declarations and types can be exposed to \myProperName{Mozilla SpiderMonkey} to be used from scripts. \myProperName{SpiderMonkey} is the name of \myProperName{Mozilla}'s implementation of the \myProperName{ECMAScript} programming language standard, which is most commonly known as \myProperName{JavaScript}. The terms \myProperName{JavaScript} and \linebreak \myProperName{ECMAScript} will be used interchangebly, whereas \myProperName{SpiderMonkey} refers to the \linebreak concrete \myProperName{Mozilla} implementation.\\
 Binding \myProperName{C++} elements to other programming languages like \myProperName{Python}\footnote{\myProperName{Python}: \url{http://www.python.org/}}, \myProperName{Lua}\footnote{\myProperName{Lua}: \url{http://www.lua.org/}} or other \myProperName{JavaScript} implementations, e.g. \myProperName{V8}\footnote{\myProperName{V8}: \url{http://code.google.com/p/v8/}}, will be similar in many aspects and specific differences will depend upon the existing elements of the target language.
 
 The information in this chapter presumes knowledge about the \myProperName{C++} programming language, its elements, type system and class-based inheritance.
@@ -15,10 +15,11 @@ Language binding between \myProperName{SpiderMonkey} and \myProperName{C++} coul
 
 As it is a feature-rich language, only the most important aspects will be presented in this section. More information can be found in \myProperName{Mozilla}'s \myProperName{JavaScript} guide\footnote{\myProperName{JavaScript} guide: \url{https://developer.mozilla.org/en/JavaScript/Guide}} or in various books like \myAuthorName{David Flanagan}'s \myBookName{JavaScript: The Definite Guide} or \myAuthorName{Douglas Crockford}'s \myBookName{JavaScript: The Good Parts}.
 
+\newpage
 \myProperName{JavaScript} values belong to one of six basic types: boolean, number, string, \mySCName{undefined}, \mySCName{null} and object.\\
-Number, string and boolean are primitive types. So are \mySCName{null} and \mySCName{undefined}, which both represent the absence of value. All these types are immutable.\\
+Boolean, number and string are primitive types. So are \mySCName{null} and \mySCName{undefined}, which both represent the absence of value. All these types are immutable.\\
 \textbf{Objects} are basically mutable collections of name-value-pairs, known as properties or \mySlang{members}. They can be seen as hash-maps or associative arrays. Object properties can be accessed using bracket-syntax (e.g. \mySCName{var foo["bar"] = 3;}) or dot-notation (e.g. \mySCName{var foo.bar = 3;}). An \mySCName{Array} is a specialized type of \myProperName{JavaScript} object.\\
-\textbf{Functions} are first-class objects that have source code associated and thus can be invoked. Being objects, functions can have properties and can also be passed as parameters to other functions.\\
+\textbf{Functions} are first-class objects that have source code associated and thus can be invoked. Being objects, functions can have properties and can also be passed as \linebreak parameters to other functions.\\
 \myRefListing{JSTypes} shows the different types of \myProperName{JavaScript} values.
 
 \SingleSpacing
@@ -125,7 +126,7 @@ anInstance.aProp; // --> "Prop of instance"
 \subsubsection{Classes}
 \label{sec:JSClasses}
 
-Classes can be mimicked in \myProperName{JavaScript} with the help of constructor functions. Whenever a function is called with the \mySCName{new} operator, a new object (instance) is created. This object's internal [[Prototype]] property is set to the \mySCName{prototype} property of the function. These two are not to be confused. The \mySCName{this} keyword will refer to the created instance and can be used to define properties on the instance, for example \mySCName{name} in \myRefListing{JSClasses}. The \mySCName{sayHello} function will be shared by all instances, as it is defined on the prototype, whereas \mySCName{name} only exists on the instances themselves.
+Classes can be mimicked in \myProperName{JavaScript} with the help of \textbf{constructor functions}. Whenever a function is called with the \mySCName{new} operator, a new \myProperName{JavaScript} object (instance) is created. This object's internal [[Prototype]] property is set to the \mySCName{prototype} property of the function. These two are not to be confused. The \mySCName{this} keyword will refer to the created instance and can be used to define properties on the instance, for example \mySCName{name} in \myRefListing{JSClasses}. The \mySCName{sayHello} function will be shared by all instances, as it is defined on the prototype, whereas \mySCName{name} only exists on the instances themselves.
 
 \SingleSpacing
 \begin{lstlisting}[language=JavaScript, caption=Classes in \myProperName{JavaScript}, label=JSClasses]
@@ -145,7 +146,7 @@ anInstance.sayHello();
 \end{lstlisting}
 \OnehalfSpacing
 
-For creating inheritance chains, the internal [[Prototype]] property of a function's \linebreak\mySCName{prototype} object must reference another function's \mySCName{prototype} object. If a base constructor function initializes members, then it must be called explicitly from the subclass constructor function with the help of the function object's \mySCName{call} method.
+For creating inheritance chains, the internal [[Prototype]] property of a function's \linebreak\mySCName{prototype} object must reference another function's \mySCName{prototype} object. If a base \linebreak constructor function initializes members, then it must be called explicitly from the subclass constructor function with the help of the function object's \mySCName{call} method.
 
 \SingleSpacing
 \begin{lstlisting}[language=JavaScript, caption=Prototype-based inheritance in \myProperName{JavaScript}, label=lst:PrototypeInheritance]
@@ -182,6 +183,7 @@ instance.doSomething(); // --> 9 (3 * 3)
 	\label{fig:PrototypeChain}
 \end{figure}
 
+\newpage
 \subsubsection{Mixins}
 \label{sec:Mixins}
 
@@ -216,14 +218,14 @@ instance.funcB();
 
 \myProperName{SpiderMonkey} comes in the form of a shared library exposing a \myProperName{C} API, which can be used to interact with the \myProperName{JavaScript} virtual machine. This API is also known as \myProperName{JSAPI}. Due to the length of this thesis, the API can only be presented in excerpts. A full overview is given at the \myProperName{Mozilla Developer Network JSAPI} reference\footnote{\myProperName{JSAPI} reference: \url{https://developer.mozilla.org/en/SpiderMonkey/JSAPI_Reference}}.
 
-A \mySCName{JSRuntime} is an instance of the virtual machine. A \mySCName{JSContext} is a single environment within a \mySCName{JSRuntime}, in which all objects and values live. One \mySCName{JSRuntime} can have multiple \mySCName{JSContext}s. Objects are exposed as \mySCNameImp{JSObject}. Each context has one global object.
+A \mySCName{JSRuntime} is an instance of the virtual machine. A \mySCName{JSContext} is a single environment within a \mySCName{JSRuntime}, in which all objects and values live. One \mySCName{JSRuntime} can have multiple \mySCName{JSContext}s. \myProperName{JavaScript} objects are exposed as \mySCNameImp{JSObject}. Each context has one global object.
 
 \subsection{Values}
 
 A \myProperName{JavaScript} value is expressed as a \mySCNameImp{jsval}. \mySCName{jsval} contains information about the type of the value (number, boolean, etc.). For strings and objects, the \mySCName{jsval} stores the pointer to the \mySCName{JSString} or \mySCName{JSObject}. For all other types, the data is saved in the \mySCName{jsval} itself. \mySCName{jsval}s occur at several places in \myProperName{JSAPI}, for example when defining properties, for parameter values or return values.\\
 \myProperName{SpiderMonkey} provides utility macros/functions for checking the type of a \linebreak \mySCName{jsval} (e.g. \mySCName{JSVAL\_IS\_BOOLEAN}) and for converting between \myProperName{C++} values and \mySCName{jsval}\linebreak(e.g. \mySCName{JSVAL\_TO\_BOOLEAN} and \mySCName{BOOLEAN\_TO\_JSVAL}).\\
 When converting between \mySCName{jsval}s and \myProperName{C++} types, type checking is indispensable. The \myProperName{C++} compiler that compiles the glue code will perform this task, when converting \textbf{to} \mySCName{jsval}, as the conversion functions only accept the correct type. When converting a \mySCName{jsval} to a \myProperName{C++} type, the actual type of the \mySCName{jsval} needs to be checked manually first. If the \myProperName{JSAPI} user does not perform type checking and, for example, retrieves a \mySCName{JSObject} from a \mySCName{jsval} that contains a boolean value, the behaviour of the code is undefined and will probably lead to a run-time failure like a crash. Thus type checking and error handling play an important role and are explained in further detail \linebreak in \myRefSection{sec:ErrorHandling}.\\
-\myProperName{SpiderMonkey} also provides utility functions for automatic conversion of types according to the \myProperName{ECMAScript} standard. If, for example, a boolean is passed to a function that expects a string, the conversion would create a string from the boolean --- either \mySCString{true} or \mySCString{false}. These conversion functions are less performant, but allow for a greater range of input values without reporting errors. It has to be said though that automatic conversion can lead to unexpected program behaviour in places where the user would expect an error.\\
+\myProperName{SpiderMonkey} also provides utility functions for automatic conversion of types \linebreak according to the \myProperName{ECMAScript} standard. If, for example, a boolean is passed to a function that expects a string, the conversion would create a string from the boolean --- either \mySCString{true} or \mySCString{false}. These conversion functions are less performant, but allow for a greater range of input values without reporting errors. It has to be said though that automatic conversion can lead to unexpected program behaviour in places where the user would expect an error.\\
 Most of the conversion functions take a \mySCName{JSContext} as the first parameter.
 
 \section{Boolean Values}
