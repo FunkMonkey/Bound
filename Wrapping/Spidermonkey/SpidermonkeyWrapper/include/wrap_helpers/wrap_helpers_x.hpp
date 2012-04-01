@@ -4,6 +4,10 @@
 #include <jsapi.h>
 #include "exceptions.hpp"
 
+/**
+ * @namespace jswrap
+ * Contains helper functions for wrapping SpiderMonkey
+ */
 namespace jswrap
 {
 	/** 
