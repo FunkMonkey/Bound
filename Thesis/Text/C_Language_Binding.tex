@@ -3,7 +3,7 @@
 
 The term \textbf{language binding} refers to the process of establishing a bridge between two programming languages. This allows functionality written in one programming language to be used from within the other and vice versa. With language binding, \myProperName{C++} functions can be exposed to \myProperName{Python} or other scripting languages. Language binding deals with the communication between code written in different programming languages within a single application.
 
-The need to combine different programming languages and to exchange information between those may arise due to several reasons. A specific language may support a different set of programming paradigms and thus be better suited for solving a certain group of tasks. A project may also rely on a 3rd party library written in another language. In general, software reuse is a common reason for binding multiple languages together.
+The need to combine different programming languages and to exchange information between those may arise due to several reasons. A specific language may support a different set of programming paradigms and thus be better suited for solving a certain group of tasks. A project may also rely on a third party library written in another language. In general, software reuse is a common reason for binding multiple languages together.
 
 Often, language binding is needed to connect a higher-level programming \linebreak language (e.g. a scripting language like \myProperName{Python}) with a lower-level programming language (e.g. a system programming language like \myProperName{C++}).
 
@@ -87,7 +87,7 @@ The different ways of creating foreign interfaces will be explained in greater d
 
 \subsection{Static Foreign Interfaces}
 
-Both \myProperName{Python} and \myProperName{SpiderMonkey} (\myProperName{Mozilla}'s implementation of the \myProperName{ECMAScript} standard, also known as \myProperName{JavaScript}) are accessible in form of a library exposing a \myProperName{C}-API. Thus glue code for binding \myProperName{C} or \myProperName{C++} functionality to one of these languages has to be written in \myProperName{C/C++} using the given API.
+Both \myProperName{Python} and \myProperName{SpiderMonkey} (\myProperName{Mozilla}'s implementation of the \myProperName{ECMAScript} standard, also known as \myProperName{JavaScript}) are accessible in form of a library exposing a \myProperName{C} API. Thus glue code for binding \myProperName{C} or \myProperName{C++} functionality to one of these languages has to be written in \myProperName{C/C++} using the given API.
 
 \SingleSpacing
 \begin{lstlisting}[language=C++, caption=Exposing a \myProperName{C} function to \myProperName{SpiderMonkey}]
@@ -132,7 +132,7 @@ Looking at the given example, it is obvious that even the wrapping of a simple \
 
 When wrapping a class, instead of writing glue code for every single function, it is also possible to direct every call through a single proxy function. This proxy function will do all the work at run-time, with the help of type libraries. Because this is a form of dynamic dispatch, such a function can be called a \mySlang{dispatch function}.
 
-Calls to an object's functions are resolved using dynamic method invocation based on an identifier as explained in \myRefSection{sec:TypesOfFunctionBinding}. Consider a script object that wraps a class instance. The object internally holds a reference to the wrapped instance. When calling a method of the given object, e.g. \mySCName{doSomething}, the call will be directed to the proxy function. Based on the given string \mySCString{doSomething} and the internal instance, the proxy will look up the memory address and expected parameters of the native function. It will then convert the given script arguments to the expected format. The proxy subsequently calls the native function and converts the return value to a type that is understood by the scripting language. This is all happening at run-time.
+Calls to an object's functions are resolved using dynamic method invocation based on an identifier as explained in \myRefSection{sec:TypesOfFunctionBinding}. Consider a script object that wraps a class instance. The object internally holds a reference to the wrapped instance. When calling a method of the given object --- e.g. \mySCName{doSomething} --- the call will be directed to the proxy function. Based on the given string \mySCString{doSomething} and the internal instance, the proxy will look up the memory address and expected parameters of the native function. It will then convert the given script arguments to the expected format. The proxy subsequently calls the native function and converts the return value to a type that is understood by the scripting language. This is all happening at run-time.
 
 Exposing a foreign interface using dynamic method invocation will lead to worse \linebreak performance as opposed to static foreign interfaces.\\
 When binding a weakly typed language, both approaches have the cost of resolving the method's name to the address of the wrapper function using dynamic method invocation.\\
@@ -182,7 +182,7 @@ As a side note, most FFI implementations use the same library, \myProperNameImp{
 
 \section{Existing Language Binding Systems and Tools}
 
-Because the need for bridging different programming languages arises in many projects - especially in the computer games industry the embedding of scripting languages is very popular - there are already systems and tools existing for automating the binding-process, creating glue code or providing dynamic access to native code. Some of these binding systems and tools will be explained in further detail.
+Because the need for bridging different programming languages arises in many \linebreak projects --- especially in the computer games industry the embedding of scripting languages is very popular --- there are already systems and tools existing for automating the binding-process, creating glue code or providing dynamic access to native code. Some of these binding systems and tools will be explained in further detail.
 
 \subsection{Component Models}
 \label{sec:ComponentModels}
@@ -195,7 +195,7 @@ A software component itself is an independent piece of software that encapsulate
 
 Such components need to conform to component standards, which \myInlineQuote{are embodied in a component model and define [...] how component interfaces should be specified and how components communicate.}\footnote{\citep[440]{Sommerville}} \myAuthorName{Polberger} further notes that they also standardize facets like memory management, exception- and error-handling as well as metadata for runtime type information.\footnote{\citep[8]{ComponentTechnology}}
 
-Prominent examples of such component models (standards and middleware) are the \myProperName{Object Management Group}'s \myProperName{(OMG) Common Object Request Broker Architecture (CORBA)} and \myProperName{Microsoft}'s \myProperName{Component Object Model (COM)}. \myProperName{Mozilla} developed a cross-platform variant of \myProperName{COM} called \myProperName{XPCOM}, which is used in products like \myProperName{Firefox}.
+Prominent examples of such component models (standards and middleware) \linebreak are the \myProperName{ Common Object Request Broker Architecture (CORBA)} \linebreak from the \myProperName{Object Management Group (OMG)}  and \myProperName{Microsoft}'s \linebreak\myProperName{Component Object Model (COM)}. \myProperName{Mozilla} developed a cross-platform variant of \myProperName{COM} called \myProperName{XPCOM}, which is used in products like \myProperName{Firefox}.
 
 These component models are language-agnostic, meaning that components can be written in and used from a multitude of different programming languages. The process of binding the languages together and letting objects written in different languages communicate with each other is handled by the middleware.
 
@@ -219,7 +219,7 @@ Components written in \myProperName{COM} have to follow a binary standard, meani
 
 \myProperName{CORBA} on the other hand standardizes the IDL as well as the language bindings. All calls are routed through the Object Request Broker, which is responsible for translating the calls and converting arguments. \myInlineQuote{By mandating the use of runtime software for all object invocations, CORBA can effectively hide differences between communicating objects — what languages they are written in, on what machines they are running and the operating system used — without requiring that their interfaces all look the same in memory. Thus, CORBA is, unlike COM, not a binary standard.}\footnote{\citep[83]{ComponentTechnology}}
 
-When using objects from a weakly typed scripting language, neither \myProperName{CORBA} nor \myProperName{COM} are producing glue code for binding purposes but handle function calls and type-checking at run-time using a dynamic foreign interface with dynamic method invocation and in consequence have the explained performance penalties.
+When using objects from a weakly typed scripting language, neither \myProperName{CORBA} nor \myProperName{COM} are producing glue code for binding purposes, but handle function calls and type-checking at run-time using a dynamic foreign interface with dynamic method invocation and in consequence have the explained performance penalties.
 
 Component models and the according middleware have the advantage of handling the communication between the different languages under the hood. Because of this, there is no need to write glue code that deals with argument conversion or memory management issues.\\
 On the downside, when wrapping \myProperName{C++}, the wrapped classes need to inherit from the given interfaces or in the case of \myProperName{COM} at least conform to the binary layout of the interface (including the standard \mySCName{IUnknown} interface). Already existing libraries can thus not be wrapped without the modification of the original source code or the creation of a wrapper-library that conforms to the component standard.
@@ -270,7 +270,7 @@ The glue code generated by \myProperName{SWIG} will need no further modification
 
 By design, \myProperName{SWIG} does not include a full \myProperName{C++} parser. The parser in \myProperName{SWIG} was created in a way that it can handle incomplete interfaces and deal with missing type declarations.\footnote{\citep{SWIGHPDoc} in 5.1.6 Parser Limitations}
 
-\myProperName{SWIG}, which is being developed since 1995\footnote{\citep{SWIGHPDoc} in 1.1 Introduction}, can wrap most \myProperName{C++} constructs to be used by a multitude of scripting languages, while allowing extreme customization of the output code and its behaviour. \myProperName{SWIG}'s detailed documentation\footnote{\myProperName{SWIG} documentation: \url{http://www.swig.org/Doc2.0/Contents.html\#Contents}} contains a lot of background information - not just about the usage of \myProperName{SWIG} itself, but also about the problems that can arise when binding languages, both for language binding tools and their users. The documentation also explains the design decisions behind \myProperName{SWIG} to circumvent these problems.
+\myProperName{SWIG}, which is being developed since 1995\footnote{\citep{SWIGHPDoc} in 1.1 Introduction}, can wrap most \myProperName{C++} constructs to be used by a multitude of scripting languages, while allowing extreme customization of the output code and its behaviour. \myProperName{SWIG}'s detailed documentation\footnote{\myProperName{SWIG} documentation: \url{http://www.swig.org/Doc2.0/Contents.html\#Contents}} contains a lot of background information --- not just about the usage of \myProperName{SWIG} itself, but also about the problems that can arise when binding languages, both for language binding tools and their users. The documentation also explains the design decisions behind \myProperName{SWIG} to circumvent these problems.
 \\Unfortunately, this valuable information was discovered very late in the writing of this 20 weeks-long thesis and consequently did not influence most of the design decisions made for the developed application. This late discovery has been a clear mistake of mine, resulting from a too superficial theoretical research on alternate language binding tools. Nevertheless, the information in the documentation will be useful for the ongoing development of the application after the time of this writing.
 
 \myLBHighlight{
@@ -285,5 +285,5 @@ The purpose of this thesis is not to reinvent the wheel, but to tackle the same 
 & \\
 & The first language module for this project is a scripting language currently not supported by \myProperName{SWIG}: \myProperName{SpiderMonkey}, \myProperName{Mozilla}'s implementation of the \myProperName{ECMAScript} standard, commonly known as \myProperName{JavaScript}.\\
 & \\
-& Compared to \myProperName{SWIG}, \myProperName{Bound} will include a complete \myProperName{C++} parser, based on the \myProperName{Clang} \myProperName{C}-language family compiler. This has the advantage of outsourcing the \myProperName{C++} parsing to an actively developed project that deals with implementing new language features that change syntax, like the \mySCName{auto} keyword or the alternative function syntax coming with the new \myProperName{C++} standard \myProperName{C++11}.
+& Compared to \myProperName{SWIG}, \myProperName{Bound} will include a complete \myProperName{C++} parser, based on the \myProperName{Clang} \myProperName{C}-language family compiler. This has the advantage of outsourcing the \myProperName{C++} parsing to an actively developed project that deals with implementing new language features that change syntax, like the \mySCName{auto} keyword or the alternative function syntax coming with the new \myProperName{C++11} standard.
 }

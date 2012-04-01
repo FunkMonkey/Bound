@@ -42,7 +42,7 @@ Static analysis tools that are concerned with program correctness try to detect 
 
 Bug finders point out places in the source code, where the program will behave in a way that the programmer did not intend. Most tools are easy to use, because they come pre-stocked with a set of \mySlang{bug idioms} (rules) that describe patterns in code that often indicate bugs.\footnote{\citep[32]{SecureProgramming}} They help to find these often hard-to-spot defects early in the software development life-cycle, reducing the cost, time, and risk of software errors.\footnote{\citep{CovertySA}}
 
-A prominent example of preventing run-time errors at compile-time is type checking. In this sense, compilers themselves can be seen as static analysis tools and - as we will see later - both have much in common.
+A prominent example of preventing run-time errors at compile-time is type checking. In this sense, compilers themselves can be seen as static analysis tools and --- as we will see later --- both have much in common.
 
 \begin{quotation}
 ``The lint program for C programs is generally considered the first widely used static analysis tool for defect detection.''\footnote{\citep[1]{UsingSAToFindBugs}}
@@ -157,7 +157,7 @@ As every technique, static analysis has drawbacks.
 
 Depending on how well a tool works and how good it is balanced, static analysis tools may produce a lot of \textbf{false positives}, meaning pointing out an error where none exists. Too much \mySlang{noise} is problematic, as it costs the programmer valuable time to check if a result is really a bug or not. Also, real problems may be overseen, when false positives dominate the tools output.
 
-\textbf{False negatives}, on the other hand, are real bugs that a tool did not discover. It has already been said, that complete absence of errors can not be proven with any tool - so, using static analysis tools may give the programmer a false sense of security.\footnote{\citep[23]{SecureProgramming}}
+\textbf{False negatives}, on the other hand, are real bugs that a tool did not discover. It has already been said, that complete absence of errors can not be proven with \linebreak any tool --- so, using static analysis tools may give the programmer a false sense of security.\footnote{\citep[23]{SecureProgramming}}
 
 
 \section{Static Analysis Tool Internals}
@@ -243,7 +243,7 @@ The open-source \myProperName{Clang}\footnote{\myProperName{Clang}: \url{http://
 
 There are two approaches of how an application can integrate \myProperName{Clang} for analysing purposes.
 \\On the one hand, \myProperName{Clang} itself can be included as a shared library. The internal structures and functions of the compiler can be used to access the AST build by \myProperName{Clang} in a direct manner.
-\\The second approach is to use \myProperNameImp{libclang}, a \myProperName{C}-API to \myProperName{Clang}, which exposes much of \myProperName{Clang}'s functionality for indexing source code and accessing ASTs, while maintaining a stable interface independent of changes internal to \myProperName{Clang}. \myProperName{libclang}, which belongs to the official \myProperName{Clang} project, is extended on a per-need-basis and may thus not provide all features needed for a static analysis tool that builds upon it. As it is an open-source project, these features can easily be added.
+\\The second approach is to use \myProperNameImp{libclang}, a \myProperName{C} API to \myProperName{Clang}, which exposes much of \myProperName{Clang}'s functionality for indexing source code and accessing ASTs, while maintaining a stable interface independent of changes internal to \myProperName{Clang}. \myProperName{libclang}, which belongs to the official \myProperName{Clang} project, is extended on a per-need-basis and may thus not provide all features needed for a static analysis tool that builds upon it. As it is an open-source project, these features can easily be added.
 
 \myProperName{Clang} works on all popular operating systems, including \myProperName{Microsoft Windows}. Having this advantage over \myProperName{Dehydra}, \myProperName{Clang} is the favourite choice for use in this project. A detailed description of how \myProperName{libclang} is used inside the application can be found in \myRefChapter{chap:AnalysingCPP}.
 
