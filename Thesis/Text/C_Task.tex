@@ -3,13 +3,13 @@
 
 After introducing the basic concepts behind language binding and static analysis, this chapter will clarify what kind of application will be developed, as well as present the goals and non-goals concerning the development.
 
-The application to be developed will be released as open-source.
+The application to be developed will be released as open-source software.
 
 The purpose of the application is to create high-performance glue code for binding different scripting languages to \myProperName{C++}. The export will happen as a static foreign interface that needs to be included and compiled in the user's program.
 
-The application will be developed in a way that is easily extensible to support a multitude of different scripting languages, starting with support for \myProperName{Mozilla SpiderMonkey (ECMAScript/JavaScript)}. Furthermore it should also be extensible for other uses of the analysed \myProperName{C++} syntax tree, e.g. for documentation or analysing purposes, creating type libraries or generating skeleton code for unit tests.
+The application will be developed in a way that it is easily extensible to support a multitude of different scripting languages, starting with support for \myProperName{Mozilla} \linebreak \myProperName{SpiderMonkey (ECMAScript/JavaScript)}. Furthermore it should also be \linebreak extensible for other uses of the analysed \myProperName{C++} syntax tree, e.g. for documentation or analysing purposes, creating type libraries or generating skeleton code for unit tests.
 
-The application has to be able to create language bindings without the need to modify the original code.
+The application has to be able to create language bindings without the need to modify the original code of the wrapped library.
 
 Furthermore it should give the user the potential to customize and configure the process of language binding to suit the produced code to his or her individual needs.
 
