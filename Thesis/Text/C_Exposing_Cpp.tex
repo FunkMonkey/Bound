@@ -254,6 +254,7 @@ if(!JS_ValueToBoolean(context, jsValue, &cppValue))
 \myProperName{ECMAScript} supports only a single number type. There is no distinction between integers and floating point values.\\
 However, in \myProperName{SpiderMonkey} integers and floats are stored differently in a \mySCName{jsval} and can be converted independently (e.g. with \mySCName{JSVAL\_TO\_INT}). Using these functions is error prone as converting a \mySCName{double} \mySCName{jsval} to \mySCName{int} will lead to undefined results due to their different memory representation. Thus, \myProperName{SpiderMonkey} also provides generalized versions for converting between \myProperName{C++} types and the \myProperName{JavaScript} numbers, which should be used instead:
 
+\vspace{-10pt}
 \begin{itemize}\addtolength{\itemsep}{-0.5\baselineskip}
 	\item \mySCName{JS\_NewNumberValue}: creates a number \mySCName{jsval} from integer or floating point value
 	\item \mySCName{JSVAL\_IS\_NUMBER}
@@ -262,6 +263,7 @@ However, in \myProperName{SpiderMonkey} integers and floats are stored different
 	\item \mySCName{JS\_ValueToECMAUint32}
 	\item \mySCName{JS\_ValueToUint16}
 \end{itemize}
+\vspace{-10pt}
 
 When converting to integers, the number value is rounded according to the \myProperName{ECMAScript} standard.
 

@@ -3,13 +3,13 @@
 
 The term \textbf{language binding} refers to the process of establishing a bridge between two programming languages. This allows functionality written in one programming language to be used from within the other and vice versa. With language binding, \myProperName{C++} functions can be exposed to \myProperName{Python} or other scripting languages. Language binding deals with the communication between code written in different programming languages within a single application.
 
-The need to combine different programming languages and to exchange information between those may arise due to several reasons. A specific language may support a different set of programming paradigms and thus be better suited for solving a certain group of tasks. A project may also rely on a third party library written in another language. In general, software reuse is a common reason for binding multiple languages together.
+The need to combine different programming languages and to exchange information between those may arise due to several reasons. A specific language may support a different set of programming paradigms and therefore be better suited for solving a certain group of tasks. A project may also rely on a third party library written in another language. In general, software reuse is a common reason for binding multiple languages together.
 
 Often, language binding is needed to connect a higher-level programming \linebreak language (e.g. a scripting language like \myProperName{Python}) with a lower-level programming language (e.g. a system programming language like \myProperName{C++}).
 
 \section{System Programming Languages and Scripting Languages}
 
-According to \myAuthorName{John Ousterhout}, the creator of the programming language \myProperName{TCL}, the terms \textbf{low(er)-level} and \textbf{high(er)-level} refer to the degree of abstraction a programming language provides in comparison to another language. Higher-level languages encapsulate more machine instructions per statement and therefore usually need less code to be written to perform a given task. They handle machine-oriented details like register allocation automatically, while omitting complexity. This leads to better code \linebreak maintainability and faster development at the cost of performance.\footnote{\citep{Ousterhout}}
+According to \myAuthorName{John Ousterhout}, the creator of the programming language \myProperName{TCL}, the terms \textbf{low(er)-level} and \textbf{high(er)-level} refer to the degree of abstraction a programming language provides in comparison to another language. Higher-level languages \linebreak encapsulate more machine instructions per statement and therefore usually need less code to be written to perform a given task. They handle machine-oriented details like register allocation automatically, while omitting complexity. This leads to better code \linebreak maintainability and faster development at the cost of performance.\footnote{\citep{Ousterhout}}
 
 \myAuthorName{Ousterhout} describes a \textbf{system programming language} as a strongly (statically) typed language that is designed to create applications from scratch. It is, however, offering a higher level of abstraction in doing so compared to assembly programming languages, which are considered very low-level. \myProperName{C}, \myProperName{C++} and \myProperName{Pascal} are popular examples of system programming languages.
 
@@ -19,12 +19,14 @@ As opposed to \textbf{interpreted code}, the machine code produced by compiling 
 
 However, there are programming languages that share properties of both presented kinds. \myProperName{Java} and \myProperName{C\#}, for instance, are statically typed and interpreted/byte-code compiled.
 
-Scripting and system programming languages have a symbiotic relationship. System programming languages are used to create high-performance components that can provide access to platform- and operating system functionality. These components can then be assembled using scripting languages to form an application.\footnote{\citep{Ousterhout}} Binding a system programming language and a scripting language together combines the advantages of both worlds and most importantly allows the reuse of existing code that may not be integrable without language binding.
+Scripting and system programming languages have a symbiotic relationship. System programming languages are used to create high-performance components that can \linebreak provide access to platform- and operating system functionality. These components can then be assembled using scripting languages to form an application.\footnote{\citep{Ousterhout}} Binding a system programming language and a scripting language together combines the advantages of both worlds and most importantly allows the reuse of existing code that may not be integrable without language binding.
 
 \subsection{Extending versus Embedding}
 
-When binding together a system programming language and a scripting language, we must first understand the difference between \textbf{extending} and \textbf{embedding} of the scripting language.\footnote{\citep{PythonHP}} Languages like \myProperName{Python} or \myProperName{JavaScript}, which run inside a virtual machine, come with their own interpreter. This interpreter and the API that is used for extending and embedding are usually provided in the form of a shared library. The interpreter often also exists as an independent executable. \\
-When \textbf{extending} a scripting language, the programmer creates a shared library in the system programming language, which is loaded and used by the scripting language's interpreter executable. This shared library uses the  API-library provided by the script engine manufacturer to expose functionality to the scripting language.\\
+When binding together a system programming language and a scripting language, we must first understand the difference between \textbf{extending} and \textbf{embedding} of the \linebreak scripting language.\footnote{\citep{PythonHP}} Languages like \myProperName{Python} or \myProperName{JavaScript}, which run inside a virtual machine, come with their own interpreter. This interpreter and the API that is used for extending and embedding are usually provided in the form of a shared library. The interpreter often also exists as an independent executable.
+
+When \textbf{extending} a scripting language, the programmer creates a shared library in the system programming language, which is loaded and used by the scripting language's interpreter executable. This shared library uses the  API-library provided by the script engine manufacturer to expose functionality to the scripting language.
+
 \textbf{Embedding} however, means the programmers will be including an instance of the interpreter in their own application. Again, the API-library is used for exposing \linebreak functionality, however the developed application must further deal with the initialization of the interpreter itself. Communication with the interpreter has to be established and maintained. In such a scenario the embedded language is often referred to as the \linebreak\textbf{guest language}, whereas the main application's programming language is the \linebreak\textbf{host language}.
 
 \section{Types of Function Binding}
@@ -40,15 +42,16 @@ In \myProperName{C++}, calls to virtual functions are bound at run-time. This is
 
 Looking up the address of a function at run-time using a string or another type of identifier is also a kind of dynamic binding. This is sometimes referred to as \textbf{dynamic method invocation}.\\
 The lookup of native functions may be trivial for programming languages that support reflection, as these languages (for instance \myProperName{C\#} or \myProperName{Java}) provide native ways of calling functions using a string-identifier.\\
-A language like \myProperName{C++}, which does not support reflection, needs special type libraries, which map the identifiers to the corresponding offset of the function in the class' virtual table. Type library files also contain information about the types of function arguments and return types. Given an instance with a virtual table and the type library, the function's address can be retrieved and called. As an alternative to using type libraries, the object can also provide a dispatch function that takes an identifier and resolves the function address.
+A language like \myProperName{C++}, which does not support reflection, needs special type libraries, which map the identifiers to the corresponding offset of the function in the class' virtual table. Type library files also contain information about the types of function arguments and return types. Given an instance with a virtual table and the type library, the function's address can be retrieved and called. As an alternative to using type libraries, the object can also provide a dispatch function that takes an identifier and resolves the function address manually.
 \\Type checking of function arguments and return values needs to be done at run-time with the information given in the type library. Therefore dynamic method invocation does not require compile-time knowledge about the object's interface. Trying to call non-existent functions by using a string-identifier that is not in the type library will result in run-time errors.
 
-Concerning performance, static binding is the fastest. Dynamic binding using virtual tables is only marginally slower on modern hardware, because of one more level of indirection. Dynamic method invocation is by far the slowest, due to the resolving of a function's address using an identifier and type checking at run-time. 
+Concerning performance, static binding performs best. Dynamic binding using virtual tables is only marginally slower on modern hardware, because of one more level of indirection. Dynamic method invocation is by far the slowest, due to the resolving of a function's address using an identifier and type checking at run-time. 
 
 Note that in contexts outside of standard \myProperName{C++}, for example in \myProperName{Microsoft COM}, dynamic binding using virtual tables is still sometimes referred to as \mySlang{early} binding, due to its performance advantage compared to dynamic method invocation.
 
-It is important to understand that static binding is only possible in programming languages that support static typing. Scripting languages like \myProperName{JavaScript}, where variables are weakly typed, can neither know the type of a variable nor the offset of a function at compile-time and thus can only use dynamic method invocation.
+It is important to understand that static binding and virtual table binding are only possible in programming languages that support static typing. Scripting languages like \myProperName{JavaScript}, where variables are weakly typed, can neither know the type of a variable nor the offset of a function at compile-time and thus can only use dynamic method invocation.
 
+\newpage
 \section{The Process of Binding Languages}
 
 \begin{quotation}
@@ -68,13 +71,14 @@ The code written to bind both languages together is often referred to as \textbf
 \end{quotation}
 
 Foreign interfaces can be either static or dynamic.\\
-\textbf{Static foreign interfaces} are written and compiled in the system programming language using the API the scripting language provides.\\
+\textbf{Static foreign interfaces} are written and compiled in the system programming \linebreak language using the API the scripting language provides.\\
 \textbf{Dynamic foreign interfaces} are created at run-time. This can be done in two ways:
 \begin{itemize}
-\item writing glue code in the system programming language using the scripting language's API in conjunction with \textbf{dynamic method invocation}
+\item writing glue code in the system programming language using the scripting \linebreak language's API in conjunction with \textbf{dynamic method invocation}
 \item writing glue code in the scripting language itself using the scripting language's dynamic \textbf{foreign \textit{function} interface} (FFI)
 \end{itemize}
 
+\newpage
 Because the terminology concerning foreign function interfaces (FFIs) can be somewhat confusing, I decided to use the following definition for this thesis:
 
 \begin{quotation}
@@ -87,7 +91,7 @@ The different ways of creating foreign interfaces will be explained in greater d
 
 \subsection{Static Foreign Interfaces}
 
-Both \myProperName{Python} and \myProperName{Mozilla SpiderMonkey} (\myProperName{JavaScript}) are accessible in form of a library exposing a \myProperName{C} API. Thus glue code for binding \myProperName{C} or \myProperName{C++} functionality to one of these languages has to be written in \myProperName{C/C++} using the given API.
+Both \myProperName{Python} and \myProperName{Mozilla SpiderMonkey} (\myProperName{JavaScript}) are accessible in the form of a library exposing a \myProperName{C} API. Thus glue code for binding \myProperName{C} or \myProperName{C++} functionality to one of these languages has to be written in \myProperName{C/C++} using the given API.
 
 \SingleSpacing
 \begin{lstlisting}[language=C++, caption=Exposing a \myProperName{C} function to \myProperName{SpiderMonkey}]
@@ -132,10 +136,11 @@ Looking at the given example, it is obvious that even the wrapping of a simple \
 
 When wrapping a class, instead of writing glue code for every single function, it is also possible to direct every call through a single proxy function. This proxy function will do all the work at run-time, with the help of type libraries. Because this is a form of dynamic dispatch, such a function can be called a \mySlang{dispatch function}.
 
-Calls to an object's functions are resolved using dynamic method invocation based on an identifier as explained in \myRefSection{sec:TypesOfFunctionBinding}. Consider a script object that wraps a class instance. The object internally holds a reference to the wrapped instance. When calling a method of the given object --- e.g. \mySCName{doSomething} --- the call will be directed to the proxy function. Based on the given string \mySCString{doSomething} and the internal instance, the proxy will look up the memory address and expected parameters of the native function. It will then convert the given script arguments to the expected format. The proxy subsequently calls the native function and converts the return value to a type that is understood by the scripting language. This is all happening at run-time.
+Calls to an object's functions are resolved using dynamic method invocation based on an identifier as explained in \myRefSection{sec:TypesOfFunctionBinding}.\\
+Consider a script object that wraps a class instance. The object internally holds a reference to the wrapped instance. When calling a method of the given \linebreak object --- e.g. \mySCName{doSomething} --- the call will be directed to the proxy function. Based on the given string \mySCString{doSomething} and the internal instance, the proxy will look up the memory address and expected parameters of the native function. It will then convert the given script arguments to the expected format. The proxy subsequently calls the native function and converts the return value to a type that is understood by the scripting language. This is all happening at run-time.
 
 Exposing a foreign interface using dynamic method invocation will lead to worse \linebreak performance as opposed to static foreign interfaces.\\
-When binding a weakly typed language, both approaches have the cost of resolving the method's name to the address of the wrapper function using dynamic method invocation.\\
+When binding a weakly typed language, both approaches additionally have the cost of resolving the method's name to the address of the wrapper function using dynamic method invocation.\\
 Both approaches also need to do type conversion of function arguments at run-time due to differing types between the languages. A static foreign interface already includes the code for these type conversions. This code may additionally be compiler optimized. When using dynamic method invocation for the foreign interface, the type information needs to be gathered from a type library at run-time. Depending on this information the corresponding conversion functions are chosen. Hence, the costs for type conversion are significantly higher.\\
 Compared to the static foreign interface, where the function address is known at \linebreak compile-time (static binding) or its offset in the virtual table is stored, this kind of dynamic foreign interface also has the cost of resolving the function's address using dynamic method invocation. This means that all in all, one function call from script will lead to two run-time address lookups using dynamic method invocation, one for the wrapper function and one for the native function to call.
 
@@ -182,13 +187,14 @@ As a side note, most FFI implementations use the same library, \myProperNameImp{
 
 \section{Existing Language Binding Systems and Tools}
 
-Because the need for bridging different programming languages arises in many \linebreak projects --- especially in the computer games industry the embedding of scripting languages is very popular --- there are already systems and tools existing for automating the binding-process, creating glue code or providing dynamic access to native code. Some of these binding systems and tools will be explained in further detail.
+Because the need for bridging different programming languages arises in many \linebreak projects --- especially in the computer games industry the embedding of scripting \linebreak languages is very popular --- there are already systems and tools existing for automating the binding process, creating glue code or providing dynamic access to native code. Some of these binding systems and tools will be explained in further detail.
 
+\newpage
 \subsection{Component Models}
 \label{sec:ComponentModels}
 
 \begin{quotation}
-``Component-based software engineering is a reuse-based approach to defining, implementing and composing loosely coupled independent components into systems.''\footnote{\citep[460]{Sommerville}}
+``Component-based software engineering is a reuse-based approach to defining, implementing and composing loosely coupled independent \linebreak components into systems.''\footnote{\citep[460]{Sommerville}}
 \end{quotation}
 
 A software component itself is an independent piece of software that encapsulates discrete functionality into a reusable entity\footnote{\citep[3]{ComponentTechnology}}, which is to be used in composition with other components.
@@ -197,7 +203,7 @@ Such components need to conform to component standards, which \myInlineQuote{are
 
 Prominent examples of such component models (standards and middleware) \linebreak are the \myProperName{ Common Object Request Broker Architecture (CORBA)} \linebreak from the \myProperName{Object Management Group (OMG)}  and \myProperName{Microsoft}'s \linebreak\myProperName{Component Object Model (COM)}. \myProperName{Mozilla} developed a cross-platform variant of \myProperName{COM} called \myProperName{XPCOM}, which is used in products like \myProperName{Firefox}.
 
-These component models are language-agnostic, meaning that components can be written in and used from a multitude of different programming languages. The process of binding the languages together and letting objects written in different languages communicate with each other is handled by the middleware.
+These component models are language-agnostic, meaning that components can be \linebreak written in and used from a multitude of different programming languages. The process of binding the languages together and letting objects written in different languages communicate with each other is handled by the middleware.
 
 \subsubsection{Interfaces}
 
@@ -205,9 +211,9 @@ These component models are language-agnostic, meaning that components can be wri
 ``The services offered by a component are made available through an interface, and all interactions are through that interface.''\footnote{\citep[444]{Sommerville}}
 \end{quotation}
 
-\myProperName{CORBA}, \myProperName{COM} and \myProperName{XPCOM} are strictly separating interfaces and implementations. The same interface can be implemented by multiple classes and a class can also implement multiple interfaces.
+\myProperName{CORBA}, \myProperName{COM} and \myProperName{XPCOM} are strictly separating interfaces and implementations. The same interface can be implemented by multiple classes and a class can also \linebreak implement multiple interfaces.
 
-Interfaces are defined in a special interface definition language (IDL). The interface files are used in different ways.\\
+Interfaces are defined in a special interface definition language (IDL). These interface files are used for varying purposes.\\
 When implementing \myProperName{COM} or \myProperName{CORBA} components in \myProperName{C++}, an IDL compiler is used to create header files with abstract classes that are to be extended and implemented.\\
 The IDL compiler will also create type libraries which hold information about the interfaces, the functions and their offsets in the virtual table, their parameters, etc. When calling a component's method from a dynamically typed scripting language, these type libraries will be used for dynamically invoking the method by its name at run-time as described in \myRefSection{sec:DynamicForeignInterfaces}. In \myProperName{COM}, statically typed or compiled languages like \myProperName{Visual Basic} also use the type libraries for retrieving function memory addresses at compile-time to eliminate the cost of dynamic method invocation.  
 
@@ -221,16 +227,15 @@ Components written in \myProperName{COM} have to follow a binary standard, meani
 
 When using objects from a weakly typed scripting language, neither \myProperName{CORBA} nor \myProperName{COM} are producing glue code for binding purposes, but handle function calls and type-checking at run-time using a dynamic foreign interface with dynamic method invocation and in consequence have the explained performance penalties.
 
-Component models and the according middleware have the advantage of handling the communication between the different languages under the hood. Because of this, there is no need to write glue code that deals with argument conversion or memory management issues.\\
+Component models and the according middleware have the advantage of handling the communication between the different languages under the hood. Because of this, there is no need for the user to write glue code that deals with argument conversion or memory management issues.\\
 On the downside, when wrapping \myProperName{C++}, the wrapped classes need to inherit from the given interfaces or in the case of \myProperName{COM} at least conform to the binary layout of the interface (including the standard \mySCName{IUnknown} interface). Already existing libraries can thus not be wrapped without the modification of the original source code or the creation of a wrapper-library that conforms to the component standard.
 
 \myLBHighlight{The developed application should be able to create language bindings for libraries without the need to modify the \myProperName{C++} code of these libraries.}
 
-Component models like \myProperName{COM} and \myProperName{CORBA} do provide other features than just \linebreak language-agnosticism and inter-language communication. \myProperName{CORBA} and \myProperName{DCOM}, the distributed version of \myProperName{COM}, also provide support for handling inter-process and inter-machine communication, hiding the complexity of remote calls from the user. These architectures thus come with an overhead, which may be unneeded or unacceptable (performance-wise), when all the user wants to do is to bind two programming languages.
+Component models like \myProperName{COM} and \myProperName{CORBA} do provide other features than just \linebreak language-agnosticism and inter-language communication. \myProperName{CORBA} and \myProperName{DCOM}, the distributed version of \myProperName{COM}, also provide support for handling inter-process and \linebreak inter-machine communication, hiding the complexity of remote calls from the user. These architectures thus come with an overhead, which may be unneeded or unacceptable (performance-wise), when all the user wants to do is to bind two programming languages.
 
 \myLBHighlight{The glue code generated by the application should have as little overhead as possible to achieve maximum run-time performance.}
 
-\newpage
 \subsection{\myProperName{SWIG}}
 
 \begin{quotation}
@@ -240,7 +245,9 @@ Component models like \myProperName{COM} and \myProperName{CORBA} do provide oth
 The quotation above shows that \myProperName{SWIG} (Simplified Wrapper and Interface Generator) serves the exact same purpose as the application developed in this thesis.
 
 \myProperName{SWIG} expects input files containing standard-conform \myProperName{C/C++} declarations annotated with special \myProperName{SWIG} directives that will be used for glue code creation. Although the program contains a feature-rich \myProperName{C++} parser, which is able to parse most \myProperName{C++} header files, many users will provide special \myProperName{SWIG} interface files containing the declarations to be wrapped. This is useful for filtering and customizing the output, especially in cases where the original header files can not be modified. \myProperName{SWIG} is called through its command-line interface, providing the interface- or header file as an argument.
-\\The following example will demonstrate the interface file for wrapping a single function from a given header file:
+
+\newpage
+The following example demonstrates the interface file for wrapping a single function from a given header file:
 
 \SingleSpacing
 \begin{lstlisting}[language=C++, caption=Original header file: sample.h]
@@ -264,22 +271,23 @@ double square(double num);
 \end{lstlisting}
 \OnehalfSpacing
 
-The creation of the glue code itself for the various types of declarations (classes, functions, global variables, etc.) happens inside the language module for the language to be exported. Language modules are libraries written in \myProperName{C++}.\footnote{\citep{SWIGHPDoc} in 37 Extending \myProperName{SWIG} to support new languages} They take the parse tree generated by the \myProperName{SWIG} parser and create the glue code for the target language. \myProperName{SWIG} can be extended to support new languages by implementing new language modules.
+The creation of the glue code itself for the various types of declarations (classes, functions, global variables, etc.) happens inside the language module for the language to be exported. Language modules are shared libraries written in \myProperName{C++}.\footnote{\citep{SWIGHPDoc} in 37 Extending \myProperName{SWIG} to support new languages} They take the parse tree generated by the \myProperName{SWIG} parser and create the glue code for the target language. \myProperName{SWIG} can be extended to support new languages by implementing new language modules.
 
-The glue code generated by \myProperName{SWIG} will need no further modification by the user, but can instead be compiled as is.
+The glue code generated by \myProperName{SWIG} will need no further modification by the user, but can instead be compiled and integrated into the user's project as is.
 
 By design, \myProperName{SWIG} does not include a full \myProperName{C++} parser. The parser in \myProperName{SWIG} was created in a way that it can handle incomplete interfaces and deal with missing type declarations.\footnote{\citep{SWIGHPDoc} in 5.1.6 Parser Limitations}
 
 \myProperName{SWIG}, which is being developed since 1995\footnote{\citep{SWIGHPDoc} in 1.1 Introduction}, can wrap most \myProperName{C++} constructs to be used by a multitude of scripting languages, while allowing extreme customization of the output code and its behaviour. \myProperName{SWIG}'s detailed documentation\footnote{\myProperName{SWIG} documentation: \url{http://www.swig.org/Doc2.0/Contents.html\#Contents}} contains a lot of background information --- not just about the usage of \myProperName{SWIG} itself, but also about the problems that can arise when binding languages, both for language binding tools and their users. The documentation also explains the design decisions behind \myProperName{SWIG} to circumvent these problems.
-\\Unfortunately, this valuable information was discovered very late in the writing of this 20 weeks-long thesis and consequently did not influence most of the design decisions made for the developed application. This late discovery has been a clear mistake of mine, resulting from a too superficial theoretical research on alternate language binding tools. Nevertheless, the information in the documentation will be useful for the ongoing development of the application after the time of this writing.
+\\Unfortunately, this valuable information was discovered very late in the writing of this 20 weeks-long thesis and consequently did not influence most of the design decisions made for the developed application. This late discovery has been a clear mistake of mine, resulting from a too superficial theoretical research on alternate language binding tools. On the other hand, this circumstance had the advantage of giving me an unbiased view on the topic. Nevertheless, the information in the documentation will certainly be useful for the ongoing development of the application after the time of this writing.
 
 \myLBHighlight{
 The purpose of this thesis is not to reinvent the wheel, but to tackle the same problem in a different way.\\
 & \\
 & \myProperName{SWIG} is a command-line utility. For enhanced usability the application created in this thesis will be a GUI application that allows the exploration of a \myProperName{C++} syntax tree, creation of an output tree for multiple languages and customization of export options using GUI elements.\\
 & \\
-& Just like \myProperName{SWIG}, the application should be easily extendable. As explained in \myRefChapter{chap:GUIApplication} the \myProperName{Mozilla Framework}, which also serves as the foundation for the \myProperName{Firefox} browser, will be used in order to make the application easily extendable. This will allow language modules to be written in \myProperName{JavaScript} instead of \myProperName{C++}, which is needed in \myProperName{SWIG}. This brings all the benefits (and drawbacks) of using scripting languages to the language binding tool itself.}
-\myLBHighlight{The application should not be restricted to language binding, but allow extensions that use \myProperName{C++} syntax trees in different fashions (documentation, etc.) as described in \myRefSection{sec:AreaOfApplication} of static analysis tools.\\
+& Just like \myProperName{SWIG}, the application should be easily extendable. As explained in \myRefChapter{chap:GUIApplication} the \myProperName{Mozilla Framework}, which also serves as the foundation for the \myProperName{Firefox} browser, will be used in order to make the application easily extendable. This will allow language modules to be written in \myProperName{JavaScript} instead of \myProperName{C++}, which is needed in \myProperName{SWIG}. This brings all the benefits (and drawbacks) of using scripting languages to the language binding tool itself.\\
+& \\
+& The application should not be restricted to language binding, but allow extensions that use \myProperName{C++} syntax trees in different fashions (documentation, etc.) as described in \myRefSection{sec:AreaOfApplication} of static analysis tools.\\
 & \\
 & Although the tool can be used as a replacement for \myProperName{SWIG}, the general idea for future releases is to provide a \myProperName{SWIG} language module. The ability to generate \myProperName{SWIG} interface files turns the \myProperName{Bound} application into a GUI frontend for \myProperName{SWIG} and in this way adds support for languages not supported by \myProperName{Bound} itself.\\
 & \\
