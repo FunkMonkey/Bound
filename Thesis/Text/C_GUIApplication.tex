@@ -1,12 +1,12 @@
 \chapter{GUI Application}
 \label{chap:GUIApplication}
 
-The GUI application, named \myProperName{Bound}, is based on \myProperNameImp{XULRunner}\footnote{\myProperName{XULRunner}: \url{https://developer.mozilla.org/en/XULRunner}}, a platform independent application framework developed by \myProperName{Mozilla} and as such also known as the \myProperName{Mozilla Framework}. \myProperName{XULRunner} also serves as the foundation of popular applications like \linebreak\myProperName{Mozilla Firefox}\footnote{\myProperName{Mozilla Firefox}: \url{http://www.mozilla.org/en-US/firefox/}} and \myProperName{Thunderbird}\footnote{\myProperName{Mozilla Thunderbird}: \url{http://www.mozilla.org/projects/thunderbird/}}. 
+The GUI application, named \myProperName{Bound}, is based on \myProperNameImp{XULRunner}\footnote{\myProperName{XULRunner}: \url{https://developer.mozilla.org/en/XULRunner}}, a \linebreak platform independent application framework developed by \myProperName{Mozilla} and as such also known as the \myProperName{Mozilla Framework}. \myProperName{XULRunner} also serves as the foundation of popular applications like \myProperName{Mozilla Firefox}\footnote{\myProperName{Mozilla Firefox}: \url{http://www.mozilla.org/en-US/firefox/}} and \myProperName{Thunderbird}\footnote{\myProperName{Mozilla Thunderbird}: \url{http://www.mozilla.org/projects/thunderbird/}}. 
 
 \myProperName{XULRunner} applications are mainly created using \myProperNameImp{XUL}\footnote{\myProperName{XUL}: \url{https://developer.mozilla.org/en/XUL}} (XML User Interface \linebreak Language --- a markup-language similar to \myProperNameImp{HTML}\footnote{\myProperName{HTML}: \url{http://www.w3.org/html/}}), \myProperNameImp{CSS}\footnote{\myProperName{CSS}: \url{http://www.w3.org/Style/CSS/Overview.en.html}}(Cascading Style Sheets) and \myProperNameImp{JavaScript}. \myProperName{XUL} can seamlessly be replaced with \myProperName{HTML} for markup, thus \myProperName{XULRunner} applications can be build using the same technologies as web pages. Unlike web pages though, \myProperName{XULRunner} is a full featured desktop application framework and as such provides functionality to access the operating system, for example for file manipulation. Most of this functionality can be accessed from \myProperName{JavaScript} using \myProperNameImp{XPCOM} (see \myRefSection{sec:ComponentModels}). \myProperName{XULRunner} can be extended with native code through \myProperName{XPCOM} binary components or access of shared libraries using \myProperNameImp{js-ctypes} (see \myRefSection{sec:DynamicFFI}).
 
 The decision to create the GUI application using \myProperName{XULRunner} is mostly based on its easy extendability and customizability --- both stated as design goals in \myRefChapter{chap:DesignGoals}. Similar to the \myProperName{Firefox} browser, users will be able to write extensions to provide support for new features, for example glue code generators for scripting languages not supported by the main application.\\
-Being based on web technologies, especially \myProperName{JavaScript}, development with  \myProperName{XULRunner} is very fast.
+Being based on web technologies, especially \myProperName{JavaScript}, development with  \linebreak\myProperName{XULRunner} is very fast.
 \\Personal preference and experience with the framework have also been major factors.
 
 \newpage
@@ -38,7 +38,7 @@ When performing the final export of a plugin, it traverses all the \mySCName{Exp
 
 \begin{figure}[h!] % h = here
 	\centering
-		\includegraphics[scale=0.35]{Images/BoundGUI.png}
+		\includegraphics[scale=0.34]{Images/BoundGUI.png}
 	\caption{Screenshot of the GUI application}
 	\label{fig:BoundGUI}
 \end{figure}
@@ -127,7 +127,7 @@ The \myProperName{C++} AST is retrieved by calling the \mySCName{parse\_header} 
 
 As \myProperName{CPPAnalyzer} exposes a \myProperName{C} interface, it can be used from \myProperName{JavaScript} with the help of \myProperName{js-ctypes}. As explained in \myRefSection{sec:DynamicFFI}, glue code has been written in \myProperName{JavaScript} to wrap the functionality of the library. The \mySCName{CPPAnalyzer} module contains the corresponding code and can be imported to use the \myProperName{CPPAnalyzer} library.
 
-\mySCName{parse\_header} returns the stringified JSON representation of the \myProperName{C++} AST, as described in \myRefSection{sec:ExportJSON}. The string is deserialized into a \myProperName{JavaScript} object using \myProperName{JavaScript}'s \mySCName{JSON.parse} function.
+\mySCName{parse\_header} returns the stringified JSON representation of the \myProperName{C++} AST, as \linebreak described in \myRefSection{sec:ExportJSON}. The string is deserialized into a \myProperName{JavaScript} object using \myProperName{JavaScript}'s \mySCName{JSON.parse} function.
 
 In the next step an instance of \mySCName{CPP\_AST} including the AST nodes (\mySCName{CPP\_ASTobject}s) is created from the result object. The AST nodes from \myProperName{CPPAnalyzer} shown in \myRefFigure{fig:ASTObjectUML}: \textit{\mySCName{ASTObject} classes and \mySCName{ASTType} (page \pageref{fig:ASTObjectUML})} have equivalents in \myProperName{JavaScript}, which mostly have the same properties. The \myProperName{JavaScript} class \mySCName{CPP\_ASTObject\_Namespace}, for example, is the equivalent to the \myProperName{C++} class \mySCName{ASTObject\_Namespace}.\\
 The \myProperName{JSON} result object (see \myRefListing{listing:JSON} on page \pageref{listing:JSON} for an example) is traversed and \mySCName{CPP\_ASTObject}s and \mySCName{CPP\_ASTType}s are created from the corresponding objects. As the AST nodes and types cross-reference each other using integer ids, this happens in two steps. This is necessary, because an object referenced may not have been created yet in case it is defined later in the tree.\\
@@ -142,12 +142,12 @@ As explained in \myRefSection{sec:BasicConcept}, the code generation is not base
 
 To create glue code for a specific scripting language, the user needs to add an instance of the corresponding language plugin to the export AST. The language plugin only controls the code generation and exports the final files. The creation of the glue code itself happens with the help of the entity code generators. If the user wants to export a specific \myProperName{C++} entity to \myProperName{SpiderMonkey}, for example the function \mySCName{foo}, an instance of the \myProperName{SpiderMonkey} function code generator needs to be added to the corresponding \mySCName{Export\_ASTObject}. The entity code generators come with the corresponding language plugin. All in all this means that the user can create \textbf{one} export AST for exporting glue code for \textbf{multiple} languages. If an \mySCName{Export\_ASTObject} does not have an entity code generator for a specific target language, this object is simply not exported for that language.
 
-As can be seen in \myRefFigure{fig:UMLCodeGen}, every language plugin inherits from the class \linebreak\mySCName{LanguageBindingCodeGenPlugin}, which itself inherits from \mySCName{BaseCodeGenPlugin}. As the name suggests, \mySCName{BaseCodeGenPlugin} defines the basic functionality for all kinds of code generation plugins (e.g. language binding, type library or documentation generators), whereas \mySCName{LanguageBindingCodeGenPlugin} adds functionality related to language binding. The entity code generators themselves have a similar hierarchy, inheriting from \linebreak\mySCName{LanguageBindingEntityCodeGen}, which inherits from \mySCName{BaseEntityCodeGen}.
+As can be seen in \myRefFigure{fig:UMLCodeGen}, every language plugin inherits from the class \linebreak\mySCName{LanguageBindingCodeGenPlugin}, which itself inherits from \mySCName{BaseCodeGenPlugin}. As the name suggests, \mySCName{BaseCodeGenPlugin} defines the basic functionality for all kinds of code generation plugins (e.g. language binding, type library or documentation \linebreak generators), whereas \mySCName{LanguageBindingCodeGenPlugin} adds functionality related to \linebreak language binding. The entity code generators themselves have a similar hierarchy, inheriting from \mySCName{LanguageBindingEntityCodeGen}, which inherits from \linebreak\mySCName{BaseEntityCodeGen}.
 
 \begin{figure}[h!] % h = here
 	\centering
 		\includegraphics[scale=0.45]{Images/UMLCodegen.png}
-	\caption{Connection between plugins, codegenerators and \mySCName{Export\_ASTObject}}
+	\caption{Connection between plugins, code generators and \mySCName{Export\_ASTObject}}
 	\label{fig:UMLCodeGen}
 \end{figure}
 
