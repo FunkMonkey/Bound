@@ -3,14 +3,14 @@
 
 To retrieve information about elements declared in \myProperName{C++} header files, a shared library called \myProperNameImp{CPPAnalyzer} was written in \myProperName{C++}. The library uses \myProperNameImp{libclang} for parsing \myProperName{C++} files and accessing AST information. Internally a reduced syntax tree is built and exported as the data interchange format \myProperName{JSON (JavaScript Object Notation)}.
 
-The library exposes its functionality in form of a \myProperName{C} interface. It uses features from the new \myProperName{C++} standard \myProperName{C++11} (including the \mySCName{auto} keyword, but more importantly the regular expression functionality of the standard library). \myProperName{CPPAnalyzer} is currently built using \myProperName{Visual Studio 2010} on \myProperName{Windows 7} 64-bit. Other operating systems or compilers have not been tested, but should be supported with minor modifications.
+The library exposes its functionality in form of a \myProperName{C} interface. It uses features from the new \myProperName{C++11} standard (including the \mySCName{auto} keyword, but more importantly the regular expression functionality of the standard library). \myProperName{CPPAnalyzer} is currently built using \myProperName{Visual Studio 2010} on \myProperName{Windows 7} 64-bit. Other operating systems or compilers have not been tested, but should be supported with minor modifications.
 
 \section{\myProperName{libclang}}
 
 As explained in \myRefSection{sec:Clang}, \myProperName{libclang} is a \myProperName{C} interface to \myProperName{Clang} that can be used for accessing \myProperName{Clang}'s parsing functionality and internal abstract syntax tree (AST).
 
 The two most important data structures \myProperName{libclang} provides, are \mySCName{CXCursor} and \mySCName{CXType}.
-\\\mySCNameImp{CXCursor} represents a single node in the AST. It holds an enum constant (named \mySCName{kind}) that identifies the kind of the AST node --- whether it is a namespace, function declaration, class declaration, etc. The \myProperName{C} struct \mySCName{CXCursor} internally stores information about the corresponding \myProperName{Clang} data in an array of \mySCName{void} pointers.
+\\\mySCNameImp{CXCursor} represents a single node in the AST. It holds an enum constant (named \mySCName{kind}) that identifies the kind of the AST node --- whether it is a namespace, \linebreak function declaration, class declaration, etc. The \myProperName{C} struct \mySCName{CXCursor} internally stores information about the corresponding \myProperName{Clang} data in an array of \mySCName{void} pointers.
 \\\mySCNameImp{CXType} represents a \myProperName{C++} type. It holds the kind of the type, for example if it is a pointer, reference, builtin type (like \mySCName{int} or \mySCName{float}), record (\mySCName{class} or \mySCName{struct}), etc. Just like \mySCName{CXCursor}, it also stores information about the \myProperName{Clang} type representation.
 
 More information about cursors and types can be retrieved using the functions \myProperName{libclang} provides.
@@ -26,19 +26,18 @@ To traverse the abstract syntax tree recursively, \mySCName{clang\_visitChildren
 
 \myProperName{libclang} does not expose all of the functionality \myProperName{Clang} provides. Functionality missing in \myProperName{libclang} is added on a per-need basis. 
 
-During this thesis it became clear that I need to extend \myProperName{libclang} to expose AST information about \myProperName{C++} templates. It seems, such information was not needed by other \myProperName{libclang} users. The changes I made to the \myProperName{libclang} source code base will hopefully make its way back into the official \myProperName{Clang} repository.
+During this thesis it became clear that I need to extend \myProperName{libclang} to expose AST information about \myProperName{C++} templates, so that I will be able to create consistent syntax trees. Template support is for example needed for parsing the \myProperName{C++} standard library, including \mySCName{std::string}. It seems, such information was not needed by other \myProperName{libclang} users. The changes I made to the \myProperName{libclang} source code base will hopefully make its way back into the official \myProperName{Clang} repository.
 
 Most of the functions added to \myProperName{libclang} simply forward \myProperName{Clang}'s internals. Therefore the \myProperName{Clang} data needs to be retrieved from the \mySCName{CXCursor}s and \mySCName{CXType}s. Even though the functionality is often just forwarded, the \myProperName{Clang} code base needed to be understood and used in an appropriate  manner.
 
-When turning \myProperName{Clang} types into \mySCName{CXType}s, certain \myProperName{C++} types were not exposed. \myProperName{libclang} was altered to support template type parameter types (\mySCName{TemplateTypeParm}), template specialization types and elaborated types (types that are sugared with a type keyword like \mySCName{class} and/or a prefixed namespace identifier). \myRefListing{lst:ClangNewTypes} shows examples of such types.
+When turning \myProperName{Clang} types into \mySCName{CXType}s, certain \myProperName{C++} types were not exposed. \linebreak\myProperName{libclang} was altered to support template type parameter types (\mySCName{TemplateTypeParm}), template specialization types and elaborated types (types that are sugared with a type keyword like \mySCName{class} and/or a prefixed namespace identifier). \myRefListing{lst:ClangNewTypes} shows examples of such types.
 
 \SingleSpacing
 \begin{lstlisting}[language=C++, caption=Examples of types now supported by \myProperName{libclang}, label=lst:ClangNewTypes]
 template<class T>
 class TemplatedClass
 {
-	// NEW: type of kind TemplateTypeParm
-	T member; 
+	T member; // NEW: type of kind TemplateTypeParm
 };
 
 // NEW: type of kind TemplateSpecialization
@@ -60,7 +59,7 @@ SomeNamespace::NormalClass elaboratedInstance2;
 \end{lstlisting}
 \OnehalfSpacing
 
-\myProperName{libclang} already exposed template parameters as \mySCName{CXCursor}s, when visiting the children of a class, struct or function cursor. Helper functions for accessing the template parameters directly from cursor, were added to \myProperName{libclang}:
+\myProperName{libclang} already exposed template parameters as \mySCName{CXCursor}s, when visiting the children of a class, struct or function cursor. Helper functions for accessing the template \linebreak parameters directly from cursor, were added to \myProperName{libclang}:
 
 \vspace{-10pt}
 \begin{itemize}\addtolength{\itemsep}{-0.5\baselineskip}
@@ -69,7 +68,7 @@ SomeNamespace::NormalClass elaboratedInstance2;
 \end{itemize}
 \vspace{-10pt}
 
-\myProperName{libclang} did not expose any information about template arguments. Template arguments are the actual types used for template parameters, when instantiating a template. Functions for retrieving template arguments and their values (as type, integral, etc.) were added:
+\myProperName{libclang} did not expose any information about template arguments. Template \linebreak arguments are the actual types used for template parameters, when instantiating a template. Functions for retrieving template arguments and their values (as type, integral, etc.) were added:
 
 \vspace{-10pt}
 \begin{itemize}\addtolength{\itemsep}{-0.5\baselineskip}
@@ -122,7 +121,7 @@ The creation of the simplified AST is processed inside the \mySCNameImp{Clang\_A
 \subsection{The Intermediate AST}
 
 In \myProperName{C++}, the same object (for example a function or class) can be declared multiple times, but only defined once. This property is sometimes used to eliminate unnecessary includes or avoid cyclic file dependencies, by providing forward declarations.\\
-In \myProperName{Clang}, every declaration is a single AST node. This information is mostly unnecessary for glue code generation, thus AST nodes that represent the same \myProperName{C++} entity are combined in the intermediate AST. \myProperName{libclang} provides this functionality with the concept of a \textbf{canonical cursor} --- a single cursor that represents all declarations of the underlying entity.
+In \myProperName{Clang}, every declaration is a single AST node. This information is mostly \linebreak unnecessary for glue code generation, thus AST nodes that represent the same \myProperName{C++} entity are combined in the intermediate AST. \myProperName{libclang} provides this functionality with the concept of a \textbf{canonical cursor} --- a single cursor that represents all declarations of the underlying entity.
 
 The intermediate tree is built using instances of \mySCNameImp{Clang\_AST\_CXTreeNode}, which can be seen in \myRefFigure{fig:CXTreeNode}. 
 
@@ -137,7 +136,7 @@ Every node holds a pointer to its parent and all of its children, resulting in a
 The \mySCName{Clang\_AST} holds a reference to the root tree node and a map that links canonical cursors to intermediate tree nodes (for faster access).
 
 After the translation unit has been parsed using \mySCName{clang\_parseTranslationUnit}, all the children of the translation unit cursor are visited with the help of \linebreak\mySCName{clang\_visitChildren}. Every visited child cursor is checked, whether an intermediate tree node has already been created for it --- based on the child's canonical cursor. If so, the tree node is retrieved, the visited cursor added to its list of cursors and the children are visited. Visiting the children for an already existing tree node is necessary, as the the new found cursor may contain more children. This happens, for example, when the new found cursor represents a class definition.\\
-If no tree node is existing for the canonical cursor, then, depending on the cursor's kind, a new tree node is created, inserted into the tree and added to the map that links canonical cursors and tree nodes. A lot of AST nodes are not needed for language binding. Thus, the first filtering happens at this stage and tree nodes for the intermediate AST are only created for the following \myProperName{C++} entities:\\global and static variables, \mySCName{union}, \mySCName{typedef}, \mySCName{struct}, \mySCName{namespace}, \mySCName{class} (including templated classes, partial specializations and explicit/implicit specializations), (templated) functions, function parameters, member functions, constructors, destructors, fields (data members), \mySCName{enum}, enum constants, template parameters, template arguments and linkage specifiers (e.g. \mySCName{extern "C"}).\\
+If no tree node is existing for the canonical cursor, then, depending on the cursor's kind, a new tree node is created, inserted into the tree and added to the map that links canonical cursors and tree nodes. A lot of AST nodes are not needed for language binding. Thus, the first filtering happens at this stage and tree nodes for the intermediate AST are only created for the following \myProperName{C++} entities:\\global and static variables, \mySCName{union}, \mySCName{typedef}, \mySCName{struct}, \mySCName{namespace}, \mySCName{class} (including \linebreak templated classes, partial specializations and explicit/implicit specializations), \linebreak(templated) functions, function parameters, member functions, constructors, destructors, fields (data members), \mySCName{enum}, enum constants, template parameters, template arguments and linkage specifiers (e.g. \mySCName{extern "C"}).\\
 From this list, it is obvious, that the intermediate AST will only have details up to function-level. Source code inside functions is not considered. 
 
 \subsection{User-Based Filtering}
@@ -154,7 +153,7 @@ The second filter matches the complete symbol name of a node (mangled with all p
 
 The third filter checks the member access of a node --- whether it is \mySCName{private}, \mySCName{protected} or \mySCName{public}. For language binding, non-\mySCName{public} members are not needed as they can not be referenced by glue code.
 
-If the tree node passes all three filters, it will be marked as \textit{visible}. As explained in more detail in the next section, an \mySCName{ASTObject} --- a node of the final AST --- will be created and stored in the intermediate tree node. Also, all parent nodes (that are still marked as \textit{not visible}) will be marked as \textit{referenced} and consequently appear in the final AST.
+If the tree node passes all three filters, it will be marked as \textit{visible}. As explained in more detail in the next section, an \mySCName{ASTObject} --- a node of the final AST --- will be created and stored in the intermediate tree node. Also, all parent nodes (that are still marked as \textit{not visible}) will be marked as \textit{referenced} and subsequently appear in the final AST.
 
 Depending on the kind of node, the visibility of the children is checked recursively.
 
@@ -174,15 +173,15 @@ An overview over the existing subclasses of \mySCName{ASTObject} can be found in
 \newpage
 Just like \mySCName{Clang\_AST\_CXTreeNode}s, the \mySCName{ASTObject}s store a pointer to their parent and children and hence form a tree that can be traversed in both directions.
 
-\mySCName{ASTObject}s are created whenever an intermediate tree node is marked \textit{visible} or \textit{referenced}.
+\mySCName{ASTObject}s are created whenever an intermediate tree node is marked \textit{visible} or \linebreak\textit{referenced}.
 
-When creating the specific \mySCName{ASTObject}s, the information belonging to the nodes is retrieved using the functions provided by \myProperName{libclang}. This includes template information, base class information, member access, function parameters, type information and much more.
+When creating the specific \mySCName{ASTObject}s, the information belonging to the nodes is \linebreak retrieved using the functions provided by \myProperName{libclang}. This includes template information, base class information, member access, function parameters, type information and much more.
 
 Type information --- exposed by \myProperName{libclang} as \mySCName{CXType} --- will be saved as instances of \mySCNameImp{ASTType}. Apart from the kind of type (\mySCName{int}, \mySCName{float}, pointer, reference, record, \mySCName{typedef}, etc.), \mySCName{ASTType} also stores information about the declaration \mySCName{ASTObject} it refers to (for record and \mySCName{typedef} types), the pointee-type (for pointer and reference types) and whether the type is declared as \mySCName{const}. It also stores a pointer to the canonical type, which is the same type in its completely desugared form (all \mySCName{typedef}s removed). \mySCName{ASTFunctionType} stores the return type as well as the types of all parameters of a function type.
 
 While creating \mySCName{ASTObject}s and \mySCName{ASTType}s, other \mySCName{ASTObject}s and \mySCName{ASTType}s will be referenced. In case the belonging intermediate tree nodes are marked as \textit{not visible}, these nodes and all their parent nodes have to be marked as \textit{referenced} and their \mySCName{ASTObject}s created, so they can be referenced by the other AST nodes of the final tree. In some cases, for example for implicit template specializations, the intermediate tree nodes do not exist yet. They have to be created and inserted before creating the corresponding \mySCName{ASTObject}.
 
-In the final step, the intermediate tree is traversed from top to bottom and the existing \mySCName{ASTObject}s are connected with the next existing \mySCName{ASTObject} up in the parent chain. Remember: for some nodes, like linkage specifiers, no \mySCName{ASTObject}s have been created. These nodes will not appear in the final \mySCName{ASTObject} tree.
+In the final step, the intermediate tree is traversed from top to bottom and the existing \mySCName{ASTObject}s are connected with the next existing \mySCName{ASTObject} up in the parent chain. Remember: for some nodes, like linkage specifiers, no \mySCName{ASTObject}s have been created. These nodes will be left out in the final \mySCName{ASTObject} tree, though their children will be inserted.
 
 The final simplified AST is now finished and ready for further use in the application. From this point on, \myProperName{libclang} is not used anymore.
 
@@ -233,16 +232,17 @@ As can be seen in \myRefFigure{fig:TreeExample}, the AST \myProperName{Clang} pr
 \label{sec:ExportJSON}
 
 As the AST will be used from within another application, it needs to be serialized into a string for passing the data across application borders. As will be shown in \myRefChapter{chap:GUIApplication}, the GUI application is heavily based on \myProperName{JavaScript}.\\
-Hence, it is only logical that the AST is serialized into a string conforming the \myProperNameImp{JavaScript Object Notation (JSON)}. \myProperName{JSON}  is a lightweight data-interchange format, based on a subset of the \myProperName{JavaScript} programming language. The format is easy for humans to read and write, but also for machines to parse and generate.\footnote{\citep{JSONHP}}
+Hence, it is only logical that the AST is serialized into a string conforming the \linebreak \myProperNameImp{JavaScript Object Notation (JSON)}. \myProperName{JSON}  is a lightweight data-interchange format, based on a subset of the \myProperName{JavaScript} programming language. The format is easy for humans to read and write, but also for machines to parse and generate.\footnote{\citep{JSONHP}}
 
 The class \mySCNameImp{JSON\_Converter} was written to perform this task given an instance of \linebreak\mySCName{Clang\_AST}.
 
 The first version of the converter was written without any additional libraries and handled the concatenation of the \myProperName{JSON} string itself. This was cumbersome and lead to code that was hard to maintain and error-prone. The \myProperName{JSON}-producing code was rewritten to use the library \myProperNameImp{JsonCpp}\footnote{\myProperName{JsonCpp}: \url{http://jsoncpp.sourceforge.net/}}.
 
-The export is straight forward and the tree structure can basically be exported as is. \mySCName{ASTType}s and \mySCName{ASTObject}s, as well as their members, need to be converted into \myProperName{JSON} objects. All \mySCName{ASTType}s and \mySCName{ASTObject}s contain a unique id, which is used for cross-referencing. In both cases, the ids are numbers starting at 1.
+The export is straight forward and the tree structure can basically be exported as it is. \mySCName{ASTType}s and \mySCName{ASTObject}s, as well as their members, need to be converted into \myProperName{JSON} objects. All \mySCName{ASTType}s and \mySCName{ASTObject}s contain a unique id, which is used for cross-referencing. In both cases, the ids are numbers starting at 1.
 
 The list of \mySCName{ASTType}s is converted first, followed by the tree of \mySCName{ASTObject}s. Logger messages produced during AST creation are also exported. The produced \myProperName{JSON} does not necessarily follow that order, as members of \myProperName{JSON} objects are sorted alphabetically in \myProperName{JsonCpp}.
 
+\newpage
 \SingleSpacing
 \begin{lstlisting}[language=C++, caption=Example AST for \myProperName{JSON} conversion]
 class SomeClass
