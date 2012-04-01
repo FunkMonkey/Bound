@@ -589,13 +589,17 @@ In both cases, either a \myProperName{JavaScript} value property or accessor pro
 
 Exposing getters and setters as properties (e.g. \mySCName{obj.setVal(x)} becomes \mySCName{obj.val = x}) will give the wrapped class a more natural feeling, when being used from the scripting language, as function call syntax is removed.
 
+
 \subsubsection{Accessor Properties}
 
 For accessor properties, wrapper functions for getting and setting the property need to be provided. The setter function can be omitted, making the property read-only. The wrapper functions are of type \mySCName{JSPropertyOp} and work similarly to a \mySCName{JSNative}.\\
 The \myProperName{C++} instance needs to be retrieved from the given \mySCName{JSObject}'s private data. A getter \mySCName{JSPropertyOP} retrieves the field from the instance (either directly if it is public or by calling the \myProperName{C++} getter function) and subsequently sets it as the return \mySCName{jsval}. A setter \mySCName{JSPropertyOP} sets the field (again either directly or by calling the \myProperName{C++} setter function).
 
+\myRefListing{lst:GlueAccessor} \textit{(next page)} shows the glue code for the getter and setter of an accessor property.
+
+\newpage
 \SingleSpacing
-\begin{lstlisting}[language=C++, caption=Glue code for accessor properties]
+\begin{lstlisting}[language=C++, caption=Glue code for accessor properties, label=lst:GlueAccessor]
 class SampleClass
 {
 	public:
@@ -640,6 +644,7 @@ JSBool member_setter_wrap(JSContext* cx, JSObject* obj, jsid id,
 
 Accessor properties can be defined by passing them to \mySCName{JS\_InitClass} or using \linebreak\mySCName{JS\_DefineProperty} on a \mySCName{JSObject}.
 
+\newpage
 \subsubsection{Value Properties}
 \label{sec:ValueProperties}
 
@@ -688,7 +693,7 @@ Because type checking is only performed when defining the property and the holdi
 
 \subsection{Static Members}
 
-Static data members and functions are wrapped similar to fields and functions. As they are static, they make no use of the \mySCName{this} object. When calling \mySCName{JS\_InitClass}, static properties and functions can be passed. \myProperName{JavaScript} has no real concept of static members as there is no distinction between classes and instances. When declaring ``static'' properties using \mySCName{JS\_InitClass}, these are simply defined on the created constructor function, so access to static members looks similar to \myProperName{C++}. Contrary to \myProperName{C++}, it is not possible to access a static member from within an instance using \mySCName{this} --- static members always have to be accessed using the constructor function object.
+Static data members and functions are wrapped similarly to fields and functions. As they are static, they make no use of the \mySCName{this} object. When calling \mySCName{JS\_InitClass}, static properties and functions can be passed. \myProperName{JavaScript} has no real concept of static members as there is no distinction between classes and instances. When declaring ``static'' properties using \mySCName{JS\_InitClass}, these are simply defined on the created \linebreak constructor function, so access to static members looks similar to \myProperName{C++}. Contrary to \myProperName{C++}, it is not possible to access a static member from within an instance \linebreak using \mySCName{this} --- static members always have to be accessed using the constructor function object.
 
 \subsection{Inheritance}
 
@@ -711,19 +716,19 @@ If base classes do not need to be exposed, multiple inheritance can be mimicked 
 Memory management is an extremely problematic area in language binding and as such required intensive research and development of own solutions.\\
 When bridging two programming languages, memory is often shared. This especially applies to instances of \myProperName{C++} classes that are wrapped for use in \myProperName{JavaScript}.
 
-The \myProperName{JSAPI} user has to decide upon which side is responsible for freeing \linebreak the memory --- meaning which party holds the \textbf{ownership}. Depending on the application, this is not necessarily the party that allocated the memory.
+The \myProperName{JSAPI} user has to decide upon which side is responsible for freeing \linebreak the memory --- meaning which party holds the \textbf{ownership}. Depending on the \linebreak application, this is not necessarily the party that allocated the memory.
 
 There are three basic kinds of ownership.\\
 For strict \textbf{script ownership}, the private data is always owned by the scripting language. The memory pointed to is freed, when the \mySCName{JSObject} is garbage collected (so, in the finalizer).\\
 For strict \textbf{native ownership}, the memory is owned by the \myProperName{C++} library that is wrapped, which is thus responsible for freeing the private data. When a \mySCName{JSObject} with native ownership is garbage collected, the memory the private data points to is left unchanged.\\
 \textbf{Mixed} ownership mixes both approaches. Ownership can be changed at run-time. Therefore, the \mySCName{JSObject} has to store state about who currently owns the private data. Functions for changing this state are exposed to script. When the \mySCName{JSObject} is garbage collected, the state is checked. If it is set to script ownership, the private data is freed. The ownership state can be saved along with the private data (for example in a struct that holds a \mySCName{void*} to the real private data and the state member) or in a reserved slot.
 
-The glue code for wrapping a single class will generally make use one of these three abstract patterns, depending on how the user intends to use the class from script. As strict script and strict native ownership will apply to all wrapped objects (hence the term \textbf{strict}), the created \mySCName{JSObject}s do not need to store state of the ownership. The finalizer will be written according to the ownership.\\
+The glue code for wrapping a single class will generally make use of one of these three abstract patterns, depending on how the user intends to use the class from script. As strict script and strict native ownership will apply to all wrapped objects (hence the term \textbf{strict}), the created \mySCName{JSObject}s do not need to store state of the ownership. The finalizer will be written according to the ownership.\\
 Each kind of ownership comes with its own set of potential problems, which may occur depending on how the wrapped class and its instances are used.
 
 \subsubsection{Potential Problems}
 
-The two main problems are memory leaks and crashes/data-corruption because of dangling pointers (pointers that reference freed instances).
+The two main problems are memory leaks and crashes/data-corruption because of \linebreak dangling pointers --- pointers that reference freed instances.
 
 For this and the following section, the term \mySlang{C++ code} refers to the code of the library or application that is being wrapped --- \textbf{excluding} the glue code, even though it is also written in \myProperName{C++}.
 
@@ -743,14 +748,14 @@ When using a dangling pointer, crashes (e.g. access violation) or data corruptio
 It is not possible to detect a dangling pointer in \myProperName{C++}, as there is no way to check a non-\mySCName{NULL} pointer, whether it points to a valid instance in memory. Also, an instance has no knowledge about who references it, so it cannot inform the reference-holding entities about its deletion. If it could, these entities would simply set the reference to \mySCName{NULL}, which can be handled at run-time. But this is unfortunately not possible.\\
 Smart pointers have been developed to overcome this lack and tackle dangling pointer problems, but they are only useful, when the whole application uses them, and not just the glue code.
 
-Dangling pointers occur in several places. Deleted instances may be referenced by the \myProperName{C++} code of the wrapped library or by the private data of \mySCName{JSObject}s (hence, in the glue code). When using a dangling pointer, it makes no difference, which side falsely deleted or uses it.
+Dangling pointers occur in several places. Deleted instances may be referenced by the \myProperName{C++} code of the wrapped library or by the private data of \mySCName{JSObject}s (hence, in the glue code). When using a dangling pointer, it makes no difference, which side falsely deletes or uses it.
 
 For classes that have native ownership or objects that have their mixed ownership state set to \myProperName{C++}, a dangling pointer always indicates a problem in the application logic. The general rule should be known by any \myProperName{C++} programmer: if you delete an instance in your \myProperName{C++} code, do not use it afterwards --- neither from \myProperName{C++} nor from script. If you do, crashes or data corruption are likely.\\
 This rule applies equally to using a script owned instance in \myProperName{C++} code after the corresponding \mySCName{JSObject} has been garbage collected.
 
 Another possible reason for a dangling pointer is the violation of the ownership contract. If a script owned object gets deleted by \myProperName{C++} code, the contract was ignored, indicating a bug in the program logic.
 
-In terms of language binding, the consequences of using dangling pointers are \mySlang{acceptable}, when the dangling pointers result from bugs in the application logic (\myProperName{C++} or script). These dangling pointers are acceptable, because there is no way of preventing them in the glue code.
+In terms of language binding, the consequences of using dangling pointers are \linebreak\mySlang{acceptable}, when the dangling pointers result from bugs in the application logic (\myProperName{C++} or script). These dangling pointers are acceptable, because there is no way of preventing them in the glue code.
 
 In certain situations, dangling pointers can occur, even though the user's code is correct on script and \myProperName{C++} side. Crashes and data-corruption in such cases are in no way acceptable (for the glue code writer), as they are not the user's fault. Systems have to be invented to prevent the existence or usage of such dangling pointers.\\
 The problem occurs, when implementing strict script ownership for wrapped classes or when using objects that have their mixed ownership state set to script ownership. Given these prerequisites, dangling pointers can result from an existing \myProperName{C++} instance being wrapped by multiple \mySCName{JSObject}s (\mySlang{rewprapping}). When one of these \mySCName{JSObject}s is garbage collected, which in consequence frees the \myProperName{C++} instance, the private data of all the other \mySCName{JSObject}s will point to an deleted object. Using such a dangling pointer will lead to undefined behaviour like a crash or data-corruption. This will happen, when calling a function of one of the remaining \mySCName{JSObject}s or --- at the latest --- when the remaining objects are garbage collected and thus try to free the memory again. In any case, something will go wrong, when script owned objects are rewrapped.
@@ -812,7 +817,7 @@ As explained in \myRefSection{sec:ValueProperties}, fields can be wrapped and de
 One way of caching \mySCName{JSObject}s is to store the first created \mySCName{JSObject} in a map along with the memory address of the instance that is wrapped. Whenever the same instance needs to be wrapped, the map is checked for the memory address and if an entry exists, the corresponding \mySCName{JSObject} will be used instead of rewrapping the \myProperName{C++} instance. However, there are several drawbacks with this approach.
 
 \mySCName{JSObject}s with script ownership can simply remove their corresponding entry from the cache map, when they are garbage collected. But for objects that are wrapped with native ownership, the glue code has no notion of knowing, when the \myProperName{C++} instance has been deleted. Thus, all \mySCName{JSObject}s in the cache map need to be kept alive until the end of the application, wasting valuable memory. As native ownership does not result in the \mySlang{unacceptable} dangling pointer problem that occurs when rewrapping, the cache maps could safely be cleaned from time to time. With this approach, rewrapping can occur, but is less likely.\\
-Either way, problems with \mySlang{cuckoo pointers} are possible for wrapped classes that use native ownership. A cuckoo pointer was originally an ordinary pointer to an existing object. The object was deleted, turning the pointer into a dangled pointer. Coincidentally a new object of an arbitrary type was allocated at the same memory position. If a cache map contains an entry for the original pointer and a cuckoo pointer with the same memory position is looked up after the original instance has been destroyed, the cache map will return the old \mySCName{JSObject}, which still has a dangling pointer to the deleted instance. Using this \mySCName{JSObject} will result in undefined behaviour. To prevent this, type information can be saved along with the memory address and compared upon lookup. This will ensure that at least the \mySCName{JSObject} is of the same class and using the cuckoo pointer is thus safe.
+Either way, problems with \mySlang{cuckoo pointers} are possible for wrapped classes that use native ownership. A cuckoo pointer was originally an ordinary pointer to an existing object. The object was deleted, turning the pointer into a dangling pointer.\linebreak Coincidentally a new object of an arbitrary type was allocated at the same memory position. If a cache map contains an entry for the original pointer and a cuckoo pointer with the same memory position is looked up after the original instance has been destroyed, the cache map will return the old \mySCName{JSObject}, which still has a dangling pointer to the deleted instance. Using this \mySCName{JSObject} will result in undefined behaviour. To prevent this, type information can be saved along with the memory address and compared upon lookup. This will ensure that at least the \mySCName{JSObject} is of the same class and using the cuckoo pointer is thus safe.
 
 When it comes to multiple inheritance, memory address and object do not have a 1 to 1 correlation. Because of pointer fixup, casting a subclass pointer to one of its base classes will result in different memory positions depending on which base class it was casted to. Though this is a very unlikely scenario, it is possible that due to different memory positions, multiple \mySCName{JSObject}s may be created for the same instance.
 
@@ -827,7 +832,7 @@ In this system, the \myProperName{C++} instance stores a pointer to the \mySCNam
 When the \myProperName{C++} instance needs to be wrapped, it is checked if it already has a \mySCName{JSObject} associated. If so, this \mySCName{JSObject} is used and can be handed to script. If not, a new \mySCName{JSObject} is created and both are connected.
 
 If the object has script ownership, it will delete the \myProperName{C++} instance upon garbage collection.\\
-For native ownership, the \mySCName{JSObject} has to be kept alive as long as the \myProperName{C++} instance is. \myProperName{SpiderMonkey} provides functionality for rooting \mySCName{JSObject}s so that they are not being garbage collected. Upon destruction of the \myProperName{C++} instance, the corresponding \mySCName{JSObject} will be unrooted and its private data set to \mySCName{NULL}. As wrapped member functions check for private data being \mySCName{NULL}, \myProperName{JavaScript} exceptions will be thrown, when the \mySCName{JSObject} is used from script after the destruction of the C++ \mySCName{instance}. This is better than having a dangling pointer, which would lead to undefined behaviour.
+For native ownership, the \mySCName{JSObject} has to be kept alive as long as the \myProperName{C++} instance is. \myProperName{SpiderMonkey} provides functionality for rooting \mySCName{JSObject}s so that they are not being garbage collected. Upon destruction of the \myProperName{C++} instance, the corresponding \mySCName{JSObject} will be unrooted and its private data set to \mySCName{NULL}. As wrapped member functions check for private data being \mySCName{NULL}, \myProperName{JavaScript} exceptions will be thrown, when the \mySCName{JSObject} is used from script after the destruction of the C++ instance. This is better than having a dangling pointer, which would lead to undefined behaviour.
 
 From the presented techniques, \mySlang{KnowledgeJS} is the most elegant way of wrapping and caching, as there are no restrictions of how a type can be used and no undefined behaviour to be expected. But because of its intrusiveness it can not be used to wrap already existing libraries without modification.
 
@@ -842,7 +847,7 @@ This concept is not feasible, when caching \mySCName{JSObject}s. If a \myProperN
 
 \section{Global Variables}
 
-Global variables are wrapped similarly to class fields as described in \myRefSection{sec:Fields}. Instead of defining the property on class prototype or the instances, it is defined on the global \myProperName{JavaScript} object or the \mySCName{JSObject} that represents the corresponding namespace.
+Global variables are wrapped similarly to class fields as described in \myRefSection{sec:Fields}. Instead of defining the property on the class prototype or the instances, it is defined on the global \myProperName{JavaScript} object or the \mySCName{JSObject} that represents the \linebreak corresponding namespace.
 
 \section{Typedefs}
 
@@ -859,8 +864,8 @@ void someFunc(float (*funcPointer)(int));
 \end{lstlisting}
 \OnehalfSpacing
 
-\myProperName{C++} functions that take function pointers, often referred to as callbacks, are a problematic topic.\\
-Two cases need to be distinguished:
+\myProperName{C++} functions that take function pointers --- often referred to as callbacks --- are a problematic topic.\\
+Two cases have to be distinguished:
 \begin{enumerate}
 \item Passing \myProperName{C++} functions as callbacks
 \item Passing script functions as callbacks
@@ -868,7 +873,7 @@ Two cases need to be distinguished:
 
 \subsection{Passing \myProperName{C++} Functions as Callbacks}
 
-The first case is unproblematic. A pointer to a \myProperName{C++} function can be wrapped inside a simple \mySCName{JSObject}, by casting the function pointer (function address) to a \mySCName{void} pointer and saving it as the private data of the \mySCName{JSObject}. The glue code for the function that takes the function pointer will retrieve the function pointer from the private data of the appropriate argument by casting it back to the appropriate function type.
+The first case is unproblematic. A pointer to a \myProperName{C++} function can be wrapped inside a simple \mySCName{JSObject}, by casting the function pointer (function address) to a \mySCName{void} pointer and saving it as the private data of the \mySCName{JSObject}. The glue code for the function that takes the function pointer will retrieve the function pointer from the private data of the corresponding argument by casting it back to the appropriate function type.
 
 \subsection{Passing Script Functions as Callbacks}
 
@@ -900,7 +905,6 @@ This approach comes with one big problem, when calling \mySCName{someFunc} multi
 One way around this, is to save the \myProperName{JavaScript} callback function passed to \linebreak\mySCName{wrapper\_someFunc} in a global variable, so it can be retrieved within \mySCName{wrapper\_callback}. This approach only works, when the callback is called during the execution of \mySCName{someFunc}. If it is called at a random point in program execution, \mySCName{wrapper\_callback} would use the last \myProperName{JavaScript} function that was saved in the global variable, which may not be the one the user intended to be called. Even if the global variable was a collection like a queue to which every \myProperName{JavaScript} function was enqueued when calling \mySCName{wrapper\_someFunc} and dequeued upon \mySCName{wrapper\_callback}, the result would be dependent on the order of execution. Thus this work-around is highly suboptimal.\\
 An example to illustrate the wrong behaviour: The script user declares two \myProperName{JavaScript} functions, one printing the string \mySCString{Hello}, the other \mySCString{World} and passes them to \linebreak\mySCName{callLater}, which takes a time delay:
 
-\newpage
 \SingleSpacing
 \begin{lstlisting}[language=JavaScript, caption=Passing a callback function]
 callLater(10, function(){ print("Hello"); }); // call in 10 seconds
