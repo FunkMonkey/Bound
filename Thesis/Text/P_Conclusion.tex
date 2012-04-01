@@ -23,28 +23,33 @@ Being a GUI application, \myProperName{Bound} is a more user-friendly alternativ
 
 In conclusion, the majority of my personal aims for this thesis have been accomplished. An extendable and customizable glue code generation tool has been developed, which is able to create functioning glue code for \myProperName{Mozilla SpiderMonkey}. 
 
-Due to time restraints, the original plan of supporting a second target language like \myProperName{Python} or \myProperName{Lua} had to be dropped. Wrapping for \myProperName{SpiderMonkey} is not complete either. In its current state, it is possible to wrap namespaces, classes, inheritance chains and (member) functions. With the basic architecture complete, full support of the missing elements (data fields, constructors, templates, etc.) should not take too much effort.
+Due to time restraints, the original plan of supporting a second target language like \myProperName{Python} or \myProperName{Lua} had to be dropped.\todo{had to be dropped?}\\ The wrapping for \myProperName{SpiderMonkey} was also not completed. However, in its current state, it is possible to wrap namespaces, classes, inheritance chains and (member) functions.\\
+With the basic architecture complete, full support of the missing elements (data fields, constructors, templates, etc.) should not take too much effort. 
 
+\todo{another sentence? can't read Lorna's handwriting!!!}
+
+Something like: This further supports my original intention to create a progressive piece of software - an application, on which other developers could work on.
 
 \chapter{Future Development}
 \label{chap:FutureDevelopment}
 
-The software is currently still in a pre-alpha status. There are still ways of breaking the application or its produced glue code. Creating a stable application, fixing these shortcomings and enhancing the usability of the GUI will be the first tasks for further development.
+\myProperName{Bound} is currently in alpha status. There are still ways of using the application in a manner that leads to undefined behaviour. Creating a stable application, fixing these shortcomings and enhancing the usability of the GUI should be the first steps taken in further development.
 
-Concerning language plugins, the \myProperName{SpiderMonkey} plugin needs to be completed, before new target languages are added.\\
-The application will be tested on real-world libraries to confirm correct behaviour of the generated code.
+Concerning language plugins, the \myProperName{SpiderMonkey} plugin should be completed, before new target languages are added.
 
-As already explained, the changes in my personal \myProperName{Clang} repository have to be merged into the official repository. Otherwise \myProperName{Bound} would rely on an unofficial \myProperName{Clang} build.
+The application should also be tested to confirm whether auto-generated wrapper code for real world libraries behaves correctly in all situations.
+
+As forementioned, the changes in my personal \myProperName{Clang} repository should be merged into the official source code base. Otherwise \myProperName{Bound} would rely on an unofficial \myProperName{Clang} build.
 
 \hspace{20pt} Custom \myProperName{Clang}: \url{https://github.com/FunkMonkey/libClang}
 
-\myRefChapter{chap:DesignGoals} stated that the project is developed as open-source.\\
+In \myRefChapter{chap:DesignGoals} it was stated that the project is being developed as open-source software.\\
 The source code is publicly available on \myProperName{github}:
 
 \hspace{20pt} \myProperName{Bound} source code: \url{https://github.com/FunkMonkey/Bound}
 
-Being open-source requires more effort than publishing the source code. Documentation has to be written and the source code has to be made compilable on other platforms than \myProperName{Windows}.\\
-Fellow contributing developers need to be sought. They have to get assistance, when they are having problems with the source code or with understanding the architectural design.\\
-Also, a license has to be chosen.
+Developing an open-source project is more laborious than simply publishing the source code. Documentation has to be written and the source code has to be made compilable on platforms other than \myProperName{Microsoft Windows}.\\
+Developers, who wish to contribute, may seek assistance, when they are having problems with the source code or with understanding the architectural design of the application.\\
+Also, a software license must be chosen.
 
-Writing language binding glue code by hand is an arduous and time-consuming task, which is highly prone to human error. The developed application will assist the programmer immensely in the creation of such code and tailor its behaviour according to the programmer's needs.
+Writing language binding glue code by hand is an arduous and time-consuming task, which is highly prone to human error. The developed application will assist the \linebreak programmer immensely in the creation of such code and tailor the code's behaviour according to the programmer's needs.
