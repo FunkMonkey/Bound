@@ -877,10 +877,10 @@ The first case is unproblematic. A pointer to a \myProperName{C++} function can 
 
 \subsection{Passing Script Functions as Callbacks}
 
-\myProperName{JavaScript} functions can not simply be passed as \myProperName{C++} function pointers. When passing a \myProperName{JavaScript} function as a callback, a wrapper function with the same function type as the pointer needs to be created. This is the \myProperName{C++} function that will then be passed to the function that takes the function pointer. Inside, the \myProperName{C++} arguments must be converted to types that \myProperName{JavaScript} understands. The \myProperName{JavaScript} callback-function has to be called and its return value converted to the \myProperName{C++} type that the function type expects. Thus, such a wrapper function works the exact other way around than wrapper functions presented earlier in this chapter:
+\myProperName{JavaScript} functions can not simply be passed as \myProperName{C++} function pointers. When passing a \myProperName{JavaScript} function as a callback, a wrapper function with the same function type as the pointer needs to be created. This is the \myProperName{C++} function that will then be passed to the function that takes the function pointer. Inside, the \myProperName{C++} arguments must be converted to types that \myProperName{JavaScript} understands. The \myProperName{JavaScript} callback-function has to be called and its return value converted to the \myProperName{C++} type that the function type expects. Thus, such a wrapper function works the exact other way around than wrapper functions presented earlier in this chapter. \myRefListing{lst:FuncPointer} shows an example.
 
 \SingleSpacing
-\begin{lstlisting}[language=C++, caption=Wrapper code for handling methods that take function pointers \#1]
+\begin{lstlisting}[language=C++, caption=Wrapper code for handling methods that take function pointers \#1, label=lst:FuncPointer]
 void someFunc(float (*funcPointer)(int));
 
 float wrapper_callback(int param)
@@ -916,9 +916,10 @@ callLater(5,  function(){ print("World"); }); // call in 5  seconds
 \end{lstlisting}
 \OnehalfSpacing
 
-The result should be the other way around, because the time delay for \mySCString{Hello} is 10 and thus after \mySCString{World}. Because of the queue that does not know about execution order, the callback that prints \mySCString{Hello} is called first.
+Because of the queue that does not know about execution order, the callback that prints \mySCString{Hello} is called first. The result should be the other way around, because the time delay for \mySCString{Hello} is 10 and thus after \mySCString{World}. 
 
-\textbf{Passing state information}
+\newpage
+\subsubsection{Passing State Information}
 
 Without run-time function creation (more about that later), a function callback of the given form can not be resolved in any other way then the previously presented. To support calling \mySCName{someFunc} multiple times with different callbacks, state information needs to be provided. This is possible in two ways, both of which need modification of the original function and/or parameter declaration.
 
@@ -950,16 +951,16 @@ JSBool wrapper_someFunc(JSContext *cx, uintN argc, jsval *vp)
 
 Another way to modify the original \mySCName{someFunc} is to let it take functors that contain state information instead of a function pointer. Instead of passing the \mySCName{JSFunction} as an additional \mySCName{void} pointer, it would be saved in the functor object.
 
-Either way, passing state information demands modification of the original source code. This may prove to be impossible in cases where 3rd party libraries are used.
+Either way, passing state information demands modification of the original source code. This may prove to be impossible in cases where third party libraries are used.
 
-\textbf{Run-time function creation and closures}
+\subsubsection{Run-time Function Creation and Closures}
 
-\myProperName{C++11} allows the creation of functions at run-time with the help of lambda functions\footnote{Lambda functions: \url{http://www.cprogramming.com/c++11/c++11-lambda-closures.html}}. Lambda functions can capture state and thus seem to be capable of solving the given problem. This concept is also known as a closure and, as a side note, is very common in \myProperName{JavaScript}.
+\myProperName{C++11} allows the creation of functions \textbf{at run-time} with the help of lambda functions\footnote{Lambda functions: \url{http://www.cprogramming.com/c++11/c++11-lambda-closures.html}}. Lambda functions can capture state and thus seem to be capable of solving the given problem. This concept is also known as a closure and --- as a side note --- is very common in \myProperName{JavaScript}.
 \\Unfortunately only state-less lambda functions can be passed as function pointers. Lambda functions that capture state are only syntactic sugar for functors and as such can not be used to solve the given problem.
 
 The only other way of creating functions at run-time is to create the machine-code itself at run-time. This, of course, requires assembly and is thus outside of portable \myProperName{C++}. With this method, the memory address of the \myProperName{JavaScript} function to call could simply be stored in the machine-code itself.
 
-\myProperName{libffi}\footnote{\myProperName{libffi}: \url{http://sourceware.org/libffi/}} contains functionality for creating these types of closures at run-time. It is used by \myProperName{Mozilla}'s \myProperName{js-ctypes} for allowing \myProperName{JavaScript} functions to be passed as \myProperName{C} function pointers. \myProperName{Python}'s \myProperName{ctypes} uses it for the same reason. As the creation of closures is a highly machine-dependent operation, it is indispensable to use a 3rd party like \myProperName{libffi}.
+\myProperName{libffi}\footnote{\myProperName{libffi}: \url{http://sourceware.org/libffi/}} contains functionality for creating these types of closures at run-time. It is used by \myProperName{Mozilla}'s \myProperName{js-ctypes} for allowing \myProperName{JavaScript} functions to be passed as \myProperName{C} function pointers. \myProperName{Python}'s \myProperName{ctypes} uses it for the same reason. As the creation of closures is a highly machine-dependent operation, it is indispensable to use a third party like \myProperName{libffi}.
 
 The creation of machine-code at run-time is the only way for completely supporting script functions as callbacks. It has the drawback of an additional library dependency and is also not supported on all platforms.
 
@@ -976,25 +977,8 @@ Templates are an advanced feature of \myProperName{C++} for writing classes that
 Templates are merely blueprints for classes (and functions) that are instantiated at compile-time with the given types. This happens either implicitly or or explicitly.\\
 Being a compile-time feature, generic templated classes like \mySCName{std::vector<T>} cannot be wrapped and thus made usable from script with arbitrary types set for the template parameters (e.g. \mySCName{T}).\\
 As template instantiations (e.g. \mySCName{std::vector<int>}) are ordinary classes, they can be wrapped like any other. This means that for any type that the \myProperName{SpiderMonkey} user might want to use as a template parameter, the corresponding template needs to be instantiated and wrapped in the glue code. Being individual classes, instantiated templates have no relationship to each other and hence each instantiation needs to be wrapped on its own.\\
-Glue code can be shared, by using templated wrapper functions though: 
+Glue code can be shared, by using templated wrapper functions though.
 
-\SingleSpacing
-\begin{lstlisting}[language=C++, caption=A templated JSNative]
-template<T>
-float getFloat(T param1);
-
-template<T>
-JSBool getFloat_wrapper(JSContext *cx, uintN argc, jsval *vp)
-{
-	// code that uses T
-}
-
-JSFunction* func = JS_DefineFunction(context, someJSObject,
-        "getFloat",             // name of the function
-        getFloat_Wrapper<int>,  // wrapper function instantiation
-        1, JSPROP_ENUMERATE);
-\end{lstlisting}
-\OnehalfSpacing
 
 \section{Generic Wrapper}
 \label{sec:GenericWrapper}
@@ -1008,7 +992,10 @@ There is a proposal to support rich pointers\footnote{Rich pointer proposal: \ur
 
 During research I came across \myAuthorName{Cassio Neri}'s concept of an \mySCName{any\_ptr} --- a class that holds a pointer and its type information. \mySCName{any\_ptr} allows casting up and down in inheritance chains at run-time without the possibility of crashes. If an \mySCName{any\_ptr} cannot be casted to a given type, its \mySCName{cast} function simply returns \mySCName{NULL} --- allowing arbitrary run-time type checking without risking undefined behaviour. An important feature is its support for classes without RTTI.
 
-\begin{lstlisting}[language=C++, caption=Implementation of \mySCName{any\_ptr}]
+\myRefListing{lst:anyptr} shows the implementation of \mySCName{any\_ptr}. 
+
+\newpage
+\begin{lstlisting}[language=C++, caption=Implementation of \mySCName{any\_ptr}, label=lst:anyptr]
 class any_ptr {
     void* ptr_;
     void (*thr_)(void*);
@@ -1050,7 +1037,7 @@ As \myProperName{C++} holds ownership, the generic wrapper should not be used fo
 
 Errors can occur in a lot of places. Converting a parameter to the expected type might fail. The \myProperName{C++} code that is called may throw an exception.
 
-The \myProperName{JavaScript} engine does not automatically handle \myProperName{C++} exceptions. The \myProperName{JSAPI} user has to do this himself at the language border --- meaning in the glue code and the wrapper functions (e.g. by adding \mySCName{try/catch} clauses). When a wrapper function returns \mySCName{false}, it tells the virtual machine that an error occurred and a \myProperName{JavaScript} exception has been set. Setting \myProperName{JavaScript} exceptions can be done using \mySCName{JS\_ReportError}:
+The \myProperName{JavaScript} engine does not automatically handle \myProperName{C++} exceptions. The \myProperName{JSAPI} user has to do this himself at the language border --- meaning in the glue code and the wrapper functions --- for example by adding \mySCName{try/catch} clauses. When a wrapper function returns \mySCName{false}, it tells the virtual machine that an error occurred and a \linebreak\myProperName{JavaScript} exception has been set. Setting \myProperName{JavaScript} exceptions can be done using \mySCName{JS\_ReportError}:
 
 \SingleSpacing
 \begin{lstlisting}[language=C++, caption=Error handling at the language border]
@@ -1077,8 +1064,8 @@ JSBool some_wrapper(JSContext *cx, uintN argc, jsval *vp)
 
 This chapter mostly focused on exposing \myProperName{C++} functionality to \myProperName{JavaScript}.
 
-\myProperName{SpiderMonkey} also provides functions for getting and accessing arbitrary \myProperName{JavaScript} objects and values. Object properties can be inspected and functions can be called.
+\myProperName{SpiderMonkey} also provides functions for getting and accessing arbitrary \myProperName{JavaScript} objects and values. Object properties can be inspected and \myProperName{JavaScript} functions can be called.
 
 \mySCName{JS\_GetProperty} can be used to access the property of a \mySCName{JSObject}. The values stored in properties can be unwrapped in the presented way to access the wrapped \myProperName{C++} instances. Type checking has to be performed to verify the data coming from \myProperName{JavaScript}.
 
-The functionality to access arbitrary \myProperName{JavaScript} objects and calling \myProperName{JavaScript} functions from \myProperName{C++} makes it possible to use \myProperName{JavaScript} libraries from native code.
+The functionality to access arbitrary \myProperName{JavaScript} objects and calling \myProperName{JavaScript} \linebreak functions from \myProperName{C++} makes it possible to use \myProperName{JavaScript} libraries from native code.
