@@ -14,6 +14,7 @@ var hasOwnProperty = Object.prototype.hasOwnProperty;
 function MetaDataInfo()
 {
 	this.propertyData = Object.create(null);
+	this.constructorFuncName = "";
 }
 
 MetaDataInfo.prototype = {
@@ -38,6 +39,18 @@ MetaDataInfo.prototype = {
 		}
 		
 		return this;
+	},
+	
+	/**
+	 * Registers a constructor function in the class library
+	 *   - uses the constructor functions name and the postfix as an id
+	 * 
+	 * @param   {Function}   func      Constructor function to register
+	 * @param   {string}     postfix   Postfix string used for registration
+	 */
+	setConstructorFunction: function setConstructorFunction(func, postfix)
+	{
+		
 	}, 
 	
 };
@@ -135,8 +148,7 @@ var MetaData = {
 		}
 		else
 			return null;
-	}, 
-	
+	},
 	
 };
 
