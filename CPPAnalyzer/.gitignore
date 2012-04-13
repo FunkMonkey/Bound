@@ -8,6 +8,8 @@
 
 /UpgradeLog.xml
 
+/build/*
+
 *.suo
 *.ncb
 *.user
